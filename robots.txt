@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://inaba-tools.github.io/applist/sitemap.xml
+Sitemap: https://inaba-tools.github.io/fukidashi-txt/sitemap.xml
+Sitemap: https://inaba-tools.github.io/oyasumi-log/sitemap.xml
+Sitemap: https://inaba-tools.github.io/owakare-cho/sitemap.xml
