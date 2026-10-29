@@ -3,456 +3,270 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>かぶロワイヤル</title>
-<meta name="description" content="会社をキャラにして、本当に買う株をゲーム感覚で選ぶアプリ。">
+<title>株畑</title>
+<meta name="description" content="株を種として買い、畑に植えて、育ったら収穫する。本当に買う株を選ぶための自分用アプリ。">
 <meta name="robots" content="noindex, nofollow">
-<meta name="theme-color" content="#1a1052">
+<meta name="theme-color" content="#160a24">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="かぶロワ">
+<meta name="apple-mobile-web-app-title" content="株畑">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=M+PLUS+1p:wght@500;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800&family=Noto+Sans+JP:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg1:#1a1052;--bg3:#0a1f5c;--ink:#fff;--muted:#b9b4e6;--yellow:#ffd21f;--yellow2:#ff9d00;--panel:rgba(12,8,48,.72);--panel2:rgba(255,255,255,.08);--red:#ff3d5a;--green:#3cff8e;--font:'Dela Gothic One','M PLUS 1p',system-ui,sans-serif;--body:'M PLUS 1p',system-ui,sans-serif}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0}
-body{font-family:var(--body);color:var(--ink);background:var(--bg1);overflow-x:hidden;background-image:radial-gradient(120% 70% at 50% -10%,#4b2ad6 0%,transparent 60%),radial-gradient(80% 50% at 100% 100%,#0e3fa0 0%,transparent 60%),linear-gradient(180deg,var(--bg1),var(--bg3));background-attachment:fixed;min-height:100dvh;padding-bottom:calc(90px + env(safe-area-inset-bottom));user-select:none;-webkit-user-select:none}
-.rays{position:fixed;inset:-20% -20% auto -20%;height:90vh;pointer-events:none;z-index:0;opacity:.55;background:conic-gradient(from 180deg at 50% 0%,transparent 0 8%,rgba(255,255,255,.07) 9% 11%,transparent 12% 24%,rgba(255,255,255,.06) 25% 27%,transparent 28% 44%,rgba(255,255,255,.08) 45% 47%,transparent 48% 60%,rgba(255,255,255,.05) 61% 63%,transparent 64% 100%);animation:rays 16s linear infinite}
-@keyframes rays{from{transform:rotate(-6deg) scale(1.2)}50%{transform:rotate(6deg) scale(1.25)}to{transform:rotate(-6deg) scale(1.2)}}
-.particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}.particles i{position:absolute;bottom:-10px;border-radius:50%;background:rgba(255,255,255,.35);animation:float linear infinite}
-@keyframes float{to{transform:translateY(-110vh) translateX(20px);opacity:0}}
-.app{position:relative;z-index:1;max-width:560px;margin:0 auto;padding:12px 16px 0}
-h1,h2,h3,.f{font-family:var(--font);font-weight:400;letter-spacing:.02em}
-.title{font-family:var(--font);font-size:26px;line-height:1;font-style:italic;background:linear-gradient(180deg,#fff 30%,var(--yellow) 70%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 3px 0 #0b0535);transform:skewX(-8deg);display:inline-block}
-.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 0 10px}
-.lvl{display:flex;align-items:center;gap:8px;background:var(--panel);border:2px solid rgba(255,255,255,.14);border-radius:14px;padding:6px 10px;transform:skewX(-8deg)}.lvl>*{transform:skewX(8deg)}
-.lvl .n{font-family:var(--font);font-size:20px;color:var(--yellow)}
-.xpbar{width:80px;height:10px;background:rgba(255,255,255,.15);border-radius:6px;overflow:hidden}.xpbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#3cff8e,#ffd21f);transition:width .9s cubic-bezier(.2,.9,.2,1)}
-.panel{background:var(--panel);border:2px solid rgba(255,255,255,.12);border-radius:18px;padding:14px;margin:10px 0;backdrop-filter:blur(8px);position:relative;animation:pop .45s cubic-bezier(.2,1.2,.3,1) both}
-.panel.tilt{transform:rotate(-1deg)}.panel.tilt2{transform:rotate(.8deg)}
-@keyframes pop{from{transform:scale(.92) translateY(14px);opacity:0}}
-.stat{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat .box{background:var(--panel2);border-radius:14px;padding:10px 12px;transform:skewX(-6deg)}.stat .box>*{transform:skewX(6deg);display:block}
-.stat small{color:var(--muted);font-size:12px;font-weight:800}.stat b{font-family:var(--font);font-size:21px;line-height:1.2}
-.pos{color:var(--green)} .neg{color:var(--red)}
-.btn{font-family:var(--font);border:0;cursor:pointer;color:#1b1200;background:linear-gradient(180deg,#ffe36b,var(--yellow) 55%,var(--yellow2));padding:14px 22px;font-size:17px;border-radius:12px;transform:skewX(-8deg);box-shadow:0 6px 0 #8a4b00,0 10px 24px rgba(0,0,0,.35);transition:transform .08s,box-shadow .08s;position:relative;overflow:hidden;white-space:nowrap}
-.btn>span{display:inline-block;transform:skewX(8deg)}.btn:active{transform:skewX(-8deg) translateY(5px);box-shadow:0 1px 0 #8a4b00}
-.btn::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.7),transparent);transform:skewX(-20deg);animation:shine 2.6s ease-in-out infinite}
-@keyframes shine{0%,60%{left:-60%}100%{left:140%}}
-.btn.gray{background:linear-gradient(180deg,#8b93a7,#5d667a);color:#fff;box-shadow:0 6px 0 #2b303c,0 10px 24px rgba(0,0,0,.35)}.btn.gray::after{display:none}
-.btn.red{background:linear-gradient(180deg,#ff7a8a,var(--red) 55%,#c4001f);color:#fff;box-shadow:0 6px 0 #6a0012}
-.btn.blue{background:linear-gradient(180deg,#8fd0ff,#2f9bff 55%,#0d4fa8);color:#fff;box-shadow:0 6px 0 #062a5c}
-.btn.sm{padding:9px 14px;font-size:14px}.btn[disabled]{opacity:.5;pointer-events:none}
-.row{display:flex;gap:10px;align-items:center}.row.center{justify-content:center}.row.sb{justify-content:space-between}
-.chips{display:flex;flex-wrap:wrap;gap:8px}.chip{border:2px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;border-radius:999px;padding:7px 12px;font-weight:800;font-size:13px;cursor:pointer;transition:.15s;white-space:nowrap}
-.chip.on{background:var(--yellow);color:#1b1200;border-color:var(--yellow);transform:scale(1.06)}
-.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;justify-content:space-around;padding:8px 8px calc(8px + env(safe-area-inset-bottom));background:linear-gradient(180deg,rgba(10,6,40,.6),#0a0628 40%);border-top:2px solid rgba(255,255,255,.12);backdrop-filter:blur(12px)}
-.tab{flex:1;text-align:center;color:var(--muted);font-family:var(--font);font-size:11px;padding:6px 2px;border-radius:12px;cursor:pointer;transition:.2s;position:relative}
-.tab .ic{font-size:22px;display:block;line-height:1.1;transition:transform .25s cubic-bezier(.2,1.6,.3,1)}.tab.on{color:var(--yellow)}.tab.on .ic{transform:translateY(-4px) scale(1.2)}
-.tab .dot{position:absolute;top:2px;right:18%;width:10px;height:10px;border-radius:50%;background:var(--red);box-shadow:0 0 8px var(--red);display:none}.tab .dot.on{display:block;animation:pulse 1s infinite}
-.screen{display:none;animation:slide .35s cubic-bezier(.2,.9,.2,1) both}.screen.on{display:block}
-@keyframes slide{from{transform:translateX(30px);opacity:0}}
-/* rank rows */
-.rank{display:flex;align-items:center;border-radius:14px;padding:3px;background:linear-gradient(160deg,var(--c1),var(--c2));margin-bottom:8px;cursor:pointer;animation:pop .4s both;transition:transform .12s}.rank:active{transform:scale(.98)}
-.rank .in{flex:1;display:flex;align-items:center;gap:10px;background:linear-gradient(180deg,#140b3f,#0d1a4a);border-radius:11px;padding:10px 12px}
-.rank .no{font-family:var(--font);font-size:20px;color:var(--yellow);width:30px;text-shadow:0 2px 0 #000;text-align:center}
-.rank .nm{flex:1;font-family:var(--font);font-size:15px;line-height:1.2;min-width:0}.rank .nm small{display:block;color:var(--muted);font-family:var(--body);font-size:11px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.rank .sc{font-family:var(--font);font-size:20px;color:#fff;text-align:right}.rank .sc small{display:block;font-size:10px;color:var(--muted);font-family:var(--body);font-weight:800}
-.mg{display:flex;gap:4px;margin-top:5px}.mg i{height:6px;border-radius:3px;display:block;width:32px;background:rgba(255,255,255,.12);position:relative;overflow:hidden}.mg i::after{content:"";position:absolute;inset:0;width:var(--w);background:var(--c)}
-.mark{font-size:10px;font-weight:800;color:var(--muted);margin-left:4px}
-/* card */
-.card{position:relative;border-radius:22px;padding:4px;background:linear-gradient(160deg,var(--c1),var(--c2) 45%,var(--c1));box-shadow:0 18px 50px rgba(0,0,0,.5),0 0 40px var(--glow);animation:dealin .6s cubic-bezier(.2,1.1,.3,1) both;margin-top:14px}
-@keyframes dealin{from{transform:translateY(60px) rotate(-6deg) scale(.85);opacity:0}}
-.card .in{background:linear-gradient(180deg,#140b3f,#0d1a4a);border-radius:19px;padding:16px 14px 14px;overflow:hidden;position:relative}
-.card .in::before{content:"";position:absolute;inset:0;background:radial-gradient(60% 40% at 50% 0%,var(--glow),transparent 70%);opacity:.6;pointer-events:none}
-.rarity{position:absolute;top:-10px;left:14px;font-family:var(--font);font-size:12px;letter-spacing:.06em;color:#1b1200;background:linear-gradient(180deg,#fff,var(--c1));padding:5px 12px;border-radius:8px;transform:skewX(-10deg);box-shadow:0 3px 0 rgba(0,0,0,.5);z-index:2}
-.rarity.legend{animation:glowpulse 1.4s ease-in-out infinite}@keyframes glowpulse{50%{box-shadow:0 3px 0 rgba(0,0,0,.5),0 0 18px #ffb000}}
-.cname{font-family:var(--font);font-size:23px;line-height:1.15;margin:10px 0 2px;text-shadow:0 3px 0 rgba(0,0,0,.6)}
-.cmeta{color:var(--muted);font-size:12px;font-weight:800;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.gauges{margin:12px 0 4px;display:grid;gap:8px}
-.g{display:grid;grid-template-columns:86px 1fr 40px;gap:8px;align-items:center;font-weight:800;font-size:13px}
-.g .bar{height:14px;border-radius:8px;background:rgba(255,255,255,.12);overflow:hidden;transform:skewX(-12deg);box-shadow:inset 0 2px 4px rgba(0,0,0,.5)}
-.g .bar i{display:block;height:100%;width:0;border-radius:8px;transition:width 1s cubic-bezier(.2,.9,.2,1);background:linear-gradient(90deg,var(--gc1),var(--gc2));box-shadow:0 0 12px var(--gc2)}
-.g .v{font-family:var(--font);text-align:right;font-size:15px}
-.report{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 0 4px}.report div{background:rgba(0,0,0,.25);border-radius:10px;padding:8px 4px;text-align:center}
-.report b{font-family:var(--font);font-size:22px;display:block;line-height:1}.report small{font-size:10px;font-weight:800;color:var(--muted)}
-.ok{color:var(--green)}.so{color:var(--yellow)}.ng{color:#ff8a9b}
-.bars{display:flex;gap:10px;align-items:flex-end;height:64px;margin:20px 0 18px}.bars div{flex:1;background:linear-gradient(180deg,#ffd21f,#ff9d00);border-radius:6px 6px 2px 2px;position:relative;min-height:3px;animation:grow .8s cubic-bezier(.2,.9,.2,1) both;transform-origin:bottom}
-@keyframes grow{from{transform:scaleY(0)}}
-.bars div span{position:absolute;top:-16px;left:0;right:0;text-align:center;font-size:10px;font-weight:800;color:var(--yellow);white-space:nowrap}.bars div b{position:absolute;bottom:-16px;left:0;right:0;text-align:center;font-size:10px;color:var(--muted);white-space:nowrap}
-.bars div.net{background:linear-gradient(180deg,#9fd3ff,#2f9bff)}.bars div.net span{color:#9fd3ff}
-.chart{height:90px;margin:8px 0 2px;display:block}
-.pro{background:rgba(60,255,142,.12);border-left:4px solid var(--green);border-radius:8px;padding:8px 10px;font-size:13px;font-weight:800;margin:6px 0;line-height:1.5}
-.con{background:rgba(255,61,90,.12);border-left:4px solid var(--red);border-radius:8px;padding:8px 10px;font-size:13px;font-weight:800;margin:6px 0;line-height:1.5}
-.price{display:flex;justify-content:space-between;align-items:flex-end;margin-top:10px;padding-top:10px;border-top:1px dashed rgba(255,255,255,.2)}
-.price .p{font-family:var(--font);font-size:22px;color:var(--yellow)}.price small{display:block;color:var(--muted);font-size:11px;font-weight:800}
-.tag{display:inline-block;background:rgba(255,255,255,.12);border-radius:8px;padding:4px 8px;font-size:12px;font-weight:800}
-.tag.good{background:rgba(60,255,142,.2);color:var(--green)}.tag.bad{background:rgba(255,61,90,.22);color:#ff8a9b}.tag.mid{background:rgba(255,210,31,.2);color:var(--yellow)}
-.hint{color:var(--muted);font-size:13px;font-weight:800;margin:8px 0;line-height:1.5}.sub{color:var(--muted);font-size:12px;font-weight:800}
-.term{border-bottom:2px dotted rgba(255,255,255,.35);cursor:help}
-/* party */
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.mini{border-radius:16px;padding:3px;background:linear-gradient(160deg,var(--c1),var(--c2));cursor:pointer;transition:transform .15s;animation:pop .4s both}.mini:active{transform:scale(.96)}
-.mini .in{background:linear-gradient(180deg,#140b3f,#0d1a4a);border-radius:13px;padding:10px;min-height:96px}
-.mini .nm{font-family:var(--font);font-size:14px;line-height:1.2;margin-bottom:4px}.mini .pl{font-family:var(--font);font-size:17px}.mini small{color:var(--muted);font-size:11px;font-weight:800;display:block}
-.mini.alert{animation:shake .5s ease-in-out infinite alternate}.mini.alert .in{box-shadow:inset 0 0 0 2px var(--red)}
-@keyframes shake{from{transform:rotate(-1.5deg)}to{transform:rotate(1.5deg)}}
-.alertbar{background:linear-gradient(90deg,#ff3d5a,#ff7a00);border-radius:14px;padding:12px 14px;font-weight:800;animation:pulse 1s ease-in-out infinite;transform:skewX(-6deg);margin:10px 0;cursor:pointer}.alertbar>*{transform:skewX(6deg);display:block}
-@keyframes pulse{50%{box-shadow:0 0 0 6px rgba(255,61,90,.35)}}
-.salebar{background:linear-gradient(90deg,#ff7ad9,#b14cff);border-radius:14px;padding:12px 14px;font-weight:800;transform:skewX(-6deg);margin:10px 0;cursor:pointer}.salebar>*{transform:skewX(6deg);display:block}
-.seg{display:flex;background:rgba(255,255,255,.08);border-radius:12px;padding:4px;margin:8px 0}.seg span{flex:1;text-align:center;font-family:var(--font);font-size:13px;padding:8px;border-radius:9px;color:var(--muted);cursor:pointer}.seg span.on{background:var(--yellow);color:#1b1200}
-.battle{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;text-align:center}.battle b{font-family:var(--font);font-size:22px;display:block}.battle small{color:var(--muted);font-size:11px;font-weight:800}.battle .vs{font-family:var(--font);font-size:18px;color:var(--yellow);transform:skewX(-10deg)}
-/* buddy */
-.buddy{position:fixed;left:10px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:15;display:flex;align-items:flex-end;gap:6px;pointer-events:none}
-.buddy .av{width:76px;height:76px;animation:bob 1.8s ease-in-out infinite;filter:drop-shadow(0 8px 14px rgba(0,0,0,.5));pointer-events:auto;cursor:pointer}
-.buddy.worried .av{animation:shake .25s infinite alternate}.buddy.happy .av{animation:jump .6s cubic-bezier(.2,1.4,.3,1) infinite alternate}
-@keyframes bob{50%{transform:translateY(-6px)}}@keyframes jump{to{transform:translateY(-18px) rotate(8deg)}}
-.buddy .say{background:#fff;color:#1b1200;font-weight:800;font-size:12px;border-radius:12px;padding:8px 10px;margin-bottom:34px;position:relative;max-width:210px;line-height:1.45;animation:pop .3s both;pointer-events:auto}
-.buddy .say::after{content:"";position:absolute;left:-8px;bottom:10px;border:6px solid transparent;border-right-color:#fff}
-.bigav{width:150px;height:150px;margin:6px auto;display:block;animation:bob 1.8s ease-in-out infinite;filter:drop-shadow(0 12px 20px rgba(0,0,0,.5))}
-.badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.14);border-radius:12px;padding:8px 10px;font-weight:800;font-size:13px;opacity:.35;filter:grayscale(1)}.badge.got{opacity:1;filter:none;border-color:var(--yellow);box-shadow:0 0 14px rgba(255,210,31,.3)}
-.mission{display:flex;align-items:center;gap:10px;background:var(--panel2);border-radius:12px;padding:10px 12px;margin-bottom:8px;font-weight:800;font-size:13px}.mission .ck{width:26px;height:26px;border-radius:8px;border:2px solid rgba(255,255,255,.3);display:grid;place-items:center;font-size:15px;flex:none}.mission.done .ck{background:var(--green);border-color:var(--green);color:#063}.mission .xp{margin-left:auto;font-family:var(--font);color:var(--yellow);white-space:nowrap}.mission.done{opacity:.7}
-/* overlay */
-.ov{position:fixed;inset:0;z-index:50;background:rgba(5,2,30,.78);backdrop-filter:blur(6px);display:none;align-items:flex-end;justify-content:center}.ov.on{display:flex}
-.sheet{width:100%;max-width:560px;background:linear-gradient(180deg,#221566,#0f1b4f);border-radius:24px 24px 0 0;padding:14px 16px calc(22px + env(safe-area-inset-bottom));border-top:3px solid var(--yellow);animation:up .35s cubic-bezier(.2,1.1,.3,1) both;max-height:92dvh;overflow:auto}
-@keyframes up{from{transform:translateY(100%)}}
-.sheet h3{margin:4px 0 10px;font-size:20px}
-.inp{width:100%;font:800 18px var(--font);padding:12px;border-radius:12px;border:2px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:var(--yellow);outline:none;text-align:center}
-.lbl{color:var(--muted);font-size:12px;font-weight:800;margin:10px 0 4px}
-.victory{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;flex-direction:column;text-align:center;pointer-events:none}.victory.on{display:flex}
-.victory .vt{font-family:var(--font);font-size:58px;line-height:1;font-style:italic;background:linear-gradient(180deg,#fff,var(--yellow) 60%,var(--yellow2));-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 6px 0 #0b0535) drop-shadow(0 0 30px rgba(255,210,31,.6));animation:vic .8s cubic-bezier(.2,1.4,.3,1) both;transform:skewX(-10deg)}
-.victory .vs{font-family:var(--font);font-size:22px;color:#fff;margin-top:8px;animation:vic .8s .15s cubic-bezier(.2,1.4,.3,1) both;text-shadow:0 3px 0 #0b0535;padding:0 20px}
-.victory.blue .vt{background:linear-gradient(180deg,#fff,#9fd3ff 60%,#2f9bff);-webkit-background-clip:text;background-clip:text}
-@keyframes vic{from{transform:scale(3) skewX(-10deg);opacity:0}60%{transform:scale(.9) skewX(-10deg)}}
-.toast{position:fixed;left:50%;top:14px;transform:translateX(-50%) translateY(-80px);z-index:70;background:#fff;color:#1b1200;font-family:var(--font);padding:10px 18px;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.5);transition:transform .35s cubic-bezier(.2,1.3,.3,1);white-space:nowrap;font-size:14px}.toast.on{transform:translateX(-50%) translateY(0)}
-.xpfly{position:fixed;z-index:65;font-family:var(--font);color:var(--green);font-size:22px;pointer-events:none;animation:xpfly 1.1s ease-out forwards;text-shadow:0 2px 0 #000}@keyframes xpfly{to{transform:translateY(-90px);opacity:0}}
-.levelup{position:fixed;inset:0;z-index:66;display:flex;align-items:center;justify-content:center;pointer-events:none}.levelup div{font-family:var(--font);font-size:40px;color:#fff;background:linear-gradient(90deg,#b14cff,#2f9bff);padding:14px 28px;border-radius:16px;transform:skewX(-10deg);box-shadow:0 0 60px #b14cff;animation:vic .7s cubic-bezier(.2,1.4,.3,1) both,fadeout .5s 1.6s forwards}
-@keyframes fadeout{to{opacity:0}}
-.tip{position:fixed;z-index:80;background:#fff;color:#1b1200;font-weight:800;font-size:13px;padding:8px 12px;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.5);max-width:260px;display:none;line-height:1.4}.tip.on{display:block;animation:pop .2s both}
-.search{width:100%;font:800 16px var(--body);padding:12px 14px;border-radius:12px;border:2px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);color:#fff;outline:none}.search::placeholder{color:var(--muted)}
-.loading{text-align:center;padding:40px 0;color:var(--muted);font-weight:800}.spin{display:inline-block;width:34px;height:34px;border:5px solid rgba(255,255,255,.2);border-top-color:var(--yellow);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:10px}@keyframes spin{to{transform:rotate(360deg)}}
-.help{font-size:13px;font-weight:800;line-height:1.7;color:#e8e6ff}.help b{color:var(--yellow)}
-.switch{display:flex;align-items:center;justify-content:space-between;background:var(--panel2);border-radius:12px;padding:10px 12px;font-weight:800;font-size:13px;margin-top:8px}
-.sw{width:46px;height:26px;border-radius:13px;background:rgba(255,255,255,.2);position:relative;transition:.2s;cursor:pointer}.sw::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.2s}.sw.on{background:var(--green)}.sw.on::after{left:23px}
-@media(min-width:600px){.grid{grid-template-columns:1fr 1fr 1fr}}
+:root{--ink:#111;--mut:#6b6b72;--line:#e8e8ec;--bg:#f4f4f6;--card:#fff;--up:#1fa37a;--dn:#e5484d}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0}
+body{font-family:"Inter","Noto Sans JP",-apple-system,"Hiragino Sans",sans-serif;color:var(--ink);background:var(--bg);min-height:100dvh;padding-bottom:calc(76px + env(safe-area-inset-bottom));-webkit-font-smoothing:antialiased;user-select:none;-webkit-user-select:none}
+.hero{color:#fff;padding:calc(18px + env(safe-area-inset-top)) 20px 34px;background:radial-gradient(120% 90% at 10% 0%,#4a0f2f 0%,transparent 60%),radial-gradient(90% 70% at 100% 20%,#2a2f8a 0%,transparent 60%),radial-gradient(80% 60% at 60% 100%,#8a2f6a 0%,transparent 60%),linear-gradient(180deg,#160a24,#2c1240);position:relative}
+.hero::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:22px;background:var(--bg);border-radius:22px 22px 0 0}
+.hero h1{font-size:15px;font-weight:700;margin:0 0 18px;display:flex;justify-content:space-between;align-items:center;opacity:.95}
+.hero .lbl{font-size:14px;font-weight:700;opacity:.9}.hero .big{font-size:42px;font-weight:800;letter-spacing:-.03em;line-height:1.05;margin:4px 0 10px}
+.hero .meta{display:flex;gap:18px;font-size:14px;font-weight:600;opacity:.9;flex-wrap:wrap}.hero .meta b{font-size:18px;font-weight:800;margin-left:6px}
+.up{color:var(--up)}.dn{color:var(--dn)}.hero .up{color:#5ff0b3}.hero .dn{color:#ff8a8f}
+.hl{margin-top:18px}.hl .t{font-size:17px;font-weight:800;margin-bottom:10px}
+.hcard{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.35);backdrop-filter:blur(14px);border-radius:14px;padding:12px;margin-bottom:10px;cursor:pointer}
+.hcard .ic{width:52px;height:52px;border-radius:10px;background:#fff;display:grid;place-items:center;flex:none;overflow:hidden}.hcard .ic svg{width:44px;height:48px}
+.hcard .tg{display:inline-block;background:rgba(255,255,255,.28);border-radius:6px;padding:3px 8px;font-size:12px;font-weight:700;margin-bottom:3px}.hcard .tg.bad{background:rgba(229,72,77,.65)}.hcard .tg.good{background:rgba(31,163,122,.65)}
+.hcard .d{font-size:13px;font-weight:600;line-height:1.4}
+.sheet{background:var(--bg);padding:10px 16px 10px;min-height:40vh}
+.sh{display:flex;justify-content:space-between;align-items:center;margin:6px 2px 10px}.sh b{font-size:19px;font-weight:800}.sh span{font-size:13px;color:var(--mut);font-weight:600}
+.item{background:var(--card);border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 1px 2px rgba(0,0,0,.04);cursor:pointer}
+.item .top{display:flex;gap:14px}.item .img{width:92px;height:92px;flex:none;display:grid;place-items:center;background:#f7f7f9;border-radius:12px}.item .img svg{width:80px;height:88px}
+.item .lbl{font-size:13px;color:var(--mut);font-weight:600}.item .pr{font-size:27px;font-weight:800;letter-spacing:-.02em;line-height:1.1;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}.item .pr .dif{font-size:17px;font-weight:700}
+.item .sub{font-size:13px;color:var(--mut);font-weight:600;margin-top:4px}
+.flash{display:inline-block;margin-top:8px;padding:5px 9px;border-radius:6px;font-size:13px;font-weight:700;background:#eef7f3;color:var(--up)}.flash.bad{background:#fdeeee;color:var(--dn)}.flash.warn{background:#fff6e0;color:#b7791f}
+.item .nm{font-size:16px;font-weight:700;margin-top:12px;line-height:1.35}.item .row{display:flex;justify-content:space-between;align-items:center;margin-top:8px}.item .cond{font-size:14px;color:var(--mut);font-weight:600}
+.obtn{border:2px solid transparent;border-radius:10px;padding:10px 18px;font-weight:800;font-size:15px;background:linear-gradient(#fff,#fff) padding-box,linear-gradient(90deg,#8a3ffc,#ff2d8a) border-box;color:#c6187a;cursor:pointer}
+.obtn.g{background:linear-gradient(#fff,#fff) padding-box,linear-gradient(90deg,#1fa37a,#28c76f) border-box;color:#128a63}
+.btn{border:0;border-radius:12px;padding:15px;font-weight:800;font-size:16px;color:#fff;background:#111;width:100%;cursor:pointer}.btn.w{background:#fff;color:#111;border:1.5px solid #d9d9df}.btn.red{background:var(--dn)}.btn.grn{background:var(--up)}.btn[disabled]{opacity:.45}
+.seg{display:flex;gap:8px;overflow-x:auto;padding:2px 0 8px;scrollbar-width:none}.seg::-webkit-scrollbar{display:none}.seg span{flex:none;padding:9px 14px;border-radius:999px;font-size:13px;font-weight:700;background:#fff;border:1.5px solid var(--line);color:#444;cursor:pointer}.seg span.on{background:#111;color:#fff;border-color:#111}
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;justify-content:space-around;padding:8px 6px calc(8px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid var(--line)}
+.tab{flex:1;text-align:center;color:#8e8e93;font-size:10px;font-weight:700;cursor:pointer;position:relative}.tab svg{width:26px;height:26px;display:block;margin:0 auto 2px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.tab.on{color:#111}
+.tab .dot{position:absolute;top:0;right:22%;width:9px;height:9px;border-radius:50%;background:var(--dn);display:none}.tab .dot.on{display:block}
+.screen{display:none}.screen.on{display:block}
+.farm{border-radius:18px;background:linear-gradient(180deg,#141018,#1b1420);padding:12px 10px;margin-bottom:12px;box-shadow:inset 0 0 0 1px #2a2230}
+.soil{position:relative;height:124px;margin:8px 0;border-radius:14px;background:linear-gradient(180deg,#2d1f13,#1c130a 60%,#140d05);box-shadow:inset 0 2px 10px rgba(0,0,0,.7),inset 0 -1px 0 rgba(255,255,255,.04);cursor:pointer;touch-action:manipulation}
+.soil::before{content:"";position:absolute;inset:0;border-radius:14px;background-image:radial-gradient(rgba(255,255,255,.04) 1px,transparent 1.5px),radial-gradient(rgba(0,0,0,.4) 1px,transparent 1.5px);background-size:11px 11px,17px 17px;background-position:0 0,5px 7px;pointer-events:none}
+.plot{position:absolute;bottom:6px;width:33.33%;text-align:center;cursor:pointer}.plot svg{width:70px;height:80px;display:block;margin:0 auto;filter:drop-shadow(0 6px 6px rgba(0,0,0,.5))}
+.plot .n{font-size:11px;font-weight:700;color:#d9d4de;margin-top:-4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px}.plot .v{font-size:11px;font-weight:700}.plot .v.up{color:#5ff0b3}.plot .v.dn{color:#ff8a8f}
+.plot.ripe svg{animation:glow 2s ease-in-out infinite}@keyframes glow{50%{filter:drop-shadow(0 0 14px rgba(255,120,100,.9)) drop-shadow(0 6px 6px rgba(0,0,0,.5))}}
+.plot.rot svg{animation:droop 3s ease-in-out infinite}@keyframes droop{50%{transform:rotate(-3deg)}}
+.plot.new svg{animation:sprout .8s cubic-bezier(.2,1.4,.3,1) both;transform-origin:bottom}@keyframes sprout{from{transform:scaleY(0)}}
+.hole{position:absolute;bottom:26px;width:46px;height:18px;margin-left:-23px;border-radius:50%;background:radial-gradient(ellipse at 50% 40%,#000,#120a04 70%,transparent 72%);box-shadow:inset 0 4px 6px #000;animation:dig .35s cubic-bezier(.2,1.2,.3,1) both}@keyframes dig{from{transform:scale(.2);opacity:0}}
+.press{position:absolute;width:52px;height:52px;margin:-26px 0 0 -26px;border-radius:50%;border:2px solid rgba(255,255,255,.55);pointer-events:none;animation:press .6s linear both}@keyframes press{from{transform:scale(.4);opacity:0}to{transform:scale(1.4);opacity:0}}
+.fhint{color:#8e8e93;font-size:12px;font-weight:600;text-align:center;padding:6px 0 2px}
+.seedbag{display:flex;gap:10px;overflow-x:auto;padding:4px 0 10px;scrollbar-width:none}.seedbag::-webkit-scrollbar{display:none}
+.bag{flex:none;width:118px;background:#fff;border-radius:14px;padding:10px;text-align:center;border:2px solid transparent;cursor:pointer}.bag.on{border-color:#111}.bag svg{width:46px;height:56px}.bag .n{font-size:12px;font-weight:700;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.bag .s{font-size:11px;color:var(--mut);font-weight:600}
+.ov{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.55);display:none;align-items:flex-end;justify-content:center}.ov.on{display:flex}
+.page{position:fixed;inset:0;z-index:40;background:var(--bg);display:none;overflow:auto;padding-bottom:calc(90px + env(safe-area-inset-bottom));animation:slidein .28s cubic-bezier(.2,.9,.3,1) both}.page.on{display:block}@keyframes slidein{from{transform:translateX(40px);opacity:0}}
+.nav{position:sticky;top:0;z-index:5;background:rgba(255,255,255,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);display:grid;grid-template-columns:48px 1fr 48px;align-items:center;padding:calc(10px + env(safe-area-inset-top)) 8px 10px}.nav .bk{font-size:26px;font-weight:700;text-align:center;cursor:pointer;line-height:1}.nav .tt{text-align:center;font-size:17px;font-weight:800}
+.phead{display:flex;gap:14px;align-items:center;background:#fff;padding:16px;border-bottom:8px solid var(--bg)}.phead .img{width:88px;height:88px;flex:none;display:grid;place-items:center;background:#f7f7f9;border-radius:12px}.phead .img svg{width:76px;height:84px}.phead .nm{font-size:17px;font-weight:700;line-height:1.4}.phead .cp{font-size:12px;color:var(--mut);font-weight:600;margin-top:4px}
+.pbody{padding:12px 16px}
+.pcard{background:#fff;border-radius:16px;padding:16px;margin-bottom:12px}.pcard .lbl{font-size:13px;color:var(--mut);font-weight:600}.pcard .pr{font-size:34px;font-weight:800;letter-spacing:-.03em;line-height:1.1;margin:2px 0}.pcard .dif{font-size:15px;font-weight:700}.pcard .dif small{color:var(--mut);font-weight:600;font-size:13px;margin-left:6px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}.two .pcard{margin:0}
+.kvl{background:#fff;border-radius:16px;overflow:hidden;margin-bottom:12px}.kvl div{display:flex;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--line);font-size:15px;font-weight:600;color:#333}.kvl div:last-child{border:0}.kvl b{font-weight:800;color:#111}
+.chartwrap{position:relative;touch-action:pan-y}.chart{height:180px;display:block}
+.tip{position:absolute;top:6px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px 10px;font-size:12px;font-weight:700;box-shadow:0 4px 14px rgba(0,0,0,.12);pointer-events:none;white-space:nowrap;display:none}.tip b{display:block;font-size:15px;color:var(--up)}
+.per{display:flex;background:var(--bg);border-radius:10px;padding:3px;margin-top:8px}.per span{flex:1;text-align:center;font-size:13px;font-weight:700;padding:8px;border-radius:8px;color:var(--mut);cursor:pointer}.per span.on{background:#fff;color:#111;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.sticky{position:fixed;left:0;right:0;bottom:calc(64px + env(safe-area-inset-bottom));z-index:45;padding:10px 16px;background:rgba(244,244,246,.9);backdrop-filter:blur(10px);display:none}.sticky.on{display:block}
+.modal{width:100%;max-width:560px;background:#fff;border-radius:22px 22px 0 0;padding:14px 18px calc(22px + env(safe-area-inset-bottom));max-height:92dvh;overflow:auto;animation:up .3s cubic-bezier(.2,1,.3,1) both}@keyframes up{from{transform:translateY(100%)}}
+.grab{width:40px;height:5px;border-radius:3px;background:#ddd;margin:0 auto 12px}
+.modal h2{font-size:22px;font-weight:800;margin:4px 0 2px;letter-spacing:-.01em}.modal .cap{font-size:13px;color:var(--mut);font-weight:600;line-height:1.5}
+.kv{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}.kv div{background:var(--bg);border-radius:12px;padding:10px 12px}.kv small{font-size:12px;color:var(--mut);font-weight:600;display:block}.kv b{font-size:18px;font-weight:800;letter-spacing:-.01em}
+.rep{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}.rep div{text-align:center;background:var(--bg);border-radius:12px;padding:10px 4px}.rep b{display:block;font-size:24px;font-weight:800;line-height:1}.rep small{font-size:11px;color:var(--mut);font-weight:600}
+.ok{color:var(--up)}.so{color:#b7791f}.ng{color:var(--dn)}
+.pro{background:#eef7f3;border-left:4px solid var(--up);border-radius:8px;padding:9px 11px;font-size:13px;font-weight:600;line-height:1.55;margin:8px 0}.con{background:#fdeeee;border-left:4px solid var(--dn);border-radius:8px;padding:9px 11px;font-size:13px;font-weight:600;line-height:1.55;margin:8px 0}
+.chart{height:110px;display:block;margin:10px 0 4px}
+.inp{width:100%;font:800 20px "Inter","Noto Sans JP",sans-serif;padding:12px;border-radius:12px;border:1.5px solid #d9d9df;background:#fff;outline:none;text-align:center}.inp:focus{border-color:#111}
+.lb{font-size:12px;color:var(--mut);font-weight:700;margin:12px 0 4px}
+.tot{font-size:26px;font-weight:800;text-align:center;letter-spacing:-.02em;margin:4px 0}
+.toast{position:fixed;left:50%;top:14px;transform:translateX(-50%) translateY(-80px);z-index:70;background:#111;color:#fff;font-weight:700;padding:10px 18px;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.4);transition:transform .35s cubic-bezier(.2,1.3,.3,1);white-space:nowrap;font-size:14px}.toast.on{transform:translateX(-50%) translateY(0)}
+.search{width:100%;font:600 16px "Inter","Noto Sans JP",sans-serif;padding:12px 14px;border-radius:12px;border:1.5px solid var(--line);background:#fff;outline:none;margin-bottom:10px}
+.li{display:flex;align-items:center;gap:12px;background:#fff;border-radius:14px;padding:12px 14px;margin-bottom:8px;cursor:pointer}.li .img{width:48px;height:56px;flex:none;display:grid;place-items:center;background:#f7f7f9;border-radius:10px}.li .img svg{width:40px;height:48px}
+.li .t{font-size:15px;font-weight:700}.li .s{font-size:12px;color:var(--mut);font-weight:600;margin-top:2px}.li .r{margin-left:auto;text-align:right;flex:none}.li .r b{font-size:16px;font-weight:800;display:block}.li .r small{font-size:11px;color:var(--mut);font-weight:600}
+.pill{display:inline-block;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700;background:#f0f0f3;color:#444;margin:4px 4px 0 0}.pill.g{background:#eef7f3;color:var(--up)}.pill.r{background:#fdeeee;color:var(--dn)}.pill.y{background:#fff6e0;color:#b7791f}
+.empty{text-align:center;color:var(--mut);font-weight:600;padding:30px 10px;font-size:14px;line-height:1.6}
+.loading{text-align:center;padding:40px 0;color:var(--mut);font-weight:600}.spin{display:inline-block;width:30px;height:30px;border:4px solid #e2e2e8;border-top-color:#111;border-radius:50%;animation:spin .8s linear infinite;margin-bottom:10px}@keyframes spin{to{transform:rotate(360deg)}}
+.harvest{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;flex-direction:column;background:rgba(0,0,0,.65);color:#fff;text-align:center;padding:20px}.harvest.on{display:flex}
+.harvest .t{font-size:34px;font-weight:800;letter-spacing:-.02em;animation:pop .6s cubic-bezier(.2,1.4,.3,1) both}.harvest .s{font-size:18px;font-weight:700;margin-top:6px;opacity:.9}.harvest svg{width:120px;height:130px;animation:pop .6s cubic-bezier(.2,1.4,.3,1) both}@keyframes pop{from{transform:scale(.3);opacity:0}}
 </style>
 </head>
 <body>
-<div class="rays"></div><div class="particles" id="particles"></div>
-<div class="app">
-  <div class="topbar"><div class="title">KABU ROYALE</div><div class="lvl"><span class="sub">Lv</span><span class="n" id="lvl">1</span><span class="xpbar"><i id="xp"></i></span></div></div>
-
-  <section class="screen on" id="s-scout">
-    <div class="panel tilt" style="padding:12px 14px">
-      <div class="row sb"><b class="f" style="font-size:18px" id="scoutTitle">今日のスカウトリスト</b><span class="sub" id="cnt"></span></div>
-      <div class="chips" style="margin-top:8px" id="mkt"><span class="chip on" data-m="all">ぜんぶ</span><span class="chip" data-m="日本">🇯🇵 日本チーム</span><span class="chip" data-m="米国">🇺🇸 アメリカチーム</span><span class="chip" id="budget">💴 10万円で仲間にできる</span></div>
-      <div class="chips" style="margin-top:8px" id="sort"><span class="chip on" data-s="total">総合</span><span class="chip" data-s="sale">🏷️ セール</span><span class="chip" data-s="hp">🛡️ HP</span><span class="chip" data-s="atk">⚔️ 攻撃</span><span class="chip" data-s="spd">🚀 成長</span></div>
-    </div>
-    <div class="hint" id="legend"></div>
-    <div id="scout"><div class="loading"><div class="spin"></div><br>727キャラを読み込み中…</div></div>
-    <div class="row center" style="margin-top:10px"><button class="btn gray sm" id="more"><span>もっと見る</span></button></div>
-  </section>
-
-  <section class="screen" id="s-party">
-    <div class="panel tilt"><div class="stat"><div class="box"><small id="l-cost">仲間にするのに使ったお金（円）</small><b id="cost">—</b></div><div class="box"><small id="l-pl">戦果（今の儲け・損）</small><b id="pl">—</b></div></div><div class="sub" style="margin-top:8px" id="pupd"></div></div>
-    <div class="panel tilt2" id="battlePanel"></div>
-    <div id="palerts"></div>
-    <div class="seg" id="pseg"><span class="on" data-k="仲間">⚔️ 仲間</span><span data-k="キープ">👀 キープ</span><span data-k="卒業">📜 卒業した</span></div>
-    <div class="grid" id="party"></div>
-  </section>
-
-  <section class="screen" id="s-all">
-    <input class="search" id="q" placeholder="キャラ名・コードで探す（例：任天堂 / AAPL）">
-    <div class="chips" style="margin-top:10px" id="rfilter"><span class="chip on" data-r="">すべて</span><span class="chip" data-r="legend">金</span><span class="chip" data-r="epic">紫</span><span class="chip" data-r="rare">青</span><span class="chip" data-r="uncommon">緑</span><span class="chip" data-r="common">灰</span></div>
-    <div id="all" style="margin-top:10px"></div>
-  </section>
-
-  <section class="screen" id="s-buddy">
-    <div class="panel tilt" style="text-align:center"><div class="sub">あなたの相棒</div><div id="bigav"></div><b class="f" style="font-size:22px" id="bname">たまご</b><div class="sub" id="bnext"></div><div class="xpbar" style="width:80%;margin:10px auto;height:14px"><i id="xp2"></i></div><div class="chips" style="justify-content:center;margin-top:10px" id="stages"></div></div>
-    <div class="panel"><b class="f" style="font-size:16px">今日のミッション</b><div id="missions" style="margin-top:8px"></div></div>
-    <div class="panel tilt2"><b class="f" style="font-size:16px">称号</b><div class="chips" style="margin-top:8px" id="badges"></div></div>
-    <div class="panel"><b class="f" style="font-size:16px">XPのもらい方</b><div class="help" style="margin-top:4px">ログイン <b>+5</b>／通信簿を開く <b>+5</b>（1日3枚まで）／キープ <b>+10</b>／仲間にする <b>+50</b>／危険ゾーンで撤退 <b>+100</b>／儲けて卒業 <b>+50＋儲け÷1000</b>／週バトル勝利 <b>+100</b></div></div>
-    <div class="panel"><b class="f" style="font-size:16px">設定</b>
-      <div class="switch"><span>本当の言葉で表示（HP→安全さ など）</span><span class="sw" id="swReal"></span></div>
-      <div class="switch"><span>危険ゾーン：買値から下がったら</span><span><input class="inp" id="stopPct" value="8" style="width:64px;padding:6px;font-size:16px"> %</span></div>
-      <div class="help" style="margin-top:10px">データ：Googleスプレッドシート「決算チェッカー」（スクリーナー・マイ株・ログ）<br>通信簿の数字：Yahoo Finance（決算は年に1回更新。スプレッドシートの「スクリーナーを更新」で取り直し）<br>株価：開くたびに取得。本当の買い物は証券口座で。</div>
-    </div>
-  </section>
-</div>
-
+<section class="screen on" id="s-own">
+  <div class="hero"><h1><span>所持株</span><span id="hupd" style="font-weight:600;font-size:12px;opacity:.75"></span></h1>
+    <div class="lbl">株資産</div><div class="big" id="hTotal">—</div>
+    <div class="meta"><span>育ち<b id="hPl">—</b></span><span>所有数<b id="hN">0</b></span></div>
+    <div class="hl" id="hl"></div></div>
+  <div class="sheet"><div class="sh"><b>アイテムリスト</b><span>育ちが大きい順</span></div><div id="ownList"></div>
+    <div class="sh" style="margin-top:18px"><b>収穫ずみ</b></div><div id="gradList"></div></div>
+</section>
+<section class="screen" id="s-farm">
+  <div class="hero"><h1><span>株畑</span></h1><div class="lbl">畑ぜんぶの育ち</div><div class="big" id="fPl">—</div><div class="meta"><span>植えた種<b id="fCost">—</b></span><span>植えてない種<b id="fBag">0</b></span></div></div>
+  <div class="sheet">
+    <div id="bagWrap"><div class="sh"><b>種袋</b><span>タップで選んで、土を長押し</span></div><div class="seedbag" id="seedbag"></div></div>
+    <div class="farm" id="farm"></div>
+    <div class="fhint" id="fhint"></div>
+  </div>
+</section>
+<section class="screen" id="s-shop">
+  <div class="hero"><h1><span>八百屋</span><span style="font-size:12px;opacity:.75">727種</span></h1><div class="lbl">今日の目玉</div><div class="big" id="shopTop" style="font-size:26px">—</div><div class="meta" id="shopTopSub"></div></div>
+  <div class="sheet"><div class="seg" id="shopSeg"><span class="on" data-k="sale">安くなった種</span><span data-k="strong">じょうぶな種</span><span data-k="grow">伸びてる種</span><span data-k="div">おこづかい多い</span></div>
+    <div class="seg" id="shopMkt"><span class="on" data-m="all">ぜんぶ</span><span data-m="日本">🇯🇵 日本</span><span data-m="米国">🇺🇸 アメリカ</span><span data-m="cheap">💴 10万円以下</span><span data-m="keep">♡ キープ中</span></div>
+    <div id="shopList"><div class="loading"><div class="spin"></div><br>種を並べています…</div></div><div style="text-align:center;padding:8px"><button class="btn w" id="more" style="width:auto;padding:10px 20px">もっと見る</button></div></div>
+</section>
+<section class="screen" id="s-book">
+  <div class="hero"><h1><span>図鑑</span></h1><div class="lbl">727社の通信簿</div><div class="big" style="font-size:26px">名前で探す</div></div>
+  <div class="sheet"><input class="search" id="q" placeholder="会社名・コード（例：任天堂 / AAPL）"><div id="bookList"></div></div>
+</section>
 <nav class="tabs">
-  <div class="tab on" data-s="scout"><span class="ic">🏆</span>スカウト</div>
-  <div class="tab" data-s="party"><span class="ic">⚔️</span>パーティー<span class="dot" id="pdot"></span></div>
-  <div class="tab" data-s="all"><span class="ic">📖</span>図鑑</div>
-  <div class="tab" data-s="buddy"><span class="ic">🐣</span>相棒<span class="dot" id="bdot"></span></div>
+  <div class="tab on" data-s="own"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="3"/><path d="M8 10h8M8 14h5"/></svg>所持株<span class="dot" id="ownDot"></span></div>
+  <div class="tab" data-s="farm"><svg viewBox="0 0 24 24"><path d="M12 21v-9"/><path d="M12 12c-4 0-6-3-6-6 4 0 6 3 6 6z"/><path d="M12 12c4 0 6-3 6-6-4 0-6 3-6 6z"/><path d="M4 21h16"/></svg>株畑<span class="dot" id="farmDot"></span></div>
+  <div class="tab" data-s="shop"><svg viewBox="0 0 24 24"><path d="M4 9l1-4h14l1 4"/><path d="M4 9h16v3a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3z"/><path d="M6 15v6h12v-6"/></svg>八百屋</div>
+  <div class="tab" data-s="book"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 5v16"/></svg>図鑑</div>
 </nav>
-<div class="buddy" id="buddy"><div class="av" id="av"></div><div class="say" id="say"></div></div>
-<div class="ov" id="ov"><div class="sheet" id="sheet"></div></div>
-<div class="victory" id="victory"><div class="vt" id="vt"></div><div class="vs" id="vs"></div></div>
-<div class="toast" id="toast"></div><div class="tip" id="tip"></div>
-
+<div class="page" id="page"></div><div class="sticky" id="sticky"></div>
+<div class="ov" id="ov"><div class="modal" id="modal"></div></div>
+<div class="harvest" id="harvest"></div>
+<div class="toast" id="toast"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/canvas-confetti/1.9.3/confetti.browser.min.js"></script>
 <script>
 const API='https://script.google.com/macros/s/AKfycbxp2NJyQCnSduboXEaXFN0kndza6-0-zqrJN_0W9tLhBymhxRO8mLlT-dcZgI5lcvLr0A/exec';
-const RAR={common:{n:'コモン',c1:'#9aa3ad',c2:'#5a626d',glow:'rgba(154,163,173,.4)'},uncommon:{n:'アンコモン',c1:'#3ad15a',c2:'#157a2f',glow:'rgba(58,209,90,.45)'},rare:{n:'レア',c1:'#2f9bff',c2:'#0d4fa8',glow:'rgba(47,155,255,.5)'},epic:{n:'エピック',c1:'#b14cff',c2:'#5b1aa6',glow:'rgba(177,76,255,.55)'},legend:{n:'レジェンダリー',c1:'#ffb000',c2:'#c45d00',glow:'rgba(255,176,0,.6)'}};
-const ORDER=['legend','epic','rare','uncommon','common'];
-// ゲーム語 ↔ 本当の言葉
-const TERMS={hp:['🛡️ HP','🛡️ 安全さ','借金の少なさ。総資産のうち自分のお金の割合と、現金−負債で計算'],atk:['⚔️ 攻撃力','⚔️ 儲けやすさ','営業利益率。売上100円のうち何円が本業の儲けか'],spd:['🚀 成長','🚀 売上の伸び','3年で売上と利益が何倍になったか'],sale:['🏷️ セール','🏷️ 割安さ','PER（利益の何年分の株価か）と、1年の高値からどれだけ下がったか'],report:['📋 通信簿','📋 決算','会社が1年に1回出す成績表'],scout:['スカウト料','株価','1株の値段'],join:['仲間にする','買う','証券口座で本当に買ってから押す'],keep:['キープ','ウォッチ','気になる株として様子を見る'],danger:['🚨 危険ゾーン','🚨 損切りライン','買値から決めた%下がった値段。ここを割ったら売る'],leave:['撤退','売る（損切り）','ルール通りに売ること。初心者が一番できないこと'],result:['戦果','含み損益','今売ったらいくら儲かる・損するか'],money:['軍資金','投資額','仲間にするのに使ったお金'],allow:['🎁 おこづかい','🎁 配当','株を持っていると年に数回もらえるお金'],team_jp:['日本チーム','日本株',''],team_us:['アメリカチーム','米国株',''],party:['パーティー','保有株',''],grad:['卒業','売却','']};
-let real=false;try{real=localStorage.getItem('kr_real')==='1'}catch(e){}
-const T=(k,plain)=>{const t=TERMS[k];const w=real?t[1]:t[0];return plain?w:`<span class="term" data-k="${k}">${w}</span>`};
-let companies=[],state=null,prices={},mkt='all',budget=false,sort='total',rf='',pseg='仲間',showN=20,lastXp=null,lastLvl=null,usdjpy=150,stopPct=8;
-try{stopPct=Number(localStorage.getItem('kr_stop')||8)||8}catch(e){}
-const $=s=>document.querySelector(s);const yen=n=>Math.round(n).toLocaleString('ja-JP');const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));const num=v=>(v===''||v==null||isNaN(v))?null:Number(v);
-const sym=c=>c;const isJP=c=>/^\d{4}$/.test(c);
-
-// ---- スコア ----
-function score(c){
-  const eqr=num(c.eqr),opm=num(c.opm),revg=num(c.revg),netg=num(c.netg),nc=num(c.netcash),per=num(c.per),hi=num(c.hi52),p=num(c.price);
-  let hp=eqr==null?30:clamp(eqr,0,100);if(nc!=null&&nc>0)hp=clamp(hp+15,0,100);
-  const atk=opm==null?20:clamp(opm*3,0,100);
-  let spd=50;if(revg!=null)spd=(revg-1)*200+50;if(netg!=null)spd=(spd+clamp((netg-1)*150+50,0,100))/2;spd=clamp(spd,0,100);
-  let perS=0;if(per!=null&&per>0)perS=clamp((30-per)/22*100,0,100);
-  let dd=0;if(hi&&p)dd=1-p/hi;const ddS=clamp(dd/0.3*100,0,100);
-  const sale=Math.round(perS*.6+ddS*.4);
-  const total=Math.round(hp*.3+atk*.25+spd*.2+sale*.25);
-  const r=total<35?'common':total<50?'uncommon':total<65?'rare':total<80?'epic':'legend';
-  return {hp:Math.round(hp),atk:Math.round(atk),spd:Math.round(spd),sale,total,r,dd,per};
-}
-function report(c){const o=[];const revg=num(c.revg),opm=num(c.opm),nc=num(c.netcash),eqr=num(c.eqr),divy=num(c.divy);
-  o.push(['売上の伸び',revg==null?'△':revg>=1.2?'◎':revg>=1?'○':'△']);
-  o.push(['儲け',opm==null?'△':opm>=15?'◎':opm>=5?'○':'△']);
-  o.push(['借金',nc!=null&&nc>0?'◎':eqr!=null&&eqr>=40?'○':'△']);
-  o.push([T('allow',true).replace(/^🎁 /,''),divy==null?'△':divy>=20000?'◎':divy>0?'○':'△']);return o}
-const yenPrice=c=>{const p=num(c.price)||0;return c.cur==='ドル'?p*usdjpy:p};
-function reasons(c,s){const pro=[],con=[];const U=isJP(c.code)?'億円':'億ドル';const nc=num(c.netcash),opm=num(c.opm),revg=num(c.revg),per=s.per,divy=num(c.divy);
-  if(nc!=null&&nc>0)pro.push('借金を全部返しても現金が'+yen(nc)+U+'残る');
-  if(opm!=null&&opm>=20)pro.push('売上100円のうち'+Math.round(opm)+'円が儲け（かなり優秀）');else if(opm!=null&&opm>=10)pro.push('売上100円のうち'+Math.round(opm)+'円が儲け');
-  if(revg!=null&&revg>=1.2)pro.push('3年で売上が'+revg.toFixed(1)+'倍に伸びた');
-  if(per!=null&&per>0&&per<12)pro.push('PER'+per.toFixed(1)+'倍で割安（利益'+Math.round(per)+'年分の値段）');
-  if(s.dd>=0.15)pro.push('1年の高値から'+Math.round(s.dd*100)+'%下がっていて'+T('sale',true).replace(/^🏷️ /,'')+'中');
-  if(divy&&divy>=20000)pro.push('100万円分持つと年'+yen(divy)+'円の'+T('allow',true).replace(/^🎁 /,''));
-  if(nc!=null&&nc<0&&s.hp<35)con.push('借金が多め（現金より'+yen(-nc)+U+'多い）');
-  if(opm!=null&&opm<5)con.push('儲けが薄い商売');
-  if(revg!=null&&revg<0.95)con.push('売上が減っている');
-  if(per==null||per<=0)con.push('赤字（利益が出ていない）');else if(per>30)con.push('PER'+per.toFixed(0)+'倍で割高かも（人気で値段が高い）');
-  if(s.dd<0.03)con.push('今が1年で一番高いあたり');
-  if(!pro.length)pro.push('目立った強みは少ない');if(!con.length)con.push('大きな弱点は見当たらない');
-  return {pro,con}}
-
-// ---- 通信 ----
+const $=s=>document.querySelector(s);const yen=n=>Math.round(n).toLocaleString('ja-JP');const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));const num=v=>(v===''||v==null||isNaN(v))?null:Number(v);const isJP=c=>/^\d{4}$/.test(c);
+let companies=[],state=null,prices={},usdjpy=150,shopKind='sale',shopMkt='all',showN=15,selBag=null,STOP=8,RIPE=10;
+function judge(c){const eqr=num(c.eqr),opm=num(c.opm),revg=num(c.revg),nc=num(c.netcash),per=num(c.per),hi=num(c.hi52),p=num(c.price),divy=num(c.divy),ng=num(c.netg);
+  const dd=hi&&p?1-p/hi:0;const strong=(nc!=null&&nc>0)||(eqr!=null&&eqr>=50);const weak=(per==null||per<=0)||(eqr!=null&&eqr<20&&!(nc>0));
+  const health=weak?'weak':(strong&&(opm||0)>=10)?'strong':'ok';const tags=[];
+  if(nc!=null&&nc>0)tags.push(['借金ゼロ','g']);else if(eqr!=null&&eqr<25)tags.push(['借金多い','r']);
+  if(per==null||per<=0)tags.push(['赤字','r']);else if(opm>=20)tags.push(['よく儲かる','g']);else if(opm>=8)tags.push(['儲かる','g']);else if(opm<3)tags.push(['儲け薄い','y']);
+  if(revg!=null&&revg>=1.25)tags.push(['伸びてる','g']);else if(revg!=null&&revg<0.95)tags.push(['売上減','y']);
+  if(ng!=null&&ng<0.85&&per>0)tags.push(['儲け減り気味','y']);if(divy>=25000)tags.push(['おこづかい多い','g']);if(per>35)tags.push(['割高かも','y']);
+  const rep=[['つぶれにくい？',nc!=null&&nc>0?'◎':eqr>=40?'○':'△'],['儲かってる？',per==null||per<=0?'△':opm>=15?'◎':opm>=5?'○':'△'],['伸びてる？',revg==null?'△':revg>=1.2?'◎':revg>=1?'○':'△']];
+  return {dd,health,tags,rep,per,saleScore:(health==='weak'?0:1)*(dd*100)+(strong?10:0),strongScore:(eqr||0)+(nc>0?30:0)+clamp(opm||0,0,40),growScore:((revg||1)-1)*100+((ng||1)-1)*60,divy:divy||0}}
+const yenPrice=c=>{const p=num(c.price)||0;return isJP(c.code)?p:p*usdjpy};const unit=c=>isJP(c.code)?'円':'ドル';
+function words(c,j){const pro=[],con=[];const nc=num(c.netcash),opm=num(c.opm),revg=num(c.revg),per=j.per,U=isJP(c.code)?'億円':'億ドル';
+  if(nc!=null&&nc>0)pro.push('借金を全部返しても現金が'+yen(nc)+U+'残る');if(opm>=20)pro.push('売上100円のうち'+Math.round(opm)+'円が儲け（かなり優秀）');else if(opm>=10)pro.push('売上100円のうち'+Math.round(opm)+'円が儲け');
+  if(revg>=1.2)pro.push('3年で売上が'+revg.toFixed(1)+'倍');if(per>0&&per<12)pro.push('利益'+Math.round(per)+'年分の値段で割安');if(j.dd>=0.15)pro.push('1年の高値から'+Math.round(j.dd*100)+'%安い');if(j.divy>=20000)pro.push('100万円分持つと年'+yen(j.divy)+'円のおこづかい');
+  if(nc!=null&&nc<0&&num(c.eqr)<35)con.push('借金が多め（現金より'+yen(-nc)+U+'多い）');if(opm!=null&&opm<5)con.push('儲けが薄い');if(revg<0.95)con.push('売上が減っている');if(per==null||per<=0)con.push('赤字で利益が出ていない');else if(per>30)con.push('利益'+Math.round(per)+'年分の値段で割高かも');if(j.dd<0.03)con.push('今が1年で一番高いあたり');
+  if(!pro.length)pro.push('目立った強みは少ない');if(!con.length)con.push('大きな弱点は見当たらない');return {pro,con}}
+function plantSVG(st,id){const s=id||'';
+  if(st==='seed')return `<svg viewBox="0 0 74 84"><ellipse cx="37" cy="70" rx="20" ry="8" fill="#000" opacity=".6"/><ellipse cx="37" cy="68" rx="7" ry="5" fill="#a8824e"/><path d="M34 65c2 1 4 3 5 6" stroke="#6b4a2b" stroke-width="1.5" fill="none"/></svg>`;
+  if(st==='sprout')return `<svg viewBox="0 0 74 84"><path d="M37 78V52" stroke="#3f8a3a" stroke-width="3.5" stroke-linecap="round"/><path d="M37 56c-10-2-14-10-12-16 8 0 13 6 12 16z" fill="#4cc44a"/><path d="M37 52c10-2 14-10 12-16-8 0-13 6-12 16z" fill="#3aa838"/></svg>`;
+  if(st==='grow')return `<svg viewBox="0 0 74 84"><path d="M37 78V36" stroke="#3f8a3a" stroke-width="3.5" stroke-linecap="round"/><path d="M37 60c-14-2-20-12-18-22 12 0 19 10 18 22z" fill="#4cc44a"/><path d="M37 50c14-2 20-12 18-22-12 0-19 10-18 22z" fill="#3aa838"/><path d="M37 40c-10-1-14-8-12-15 8 0 12 6 12 15z" fill="#5ad65a"/><circle cx="41" cy="28" r="6" fill="#8bd26a"/></svg>`;
+  if(st==='ripe')return `<svg viewBox="0 0 74 84"><defs><radialGradient id="ap${s}" cx="35%" cy="30%"><stop offset="0" stop-color="#ff8a80"/><stop offset=".6" stop-color="#ff3b30"/><stop offset="1" stop-color="#b3140c"/></radialGradient></defs><path d="M37 78V36" stroke="#3f8a3a" stroke-width="3.5" stroke-linecap="round"/><path d="M37 62c-16-2-22-14-20-26 14 0 21 12 20 26z" fill="#4cc44a"/><path d="M37 52c16-2 22-14 20-26-14 0-21 12-20 26z" fill="#3aa838"/><circle cx="37" cy="26" r="15" fill="url(#ap${s})"/><ellipse cx="31" cy="20" rx="4" ry="6" fill="#fff" opacity=".45"/><path d="M37 12l2-8" stroke="#6b4a2b" stroke-width="2.5" stroke-linecap="round"/></svg>`;
+  if(st==='yellow')return `<svg viewBox="0 0 74 84"><path d="M37 78V40" stroke="#6f8a3a" stroke-width="3.5" stroke-linecap="round"/><path d="M37 60c-14-2-20-12-18-22 12 0 19 10 18 22z" fill="#a9c44a"/><path d="M37 50c14-2 20-12 18-22-12 0-19 10-18 22z" fill="#8fa838"/><circle cx="40" cy="32" r="7" fill="#b8c26a"/></svg>`;
+  if(st==='wilt')return `<svg viewBox="0 0 74 84"><path d="M37 78C37 62 36 52 42 44" stroke="#6b5a3a" stroke-width="3.5" stroke-linecap="round" fill="none"/><path d="M40 56c-14 2-20-6-20-16 12-2 20 6 20 16z" fill="#8a8a3a"/><path d="M42 46c14 2 20-6 20-16-12-2-20 6-20 16z" fill="#6f6a2e"/><circle cx="46" cy="36" r="11" fill="#9a6b3a"/></svg>`;
+  return `<svg viewBox="0 0 74 84"><path d="M37 78C36 66 30 60 26 56" stroke="#4a3a2a" stroke-width="3.5" stroke-linecap="round" fill="none"/><path d="M28 60c-12 4-18-2-18-10 10-2 16 4 18 10z" fill="#5a4a2a"/><ellipse cx="34" cy="64" rx="13" ry="9" fill="#3d2a1a"/><circle cx="30" cy="60" r="3" fill="#2a1a0a"/><circle cx="40" cy="66" r="2.5" fill="#2a1a0a"/></svg>`}
+const seedSVG=`<svg viewBox="0 0 46 56"><rect x="3" y="4" width="40" height="48" rx="6" fill="#f3efe6" stroke="#d8d2c4"/><path d="M3 12h40" stroke="#d8d2c4"/><ellipse cx="23" cy="33" rx="8" ry="11" fill="#b08650" transform="rotate(-20 23 33)"/><path d="M20 24c3 2 5 6 4 12" stroke="#7a5a30" stroke-width="1.5" fill="none"/></svg>`;
+function stage(x){const r=plPct(x);if(r==null)return 'seed';if(r>=RIPE)return 'ripe';if(r>=3)return 'grow';if(r>=0)return 'sprout';if(r>-3)return 'yellow';if(r>-STOP)return 'wilt';return 'rot'}
+const stName={seed:'植えたばかり',sprout:'芽が出た',grow:'育ち中',ripe:'食べごろ',yellow:'少し元気ない',wilt:'しおれてきた',rot:'腐りかけ'};
 async function get(q){const r=await fetch(API+'?'+q,{redirect:'follow'});return r.json()}
-async function post(body){const r=await fetch(API,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain'},body:JSON.stringify(body)});return r.json()}
-async function loadCompanies(){try{const c=JSON.parse(localStorage.getItem('kr_companies2')||'null');if(c&&Date.now()-c.t<6*3600*1000){companies=c.d;return}}catch(e){}
-  const j=await get('action=companies');companies=j.companies||[];try{localStorage.setItem('kr_companies2',JSON.stringify({t:Date.now(),d:companies}))}catch(e){}}
-async function loadState(){const j=await get('action=state');if(!j.ok)throw new Error(j.error);state=j.state}
-async function loadPrices(){const codes=[...new Set(state.items.filter(x=>!x.out).map(x=>x.code))];const syms=[...codes,'^N225','^GSPC','USDJPY=X'];
-  const j=await get('action=prices&range=1mo&syms='+encodeURIComponent(syms.join(',')));if(j.ok){prices=j.prices||{};if(prices['USDJPY=X']&&prices['USDJPY=X'].price)usdjpy=prices['USDJPY=X'].price;
-    // 図鑑の株価も今日の値で上書き
-    codes.forEach(c=>{const co=companies.find(x=>x.code===c);if(co&&prices[c]&&prices[c].price)co.price=prices[c].price})}}
-const histCache={};
-async function loadHist(code){if(histCache[code]&&Date.now()-histCache[code].t<6*3600*1000)return histCache[code].d;const j=await get('action=prices&range=1y&syms='+encodeURIComponent(code));const d=j.ok&&j.prices[code];histCache[code]={t:Date.now(),d};return d}
-
-// ---- 進行度 ----
-function progress(){
-  const logs=state?state.logs:[],items=state?state.items:[];const xp=logs.reduce((a,l)=>a+(l.xp||0),0);
-  const lvl=Math.floor(Math.sqrt(xp/100))+1;const need=100*lvl*lvl,prev=100*(lvl-1)*(lvl-1);
-  const today=state?state.today:'';const td=logs.filter(l=>l.date===today);
-  const held=items.filter(x=>x.kind==='仲間'&&!x.out),keeps=items.filter(x=>x.kind==='キープ'&&!x.out),grads=items.filter(x=>x.kind==='仲間'&&x.out);
-  const realized=grads.reduce((a,x)=>a+pnl(x),0);
-  const stage=lvl<3?0:lvl<6?1:lvl<10?2:3;
-  const names=['たまご','ひよこ','とり','ふしちょう'];
-  const comp=code=>companies.find(c=>c.code===code);
-  const badges=[
-    {e:'👀',n:'はじめてのキープ',ok:items.some(x=>x.kind==='キープ')},
-    {e:'⚔️',n:'はじめての仲間',ok:items.some(x=>x.kind==='仲間')},
-    {e:'🛡️',n:'撤退マスター',ok:logs.some(l=>l.kind==='leave_rule')},
-    {e:'🏆',n:'はじめての勝利',ok:grads.some(x=>pnl(x)>0)},
-    {e:'👑',n:'レジェンダリー所持',ok:held.some(x=>{const c=comp(x.code);return c&&score(c).r==='legend'})},
-    {e:'🌏',n:'日米コンプ',ok:held.some(x=>isJP(x.code))&&held.some(x=>!isJP(x.code))},
-    {e:'🎁',n:'おこづかいコレクター',ok:held.filter(x=>{const c=comp(x.code);return c&&num(c.divy)>0}).length>=3},
-    {e:'🥇',n:'週バトル勝利',ok:logs.some(l=>l.kind==='weekwin')},
-    {e:'💰',n:'10万円の戦果',ok:realized>=100000},
-    {e:'📖',n:'通信簿30枚',ok:logs.filter(l=>l.kind==='read').length>=30},
-  ];
-  const reads=new Set(td.filter(l=>l.kind==='read').map(l=>l.code)).size;
-  const missions=[
-    {k:'m_read3',t:T('report',true)+'を3枚開く',p:Math.min(reads,3),n:3,xp:15},
-    {k:'m_keep1',t:'キャラを1体'+T('keep',true)+'する',p:Math.min(td.filter(l=>l.kind==='keep').length,1),n:1,xp:10},
-    {k:'m_login',t:'ログインする',p:td.some(l=>l.kind==='login')?1:0,n:1,xp:0},
-  ].map(m=>({...m,done:td.some(l=>l.kind===m.k)||(m.xp===0&&m.p>=m.n)}));
-  return {xp,lvl,pct:clamp((xp-prev)/(need-prev)*100,0,100),need,stage,sname:names[stage],held,keeps,grads,realized,badges,missions,td,reads};
-}
-function pnl(x){const buy=num(x.buy)||0,sh=num(x.shares)||0;const now=x.out?num(x.sell):(prices[x.code]&&prices[x.code].price);if(now==null)return 0;const r=isJP(x.code)?1:usdjpy;return (now-buy)*sh*r}
-function nowPrice(x){return prices[x.code]&&prices[x.code].price}
-function danger(x){const buy=num(x.buy);return buy?buy*(1-stopPct/100):null}
-function inDanger(x){const n=nowPrice(x),d=danger(x);return n!=null&&d!=null&&n<=d}
-
-// ---- 描画 ----
-function render(){
-  if(!state)return;const p=progress();
-  $('#lvl').textContent=p.lvl;$('#xp').style.width=p.pct+'%';$('#xp2').style.width=p.pct+'%';
-  if(lastLvl!=null&&p.lvl>lastLvl)levelUp(p.lvl);if(lastXp!=null&&p.xp>lastXp)xpFly('+'+(p.xp-lastXp)+' XP');lastXp=p.xp;lastLvl=p.lvl;
-  $('#legend').innerHTML='ゲージ：'+T('hp')+' '+T('atk')+' '+T('spd')+' '+T('sale')+'（長押しで意味）';
-  $('#scoutTitle').textContent='今日のスカウトリスト';
-  $('#l-cost').innerHTML=T('money')+'（円）';$('#l-pl').innerHTML=T('result')+'（円）';
-  renderScout();renderParty();renderAll();renderBuddy(p);avatar(p.stage);
-}
-function listOf(){let l=companies.map(c=>({c,s:score(c)})).filter(x=>num(x.c.price));
-  if(mkt!=='all')l=l.filter(x=>x.c.market===mkt);if(budget)l=l.filter(x=>yenPrice(x.c)*(isJP(x.c.code)?100:1)<=100000);
-  l.sort((a,b)=>b.s[sort]-a.s[sort]||b.s.total-a.s.total);return l}
-function rankHTML(c,s,no){const R=RAR[s.r];const inP=state.items.some(x=>!x.out&&x.code===c.code);const mark=state.items.find(x=>!x.out&&x.code===c.code);
-  return `<div class="rank" style="--c1:${R.c1};--c2:${R.c2}" data-code="${c.code}"><div class="in"><span class="no">${no}</span><span class="nm">${c.name}${mark?`<span class="mark">${mark.kind==='仲間'?'⚔️仲間':'👀キープ'}</span>`:''}<small>${isJP(c.code)?'🇯🇵':'🇺🇸'} ${c.code} ・ ${T('scout',true)} ${yen(yenPrice(c))}円${isJP(c.code)?'（100株で'+yen(yenPrice(c)*100)+'円）':''}</small><span class="mg"><i style="--w:${s.hp}%;--c:#3ad15a"></i><i style="--w:${s.atk}%;--c:#ffb000"></i><i style="--w:${s.spd}%;--c:#2f9bff"></i><i style="--w:${s.sale}%;--c:#ff7ad9"></i></span></span><span class="sc">${s.total}<small>点</small></span></div></div>`}
-function renderScout(){const l=listOf();$('#cnt').textContent=l.length+'キャラ';$('#scout').innerHTML=l.slice(0,showN).map((x,i)=>rankHTML(x.c,x.s,i+1)).join('')||'<div class="hint">条件に合うキャラがいない</div>';$('#more').style.display=l.length>showN?'':'none'}
-function renderAll(){const q=($('#q').value||'').trim().toLowerCase();let l=companies.map(c=>({c,s:score(c)}));if(rf)l=l.filter(x=>x.s.r===rf);if(q)l=l.filter(x=>(x.c.name+x.c.code).toLowerCase().includes(q));
-  l.sort((a,b)=>b.s.total-a.s.total);$('#all').innerHTML=l.slice(0,120).map((x,i)=>rankHTML(x.c,x.s,ORDER.indexOf(x.s.r)===0?'👑':'')).join('')+(l.length>120?'<div class="hint">…ほか'+(l.length-120)+'キャラ（検索で絞ってね）</div>':'')}
-function renderParty(){const p=progress();const cost=p.held.reduce((a,x)=>a+(num(x.buy)||0)*(num(x.shares)||0)*(isJP(x.code)?1:usdjpy),0);const pl=p.held.reduce((a,x)=>a+pnl(x),0);
-  $('#cost').textContent=yen(cost);const e=$('#pl');e.textContent=(pl>0?'+':'')+yen(pl);e.className=pl>0?'pos':pl<0?'neg':'';
-  $('#pupd').textContent=p.held.length?'株価は開くたびに取得。1ドル='+usdjpy.toFixed(1)+'円':'';
-  const dz=p.held.filter(inDanger);$('#pdot').classList.toggle('on',dz.length>0);
-  const sales=p.keeps.filter(x=>{const n=nowPrice(x),b=num(x.price);return n&&b&&n<=b*0.95});
-  $('#palerts').innerHTML=dz.map(x=>`<div class="alertbar" data-id="${x.id}"><span>🚨 ${x.name}が${T('danger',true)}に入った！${T('leave',true)}するか決めよう</span></div>`).join('')+sales.map(x=>`<div class="salebar" data-id="${x.id}"><span>🏷️ ${x.name}が${T('keep',true)}したときより安くなった！仲間にするチャンスかも</span></div>`).join('');
-  // 週バトル
-  battle(p);
-  const list=pseg==='仲間'?p.held:pseg==='キープ'?p.keeps:p.grads;
-  $('#party').innerHTML=list.length?list.map(x=>{const c=companies.find(c=>c.code===x.code);const s=c?score(c):{r:'common'};const R=RAR[s.r];const n=nowPrice(x);const pl=x.kind==='仲間'?pnl(x):null;const al=x.kind==='仲間'&&!x.out&&inDanger(x);
-    let body='';if(x.kind==='仲間'&&!x.out)body=`<small>${x.shares}株 @ ${yen(num(x.buy))}${isJP(x.code)?'円':'ドル'}</small><div class="pl ${pl>0?'pos':pl<0?'neg':''}">${n==null?'—':(pl>=0?'+':'')+yen(pl)+'円'}</div><small>${al?'🚨 '+T('danger',true):T('danger',true)+' '+yen(danger(x))+(isJP(x.code)?'円':'ドル')}</small>`;
-    else if(x.kind==='キープ')body=`<small>${x.date}から見てる</small><div class="pl">${n?yen(n):'—'}${isJP(x.code)?'円':'ドル'}</div><small>${n&&num(x.price)?'見始めてから '+((n/num(x.price)-1)*100).toFixed(1)+'%':''}</small>`;
-    else body=`<small>${x.date} → ${x.out}</small><div class="pl ${pl>0?'pos':'neg'}">${(pl>=0?'+':'')+yen(pl)}円</div><small>${x.memo||''}</small>`;
-    return `<div class="mini ${al?'alert':''}" style="--c1:${R.c1};--c2:${R.c2}" data-id="${x.id}"><div class="in"><div class="nm">${x.name||x.code}</div>${body}</div></div>`}).join('')
-    :`<div class="hint" style="grid-column:1/-1;text-align:center;padding:30px 0">${pseg==='仲間'?'まだ仲間がいない。スカウトリストから探そう！':pseg==='キープ'?'キープ中のキャラはいない':'まだ卒業したキャラはいない'}</div>`}
-function battle(p){const el=$('#battlePanel');if(!p.held.length){el.innerHTML='<b class="f" style="font-size:16px">週バトル</b><div class="hint">仲間ができると、毎週「'+T('team_jp',true)+'平均・'+T('team_us',true)+'平均」と戦果で勝負できる</div>';return}
-  const chg=x=>{const h=prices[x.code];if(!h||!h.c)return null;const c=h.c.filter(v=>v!=null);if(c.length<6)return null;return c[c.length-1]/c[c.length-6]-1};
-  let w=0,sum=0;p.held.forEach(x=>{const r=chg(x);if(r==null)return;const cost=(num(x.buy)||0)*(num(x.shares)||0)*(isJP(x.code)?1:usdjpy);w+=cost;sum+=r*cost});
-  const mine=w?sum/w:null;const idx=k=>{const h=prices[k];if(!h||!h.c)return null;const c=h.c.filter(v=>v!=null);return c.length<6?null:c[c.length-1]/c[c.length-6]-1};
-  const jp=idx('^N225'),us=idx('^GSPC');const bench=(jp!=null&&us!=null)?(jp+us)/2:(jp??us);
-  const win=mine!=null&&bench!=null&&mine>bench;
-  const f=v=>v==null?'—':(v>=0?'+':'')+(v*100).toFixed(1)+'%';
-  el.innerHTML=`<div class="row sb"><b class="f" style="font-size:16px">週バトル <span class="sub">この5日間</span></b>${win?'<span class="tag good">勝ってる！</span>':mine!=null?'<span class="tag bad">負けてる</span>':''}</div>
-  <div class="battle" style="margin-top:8px"><div><small>${T('party',true)}</small><b class="${mine>0?'pos':mine<0?'neg':''}">${f(mine)}</b></div><div class="vs">VS</div><div><small>平均（日経＋S&P）</small><b class="${bench>0?'pos':bench<0?'neg':''}">${f(bench)}</b></div></div>
-  <div class="sub" style="margin-top:6px">🇯🇵 日経平均 ${f(jp)} ／ 🇺🇸 S&P500 ${f(us)}。平均に勝ち続けるのがプロでも難しい本当の勝負</div>`;
-  // 週1回の勝利XP（週の識別：年+週番号）
-  if(win){const d=new Date();const wk=d.getFullYear()+'-w'+Math.floor((d-new Date(d.getFullYear(),0,1))/864e5/7);const done=state.logs.some(l=>l.kind==='weekwin'&&l.code===wk);
-    if(!done&&d.getDay()===5)award('weekwin',wk,100,'WEEKLY VICTORY')}}
-
-// ---- 相棒 ----
-function avatar(stage){const svg=[
-  `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="55" rx="32" ry="40" fill="#f3efff" stroke="#1a1052" stroke-width="4"/><ellipse cx="40" cy="38" rx="9" ry="12" fill="#fff" opacity=".9"/><path d="M30 60 l8 -8 l6 8 l8 -10 l6 8 l8 -8" fill="none" stroke="#b9b4e6" stroke-width="3" stroke-linecap="round"/><circle cx="40" cy="48" r="3" fill="#1a1052"/><circle cx="60" cy="48" r="3" fill="#1a1052"/></svg>`,
-  `<svg viewBox="0 0 100 100"><defs><radialGradient id="c" cx="35%" cy="30%"><stop offset="0" stop-color="#fff5c2"/><stop offset=".55" stop-color="#ffd21f"/><stop offset="1" stop-color="#ff9d00"/></radialGradient></defs><circle cx="50" cy="55" r="36" fill="url(#c)" stroke="#1a1052" stroke-width="4"/><path d="M36 22 q4 -14 12 -4 q6 -10 10 4" fill="#ffb000" stroke="#1a1052" stroke-width="3"/><circle cx="38" cy="50" r="4" fill="#1a1052"/><circle cx="62" cy="50" r="4" fill="#1a1052"/><path d="M44 62 l6 6 l6 -6 z" fill="#ff7a00" stroke="#1a1052" stroke-width="2"/><circle cx="30" cy="62" r="5" fill="#ff8aa0" opacity=".7"/><circle cx="70" cy="62" r="5" fill="#ff8aa0" opacity=".7"/></svg>`,
-  `<svg viewBox="0 0 100 100"><defs><radialGradient id="b" cx="35%" cy="30%"><stop offset="0" stop-color="#ffe0b0"/><stop offset=".6" stop-color="#ff9d00"/><stop offset="1" stop-color="#e05a00"/></radialGradient></defs><path d="M14 58 q10 -20 26 -8 l-12 24 z" fill="#ffb000" stroke="#1a1052" stroke-width="3"/><path d="M86 58 q-10 -20 -26 -8 l12 24 z" fill="#ffb000" stroke="#1a1052" stroke-width="3"/><circle cx="50" cy="55" r="34" fill="url(#b)" stroke="#1a1052" stroke-width="4"/><path d="M38 20 l6 -12 l6 12 l6 -12 l6 12" fill="#ff3d5a" stroke="#1a1052" stroke-width="3" stroke-linejoin="round"/><circle cx="38" cy="50" r="4" fill="#1a1052"/><circle cx="62" cy="50" r="4" fill="#1a1052"/><path d="M42 62 l8 9 l8 -9 z" fill="#ffd21f" stroke="#1a1052" stroke-width="2"/></svg>`,
-  `<svg viewBox="0 0 100 100"><defs><radialGradient id="p" cx="35%" cy="30%"><stop offset="0" stop-color="#fff1a8"/><stop offset=".5" stop-color="#ff6a00"/><stop offset="1" stop-color="#b10038"/></radialGradient></defs><path d="M8 50 q14 -34 36 -14 l-16 36 z" fill="#ff3d5a" stroke="#1a1052" stroke-width="3"/><path d="M92 50 q-14 -34 -36 -14 l16 36 z" fill="#ff3d5a" stroke="#1a1052" stroke-width="3"/><path d="M30 14 q8 -16 20 -2 q12 -14 20 2 q-6 10 -20 12 q-14 -2 -20 -12z" fill="#ffd21f" stroke="#1a1052" stroke-width="3"/><circle cx="50" cy="56" r="33" fill="url(#p)" stroke="#1a1052" stroke-width="4"/><circle cx="38" cy="50" r="4" fill="#1a1052"/><circle cx="62" cy="50" r="4" fill="#1a1052"/><path d="M42 62 l8 9 l8 -9 z" fill="#ffd21f" stroke="#1a1052" stroke-width="2"/><circle cx="50" cy="56" r="40" fill="none" stroke="#ffd21f" stroke-width="2" stroke-dasharray="6 10" opacity=".7"/></svg>`][stage];
-  $('#av').innerHTML=svg;$('#bigav').innerHTML='<div class="bigav">'+svg+'</div>'}
-function renderBuddy(p){$('#bname').textContent=p.sname+' Lv'+p.lvl;$('#bnext').textContent='次のレベルまで あと '+(p.need-p.xp)+' XP（合計 '+p.xp+' XP）';
-  $('#stages').innerHTML=[[1,'たまご'],[3,'ひよこ'],[6,'とり'],[10,'ふしちょう']].map(([l,n])=>`<span class="chip ${p.lvl>=l?'on':''}">Lv${l} ${p.lvl>=l?n:'？？？'}</span>`).join('');
-  $('#missions').innerHTML=p.missions.map(m=>`<div class="mission ${m.done?'done':''}"><span class="ck">${m.done?'✓':''}</span><span>${m.t} <span class="sub">${m.p}/${m.n}</span></span><span class="xp">${m.xp?'+'+m.xp+' XP':''}</span></div>`).join('');
-  $('#badges').innerHTML=p.badges.map(b=>`<span class="badge ${b.ok?'got':''}"><span>${b.e}</span>${b.n}</span>`).join('');
-  $('#bdot').classList.toggle('on',p.missions.some(m=>!m.done&&m.xp));
-  // ミッション達成の自動付与
-  p.missions.forEach(m=>{if(m.xp&&m.p>=m.n&&!m.done)award(m.k,'',m.xp,'ミッション達成！')});
-  say(buddyLine(p))}
-function buddyLine(p){const dz=p.held.filter(inDanger);if(dz.length)return dz[0].name+'が'+T('danger',true)+'…ルール通り'+T('leave',true)+'する？ 守れたら+100XPだよ';
-  const top=listOf()[0];const pl=p.held.reduce((a,x)=>a+pnl(x),0);
-  const lines=[];if(p.held.length&&pl>0)lines.push('戦果 +'+yen(pl)+'円！いい感じ');if(p.held.length&&pl<0)lines.push('戦果は'+yen(pl)+'円。'+T('danger',true)+'までは落ち着いて見よう');
-  if(top)lines.push('今日の1位は'+top.c.name+'。'+(top.s.sale>=60?T('sale',true)+'中だよ':'強いけど安くはないかも'));
-  if(!p.keeps.length)lines.push('気になるキャラは'+T('keep',true)+'して、何日か値段を見てから仲間にしよう');
-  if(p.reads<3)lines.push(T('report',true)+'をあと'+(3-p.reads)+'枚開くとミッション達成');
-  return lines[Math.floor(Math.random()*lines.length)]||'今日もコツコツいこう'}
-function say(t){$('#say').textContent=t}
-function mood(m){const b=$('#buddy');b.classList.remove('worried','happy');if(m)b.classList.add(m);if(m)setTimeout(()=>b.classList.remove(m),2500)}
-
-// ---- 詳細カード ----
-async function showCompany(code,fromItem){const c=companies.find(x=>x.code===code);if(!c)return;const s=score(c),R=RAR[s.r],rep=report(c),rs=reasons(c,s);
-  const item=fromItem||state.items.find(x=>!x.out&&x.code===code);
-  const btns=item?(item.kind==='仲間'?`<button class="btn gray sm" id="b-unkeep"><span>とじる</span></button><button class="btn ${inDanger(item)?'red':'blue'}" id="b-leave"><span>${T('leave',true)}する</span></button>`:`<button class="btn gray sm" id="b-unkeep"><span>${T('keep',true)}やめる</span></button><button class="btn" id="b-join"><span>${T('join',true)}</span></button>`)
-    :`<button class="btn gray" id="b-keep"><span>👀 ${T('keep',true)}</span></button><button class="btn" id="b-join"><span>⚔️ ${T('join',true)}</span></button>`;
-  const rev=num(c.rev),rev3=num(c.rev3),net=num(c.net),net3=num(c.net3);const mx=Math.max(rev||0,rev3||0,1);const mn=Math.max(Math.abs(net||0),Math.abs(net3||0),1);
-  openSheet(`<div class="card" style="--c1:${R.c1};--c2:${R.c2};--glow:${R.glow}"><div class="rarity ${s.r}">${R.n} ・ ${s.total}点</div><div class="in">
-    <div class="cname">${c.name}</div><div class="cmeta"><span>${isJP(code)?'🇯🇵 '+T('team_jp',true):'🇺🇸 '+T('team_us',true)}</span><span>${code}</span><span>${T('report',true)} ${c.period||''}</span>${item?`<span class="tag mid">${item.kind==='仲間'?'⚔️ 仲間':'👀 キープ中'}</span>`:''}</div>
-    <div class="gauges">
-      <div class="g" style="--gc1:#3ad15a;--gc2:#aaffc3"><span>${T('hp')}</span><span class="bar"><i data-w="${s.hp}"></i></span><span class="v">${s.hp}</span></div>
-      <div class="g" style="--gc1:#ffb000;--gc2:#ffe36b"><span>${T('atk')}</span><span class="bar"><i data-w="${s.atk}"></i></span><span class="v">${s.atk}</span></div>
-      <div class="g" style="--gc1:#2f9bff;--gc2:#9fd3ff"><span>${T('spd')}</span><span class="bar"><i data-w="${s.spd}"></i></span><span class="v">${s.spd}</span></div>
-      <div class="g" style="--gc1:#ff7ad9;--gc2:#ffc2ec"><span>${T('sale')}</span><span class="bar"><i data-w="${s.sale}"></i></span><span class="v">${s.sale}</span></div></div>
-    <div class="sub" style="margin-top:8px">${T('report')}</div><div class="report">${rep.map(([k,v])=>`<div><b class="${v==='◎'?'ok':v==='○'?'so':'ng'}">${v}</b><small>${k}</small></div>`).join('')}</div>
-    <div class="sub">売上と儲け（億${isJP(code)?'円':'ドル'}）：3年前 → 今</div>
-    <div class="bars"><div style="height:${(rev3||0)/mx*100}%"><span>${rev3!=null?yen(rev3):'—'}</span><b>売上 3年前</b></div><div style="height:${(rev||0)/mx*100}%"><span>${rev!=null?yen(rev):'—'}</span><b>売上 今</b></div><div class="net" style="height:${Math.max(0,net3||0)/mn*100}%"><span>${net3!=null?yen(net3):'—'}</span><b>儲け 3年前</b></div><div class="net" style="height:${Math.max(0,net||0)/mn*100}%"><span>${net!=null?yen(net):'—'}</span><b>儲け 今</b></div></div>
-    <div class="sub" style="margin-top:6px">1年の${T('scout',true)}（${isJP(code)?'円':'ドル'}）</div><div id="chart" class="loading" style="padding:20px 0"><div class="spin" style="width:22px;height:22px;border-width:4px"></div></div>
-    <div class="pro">✅ 推す理由：${rs.pro.join('。')}</div><div class="con">⚠️ 気をつける点：${rs.con.join('。')}</div>
-    <div class="price"><div><small>${T('scout',true)}（1株）</small><span class="p">${yen(yenPrice(c))}円</span><small>${isJP(code)?'日本株は100株単位 → '+yen(yenPrice(c)*100)+'円':num(c.price)+'ドル（1株から買える）'}</small></div><div style="text-align:right"><small>100万円分の${T('allow',true)}</small><span class="tag ${num(c.divy)>=20000?'good':num(c.divy)>0?'mid':'bad'}">年 ${num(c.divy)?yen(c.divy)+'円':'なし'}</span><small>PER ${s.per&&s.per>0?s.per.toFixed(1)+'倍':'—'}</small></div></div>
-    ${item&&item.kind==='仲間'?`<div class="stat" style="margin-top:12px"><div class="box"><small>買値 × 株数</small><b>${yen(num(item.buy))} × ${item.shares}</b></div><div class="box"><small>${T('result',true)}</small><b class="${pnl(item)>0?'pos':pnl(item)<0?'neg':''}">${(pnl(item)>=0?'+':'')+yen(pnl(item))}円</b></div><div class="box"><small>今の${T('scout',true)}</small><b>${nowPrice(item)?yen(nowPrice(item)):'—'}</b></div><div class="box"><small>${T('danger',true)}</small><b class="${inDanger(item)?'neg':''}">${yen(danger(item))}</b></div></div>`:''}
-  </div></div><div class="row center" style="margin-top:14px;gap:12px">${btns}</div>`);
-  setTimeout(()=>$('#sheet').querySelectorAll('.g i').forEach(i=>i.style.width=i.dataset.w+'%'),60);
-  // 読んだ記録（1日3枚まで）
-  const p=progress();if(!p.td.some(l=>l.kind==='read'&&l.code===code)&&p.reads<3)award('read',code,5);
-  const b=$('#b-keep');if(b)b.onclick=()=>keep(c);const j=$('#b-join');if(j)j.onclick=()=>joinFlow(c,item);const u=$('#b-unkeep');if(u)u.onclick=()=>item&&item.kind==='キープ'?unkeep(item):closeSheet();const l=$('#b-leave');if(l)l.onclick=()=>leaveFlow(item,c);
-  const h=await loadHist(code);const el=$('#chart');if(!el)return;if(!h||!h.c){el.innerHTML='<div class="hint">チャートを取れなかった</div>';return}
-  const c1=h.c.filter(v=>v!=null);const mn2=Math.min(...c1),mx2=Math.max(...c1);const W=300,H=90;const pts=c1.map((v,i)=>[i/(c1.length-1)*W,H-8-(v-mn2)/((mx2-mn2)||1)*(H-24)]);
-  const path=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');const last=pts[pts.length-1];const up=c1[c1.length-1]>=c1[0];const col=up?'#3cff8e':'#ff8a9b';
-  el.className='';el.innerHTML=`<svg class="chart" viewBox="0 0 ${W} ${H}" width="100%"><defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity=".45"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient></defs><path d="${path} L${W},${H} L0,${H}Z" fill="url(#cg)"/><path d="${path}" fill="none" stroke="${col}" stroke-width="3" stroke-linejoin="round"/><circle cx="${last[0]}" cy="${last[1]}" r="5" fill="#ffd21f"/><text x="4" y="12" fill="#b9b4e6" font-size="9" font-weight="800">高値 ${yen(mx2)}</text><text x="4" y="${H-2}" fill="#b9b4e6" font-size="9" font-weight="800">安値 ${yen(mn2)}</text><text x="${W-2}" y="${Math.max(12,last[1]-10)}" fill="#ffd21f" font-size="10" text-anchor="end" font-weight="800">今 ${yen(c1[c1.length-1])}</text></svg>`;
-}
-async function keep(c){const j=await post({type:'keep',code:c.code,name:c.name,price:num(c.price)});if(!j.ok){toast('失敗: '+j.error);return}closeSheet();toast('👀 '+c.name+'をキープ');mood('happy');await award('keep',c.code,10);await reload()}
-async function unkeep(item){const j=await post({type:'unkeep',id:item.id});if(!j.ok){toast('失敗: '+j.error);return}closeSheet();toast('キープをやめた');await reload()}
-function joinFlow(c,item){const p=num(c.price)||0;openSheet(`<h3 class="f">${c.name}を${T('join',true)}</h3><div class="help">証券口座で<b>本当に買ったあと</b>に入力してね。${isJP(c.code)?'日本株は100株単位。':'米国株は1株から。'}</div>
-  <div class="lbl">買った値段（1株・${isJP(c.code)?'円':'ドル'}）</div><input class="inp" id="jb" type="number" inputmode="decimal" value="${p}">
-  <div class="lbl">株数</div><input class="inp" id="js" type="number" inputmode="numeric" value="${isJP(c.code)?100:1}">
-  <div class="lbl">合計（円）</div><div class="f" id="jt" style="font-size:24px;color:var(--yellow);text-align:center">—</div>
-  <div class="lbl">ひとこと（なぜ仲間にした？）</div><input class="inp" id="jm" style="font-size:14px;color:#fff;text-align:left" placeholder="例：HP高くてセール中だから">
-  <div class="row center" style="margin-top:14px"><button class="btn gray sm" onclick="closeSheet()"><span>やめる</span></button><button class="btn" id="jok"><span>⚔️ 仲間にした！</span></button></div>`);
-  const upd=()=>{const b=+$('#jb').value||0,s=+$('#js').value||0;$('#jt').textContent=yen(b*s*(isJP(c.code)?1:usdjpy))+'円'};upd();$('#jb').oninput=upd;$('#js').oninput=upd;
-  $('#jok').onclick=async()=>{const b=+$('#jb').value,s=+$('#js').value;if(!b||!s){toast('値段と株数を入れてね');return}$('#jok').disabled=true;
-    if(item&&item.kind==='キープ')await post({type:'unkeep',id:item.id});
-    const j=await post({type:'join',code:c.code,name:c.name,price:num(c.price),buy:b,shares:s,memo:$('#jm').value});if(!j.ok){toast('失敗: '+j.error);$('#jok').disabled=false;return}
-    closeSheet();victory('JOIN!',c.name+'がパーティーに加わった',false);confetti({particleCount:120,spread:80,origin:{y:.6},colors:['#ffd21f','#fff','#3cff8e']});mood('happy');await award('join',c.code,50);await reload();go('party')}}
-function leaveFlow(item,c){const n=nowPrice(item)||num(item.buy);const pl=pnl(item);const dz=inDanger(item);
-  openSheet(`<h3 class="f">${item.name}を${T('leave',true)}する？</h3>${dz?`<div class="alertbar"><span>🚨 ${T('danger',true)}に入ってる。ここで${T('leave',true)}するのが「ルールを守る」＝一番えらい（+100XP）</span></div>`:`<div class="help">${pl>0?'儲けが出てる。利益確定して卒業させる？':'まだ'+T('danger',true)+'じゃない。本当に売る？'}</div>`}
-  <div class="lbl">売った値段（1株・${isJP(item.code)?'円':'ドル'}）</div><input class="inp" id="lp" type="number" inputmode="decimal" value="${n}">
-  <div class="lbl">${T('result',true)}（円）</div><div class="f" id="lt" style="font-size:24px;text-align:center">—</div>
-  <div class="lbl">反省メモ（次に活かす）</div><input class="inp" id="lm" style="font-size:14px;color:#fff;text-align:left" placeholder="例：決算が悪くて下がった">
-  <div class="row center" style="margin-top:14px"><button class="btn gray sm" onclick="closeSheet()"><span>まだ持つ</span></button><button class="btn ${dz||pl<0?'red':''}" id="lok"><span>${T('leave',true)}した！</span></button></div>`);
-  const upd=()=>{const p=+$('#lp').value||0;const v=(p-num(item.buy))*num(item.shares)*(isJP(item.code)?1:usdjpy);const e=$('#lt');e.textContent=(v>=0?'+':'')+yen(v)+'円';e.className='f '+(v>0?'pos':v<0?'neg':'')};upd();$('#lp').oninput=upd;
-  $('#lok').onclick=async()=>{const p=+$('#lp').value;if(!p){toast('値段を入れてね');return}$('#lok').disabled=true;const v=(p-num(item.buy))*num(item.shares)*(isJP(item.code)?1:usdjpy);
-    const j=await post({type:'leave',id:item.id,price:p,memo:$('#lm').value||(dz?'ルール通り撤退':v>0?'利益確定':'')});if(!j.ok){toast('失敗: '+j.error);$('#lok').disabled=false;return}
-    closeSheet();if(v>0){victory('VICTORY','+'+yen(v)+'円 の戦果！',false);big();await award('leave_win',item.code,50+Math.max(0,Math.floor(v/1000)))}else if(dz){victory('NICE CUT','ルールを守って撤退。損は'+yen(-v)+'円で止めた',true);await award('leave_rule',item.code,100)}else{victory('OK','損は'+yen(-v)+'円。次に活かそう',true);await award('leave',item.code,20)}
-    await reload()}}
-async function award(kind,code,xp,msg){await post({type:'log',kind,code,xp});if(state)state.logs.push({date:state.today,kind,code,xp});if(msg)toast(msg);render()}
+async function post(b){const r=await fetch(API,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain'},body:JSON.stringify(b)});return r.json()}
+async function loadCompanies(){try{const c=JSON.parse(localStorage.getItem('kb_companies')||'null');if(c&&Date.now()-c.t<6*3600*1000){companies=c.d;return}}catch(e){}const j=await get('action=companies');companies=j.companies||[];try{localStorage.setItem('kb_companies',JSON.stringify({t:Date.now(),d:companies}))}catch(e){}}
+async function loadState(){const j=await get('action=state');if(!j.ok)throw new Error(j.error);state=j.state;state.items.forEach(x=>{x.plot=num(x.plot)})}
+async function loadPrices(){const codes=[...new Set(state.items.filter(x=>!x.out).map(x=>x.code))];const j=await get('action=prices&range=5d&syms='+encodeURIComponent([...codes,'USDJPY=X'].join(',')));if(j.ok){prices=j.prices||{};if(prices['USDJPY=X']&&prices['USDJPY=X'].price)usdjpy=prices['USDJPY=X'].price;codes.forEach(c=>{const co=companies.find(x=>x.code===c);if(co&&prices[c]&&prices[c].price)co.price=prices[c].price})}}
+const hist={};async function loadHist(code){if(hist[code]&&Date.now()-hist[code].t<6*3600*1000)return hist[code].d;const j=await get('action=prices&range=1y&syms='+encodeURIComponent(code));const d=j.ok&&j.prices[code];hist[code]={t:Date.now(),d};return d}
+const held=()=>state.items.filter(x=>x.kind==='仲間'&&!x.out),keeps=()=>state.items.filter(x=>x.kind==='キープ'&&!x.out),grads=()=>state.items.filter(x=>x.kind==='仲間'&&x.out);
+function nowP(x){return x.out?num(x.sell):(prices[x.code]&&prices[x.code].price)}
+function pnl(x){const n=nowP(x);if(n==null)return null;return (n-num(x.buy))*num(x.shares)*(isJP(x.code)?1:usdjpy)}
+function plPct(x){const n=nowP(x);if(n==null)return null;return (n/num(x.buy)-1)*100}
+function cost(x){return num(x.buy)*num(x.shares)*(isJP(x.code)?1:usdjpy)}function comp(code){return companies.find(c=>c.code===code)}
+function render(){renderOwn();renderFarm();renderShop();renderBook()}
+function renderOwn(){const h=held();const tc=h.reduce((a,x)=>a+cost(x),0),tp=h.reduce((a,x)=>a+(pnl(x)||0),0);
+  $('#hTotal').textContent='¥'+yen(tc+tp);const e=$('#hPl');e.textContent=(tp>=0?'+':'')+yen(tp)+'円';e.className=tp>0?'up':tp<0?'dn':'';$('#hN').textContent=h.length;$('#hupd').textContent=h.length?'1ドル='+usdjpy.toFixed(1)+'円 ・ 開くたびに更新':'';
+  const hl=[];h.forEach(x=>{const st=stage(x);if(st==='rot')hl.push({x,tg:'腐りかけ',cls:'bad',d:'買値から'+Math.abs(plPct(x)).toFixed(1)+'%下がった。収穫（損切り）を考えるタイミング'});else if(st==='ripe')hl.push({x,tg:'食べごろ',cls:'good',d:'買値から'+plPct(x).toFixed(1)+'%上。収穫すれば+'+yen(pnl(x))+'円'});else if(st==='wilt')hl.push({x,tg:'しおれてきた',cls:'',d:'買値から'+Math.abs(plPct(x)).toFixed(1)+'%下。腐りかけ（−'+STOP+'%）まであと'+(STOP-Math.abs(plPct(x))).toFixed(1)+'%'})});
+  keeps().forEach(x=>{const n=nowP(x),b=num(x.price);if(n&&b&&n<=b*0.95)hl.push({x,tg:'安くなった',cls:'good',d:'キープしたときより'+((1-n/b)*100).toFixed(1)+'%安い。種を買うチャンスかも'})});
+  $('#ownDot').classList.toggle('on',hl.some(a=>a.cls==='bad'));
+  $('#hl').innerHTML=hl.length?'<div class="t">ハイライト</div>'+hl.map(a=>`<div class="hcard" data-id="${a.x.id}"><div class="ic">${a.x.kind==='仲間'?plantSVG(stage(a.x),'h'+a.x.id):seedSVG}</div><div><span class="tg ${a.cls}">${a.tg}</span><div class="d">${a.x.name}：${a.d}</div></div></div>`).join(''):'';
+  const list=h.slice().sort((a,b)=>(pnl(b)||0)-(pnl(a)||0));
+  $('#ownList').innerHTML=list.length?list.map(itemHTML).join(''):'<div class="empty">まだ株を持っていません。<br>八百屋で種を選んで、本当に買ったら登録しよう。</div>';
+  $('#gradList').innerHTML=grads().length?grads().slice().reverse().map(x=>{const v=pnl(x)||0;return `<div class="li" data-id="${x.id}"><div class="img">${plantSVG(v>0?'ripe':'rot','g'+x.id)}</div><div><div class="t">${x.name}</div><div class="s">${x.date} → ${x.out} ・ ${x.shares}株 ・ ${x.memo||''}</div></div><div class="r"><b class="${v>0?'up':'dn'}">${v>=0?'+':''}${yen(v)}円</b><small>${v>0?'利益確定':'損切り'}</small></div></div>`}).join(''):'<div class="empty" style="padding:14px">まだ収穫していません</div>'}
+function itemHTML(x){const n=nowP(x),v=pnl(x),pc=plPct(x),st=stage(x),U=unit(x);
+  const flash=st==='rot'?`<span class="flash bad">腐りかけ。収穫（損切り）を考える</span>`:st==='ripe'?`<span class="flash">食べごろ！収穫すれば利益確定</span>`:st==='wilt'?`<span class="flash warn">しおれてきた（−${STOP}%で腐りかけ）</span>`:'';
+  return `<div class="item" data-id="${x.id}"><div class="top"><div class="img">${plantSVG(st,'i'+x.id)}</div><div style="min-width:0"><div class="lbl">今の値段</div><div class="pr">${n!=null?yen(n)+U:'—'}<span class="dif ${v>0?'up':v<0?'dn':''}">${v==null?'':(v>=0?'↗ +':'↘ ')+yen(v)+'円'}</span></div><div class="sub">買った値段 ${yen(num(x.buy))}${U} ・ ${x.shares}株${pc!=null?' ・ '+(pc>=0?'+':'')+pc.toFixed(1)+'%':''}</div>${flash}</div></div>
+  <div class="nm">${x.name}</div><div class="row"><span class="cond">${stName[st]}${x.plot!=null?'':' ・ まだ畑に植えてない'}</span><span class="obtn ${st==='ripe'?'g':''}" data-h="${x.id}">収穫する</span></div></div>`}
+function renderFarm(){const h=held();const tp=h.reduce((a,x)=>a+(pnl(x)||0),0),tc=h.reduce((a,x)=>a+cost(x),0);const e=$('#fPl');e.textContent=(tp>=0?'+':'')+yen(tp)+'円';e.className='big '+(tp>0?'up':tp<0?'dn':'');$('#fCost').textContent=yen(tc)+'円';
+  const bag=h.filter(x=>x.plot==null);$('#fBag').textContent=bag.length;$('#farmDot').classList.toggle('on',bag.length>0);
+  $('#bagWrap').style.display=bag.length?'':'none';$('#seedbag').innerHTML=bag.map(x=>`<div class="bag ${selBag===x.id?'on':''}" data-bag="${x.id}">${seedSVG}<div class="n">${x.name}</div><div class="s">${x.shares}株</div></div>`).join('');
+  const planted=h.filter(x=>x.plot!=null);const rows=Math.max(2,Math.ceil((Math.max(-1,...planted.map(x=>x.plot))+2)/3));
+  let html='';for(let r=0;r<rows;r++){html+=`<div class="soil" data-row="${r}">`;for(let c=0;c<3;c++){const i=r*3+c;const x=planted.find(x=>x.plot===i);if(x){const st=stage(x),v=pnl(x);html+=`<div class="plot ${st==='ripe'?'ripe':''} ${st==='rot'||st==='wilt'?'rot':''}" style="left:${c*33.33}%" data-id="${x.id}">${plantSVG(st,'f'+x.id)}<div class="n">${x.name}</div><div class="v ${v>0?'up':v<0?'dn':''}">${v==null?'—':(v>=0?'+':'')+yen(v)}</div></div>`}}html+='</div>'}
+  $('#farm').innerHTML=html;$('#fhint').textContent=bag.length?(selBag?'土を長押ししてくぼみを作り、そこに植えよう':'種袋をタップして選んでから、土を長押し'):planted.length?'実が光ったら食べごろ。しおれたら要注意':'八百屋で種を買うと、ここに植えられる'}
+let pressT=null;
+$('#farm').addEventListener('pointerdown',e=>{const soil=e.target.closest('.soil');if(!soil||e.target.closest('.plot'))return;const rect=soil.getBoundingClientRect();const x=e.clientX-rect.left,y=e.clientY-rect.top;
+  const ring=document.createElement('div');ring.className='press';ring.style.left=x+'px';ring.style.top=y+'px';soil.appendChild(ring);setTimeout(()=>ring.remove(),650);pressT=setTimeout(()=>dig(soil,x,rect.width),550)});
+['pointerup','pointercancel','pointerleave'].forEach(ev=>$('#farm').addEventListener(ev,()=>clearTimeout(pressT)));
+async function dig(soil,x,w){const col=Math.min(2,Math.floor(x/w*3)),row=+soil.dataset.row,idx=row*3+col;if(held().some(p=>p.plot===idx)){toast('ここはもう植わってる');return}
+  soil.querySelectorAll('.hole').forEach(h=>h.remove());const hole=document.createElement('div');hole.className='hole';hole.style.left=(col*33.33+16.66)+'%';soil.appendChild(hole);if(navigator.vibrate)navigator.vibrate(20);
+  const bag=held().filter(p=>p.plot==null);if(!bag.length){toast('植える種がない。八百屋で買おう');return}const item=bag.find(p=>p.id===selBag)||bag[0];
+  setTimeout(async()=>{const j=await post({type:'plant',id:item.id,plot:idx});if(!j.ok){toast('失敗: '+j.error);return}item.plot=idx;selBag=null;renderFarm();const el=$('#farm').querySelector(`.plot[data-id="${item.id}"]`);if(el)el.classList.add('new');toast('🌱 '+item.name+'を植えた');confetti({particleCount:40,spread:50,origin:{y:.6},colors:['#4cc44a','#a8824e','#fff']})},450)}
+$('#seedbag').onclick=e=>{const b=e.target.closest('.bag');if(!b)return;selBag=selBag===b.dataset.bag?null:b.dataset.bag;renderFarm()};
+function shopList(){let l=companies.map(c=>({c,j:judge(c)})).filter(x=>num(x.c.price));
+  if(shopMkt==='日本'||shopMkt==='米国')l=l.filter(x=>x.c.market===shopMkt);if(shopMkt==='cheap')l=l.filter(x=>yenPrice(x.c)*(isJP(x.c.code)?100:1)<=100000);if(shopMkt==='keep'){const ks=new Set(keeps().map(k=>k.code));l=l.filter(x=>ks.has(x.c.code))}
+  const key={sale:'saleScore',strong:'strongScore',grow:'growScore',div:'divy'}[shopKind];l.sort((a,b)=>b.j[key]-a.j[key]);if(shopKind!=='sale')l=l.filter(x=>x.j.health!=='weak');return l}
+function seedRow(c,j){const k=keeps().find(x=>x.code===c.code),h=held().find(x=>x.code===c.code);const py=yenPrice(c);
+  return `<div class="li" data-code="${c.code}" style="${j.health==='weak'?'opacity:.6':''}"><div class="img">${seedSVG}</div><div style="min-width:0"><div class="t">${c.name}の種 ${h?'<span class="pill g">所持</span>':k?'<span class="pill">♡ キープ</span>':''}</div><div class="s">${isJP(c.code)?'🇯🇵':'🇺🇸'} ${j.dd>=0.03?'高値から'+Math.round(j.dd*100)+'%安い':'ほぼ高値'} ・ ${j.health==='weak'?'<span class="dn">弱っている会社</span>':j.health==='strong'?'元気な会社':'ふつうの会社'}</div><div>${j.tags.slice(0,3).map(t=>`<span class="pill ${t[1]}">${t[0]}</span>`).join('')}</div></div><div class="r"><b>${yen(py)}円</b><small>${isJP(c.code)?'100粒 '+yen(py*100)+'円':num(c.price)+'ドル'}</small></div></div>`}
+function renderShop(){const l=shopList();const top=l[0];if(top){$('#shopTop').textContent=top.c.name+'の種';$('#shopTopSub').innerHTML=`<span>${yen(yenPrice(top.c))}円</span><span>${top.j.dd>=0.03?'高値から'+Math.round(top.j.dd*100)+'%安い':''}</span>`}
+  $('#shopList').innerHTML=l.slice(0,showN).map(x=>seedRow(x.c,x.j)).join('')||'<div class="empty">該当なし</div>';$('#more').style.display=l.length>showN?'':'none'}
+function renderBook(){const q=($('#q').value||'').trim().toLowerCase();let l=companies.map(c=>({c,j:judge(c)}));if(q)l=l.filter(x=>(x.c.name+x.c.code).toLowerCase().includes(q));l.sort((a,b)=>b.j.strongScore-a.j.strongScore);$('#bookList').innerHTML=l.slice(0,80).map(x=>seedRow(x.c,x.j)).join('')+(l.length>80?'<div class="empty" style="padding:10px">…ほか'+(l.length-80)+'社。名前で絞ってね</div>':'')}
+let curDetail=null,perSel='1y';
+async function detail(code,item){const c=comp(code);if(!c)return;const j=judge(c),w=words(c,j);item=item||state.items.find(x=>!x.out&&x.code===code);const U=unit(c);curDetail={code,item};
+  const isH=item&&item.kind==='仲間',isK=item&&item.kind==='キープ';const st=isH?stage(item):null,v=isH?pnl(item):null,n=isH?nowP(item):num(c.price);
+  const price=isH?`<div class="pcard"><div class="lbl">今の値段</div><div class="pr">${n!=null?yen(n)+U:'—'}</div><div class="dif ${v>0?'up':v<0?'dn':''}">${v==null?'':(v>=0?'↗ +':'↘ ')+yen(v)+'円'}<small>買った時（${item.date}・${yen(num(item.buy))}${U}）との比較</small></div><div style="margin-top:8px;font-weight:700;font-size:14px">${stName[st]}${st==='rot'?'。収穫（損切り）を考える':st==='ripe'?'。収穫すれば利益確定':''}</div></div>
+    <div class="two"><div class="pcard"><div class="lbl">食べごろライン（+${RIPE}%）</div><div class="pr" style="font-size:22px">${yen(num(item.buy)*(1+RIPE/100))}${U}</div><div class="lbl">ここを超えたら実が光る</div></div><div class="pcard"><div class="lbl">腐りかけライン（−${STOP}%）</div><div class="pr ${st==='rot'?'dn':''}" style="font-size:22px">${yen(num(item.buy)*(1-STOP/100))}${U}</div><div class="lbl">割ったら迷わず収穫</div></div></div>`
+  :`<div class="pcard"><div class="lbl">種の値段（今の株価）</div><div class="pr">${yen(yenPrice(c))}円</div><div class="dif ${j.dd>=0.15?'up':''}">${j.dd>=0.01?'↘ 1年の高値から −'+Math.round(j.dd*100)+'%':'↗ ほぼ1年の高値'}<small>${j.health==='weak'?'弱っている会社':j.health==='strong'?'元気な会社':'ふつうの会社'}</small></div><div class="lbl" style="margin-top:6px">${isJP(code)?'100粒（100株）で '+yen(yenPrice(c)*100)+'円':num(c.price)+'ドル・1粒から買える'}</div></div>`;
+  $('#page').innerHTML=`<div class="nav"><div class="bk" id="pback">‹</div><div class="tt">${isH?'所持株の詳細':'種の詳細'}</div><div></div></div>
+  <div class="phead"><div class="img">${isH?plantSVG(st,'p'+item.id):seedSVG}</div><div><div class="nm">${c.name}${isH?'':'の種'}</div><div class="cp">${isJP(code)?'🇯🇵 日本':'🇺🇸 アメリカ'} ・ ${code} ・ 通信簿 ${c.period||''}${isK?' ・ ♡ キープ中':''}</div><div>${j.tags.slice(0,3).map(t=>`<span class="pill ${t[1]}">${t[0]}</span>`).join('')}</div></div></div>
+  <div class="pbody">${price}
+  <div class="pcard"><div class="lbl">値段の動き</div><div class="chartwrap" id="cw"><div class="loading" style="padding:50px 0"><div class="spin" style="width:22px;height:22px;border-width:3px"></div></div></div><div class="per" id="per">${[['1w','1週間'],['1mo','1ヶ月'],['3mo','3ヶ月'],['1y','1年']].map(([k,n])=>`<span class="${k===perSel?'on':''}" data-p="${k}">${n}</span>`).join('')}</div><div class="lbl" style="margin-top:6px">グラフを指でなぞると、その日の値段が出ます</div></div>
+  <div class="pcard"><div class="lbl" style="margin-bottom:8px">通信簿</div><div class="rep" style="margin:0 0 10px">${j.rep.map(([k,v])=>`<div><b class="${v==='◎'?'ok':v==='○'?'so':'ng'}">${v}</b><small>${k}</small></div>`).join('')}</div><div class="pro">✅ ${w.pro.join('。')}</div><div class="con">⚠️ ${w.con.join('。')}</div></div>
+  <div class="kvl"><div><span>売上（3年前 → 今）</span><b>${num(c.rev3)!=null?yen(c.rev3):'—'} → ${num(c.rev)!=null?yen(c.rev):'—'} 億${U}</b></div><div><span>儲け（3年前 → 今）</span><b>${num(c.net3)!=null?yen(c.net3):'—'} → ${num(c.net)!=null?yen(c.net):'—'} 億${U}</b></div><div><span>借金を返しても残る現金</span><b class="${num(c.netcash)>0?'up':'dn'}">${num(c.netcash)!=null?yen(c.netcash)+' 億'+U:'—'}</b></div><div><span>100万円分の年のおこづかい</span><b>${j.divy?yen(j.divy)+'円':'なし'}</b></div><div><span>利益の何年分の値段か（PER）</span><b>${j.per>0?j.per.toFixed(1)+'年分':'赤字'}</b></div>${isH?`<div><span>持っている数</span><b>${item.shares}株</b></div><div><span>買った理由</span><b style="font-weight:600;text-align:right;max-width:60%">${item.memo||'—'}</b></div>`:''}</div></div>`;
+  $('#sticky').innerHTML=isH?`<button class="btn ${st==='rot'?'red':st==='ripe'?'grn':''}" id="d-harvest">収穫する（売った）</button>`:isK?`<div style="display:flex;gap:10px"><button class="btn w" id="d-unkeep">キープをやめる</button><button class="btn" id="d-buy">種を買った</button></div>`:`<div style="display:flex;gap:10px"><button class="btn w" id="d-keep">♡ キープ</button><button class="btn" id="d-buy">種を買った</button></div>`;
+  $('#page').classList.add('on');$('#sticky').classList.add('on');$('#page').scrollTop=0;
+  $('#pback').onclick=closePage;const k=$('#d-keep');if(k)k.onclick=()=>keep(c);const u=$('#d-unkeep');if(u)u.onclick=()=>unkeep(item);const b=$('#d-buy');if(b)b.onclick=()=>buyFlow(c,item);const hv=$('#d-harvest');if(hv)hv.onclick=()=>harvestFlow(item);
+  $('#per').onclick=e=>{const el=e.target.closest('span');if(!el)return;perSel=el.dataset.p;$('#per span').forEach(x=>x.classList.toggle('on',x===el));drawChart(code,item)};
+  drawChart(code,item)}
+function closePage(){$('#page').classList.remove('on');$('#sticky').classList.remove('on');curDetail=null}
+async function drawChart(code,item){const h=await loadHist(code);const el=$('#cw');if(!el)return;if(!h||!h.c){el.innerHTML='<div class="empty">チャートを取れませんでした</div>';return}
+  let pts0=h.c.map((v,i)=>[h.t[i],v]).filter(p=>p[1]!=null);const nper={'1w':7,'1mo':31,'3mo':92,'1y':400}[perSel];const cutoff=Date.now()/1000-nper*86400;pts0=pts0.filter(p=>p[0]>=cutoff);if(pts0.length<2){el.innerHTML='<div class="empty">データが足りません</div>';return}
+  const vals=pts0.map(p=>p[1]);const mn=Math.min(...vals),mx=Math.max(...vals);const W=340,H=180,L=4,R=4,T=14,B=22;const X=i=>L+i/(pts0.length-1)*(W-L-R),Y=v=>T+(1-(v-mn)/((mx-mn)||1))*(H-T-B);
+  const d=pts0.map((p,i)=>(i?'L':'M')+X(i).toFixed(1)+','+Y(p[1]).toFixed(1)).join(' ');const col=vals[vals.length-1]>=vals[0]?'#1fa37a':'#e5484d';
+  let buyLine='';if(item&&item.kind==='仲間'){const bb=num(item.buy);if(bb>=mn&&bb<=mx){const y=Y(bb);buyLine=`<line x1="0" y1="${y}" x2="${W}" y2="${y}" stroke="#888" stroke-dasharray="4 4"/><text x="${W-2}" y="${y-3}" font-size="10" fill="#666" font-weight="700" text-anchor="end">買値 ${yen(bb)}</text>`}}
+  const grid=[0,.5,1].map(k=>{const v=mn+(mx-mn)*k;const y=Y(v);return `<line x1="0" y1="${y}" x2="${W}" y2="${y}" stroke="#e5e5ea" stroke-dasharray="3 4"/><text x="2" y="${y-3}" font-size="10" fill="#999" font-weight="600">${yen(v)}</text>`}).join('');
+  const fmt=t=>{const dt=new Date(t*1000);return (dt.getMonth()+1)+'/'+dt.getDate()};const xl=[0,Math.floor(pts0.length/2),pts0.length-1].map(i=>`<text x="${X(i)}" y="${H-6}" font-size="10" fill="#999" font-weight="600" text-anchor="${i===0?'start':i===pts0.length-1?'end':'middle'}">${fmt(pts0[i][0])}</text>`).join('');
+  el.innerHTML=`<svg class="chart" viewBox="0 0 ${W} ${H}" width="100%" id="csvg"><defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity=".28"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient></defs>${grid}<path d="${d} L${X(pts0.length-1)},${H-B} L${L},${H-B}Z" fill="url(#cg)"/><path d="${d}" fill="none" stroke="${col}" stroke-width="2.5" stroke-linejoin="round"/>${buyLine}${xl}<line id="cur" x1="0" y1="${T}" x2="0" y2="${H-B}" stroke="#111" stroke-width="1" style="display:none"/><circle id="dot" r="5" fill="${col}" stroke="#fff" stroke-width="2" cx="${X(pts0.length-1)}" cy="${Y(vals[vals.length-1])}"/></svg><div class="tip" id="ctip"></div>`;
+  const svg=$('#csvg'),tip=$('#ctip'),cur=$('#cur'),dot=$('#dot');const unitS=isJP(code)?'円':'ドル';
+  const show=ev=>{const r=svg.getBoundingClientRect();const x=(ev.clientX-r.left)/r.width*W;const i=clamp(Math.round((x-L)/(W-L-R)*(pts0.length-1)),0,pts0.length-1);const p=pts0[i];cur.setAttribute('x1',X(i));cur.setAttribute('x2',X(i));cur.style.display='';dot.setAttribute('cx',X(i));dot.setAttribute('cy',Y(p[1]));
+    const dt=new Date(p[0]*1000);tip.innerHTML=`${dt.getFullYear()}/${dt.getMonth()+1}/${dt.getDate()}（${'日月火水木金土'[dt.getDay()]}）<b>${yen(p[1])}${unitS}</b>`;tip.style.display='block';const tw=tip.offsetWidth;const px=(X(i)/W)*r.width;tip.style.left=clamp(px-tw/2,0,r.width-tw)+'px'};
+  const hide=()=>{tip.style.display='none';cur.style.display='none';dot.setAttribute('cx',X(pts0.length-1));dot.setAttribute('cy',Y(vals[vals.length-1]))};
+  svg.addEventListener('pointerdown',e=>{show(e);svg.setPointerCapture(e.pointerId)});svg.addEventListener('pointermove',e=>{if(e.buttons||e.pointerType==='touch')show(e)});svg.addEventListener('pointerup',hide);svg.addEventListener('pointercancel',hide)}
+async function keep(c){const j=await post({type:'keep',code:c.code,name:c.name,price:num(c.price)});if(!j.ok){toast('失敗: '+j.error);return}close();closePage();toast('♡ '+c.name+'をキープ');await reload()}
+async function unkeep(item){const j=await post({type:'unkeep',id:item.id});if(!j.ok){toast('失敗: '+j.error);return}close();closePage();toast('キープをやめた');await reload()}
+function buyFlow(c,item){const p=num(c.price)||0,U=unit(c);open(`<div class="grab"></div><h2>${c.name}の種を買った</h2><div class="cap">証券口座で<b>本当に買ったあと</b>に入力。${isJP(c.code)?'日本株は100株単位。':'米国株は1株から。'}</div>
+  <div class="lb">買った値段（1株・${U}）</div><input class="inp" id="bb" type="number" inputmode="decimal" value="${p}"><div class="lb">株数（粒）</div><input class="inp" id="bs" type="number" inputmode="numeric" value="${isJP(c.code)?100:1}"><div class="lb">合計</div><div class="tot" id="bt">—</div>
+  <div class="lb">ひとこと（なぜ買った？）</div><input class="inp" id="bm" style="font-size:14px;text-align:left;font-weight:600" placeholder="例：高値から30%安くて元気な会社だから">
+  <div style="display:flex;gap:10px;margin-top:16px"><button class="btn w" id="bc">やめる</button><button class="btn" id="bok">登録する</button></div>`);
+  const upd=()=>{$('#bt').textContent=yen((+$('#bb').value||0)*(+$('#bs').value||0)*(isJP(c.code)?1:usdjpy))+'円'};upd();$('#bb').oninput=upd;$('#bs').oninput=upd;$('#bc').onclick=close;
+  $('#bok').onclick=async()=>{const b=+$('#bb').value,s=+$('#bs').value;if(!b||!s){toast('値段と株数を入れてね');return}$('#bok').disabled=true;if(item&&item.kind==='キープ')await post({type:'unkeep',id:item.id});
+    const j=await post({type:'join',code:c.code,name:c.name,price:num(c.price),buy:b,shares:s,memo:$('#bm').value});if(!j.ok){toast('失敗: '+j.error);$('#bok').disabled=false;return}close();closePage();toast('種袋に入れた。株畑で植えよう');await reload();go('farm')}}
+function harvestFlow(item){const n=nowP(item)||num(item.buy),U=unit(item),st=stage(item);open(`<div class="grab"></div><h2>${item.name}を収穫する</h2><div class="cap">${st==='rot'?'腐りかけ。ここで収穫（損切り）すれば損はこれ以上広がらない':st==='ripe'?'食べごろ。収穫して利益確定':'まだ育ち途中。本当に収穫する？'}</div>
+  <div class="lb">売った値段（1株・${U}）</div><input class="inp" id="hp" type="number" inputmode="decimal" value="${n}"><div class="lb">結果</div><div class="tot" id="ht">—</div><div class="lb">メモ（次に活かす）</div><input class="inp" id="hm" style="font-size:14px;text-align:left;font-weight:600" placeholder="例：決算が悪くて下がった">
+  <div style="display:flex;gap:10px;margin-top:16px"><button class="btn w" id="hc">まだ育てる</button><button class="btn ${st==='rot'?'red':'grn'}" id="hok">収穫した</button></div>`);
+  const calc=()=>(+$('#hp').value-num(item.buy))*num(item.shares)*(isJP(item.code)?1:usdjpy);const upd=()=>{const v=calc();const e=$('#ht');e.textContent=(v>=0?'+':'')+yen(v)+'円';e.className='tot '+(v>0?'up':v<0?'dn':'')};upd();$('#hp').oninput=upd;$('#hc').onclick=close;
+  $('#hok').onclick=async()=>{const p=+$('#hp').value;if(!p){toast('値段を入れてね');return}$('#hok').disabled=true;const v=calc();const j=await post({type:'leave',id:item.id,price:p,memo:$('#hm').value||(st==='rot'?'腐りかけで損切り':v>0?'食べごろで利益確定':'')});if(!j.ok){toast('失敗: '+j.error);$('#hok').disabled=false;return}close();closePage();
+    const hv=$('#harvest');hv.innerHTML=`${plantSVG(v>0?'ripe':'rot','hv')}<div class="t">${v>0?'収穫！':'損切り完了'}</div><div class="s">${item.name} ${(v>=0?'+':'')+yen(v)}円${v>0?'':'。損をここで止めた'}</div>`;hv.classList.add('on');if(v>0)confetti({particleCount:140,spread:90,origin:{y:.5},colors:['#ff3b30','#4cc44a','#fff','#ffd60a']});setTimeout(()=>hv.classList.remove('on'),2600);await reload()}}
 async function reload(){await loadState();await loadPrices();render()}
-function big(){const end=Date.now()+1600;(function f(){confetti({particleCount:6,angle:60,spread:60,origin:{x:0},colors:['#ffd21f','#fff','#b14cff']});confetti({particleCount:6,angle:120,spread:60,origin:{x:1},colors:['#ffd21f','#fff','#2f9bff']});if(Date.now()<end)requestAnimationFrame(f)})()}
-function victory(t,s,blue){const v=$('#victory');$('#vt').textContent=t;$('#vs').textContent=s;v.classList.toggle('blue',blue);v.classList.add('on');setTimeout(()=>v.classList.remove('on'),2600)}
-function levelUp(l){const d=document.createElement('div');d.className='levelup';d.innerHTML='<div>LEVEL UP! Lv'+l+'</div>';document.body.appendChild(d);confetti({particleCount:120,spread:100,origin:{y:.5}});setTimeout(()=>d.remove(),2200)}
-function xpFly(t){const d=document.createElement('div');d.className='xpfly';d.textContent=t;const r=$('#xp').getBoundingClientRect();d.style.left=(r.left-10)+'px';d.style.top=(r.top+10)+'px';document.body.appendChild(d);setTimeout(()=>d.remove(),1100)}
-function openSheet(h){$('#sheet').innerHTML=h;$('#ov').classList.add('on');$('#sheet').scrollTop=0}
-function closeSheet(){$('#ov').classList.remove('on')}
+function open(h){$('#modal').innerHTML=h;$('#ov').classList.add('on');$('#modal').scrollTop=0}function close(){$('#ov').classList.remove('on')}
 let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2200)}
-function go(s){document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x.dataset.s===s));document.querySelectorAll('.screen').forEach(x=>x.classList.toggle('on',x.id==='s-'+s))}
-
-// ---- イベント ----
+function go(s){document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x.dataset.s===s));document.querySelectorAll('.screen').forEach(x=>x.classList.toggle('on',x.id==='s-'+s));scrollTo(0,0)}
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>go(t.dataset.s));
-$('#mkt').onclick=e=>{const el=e.target.closest('.chip');if(!el)return;if(el.id==='budget'){budget=!budget;el.classList.toggle('on',budget)}else{mkt=el.dataset.m;$('#mkt .chip[data-m]').forEach(x=>x.classList.toggle('on',x===el))}showN=20;renderScout()};
-$('#sort').onclick=e=>{const el=e.target.closest('.chip');if(!el)return;sort=el.dataset.s;$('#sort .chip').forEach(x=>x.classList.toggle('on',x===el));showN=20;renderScout()};
-$('#more').onclick=()=>{showN+=20;renderScout()};
-$('#rfilter').onclick=e=>{const el=e.target.closest('.chip');if(!el)return;rf=el.dataset.r;$('#rfilter .chip').forEach(x=>x.classList.toggle('on',x===el));renderAll()};
-$('#q').oninput=renderAll;
-document.addEventListener('click',e=>{const r=e.target.closest('.rank');if(r){showCompany(r.dataset.code);return}const m=e.target.closest('.mini,.alertbar,.salebar');if(m&&m.dataset.id){const it=state.items.find(x=>x.id===m.dataset.id);if(it)showCompany(it.code,it)}});
-$('#pseg').onclick=e=>{const el=e.target.closest('span[data-k]');if(!el)return;pseg=el.dataset.k;$('#pseg span').forEach(x=>x.classList.toggle('on',x===el));renderParty()};
-$('#ov').onclick=e=>{if(e.target.id==='ov')closeSheet()};
-$('#swReal').classList.toggle('on',real);$('#swReal').onclick=()=>{real=!real;$('#swReal').classList.toggle('on',real);try{localStorage.setItem('kr_real',real?'1':'0')}catch(e){}render()};
-$('#stopPct').value=stopPct;$('#stopPct').onchange=e=>{stopPct=clamp(+e.target.value||8,1,50);e.target.value=stopPct;try{localStorage.setItem('kr_stop',stopPct)}catch(e){}render()};
-$('#av').onclick=()=>{$('#say').style.display='';say(buddyLine(progress()));mood('happy')};$('#say').onclick=()=>{$('#say').style.display='none'};
-// 用語ツールチップ（長押し／タップ）
-let pt;document.addEventListener('pointerdown',e=>{const t=e.target.closest('.term');if(!t)return;pt=setTimeout(()=>showTip(t,e),350)});document.addEventListener('pointerup',()=>clearTimeout(pt));document.addEventListener('pointercancel',()=>clearTimeout(pt));
-document.addEventListener('click',e=>{const t=e.target.closest('.term');if(t){showTip(t,e)}else $('#tip').classList.remove('on')});
-function showTip(t,e){const k=t.dataset.k,d=TERMS[k];const el=$('#tip');el.innerHTML=`<b>${real?d[0]:d[1]}</b>${d[2]?'<br>'+d[2]:''}`;el.classList.add('on');const x=clamp(e.clientX-130,8,innerWidth-270);el.style.left=x+'px';el.style.top=(e.clientY+14)+'px';e.stopPropagation()}
-(function(){const p=$('#particles');for(let i=0;i<22;i++){const s=document.createElement('i');s.style.left=Math.random()*100+'%';s.style.animationDuration=(8+Math.random()*14)+'s';s.style.animationDelay=(-Math.random()*20)+'s';s.style.width=s.style.height=(3+Math.random()*5)+'px';p.appendChild(s)}})();
-
-// ---- 起動 ----
-(async function(){
-  avatar(0);say('読み込み中…ちょっと待ってね');
-  try{await Promise.all([loadCompanies(),loadState()]);await loadPrices();render();
-    const p=progress();if(!p.td.some(l=>l.kind==='login'))await award('login','',5,'ログインボーナス +5XP');
-  }catch(e){toast('読み込みに失敗。電波を確認してね');say('データが取れなかった…もう一回開いてみて');console.error(e)}
-})();
+$('#shopSeg').onclick=e=>{const el=e.target.closest('span');if(!el)return;shopKind=el.dataset.k;$('#shopSeg span').forEach(x=>x.classList.toggle('on',x===el));showN=15;renderShop()};
+$('#shopMkt').onclick=e=>{const el=e.target.closest('span');if(!el)return;shopMkt=el.dataset.m;$('#shopMkt span').forEach(x=>x.classList.toggle('on',x===el));showN=15;renderShop()};
+$('#more').onclick=()=>{showN+=15;renderShop()};$('#q').oninput=renderBook;
+document.addEventListener('click',e=>{const hb=e.target.closest('[data-h]');if(hb){e.stopPropagation();const it=state.items.find(x=>x.id===hb.dataset.h);if(it)harvestFlow(it);return}
+  const li=e.target.closest('.li[data-code]');if(li){detail(li.dataset.code);return}const it=e.target.closest('.item[data-id],.hcard[data-id],.plot[data-id],.li[data-id]');if(it){const x=state.items.find(y=>y.id===it.dataset.id);if(x)detail(x.code,x)}});
+$('#ov').onclick=e=>{if(e.target.id==='ov')close()};
+(async function(){try{await Promise.all([loadCompanies(),loadState()]);await loadPrices();render()}catch(e){toast('読み込みに失敗。電波を確認してね');console.error(e)}})();
 </script>
 </body>
 </html>
