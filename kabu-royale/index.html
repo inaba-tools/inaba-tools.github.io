@@ -97,7 +97,7 @@ body{font-family:"Inter","Noto Sans JP",-apple-system,"Hiragino Sans",sans-serif
 <section class="screen" id="s-own">
   <div class="hero"><h1><span>所持株</span><span id="hupd" style="font-weight:600;font-size:12px;opacity:.75"></span></h1>
     <div class="lbl">株資産</div><div class="big" id="hTotal">—</div>
-    <div class="meta"><span>育ち<b id="hPl">—</b></span><span>所有数<b id="hN">0</b></span></div>
+    <div class="meta"><span>育ち<b id="hPl">—</b></span><span>所有数<b id="hN">0</b></span><span id="hFundWrap">元手の残り<b id="hFund">—</b></span></div>
     <div class="hl" id="hl"></div></div>
   <div class="sheet"><div class="sh"><b>アイテムリスト</b><span>育ちが大きい順</span></div><div id="ownList"></div>
     <div class="sh" style="margin-top:18px"><b>収穫ずみ</b></div><div id="gradList"></div></div>
@@ -156,7 +156,7 @@ body{font-family:"Inter","Noto Sans JP",-apple-system,"Hiragino Sans",sans-serif
 </section>
 <section class="screen" id="s-set">
   <div class="hero"><h1><span>設定</span></h1><div class="lbl">育ち方のルール</div><div class="big" style="font-size:26px">収穫のライン</div></div>
-  <div class="sheet"><div class="kvl"><div><span>食べごろ（買値から何%上で光る）</span><b><input class="inp" id="setRipe" type="number" inputmode="numeric" style="width:70px;padding:6px;font-size:16px"> %</b></div><div><span>腐りかけ（買値から何%下で赤）</span><b><input class="inp" id="setStop" type="number" inputmode="numeric" style="width:70px;padding:6px;font-size:16px"> %</b></div></div>
+  <div class="sheet"><div class="kvl"><div><span>株に使う元手（円）</span><b><input class="inp" id="setFund" type="number" inputmode="numeric" style="width:120px;padding:6px;font-size:16px" placeholder="例 500000"></b></div><div><span>食べごろ（買値から何%上で光る）</span><b><input class="inp" id="setRipe" type="number" inputmode="numeric" style="width:70px;padding:6px;font-size:16px"> %</b></div><div><span>腐りかけ（買値から何%下で赤）</span><b><input class="inp" id="setStop" type="number" inputmode="numeric" style="width:70px;padding:6px;font-size:16px"> %</b></div></div>
   <div class="kvl"><div><span>データの置き場</span><b>Googleスプレッドシート「決算チェッカー」</b></div><div><span>通信簿（決算）</span><b>Yahoo Finance・年1回</b></div><div><span>株価</span><b>開くたびに取得</b></div><div><span>会社の数</span><b>727社（日経225＋S&P500）</b></div></div>
   <div class="empty" style="text-align:left">本当の売り買いは証券口座で。このアプリは「何を買うか決める」「育ち具合を見る」ためのメモ帳です。</div></div>
 </section>
@@ -175,7 +175,7 @@ body{font-family:"Inter","Noto Sans JP",-apple-system,"Hiragino Sans",sans-serif
 <script>
 const API='https://script.google.com/macros/s/AKfycbxp2NJyQCnSduboXEaXFN0kndza6-0-zqrJN_0W9tLhBymhxRO8mLlT-dcZgI5lcvLr0A/exec';
 const $=s=>document.querySelector(s);const yen=n=>Math.round(n).toLocaleString('ja-JP');const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));const num=v=>(v===''||v==null||isNaN(v))?null:Number(v);const isJP=c=>/^\d{4}$/.test(c);
-let companies=[],state=null,prices={},usdjpy=150,shopKind='sale',shopMkt='all',showN=15,selBag=null,STOP=8,RIPE=10;try{STOP=+localStorage.getItem('kb_stop')||8;RIPE=+localStorage.getItem('kb_ripe')||10}catch(e){}
+let companies=[],state=null,prices={},usdjpy=150,shopKind='sale',shopMkt='all',showN=15,selBag=null,STOP=8,RIPE=10,FUND=0;try{STOP=+localStorage.getItem('kb_stop')||8;RIPE=+localStorage.getItem('kb_ripe')||10;FUND=+localStorage.getItem('kb_fund')||0}catch(e){}
 function judge(c){const eqr=num(c.eqr),opm=num(c.opm),revg=num(c.revg),nc=num(c.netcash),per=num(c.per),hi=num(c.hi52),p=num(c.price),divy=num(c.divy),ng=num(c.netg);
   const dd=hi&&p?1-p/hi:0;const strong=(nc!=null&&nc>0)||(eqr!=null&&eqr>=50);const weak=(per==null||per<=0)||(eqr!=null&&eqr<20&&!(nc>0));
   const health=weak?'weak':(strong&&(opm||0)>=10)?'strong':'ok';const tags=[];
@@ -223,7 +223,7 @@ function plPct(x){const n=nowP(x);if(n==null)return null;return (n/num(x.buy)-1)
 function cost(x){return num(x.buy)*num(x.shares)*(isJP(x.code)?1:usdjpy)}function comp(code){return companies.find(c=>c.code===code)}
 function render(){renderOwn();renderFarm();renderShop();renderBook()}
 function renderOwn(){const h=held();const tc=h.reduce((a,x)=>a+cost(x),0),tp=h.reduce((a,x)=>a+(pnl(x)||0),0);
-  $('#hTotal').textContent='¥'+yen(tc+tp);const e=$('#hPl');e.textContent=(tp>=0?'+':'')+yen(tp)+'円';e.className=tp>0?'up':tp<0?'dn':'';$('#hN').textContent=h.length;$('#hupd').textContent=h.length?'1ドル='+usdjpy.toFixed(1)+'円 ・ 開くたびに更新':'';
+  $('#hTotal').textContent='¥'+yen(tc+tp);const e=$('#hPl');e.textContent=(tp>=0?'+':'')+yen(tp)+'円';e.className=tp>0?'up':tp<0?'dn':'';$('#hN').textContent=h.length;$('#hFundWrap').style.display=FUND?'':'none';if(FUND)$('#hFund').textContent=yen(FUND-tc)+'円';$('#hupd').textContent=h.length?'1ドル='+usdjpy.toFixed(1)+'円 ・ 開くたびに更新':'';
   const hl=[];h.forEach(x=>{const st=stage(x);if(st==='rot')hl.push({x,tg:'腐りかけ',cls:'bad',d:'買値から'+Math.abs(plPct(x)).toFixed(1)+'%下がった。収穫（損切り）を考えるタイミング'});else if(st==='ripe')hl.push({x,tg:'食べごろ',cls:'good',d:'買値から'+plPct(x).toFixed(1)+'%上。収穫すれば+'+yen(pnl(x))+'円'});else if(st==='wilt')hl.push({x,tg:'しおれてきた',cls:'',d:'買値から'+Math.abs(plPct(x)).toFixed(1)+'%下。腐りかけ（−'+STOP+'%）まであと'+(STOP-Math.abs(plPct(x))).toFixed(1)+'%'})});
   keeps().forEach(x=>{const n=nowP(x),b=num(x.price);if(n&&b&&n<=b*0.95)hl.push({x,tg:'安くなった',cls:'good',d:'キープしたときより'+((1-n/b)*100).toFixed(1)+'%安い。種を買うチャンスかも'})});
   $('#ownDot').classList.toggle('on',hl.some(a=>a.cls==='bad'));
@@ -288,6 +288,9 @@ async function detail(code,item){const c=comp(code);if(!c)return;const j=judge(c
   $('#pback').onclick=closePage;const k=$('#d-keep');if(k)k.onclick=()=>keep(c);const u=$('#d-unkeep');if(u)u.onclick=()=>unkeep(item);const b=$('#d-buy');if(b)b.onclick=()=>buyFlow(c,item);const hv=$('#d-harvest');if(hv)hv.onclick=()=>harvestFlow(item);
   $('#per').onclick=e=>{const el=e.target.closest('span');if(!el)return;perSel=el.dataset.p;$('#per span').forEach(x=>x.classList.toggle('on',x===el));drawChart(code,item)};
   drawChart(code,item)}
+(function(){const pg=$('#page');let sx=0,sy=0,on=false;pg.addEventListener('touchstart',e=>{const t=e.touches[0];sx=t.clientX;sy=t.clientY;on=sx<40},{passive:true});
+pg.addEventListener('touchmove',e=>{if(!on)return;const t=e.touches[0];const dx=t.clientX-sx,dy=Math.abs(t.clientY-sy);if(dx>0&&dx>dy){pg.style.transform='translateX('+dx+'px)';pg.style.transition='none'}},{passive:true});
+pg.addEventListener('touchend',e=>{if(!on)return;on=false;const dx=(e.changedTouches[0].clientX-sx);pg.style.transition='transform .2s';if(dx>90){pg.style.transform='translateX(100%)';setTimeout(()=>{closePage();pg.style.transform='';pg.style.transition=''},200)}else{pg.style.transform='';setTimeout(()=>pg.style.transition='',200)}})})();
 function closePage(){$('#page').classList.remove('on');$('#sticky').classList.remove('on');curDetail=null}
 async function drawChart(code,item){const h=await loadHist(code);const el=$('#cw');if(!el)return;if(!h||!h.c){el.innerHTML='<div class="empty">チャートを取れませんでした</div>';return}
   const rate=isJP(code)?1:usdjpy;let pts0=h.c.map((v,i)=>[h.t[i],v==null?null:v*rate]).filter(p=>p[1]!=null);const nper={'1w':7,'1mo':31,'3mo':92,'1y':400}[perSel];const cutoff=Date.now()/1000-nper*86400;pts0=pts0.filter(p=>p[0]>=cutoff);if(pts0.length<2){el.innerHTML='<div class="empty">データが足りません</div>';return}
@@ -322,7 +325,7 @@ function open(h){$('#modal').innerHTML=h;$('#ov').classList.add('on');$('#modal'
 let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2200)}
 function go(s){document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x.dataset.s===s));document.querySelectorAll('.screen').forEach(x=>x.classList.toggle('on',x.id==='s-'+s));scrollTo(0,0)}
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>go(t.dataset.s));
-$('#setRipe').value=RIPE;$('#setStop').value=STOP;$('#setRipe').onchange=e=>{RIPE=clamp(+e.target.value||10,1,100);e.target.value=RIPE;try{localStorage.setItem('kb_ripe',RIPE)}catch(x){}render()};$('#setStop').onchange=e=>{STOP=clamp(+e.target.value||8,1,50);e.target.value=STOP;try{localStorage.setItem('kb_stop',STOP)}catch(x){}render()};
+$('#setFund').value=FUND||'';$('#setFund').onchange=e=>{FUND=Math.max(0,+e.target.value||0);try{localStorage.setItem('kb_fund',FUND)}catch(x){}render()};$('#setRipe').value=RIPE;$('#setStop').value=STOP;$('#setRipe').onchange=e=>{RIPE=clamp(+e.target.value||10,1,100);e.target.value=RIPE;try{localStorage.setItem('kb_ripe',RIPE)}catch(x){}render()};$('#setStop').onchange=e=>{STOP=clamp(+e.target.value||8,1,50);e.target.value=STOP;try{localStorage.setItem('kb_stop',STOP)}catch(x){}render()};
 $('#shopSeg').onclick=e=>{const el=e.target.closest('span');if(!el)return;shopKind=el.dataset.k;$('#shopSeg span').forEach(x=>x.classList.toggle('on',x===el));showN=15;renderShop()};
 $('#shopMkt').onclick=e=>{const el=e.target.closest('span');if(!el)return;shopMkt=el.dataset.m;$('#shopMkt span').forEach(x=>x.classList.toggle('on',x===el));showN=15;renderShop()};
 $('#more').onclick=()=>{showN+=15;renderShop()};$('#q').oninput=renderBook;
