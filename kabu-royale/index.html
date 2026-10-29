@@ -161,7 +161,7 @@ body{font-family:"Inter","Noto Sans JP",-apple-system,"Hiragino Sans",sans-serif
 <section class="screen" id="s-set">
   <div class="hero"><h1><span>設定</span></h1><div class="lbl">育ち方のルール</div><div class="big" style="font-size:26px">収穫のライン</div></div>
   <div class="sheet"><div class="kvl"><div><span>株に使う元手（円）</span><b><input class="inp" id="setFund" type="number" inputmode="numeric" style="width:120px;padding:6px;font-size:16px" placeholder="例 500000"></b></div><div><span>大当たり（買値から何%上で光る）</span><b><input class="inp" id="setRipe" type="number" inputmode="numeric" style="width:70px;padding:6px;font-size:16px"> %</b></div><div><span>腐りかけ（買値から何%下で赤）</span><b><input class="inp" id="setStop" type="number" inputmode="numeric" style="width:70px;padding:6px;font-size:16px"> %</b></div></div>
-  <div class="kvl"><div><span>データの置き場</span><b>Googleスプレッドシート「決算チェッカー」</b></div><div><span>通信簿（決算）</span><b>Yahoo Finance・年1回</b></div><div><span>株価</span><b>開くたびに取得</b></div><div><span>会社の数</span><b>727社（日経225＋S&P500）</b></div></div>
+  <div class="kvl"><div><span>データの置き場</span><b>Googleスプレッドシート「決算チェッカー」</b></div><div><span>通信簿（決算）</span><b>Yahoo Finance・年1回</b></div><div><span>株価</span><b>開くたびに取得</b></div><div><span>会社の数</span><b>約2,450社（日経225・S&P500・東証グロース・米国中小型）</b></div></div>
   <div class="empty" style="text-align:left">本当の売り買いは証券口座で。このアプリは「何を買うか決める」「育ち具合を見る」ためのメモ帳です。</div></div>
 </section>
 <nav class="tabs">
@@ -216,7 +216,8 @@ function stage(x){const r=plPct(x);if(r==null)return 'seed';if(r>=RIPE)return 'r
 const stName={seed:'植えたばかり',sprout:'芽が出た',grow:'育ち中',ripe:'大当たり',yellow:'少し元気ない',wilt:'しおれてきた',rot:'腐りかけ'};
 async function get(q){const r=await fetch(API+'?'+q,{redirect:'follow'});return r.json()}
 async function post(b){const r=await fetch(API,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain'},body:JSON.stringify(b)});return r.json()}
-async function loadCompanies(){try{const c=JSON.parse(localStorage.getItem('kb_companies')||'null');if(c&&Date.now()-c.t<6*3600*1000){companies=c.d;return}}catch(e){}const j=await get('action=companies');companies=j.companies||[];try{localStorage.setItem('kb_companies',JSON.stringify({t:Date.now(),d:companies}))}catch(e){}}
+const normName=n=>String(n||'').replace(/[Ａ-Ｚａ-ｚ０-９＆．－　]/g,ch=>ch==='　'?' ':String.fromCharCode(ch.charCodeAt(0)-0xFEE0)).replace(/ホールディングス$/,'HD').replace(/\s+(Corporation|Corp\.?|Inc\.?|Co\.?|Ltd\.?|plc|Holdings)$/i,'').trim();
+async function loadCompanies(){try{const c=JSON.parse(localStorage.getItem('kb_companies2')||'null');if(c&&Date.now()-c.t<6*3600*1000){companies=c.d;return}}catch(e){}const j=await get('action=companies');companies=(j.companies||[]).map(c=>({...c,name:normName(c.name)}));try{localStorage.removeItem('kb_companies');localStorage.setItem('kb_companies2',JSON.stringify({t:Date.now(),d:companies}))}catch(e){}}
 async function loadState(){const j=await get('action=state');if(!j.ok)throw new Error(j.error);state=j.state;state.items.forEach(x=>{x.plot=num(x.plot)})}
 async function loadPrices(){const codes=[...new Set([...state.items.filter(x=>!x.out).map(x=>x.code),...state.logs.filter(l=>l.kind==='guess').map(l=>l.code)])];const j=await get('action=prices&range=5d&syms='+encodeURIComponent([...codes,'USDJPY=X'].join(',')));if(j.ok){prices=j.prices||{};if(prices['USDJPY=X']&&prices['USDJPY=X'].price)usdjpy=prices['USDJPY=X'].price;codes.forEach(c=>{const co=companies.find(x=>x.code===c);if(co&&prices[c]&&prices[c].price)co.price=prices[c].price})}}
 const hist={};async function loadHist(code){if(hist[code]&&Date.now()-hist[code].t<6*3600*1000)return hist[code].d;const j=await get('action=prices&range=1y&syms='+encodeURIComponent(code));const d=j.ok&&j.prices[code];hist[code]={t:Date.now(),d};return d}
