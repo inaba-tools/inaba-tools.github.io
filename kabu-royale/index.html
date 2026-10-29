@@ -94,7 +94,7 @@ body{font-family:"Inter","Noto Sans JP",-apple-system,"Hiragino Sans",sans-serif
 </style>
 </head>
 <body>
-<section class="screen on" id="s-own">
+<section class="screen" id="s-own">
   <div class="hero"><h1><span>所持株</span><span id="hupd" style="font-weight:600;font-size:12px;opacity:.75"></span></h1>
     <div class="lbl">株資産</div><div class="big" id="hTotal">—</div>
     <div class="meta"><span>育ち<b id="hPl">—</b></span><span>所有数<b id="hN">0</b></span></div>
@@ -103,16 +103,50 @@ body{font-family:"Inter","Noto Sans JP",-apple-system,"Hiragino Sans",sans-serif
     <div class="sh" style="margin-top:18px"><b>収穫ずみ</b></div><div id="gradList"></div></div>
 </section>
 <section class="screen" id="s-farm">
-  <div class="hero"><h1><span>株畑</span></h1><div class="lbl">畑ぜんぶの育ち</div><div class="big" id="fPl">—</div><div class="meta"><span>植えた種<b id="fCost">—</b></span><span>植えてない種<b id="fBag">0</b></span></div></div>
+  <div class="hero"><h1><span>株畑</span></h1><div class="lbl">畑ぜんぶの育ち</div><div class="big" id="fPl">—</div><div class="meta"><span>植えた株<b id="fCost">—</b></span><span>まだ植えてない株<b id="fBag">0</b></span></div></div>
   <div class="sheet">
-    <div id="bagWrap"><div class="sh"><b>種袋</b><span>タップで選んで、土を長押し</span></div><div class="seedbag" id="seedbag"></div></div>
+    <div id="bagWrap"><div class="sh"><b>まだ植えてない株</b><span>タップで選んで、土を長押し</span></div><div class="seedbag" id="seedbag"></div></div>
     <div class="farm" id="farm"></div>
     <div class="fhint" id="fhint"></div>
   </div>
 </section>
-<section class="screen" id="s-shop">
-  <div class="hero"><h1><span>八百屋</span><span style="font-size:12px;opacity:.75">727種</span></h1><div class="lbl">今日の目玉</div><div class="big" id="shopTop" style="font-size:26px">—</div><div class="meta" id="shopTopSub"></div></div>
-  <div class="sheet"><div class="seg" id="shopSeg"><span class="on" data-k="sale">安くなった種</span><span data-k="strong">じょうぶな種</span><span data-k="grow">伸びてる種</span><span data-k="div">おこづかい多い</span></div>
+<section class="screen on" id="s-shop">
+  <div class="hero" style="padding-bottom:0;overflow:hidden"><h1><span>八百屋</span><span style="font-size:12px;opacity:.75">727株</span></h1>
+  <svg viewBox="0 0 390 200" width="100%" style="display:block;margin:0 -20px -10px;width:calc(100% + 40px)" id="shopsvg">
+    <defs><linearGradient id="wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3b1d4f"/><stop offset="1" stop-color="#241236"/></linearGradient><pattern id="awn" width="28" height="30" patternUnits="userSpaceOnUse"><rect width="14" height="30" fill="#e8564f"/><rect x="14" width="14" height="30" fill="#f7efe6"/></pattern></defs>
+    <rect width="390" height="200" fill="url(#wall)"/>
+    <rect x="0" y="178" width="390" height="22" fill="#1b0f28"/>
+    <!-- awning -->
+    <path d="M20 18h350v26c-5 10-15 14-25 14H45c-10 0-20-4-25-14z" fill="url(#awn)"/><path d="M20 44c10 12 30 12 40 0 10 12 30 12 40 0 10 12 30 12 40 0 10 12 30 12 40 0 10 12 30 12 40 0 10 12 30 12 40 0 10 12 30 12 40 0 10 12 30 12 40 0 10 12 30 12 40 0" fill="none" stroke="#c9423d" stroke-width="3"/>
+    <text x="195" y="36" text-anchor="middle" font-size="15" font-weight="800" fill="#2a1030" font-family="Inter,'Noto Sans JP',sans-serif">株の八百屋</text>
+    <!-- shelves -->
+    <g id="shelf"><rect x="40" y="86" width="310" height="8" rx="2" fill="#8a5a2b"/><rect x="40" y="130" width="310" height="8" rx="2" fill="#8a5a2b"/>
+      <!-- crates row1 -->
+      <g transform="translate(48,60)"><rect width="56" height="28" rx="3" fill="#b07a3e"/><circle cx="12" cy="12" r="8" fill="#e8564f"/><circle cx="28" cy="10" r="8" fill="#e8564f"/><circle cx="44" cy="12" r="8" fill="#ff7a6e"/></g>
+      <g transform="translate(112,60)"><rect width="56" height="28" rx="3" fill="#b07a3e"/><circle cx="12" cy="12" r="8" fill="#f2b23a"/><circle cx="28" cy="10" r="8" fill="#f7c54f"/><circle cx="44" cy="12" r="8" fill="#f2b23a"/></g>
+      <g transform="translate(176,60)"><rect width="56" height="28" rx="3" fill="#b07a3e"/><ellipse cx="14" cy="12" rx="10" ry="7" fill="#5ab552"/><ellipse cx="38" cy="11" rx="12" ry="8" fill="#47a043"/></g>
+      <g transform="translate(240,60)"><rect width="56" height="28" rx="3" fill="#b07a3e"/><circle cx="12" cy="12" r="8" fill="#8e4bd1"/><circle cx="28" cy="10" r="8" fill="#a060e0"/><circle cx="44" cy="12" r="8" fill="#8e4bd1"/></g>
+      <g transform="translate(304,60)"><rect width="40" height="28" rx="3" fill="#b07a3e"/><circle cx="12" cy="12" r="8" fill="#ff9a3c"/><circle cx="28" cy="11" r="8" fill="#ffb15e"/></g>
+      <!-- crates row2 -->
+      <g transform="translate(48,104)"><rect width="56" height="28" rx="3" fill="#b07a3e"/><path d="M8 20l8-14 8 14z" fill="#5ab552"/><path d="M26 20l8-14 8 14z" fill="#47a043"/><path d="M44 20l6-12 6 12z" fill="#5ab552"/></g>
+      <g transform="translate(112,104)"><rect width="56" height="28" rx="3" fill="#b07a3e"/><ellipse cx="14" cy="14" rx="9" ry="10" fill="#d9b25f"/><ellipse cx="34" cy="14" rx="9" ry="10" fill="#e6c272"/></g>
+      <g transform="translate(176,104)"><rect width="56" height="28" rx="3" fill="#b07a3e"/><circle cx="12" cy="13" r="8" fill="#f2f2f2"/><circle cx="28" cy="12" r="8" fill="#fff"/><circle cx="44" cy="13" r="8" fill="#f2f2f2"/></g>
+      <g transform="translate(240,104)"><rect width="56" height="28" rx="3" fill="#b07a3e"/><rect x="6" y="6" width="44" height="16" rx="8" fill="#e8564f"/><rect x="10" y="8" width="36" height="5" rx="2" fill="#ff8a80" opacity=".6"/></g>
+      <g transform="translate(304,104)"><rect width="40" height="28" rx="3" fill="#b07a3e"/><circle cx="12" cy="13" r="8" fill="#5ab552"/><circle cx="28" cy="12" r="8" fill="#6fcf66"/></g>
+    </g>
+    <!-- counter -->
+    <rect x="130" y="150" width="200" height="30" rx="4" fill="#6b4320"/><rect x="130" y="146" width="200" height="8" rx="2" fill="#8a5a2b"/>
+    <!-- shopkeeper -->
+    <g id="keeper"><ellipse cx="90" cy="179" rx="26" ry="5" fill="#000" opacity=".35"/>
+      <rect x="66" y="118" width="48" height="56" rx="12" fill="#2f6fde"/><rect x="74" y="128" width="32" height="46" rx="6" fill="#f3efe6"/><path d="M74 128h32" stroke="#d8d2c4" stroke-width="2"/>
+      <circle cx="90" cy="104" r="19" fill="#f6cfa8"/><path d="M71 102c0-14 10-22 19-22s19 8 19 22" fill="#2a1b12"/><rect x="69" y="96" width="42" height="7" rx="3" fill="#e8564f"/>
+      <circle cx="83" cy="107" r="2" fill="#2a1b12"/><circle cx="97" cy="107" r="2" fill="#2a1b12"/><path d="M84 114c3 3 9 3 12 0" stroke="#2a1b12" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <path d="M66 136c-10 6-14 14-12 22" stroke="#f6cfa8" stroke-width="9" stroke-linecap="round" fill="none"/><path d="M114 136c10 2 14 8 16 14" stroke="#f6cfa8" stroke-width="9" stroke-linecap="round" fill="none"/>
+      <g transform="translate(118,140)"><rect x="0" y="0" width="22" height="16" rx="3" fill="#b07a3e"/><circle cx="7" cy="6" r="5" fill="#e8564f"/><circle cx="16" cy="6" r="5" fill="#ff7a6e"/></g>
+      <g id="bubble"><rect id="bubbleRect" x="112" y="70" width="118" height="30" rx="10" fill="#fff"/><path d="M122 100l-6 8 14-8z" fill="#fff"/><text id="keeperSay" x="122" y="90" font-size="12" font-weight="800" fill="#111" font-family="Inter,'Noto Sans JP',sans-serif">いらっしゃい！</text></g>
+    </g>
+  </svg></div>
+  <div class="sheet"><div class="seg" id="shopSeg"><span class="on" data-k="sale">安くなった株</span><span data-k="strong">じょうぶな株</span><span data-k="grow">伸びてる株</span><span data-k="div">おこづかい多い</span></div>
     <div class="seg" id="shopMkt"><span class="on" data-m="all">ぜんぶ</span><span data-m="日本">🇯🇵 日本</span><span data-m="米国">🇺🇸 アメリカ</span><span data-m="cheap">💴 10万円以下</span><span data-m="keep">♡ キープ中</span></div>
     <div id="shopList"><div class="loading"><div class="spin"></div><br>種を並べています…</div></div><div style="text-align:center;padding:8px"><button class="btn w" id="more" style="width:auto;padding:10px 20px">もっと見る</button></div></div>
 </section>
@@ -120,11 +154,18 @@ body{font-family:"Inter","Noto Sans JP",-apple-system,"Hiragino Sans",sans-serif
   <div class="hero"><h1><span>図鑑</span></h1><div class="lbl">727社の通信簿</div><div class="big" style="font-size:26px">名前で探す</div></div>
   <div class="sheet"><input class="search" id="q" placeholder="会社名・コード（例：任天堂 / AAPL）"><div id="bookList"></div></div>
 </section>
+<section class="screen" id="s-set">
+  <div class="hero"><h1><span>設定</span></h1><div class="lbl">育ち方のルール</div><div class="big" style="font-size:26px">収穫のライン</div></div>
+  <div class="sheet"><div class="kvl"><div><span>食べごろ（買値から何%上で光る）</span><b><input class="inp" id="setRipe" type="number" inputmode="numeric" style="width:70px;padding:6px;font-size:16px"> %</b></div><div><span>腐りかけ（買値から何%下で赤）</span><b><input class="inp" id="setStop" type="number" inputmode="numeric" style="width:70px;padding:6px;font-size:16px"> %</b></div></div>
+  <div class="kvl"><div><span>データの置き場</span><b>Googleスプレッドシート「決算チェッカー」</b></div><div><span>通信簿（決算）</span><b>Yahoo Finance・年1回</b></div><div><span>株価</span><b>開くたびに取得</b></div><div><span>会社の数</span><b>727社（日経225＋S&P500）</b></div></div>
+  <div class="empty" style="text-align:left">本当の売り買いは証券口座で。このアプリは「何を買うか決める」「育ち具合を見る」ためのメモ帳です。</div></div>
+</section>
 <nav class="tabs">
-  <div class="tab on" data-s="own"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="3"/><path d="M8 10h8M8 14h5"/></svg>所持株<span class="dot" id="ownDot"></span></div>
+  <div class="tab on" data-s="shop"><svg viewBox="0 0 24 24"><path d="M4 9l1-4h14l1 4"/><path d="M4 9h16v3a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3z"/><path d="M6 15v6h12v-6"/></svg>八百屋</div>
   <div class="tab" data-s="farm"><svg viewBox="0 0 24 24"><path d="M12 21v-9"/><path d="M12 12c-4 0-6-3-6-6 4 0 6 3 6 6z"/><path d="M12 12c4 0 6-3 6-6-4 0-6 3-6 6z"/><path d="M4 21h16"/></svg>株畑<span class="dot" id="farmDot"></span></div>
-  <div class="tab" data-s="shop"><svg viewBox="0 0 24 24"><path d="M4 9l1-4h14l1 4"/><path d="M4 9h16v3a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3z"/><path d="M6 15v6h12v-6"/></svg>八百屋</div>
+  <div class="tab" data-s="own"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="3"/><path d="M8 10h8M8 14h5"/></svg>所持株<span class="dot" id="ownDot"></span></div>
   <div class="tab" data-s="book"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 5v16"/></svg>図鑑</div>
+  <div class="tab" data-s="set"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>設定</div>
 </nav>
 <div class="page" id="page"></div><div class="sticky" id="sticky"></div>
 <div class="ov" id="ov"><div class="modal" id="modal"></div></div>
@@ -134,7 +175,7 @@ body{font-family:"Inter","Noto Sans JP",-apple-system,"Hiragino Sans",sans-serif
 <script>
 const API='https://script.google.com/macros/s/AKfycbxp2NJyQCnSduboXEaXFN0kndza6-0-zqrJN_0W9tLhBymhxRO8mLlT-dcZgI5lcvLr0A/exec';
 const $=s=>document.querySelector(s);const yen=n=>Math.round(n).toLocaleString('ja-JP');const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));const num=v=>(v===''||v==null||isNaN(v))?null:Number(v);const isJP=c=>/^\d{4}$/.test(c);
-let companies=[],state=null,prices={},usdjpy=150,shopKind='sale',shopMkt='all',showN=15,selBag=null,STOP=8,RIPE=10;
+let companies=[],state=null,prices={},usdjpy=150,shopKind='sale',shopMkt='all',showN=15,selBag=null,STOP=8,RIPE=10;try{STOP=+localStorage.getItem('kb_stop')||8;RIPE=+localStorage.getItem('kb_ripe')||10}catch(e){}
 function judge(c){const eqr=num(c.eqr),opm=num(c.opm),revg=num(c.revg),nc=num(c.netcash),per=num(c.per),hi=num(c.hi52),p=num(c.price),divy=num(c.divy),ng=num(c.netg);
   const dd=hi&&p?1-p/hi:0;const strong=(nc!=null&&nc>0)||(eqr!=null&&eqr>=50);const weak=(per==null||per<=0)||(eqr!=null&&eqr<20&&!(nc>0));
   const health=weak?'weak':(strong&&(opm||0)>=10)?'strong':'ok';const tags=[];
@@ -158,7 +199,7 @@ function plantSVG(st,id){const s=id||'';
   if(st==='yellow')return `<svg viewBox="0 0 74 84"><path d="M37 78V40" stroke="#6f8a3a" stroke-width="3.5" stroke-linecap="round"/><path d="M37 60c-14-2-20-12-18-22 12 0 19 10 18 22z" fill="#a9c44a"/><path d="M37 50c14-2 20-12 18-22-12 0-19 10-18 22z" fill="#8fa838"/><circle cx="40" cy="32" r="7" fill="#b8c26a"/></svg>`;
   if(st==='wilt')return `<svg viewBox="0 0 74 84"><path d="M37 78C37 62 36 52 42 44" stroke="#6b5a3a" stroke-width="3.5" stroke-linecap="round" fill="none"/><path d="M40 56c-14 2-20-6-20-16 12-2 20 6 20 16z" fill="#8a8a3a"/><path d="M42 46c14 2 20-6 20-16-12-2-20 6-20 16z" fill="#6f6a2e"/><circle cx="46" cy="36" r="11" fill="#9a6b3a"/></svg>`;
   return `<svg viewBox="0 0 74 84"><path d="M37 78C36 66 30 60 26 56" stroke="#4a3a2a" stroke-width="3.5" stroke-linecap="round" fill="none"/><path d="M28 60c-12 4-18-2-18-10 10-2 16 4 18 10z" fill="#5a4a2a"/><ellipse cx="34" cy="64" rx="13" ry="9" fill="#3d2a1a"/><circle cx="30" cy="60" r="3" fill="#2a1a0a"/><circle cx="40" cy="66" r="2.5" fill="#2a1a0a"/></svg>`}
-const seedSVG=`<svg viewBox="0 0 46 56"><rect x="3" y="4" width="40" height="48" rx="6" fill="#f3efe6" stroke="#d8d2c4"/><path d="M3 12h40" stroke="#d8d2c4"/><ellipse cx="23" cy="33" rx="8" ry="11" fill="#b08650" transform="rotate(-20 23 33)"/><path d="M20 24c3 2 5 6 4 12" stroke="#7a5a30" stroke-width="1.5" fill="none"/></svg>`;
+const seedSVG=`<svg viewBox="0 0 46 56"><path d="M10 34h26l-3 18H13z" fill="#c8743a"/><rect x="8" y="30" width="30" height="6" rx="2" fill="#a85d2a"/><path d="M23 32V18" stroke="#3f8a3a" stroke-width="2.5" stroke-linecap="round"/><path d="M23 22c-8-1-11-7-10-12 6 0 10 5 10 12z" fill="#4cc44a"/><path d="M23 19c8-1 11-7 10-12-6 0-10 5-10 12z" fill="#3aa838"/></svg>`;
 function stage(x){const r=plPct(x);if(r==null)return 'seed';if(r>=RIPE)return 'ripe';if(r>=3)return 'grow';if(r>=0)return 'sprout';if(r>-3)return 'yellow';if(r>-STOP)return 'wilt';return 'rot'}
 const stName={seed:'植えたばかり',sprout:'芽が出た',grow:'育ち中',ripe:'食べごろ',yellow:'少し元気ない',wilt:'しおれてきた',rot:'腐りかけ'};
 async function get(q){const r=await fetch(API+'?'+q,{redirect:'follow'});return r.json()}
@@ -180,7 +221,7 @@ function renderOwn(){const h=held();const tc=h.reduce((a,x)=>a+cost(x),0),tp=h.r
   $('#ownDot').classList.toggle('on',hl.some(a=>a.cls==='bad'));
   $('#hl').innerHTML=hl.length?'<div class="t">ハイライト</div>'+hl.map(a=>`<div class="hcard" data-id="${a.x.id}"><div class="ic">${a.x.kind==='仲間'?plantSVG(stage(a.x),'h'+a.x.id):seedSVG}</div><div><span class="tg ${a.cls}">${a.tg}</span><div class="d">${a.x.name}：${a.d}</div></div></div>`).join(''):'';
   const list=h.slice().sort((a,b)=>(pnl(b)||0)-(pnl(a)||0));
-  $('#ownList').innerHTML=list.length?list.map(itemHTML).join(''):'<div class="empty">まだ株を持っていません。<br>八百屋で種を選んで、本当に買ったら登録しよう。</div>';
+  $('#ownList').innerHTML=list.length?list.map(itemHTML).join(''):'<div class="empty">まだ株を持っていません。<br>八百屋で株を選んで、本当に買ったら登録しよう。</div>';
   $('#gradList').innerHTML=grads().length?grads().slice().reverse().map(x=>{const v=pnl(x)||0;return `<div class="li" data-id="${x.id}"><div class="img">${plantSVG(v>0?'ripe':'rot','g'+x.id)}</div><div><div class="t">${x.name}</div><div class="s">${x.date} → ${x.out} ・ ${x.shares}株 ・ ${x.memo||''}</div></div><div class="r"><b class="${v>0?'up':'dn'}">${v>=0?'+':''}${yen(v)}円</b><small>${v>0?'利益確定':'損切り'}</small></div></div>`}).join(''):'<div class="empty" style="padding:14px">まだ収穫していません</div>'}
 function itemHTML(x){const n=nowP(x),v=pnl(x),pc=plPct(x),st=stage(x),U=unit(x);
   const flash=st==='rot'?`<span class="flash bad">腐りかけ。収穫（損切り）を考える</span>`:st==='ripe'?`<span class="flash">食べごろ！収穫すれば利益確定</span>`:st==='wilt'?`<span class="flash warn">しおれてきた（−${STOP}%で腐りかけ）</span>`:'';
@@ -191,22 +232,22 @@ function renderFarm(){const h=held();const tp=h.reduce((a,x)=>a+(pnl(x)||0),0),t
   $('#bagWrap').style.display=bag.length?'':'none';$('#seedbag').innerHTML=bag.map(x=>`<div class="bag ${selBag===x.id?'on':''}" data-bag="${x.id}">${seedSVG}<div class="n">${x.name}</div><div class="s">${x.shares}株</div></div>`).join('');
   const planted=h.filter(x=>x.plot!=null);const rows=Math.max(2,Math.ceil((Math.max(-1,...planted.map(x=>x.plot))+2)/3));
   let html='';for(let r=0;r<rows;r++){html+=`<div class="soil" data-row="${r}">`;for(let c=0;c<3;c++){const i=r*3+c;const x=planted.find(x=>x.plot===i);if(x){const st=stage(x),v=pnl(x);html+=`<div class="plot ${st==='ripe'?'ripe':''} ${st==='rot'||st==='wilt'?'rot':''}" style="left:${c*33.33}%" data-id="${x.id}">${plantSVG(st,'f'+x.id)}<div class="n">${x.name}</div><div class="v ${v>0?'up':v<0?'dn':''}">${v==null?'—':(v>=0?'+':'')+yen(v)}</div></div>`}}html+='</div>'}
-  $('#farm').innerHTML=html;$('#fhint').textContent=bag.length?(selBag?'土を長押ししてくぼみを作り、そこに植えよう':'種袋をタップして選んでから、土を長押し'):planted.length?'実が光ったら食べごろ。しおれたら要注意':'八百屋で種を買うと、ここに植えられる'}
+  $('#farm').innerHTML=html;$('#fhint').textContent=bag.length?(selBag?'土を長押ししてくぼみを作り、そこに植えよう':'株をタップして選んでから、土を長押し'):planted.length?'実が光ったら食べごろ。しおれたら要注意':'八百屋で株を買うと、ここに植わる'}
 let pressT=null;
 $('#farm').addEventListener('pointerdown',e=>{const soil=e.target.closest('.soil');if(!soil||e.target.closest('.plot'))return;const rect=soil.getBoundingClientRect();const x=e.clientX-rect.left,y=e.clientY-rect.top;
   const ring=document.createElement('div');ring.className='press';ring.style.left=x+'px';ring.style.top=y+'px';soil.appendChild(ring);setTimeout(()=>ring.remove(),650);pressT=setTimeout(()=>dig(soil,x,rect.width),550)});
 ['pointerup','pointercancel','pointerleave'].forEach(ev=>$('#farm').addEventListener(ev,()=>clearTimeout(pressT)));
 async function dig(soil,x,w){const col=Math.min(2,Math.floor(x/w*3)),row=+soil.dataset.row,idx=row*3+col;if(held().some(p=>p.plot===idx)){toast('ここはもう植わってる');return}
   soil.querySelectorAll('.hole').forEach(h=>h.remove());const hole=document.createElement('div');hole.className='hole';hole.style.left=(col*33.33+16.66)+'%';soil.appendChild(hole);if(navigator.vibrate)navigator.vibrate(20);
-  const bag=held().filter(p=>p.plot==null);if(!bag.length){toast('植える種がない。八百屋で買おう');return}const item=bag.find(p=>p.id===selBag)||bag[0];
+  const bag=held().filter(p=>p.plot==null);if(!bag.length){toast('植える株がない。八百屋で買おう');return}const item=bag.find(p=>p.id===selBag)||bag[0];
   setTimeout(async()=>{const j=await post({type:'plant',id:item.id,plot:idx});if(!j.ok){toast('失敗: '+j.error);return}item.plot=idx;selBag=null;renderFarm();const el=$('#farm').querySelector(`.plot[data-id="${item.id}"]`);if(el)el.classList.add('new');toast('🌱 '+item.name+'を植えた');confetti({particleCount:40,spread:50,origin:{y:.6},colors:['#4cc44a','#a8824e','#fff']})},450)}
 $('#seedbag').onclick=e=>{const b=e.target.closest('.bag');if(!b)return;selBag=selBag===b.dataset.bag?null:b.dataset.bag;renderFarm()};
 function shopList(){let l=companies.map(c=>({c,j:judge(c)})).filter(x=>num(x.c.price));
   if(shopMkt==='日本'||shopMkt==='米国')l=l.filter(x=>x.c.market===shopMkt);if(shopMkt==='cheap')l=l.filter(x=>yenPrice(x.c)*(isJP(x.c.code)?100:1)<=100000);if(shopMkt==='keep'){const ks=new Set(keeps().map(k=>k.code));l=l.filter(x=>ks.has(x.c.code))}
   const key={sale:'saleScore',strong:'strongScore',grow:'growScore',div:'divy'}[shopKind];l.sort((a,b)=>b.j[key]-a.j[key]);if(shopKind!=='sale')l=l.filter(x=>x.j.health!=='weak');return l}
 function seedRow(c,j){const k=keeps().find(x=>x.code===c.code),h=held().find(x=>x.code===c.code);const py=yenPrice(c);
-  return `<div class="li" data-code="${c.code}" style="${j.health==='weak'?'opacity:.6':''}"><div class="img">${seedSVG}</div><div style="min-width:0"><div class="t">${c.name}の種 ${h?'<span class="pill g">所持</span>':k?'<span class="pill">♡ キープ</span>':''}</div><div class="s">${isJP(c.code)?'🇯🇵':'🇺🇸'} ${j.dd>=0.03?'高値から'+Math.round(j.dd*100)+'%安い':'ほぼ高値'} ・ ${j.health==='weak'?'<span class="dn">弱っている会社</span>':j.health==='strong'?'元気な会社':'ふつうの会社'}</div><div>${j.tags.slice(0,3).map(t=>`<span class="pill ${t[1]}">${t[0]}</span>`).join('')}</div></div><div class="r"><b>${yen(py)}円</b><small>${isJP(c.code)?'100粒 '+yen(py*100)+'円':num(c.price)+'ドル'}</small></div></div>`}
-function renderShop(){const l=shopList();const top=l[0];if(top){$('#shopTop').textContent=top.c.name+'の種';$('#shopTopSub').innerHTML=`<span>${yen(yenPrice(top.c))}円</span><span>${top.j.dd>=0.03?'高値から'+Math.round(top.j.dd*100)+'%安い':''}</span>`}
+  return `<div class="li" data-code="${c.code}" style="${j.health==='weak'?'opacity:.6':''}"><div class="img">${seedSVG}</div><div style="min-width:0"><div class="t">${c.name}の株 ${h?'<span class="pill g">持ってる</span>':k?'<span class="pill">♡ キープ</span>':''}</div><div class="s">${isJP(c.code)?'🇯🇵':'🇺🇸'} ${j.dd>=0.03?'高値から'+Math.round(j.dd*100)+'%安い':'ほぼ高値'} ・ ${j.health==='weak'?'<span class="dn">弱っている会社</span>':j.health==='strong'?'元気な会社':'ふつうの会社'}</div><div>${j.tags.slice(0,3).map(t=>`<span class="pill ${t[1]}">${t[0]}</span>`).join('')}</div></div><div class="r"><b>${yen(py)}円</b><small>${isJP(c.code)?'100株 '+yen(py*100)+'円':num(c.price)+'ドル'}</small></div></div>`}
+function renderShop(){const l=shopList();const top=l[0];if(top){const t=$('#keeperSay');if(t){t.textContent=shopKind==='sale'?'今日は'+top.c.name+'が安いよ！':shopKind==='strong'?top.c.name+'はじょうぶだよ':shopKind==='grow'?top.c.name+'はよく伸びてる':top.c.name+'はおこづかい多め';const w=Math.min(250,t.getComputedTextLength?t.getComputedTextLength()+20:140);$('#bubbleRect').setAttribute('width',w)}}
   $('#shopList').innerHTML=l.slice(0,showN).map(x=>seedRow(x.c,x.j)).join('')||'<div class="empty">該当なし</div>';$('#more').style.display=l.length>showN?'':'none'}
 function renderBook(){const q=($('#q').value||'').trim().toLowerCase();let l=companies.map(c=>({c,j:judge(c)}));if(q)l=l.filter(x=>(x.c.name+x.c.code).toLowerCase().includes(q));l.sort((a,b)=>b.j.strongScore-a.j.strongScore);$('#bookList').innerHTML=l.slice(0,80).map(x=>seedRow(x.c,x.j)).join('')+(l.length>80?'<div class="empty" style="padding:10px">…ほか'+(l.length-80)+'社。名前で絞ってね</div>':'')}
 let curDetail=null,perSel='1y';
@@ -214,14 +255,14 @@ async function detail(code,item){const c=comp(code);if(!c)return;const j=judge(c
   const isH=item&&item.kind==='仲間',isK=item&&item.kind==='キープ';const st=isH?stage(item):null,v=isH?pnl(item):null,n=isH?nowP(item):num(c.price);
   const price=isH?`<div class="pcard"><div class="lbl">今の値段</div><div class="pr">${n!=null?yen(n)+U:'—'}</div><div class="dif ${v>0?'up':v<0?'dn':''}">${v==null?'':(v>=0?'↗ +':'↘ ')+yen(v)+'円'}<small>買った時（${item.date}・${yen(num(item.buy))}${U}）との比較</small></div><div style="margin-top:8px;font-weight:700;font-size:14px">${stName[st]}${st==='rot'?'。収穫（損切り）を考える':st==='ripe'?'。収穫すれば利益確定':''}</div></div>
     <div class="two"><div class="pcard"><div class="lbl">食べごろライン（+${RIPE}%）</div><div class="pr" style="font-size:22px">${yen(num(item.buy)*(1+RIPE/100))}${U}</div><div class="lbl">ここを超えたら実が光る</div></div><div class="pcard"><div class="lbl">腐りかけライン（−${STOP}%）</div><div class="pr ${st==='rot'?'dn':''}" style="font-size:22px">${yen(num(item.buy)*(1-STOP/100))}${U}</div><div class="lbl">割ったら迷わず収穫</div></div></div>`
-  :`<div class="pcard"><div class="lbl">種の値段（今の株価）</div><div class="pr">${yen(yenPrice(c))}円</div><div class="dif ${j.dd>=0.15?'up':''}">${j.dd>=0.01?'↘ 1年の高値から −'+Math.round(j.dd*100)+'%':'↗ ほぼ1年の高値'}<small>${j.health==='weak'?'弱っている会社':j.health==='strong'?'元気な会社':'ふつうの会社'}</small></div><div class="lbl" style="margin-top:6px">${isJP(code)?'100粒（100株）で '+yen(yenPrice(c)*100)+'円':num(c.price)+'ドル・1粒から買える'}</div></div>`;
-  $('#page').innerHTML=`<div class="nav"><div class="bk" id="pback">‹</div><div class="tt">${isH?'所持株の詳細':'種の詳細'}</div><div></div></div>
-  <div class="phead"><div class="img">${isH?plantSVG(st,'p'+item.id):seedSVG}</div><div><div class="nm">${c.name}${isH?'':'の種'}</div><div class="cp">${isJP(code)?'🇯🇵 日本':'🇺🇸 アメリカ'} ・ ${code} ・ 通信簿 ${c.period||''}${isK?' ・ ♡ キープ中':''}</div><div>${j.tags.slice(0,3).map(t=>`<span class="pill ${t[1]}">${t[0]}</span>`).join('')}</div></div></div>
+  :`<div class="pcard"><div class="lbl">今の値段（株価）</div><div class="pr">${yen(yenPrice(c))}円</div><div class="dif ${j.dd>=0.15?'up':''}">${j.dd>=0.01?'↘ 1年の高値から −'+Math.round(j.dd*100)+'%':'↗ ほぼ1年の高値'}<small>${j.health==='weak'?'弱っている会社':j.health==='strong'?'元気な会社':'ふつうの会社'}</small></div><div class="lbl" style="margin-top:6px">${isJP(code)?'100株で '+yen(yenPrice(c)*100)+'円':num(c.price)+'ドル・1株から買える'}</div></div>`;
+  $('#page').innerHTML=`<div class="nav"><div class="bk" id="pback">‹</div><div class="tt">${isH?'所持株の詳細':'株の詳細'}</div><div></div></div>
+  <div class="phead"><div class="img">${isH?plantSVG(st,'p'+item.id):seedSVG}</div><div><div class="nm">${c.name}${isH?'':'の株'}</div><div class="cp">${isJP(code)?'🇯🇵 日本':'🇺🇸 アメリカ'} ・ ${code} ・ 通信簿 ${c.period||''}${isK?' ・ ♡ キープ中':''}</div><div>${j.tags.slice(0,3).map(t=>`<span class="pill ${t[1]}">${t[0]}</span>`).join('')}</div></div></div>
   <div class="pbody">${price}
   <div class="pcard"><div class="lbl">値段の動き</div><div class="chartwrap" id="cw"><div class="loading" style="padding:50px 0"><div class="spin" style="width:22px;height:22px;border-width:3px"></div></div></div><div class="per" id="per">${[['1w','1週間'],['1mo','1ヶ月'],['3mo','3ヶ月'],['1y','1年']].map(([k,n])=>`<span class="${k===perSel?'on':''}" data-p="${k}">${n}</span>`).join('')}</div><div class="lbl" style="margin-top:6px">グラフを指でなぞると、その日の値段が出ます</div></div>
   <div class="pcard"><div class="lbl" style="margin-bottom:8px">通信簿</div><div class="rep" style="margin:0 0 10px">${j.rep.map(([k,v])=>`<div><b class="${v==='◎'?'ok':v==='○'?'so':'ng'}">${v}</b><small>${k}</small></div>`).join('')}</div><div class="pro">✅ ${w.pro.join('。')}</div><div class="con">⚠️ ${w.con.join('。')}</div></div>
   <div class="kvl"><div><span>売上（3年前 → 今）</span><b>${num(c.rev3)!=null?yen(c.rev3):'—'} → ${num(c.rev)!=null?yen(c.rev):'—'} 億${U}</b></div><div><span>儲け（3年前 → 今）</span><b>${num(c.net3)!=null?yen(c.net3):'—'} → ${num(c.net)!=null?yen(c.net):'—'} 億${U}</b></div><div><span>借金を返しても残る現金</span><b class="${num(c.netcash)>0?'up':'dn'}">${num(c.netcash)!=null?yen(c.netcash)+' 億'+U:'—'}</b></div><div><span>100万円分の年のおこづかい</span><b>${j.divy?yen(j.divy)+'円':'なし'}</b></div><div><span>利益の何年分の値段か（PER）</span><b>${j.per>0?j.per.toFixed(1)+'年分':'赤字'}</b></div>${isH?`<div><span>持っている数</span><b>${item.shares}株</b></div><div><span>買った理由</span><b style="font-weight:600;text-align:right;max-width:60%">${item.memo||'—'}</b></div>`:''}</div></div>`;
-  $('#sticky').innerHTML=isH?`<button class="btn ${st==='rot'?'red':st==='ripe'?'grn':''}" id="d-harvest">収穫する（売った）</button>`:isK?`<div style="display:flex;gap:10px"><button class="btn w" id="d-unkeep">キープをやめる</button><button class="btn" id="d-buy">種を買った</button></div>`:`<div style="display:flex;gap:10px"><button class="btn w" id="d-keep">♡ キープ</button><button class="btn" id="d-buy">種を買った</button></div>`;
+  $('#sticky').innerHTML=isH?`<button class="btn ${st==='rot'?'red':st==='ripe'?'grn':''}" id="d-harvest">収穫する（売った）</button>`:isK?`<div style="display:flex;gap:10px"><button class="btn w" id="d-unkeep">キープをやめる</button><button class="btn" id="d-buy">買った</button></div>`:`<div style="display:flex;gap:10px"><button class="btn w" id="d-keep">♡ キープ</button><button class="btn" id="d-buy">買った</button></div>`;
   $('#page').classList.add('on');$('#sticky').classList.add('on');$('#page').scrollTop=0;
   $('#pback').onclick=closePage;const k=$('#d-keep');if(k)k.onclick=()=>keep(c);const u=$('#d-unkeep');if(u)u.onclick=()=>unkeep(item);const b=$('#d-buy');if(b)b.onclick=()=>buyFlow(c,item);const hv=$('#d-harvest');if(hv)hv.onclick=()=>harvestFlow(item);
   $('#per').onclick=e=>{const el=e.target.closest('span');if(!el)return;perSel=el.dataset.p;$('#per span').forEach(x=>x.classList.toggle('on',x===el));drawChart(code,item)};
@@ -242,13 +283,13 @@ async function drawChart(code,item){const h=await loadHist(code);const el=$('#cw
   svg.addEventListener('pointerdown',e=>{show(e);svg.setPointerCapture(e.pointerId)});svg.addEventListener('pointermove',e=>{if(e.buttons||e.pointerType==='touch')show(e)});svg.addEventListener('pointerup',hide);svg.addEventListener('pointercancel',hide)}
 async function keep(c){const j=await post({type:'keep',code:c.code,name:c.name,price:num(c.price)});if(!j.ok){toast('失敗: '+j.error);return}close();closePage();toast('♡ '+c.name+'をキープ');await reload()}
 async function unkeep(item){const j=await post({type:'unkeep',id:item.id});if(!j.ok){toast('失敗: '+j.error);return}close();closePage();toast('キープをやめた');await reload()}
-function buyFlow(c,item){const p=num(c.price)||0,U=unit(c);open(`<div class="grab"></div><h2>${c.name}の種を買った</h2><div class="cap">証券口座で<b>本当に買ったあと</b>に入力。${isJP(c.code)?'日本株は100株単位。':'米国株は1株から。'}</div>
-  <div class="lb">買った値段（1株・${U}）</div><input class="inp" id="bb" type="number" inputmode="decimal" value="${p}"><div class="lb">株数（粒）</div><input class="inp" id="bs" type="number" inputmode="numeric" value="${isJP(c.code)?100:1}"><div class="lb">合計</div><div class="tot" id="bt">—</div>
+function buyFlow(c,item){const p=num(c.price)||0,U=unit(c);open(`<div class="grab"></div><h2>${c.name}の株を買った</h2><div class="cap">証券口座で<b>本当に買ったあと</b>に入力。${isJP(c.code)?'日本株は100株単位。':'米国株は1株から。'}</div>
+  <div class="lb">買った値段（1株・${U}）</div><input class="inp" id="bb" type="number" inputmode="decimal" value="${p}"><div class="lb">株数</div><input class="inp" id="bs" type="number" inputmode="numeric" value="${isJP(c.code)?100:1}"><div class="lb">合計</div><div class="tot" id="bt">—</div>
   <div class="lb">ひとこと（なぜ買った？）</div><input class="inp" id="bm" style="font-size:14px;text-align:left;font-weight:600" placeholder="例：高値から30%安くて元気な会社だから">
   <div style="display:flex;gap:10px;margin-top:16px"><button class="btn w" id="bc">やめる</button><button class="btn" id="bok">登録する</button></div>`);
   const upd=()=>{$('#bt').textContent=yen((+$('#bb').value||0)*(+$('#bs').value||0)*(isJP(c.code)?1:usdjpy))+'円'};upd();$('#bb').oninput=upd;$('#bs').oninput=upd;$('#bc').onclick=close;
   $('#bok').onclick=async()=>{const b=+$('#bb').value,s=+$('#bs').value;if(!b||!s){toast('値段と株数を入れてね');return}$('#bok').disabled=true;if(item&&item.kind==='キープ')await post({type:'unkeep',id:item.id});
-    const j=await post({type:'join',code:c.code,name:c.name,price:num(c.price),buy:b,shares:s,memo:$('#bm').value});if(!j.ok){toast('失敗: '+j.error);$('#bok').disabled=false;return}close();closePage();toast('種袋に入れた。株畑で植えよう');await reload();go('farm')}}
+    const j=await post({type:'join',code:c.code,name:c.name,price:num(c.price),buy:b,shares:s,memo:$('#bm').value});if(!j.ok){toast('失敗: '+j.error);$('#bok').disabled=false;return}close();closePage();await loadState();const nu=state.items.find(x=>x.id===j.id);const used=new Set(held().map(x=>x.plot).filter(v=>v!=null));let idx=0;while(used.has(idx))idx++;if(nu){await post({type:'plant',id:nu.id,plot:idx});nu.plot=idx}await loadPrices();render();go('farm');const el=$('#farm').querySelector(`.plot[data-id="${j.id}"]`);if(el)el.classList.add('new');toast('🌱 '+c.name+'を畑に植えた');confetti({particleCount:60,spread:60,origin:{y:.5},colors:['#4cc44a','#a8824e','#fff']})}}
 function harvestFlow(item){const n=nowP(item)||num(item.buy),U=unit(item),st=stage(item);open(`<div class="grab"></div><h2>${item.name}を収穫する</h2><div class="cap">${st==='rot'?'腐りかけ。ここで収穫（損切り）すれば損はこれ以上広がらない':st==='ripe'?'食べごろ。収穫して利益確定':'まだ育ち途中。本当に収穫する？'}</div>
   <div class="lb">売った値段（1株・${U}）</div><input class="inp" id="hp" type="number" inputmode="decimal" value="${n}"><div class="lb">結果</div><div class="tot" id="ht">—</div><div class="lb">メモ（次に活かす）</div><input class="inp" id="hm" style="font-size:14px;text-align:left;font-weight:600" placeholder="例：決算が悪くて下がった">
   <div style="display:flex;gap:10px;margin-top:16px"><button class="btn w" id="hc">まだ育てる</button><button class="btn ${st==='rot'?'red':'grn'}" id="hok">収穫した</button></div>`);
@@ -260,6 +301,7 @@ function open(h){$('#modal').innerHTML=h;$('#ov').classList.add('on');$('#modal'
 let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2200)}
 function go(s){document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x.dataset.s===s));document.querySelectorAll('.screen').forEach(x=>x.classList.toggle('on',x.id==='s-'+s));scrollTo(0,0)}
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>go(t.dataset.s));
+$('#setRipe').value=RIPE;$('#setStop').value=STOP;$('#setRipe').onchange=e=>{RIPE=clamp(+e.target.value||10,1,100);e.target.value=RIPE;try{localStorage.setItem('kb_ripe',RIPE)}catch(x){}render()};$('#setStop').onchange=e=>{STOP=clamp(+e.target.value||8,1,50);e.target.value=STOP;try{localStorage.setItem('kb_stop',STOP)}catch(x){}render()};
 $('#shopSeg').onclick=e=>{const el=e.target.closest('span');if(!el)return;shopKind=el.dataset.k;$('#shopSeg span').forEach(x=>x.classList.toggle('on',x===el));showN=15;renderShop()};
 $('#shopMkt').onclick=e=>{const el=e.target.closest('span');if(!el)return;shopMkt=el.dataset.m;$('#shopMkt span').forEach(x=>x.classList.toggle('on',x===el));showN=15;renderShop()};
 $('#more').onclick=()=>{showN+=15;renderShop()};$('#q').oninput=renderBook;
