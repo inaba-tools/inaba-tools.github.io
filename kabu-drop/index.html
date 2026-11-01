@@ -449,9 +449,9 @@ button{font-family:inherit}
 <div class="subpage" id="sub-acct"><div class="in"><div class="subtop"><button class="back"><b>‹</b>設定</button><h2>口座と手数料</h2></div>
 <div class="box"><h3>使っている口座</h3><p>楽天証券（1口座）</p><p>手数料は<b>ゼロコース（0円）</b>で計算しています。</p><p style="color:var(--sub)">口座を増やすと、同じIPOでくじを引ける回数が増えます。SBI・松井などはあとで追加できるようにします。</p></div></div></div>
 <div class="subpage" id="sub-rate"><div class="in"><div class="subtop"><button class="back"><b>‹</b>設定</button><h2>一般信用の貸株料</h2></div>
-<div class="box"><p style="color:var(--sub)">楽天が料率を変えたら、ここを直せば優待の計算に反映されます（2026年11月時点：短期 3.9％、無期限 1.1％）。</p>
-<div class="setrow">短期（14日）<input id="rateS" inputmode="decimal">％／年</div>
-<div class="setrow">無期限<input id="rateL" inputmode="decimal">％／年</div></div></div></div>
+<div class="box"><p>楽天証券の手数料ページから<b>3時間ごとに自動で</b>読み取っています。楽天が料率を変えたら、アプリの計算にも自動で反映されます。</p>
+<div class="stat3" style="grid-template-columns:1fr 1fr"><div>短期（14日）<b id="rateSv">—</b></div><div>無期限<b id="rateLv">—</b></div></div>
+<p id="rateAt" style="color:var(--sub);font-size:12px"></p></div></div></div></div></div>
 <div class="subpage" id="sub-data"><div class="in"><div class="subtop"><button class="back"><b>‹</b>設定</button><h2>データについて</h2></div>
 <div class="box"><p>IPOと分売の日程は<b>楽天証券</b>の公開ページ、初値予想は<b>96ut.com</b>、株価と配当は<b>Yahoo!ファイナンス</b>、会社名は<b>東証の一覧</b>から、3時間ごとに自動で取り込んでいます。</p><p>申込・当選・優待の記録は、この端末とスプレッドシート「決算チェッカー」のログに保存されます。</p><p class="upd" style="color:var(--sub)"></p></div></div></div>
 <nav class="tabs" id="tabs">
@@ -949,7 +949,7 @@ document.querySelectorAll('.list').forEach(list=>list.addEventListener('click',e
   if(bk==='yutai'&&sl&&!e.target.closest('a')&&!list.dataset.dragged)openYutai(sl.dataset.id)}));
 document.querySelectorAll('.seg').forEach(seg=>seg.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const bk=seg.dataset.b;B[bk].cur=b.dataset.k;segOn(bk,b.dataset.k);render(bk)}));
 $('#tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(!b)return;document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.page').forEach(p=>p.classList.toggle('on',p.id==='p-'+b.dataset.p));window.scrollTo(0,0);closeSubs();try{localStorage.setItem('kd_tab',b.dataset.p)}catch(_){}if(window.maybeTour)setTimeout(()=>maybeTour(b.dataset.p),50)});
-['rateS','rateL'].forEach(k=>{const el=$('#'+k);el.value=SET[k];el.onchange=()=>{const v=num(el.value);if(v!=null){SET[k]=v;saveSet();renderAll();toast('貸株料を変更しました')}else el.value=SET[k]}});
+
 
 // ---- スワイプ：左＝次へ、右＝戻す ----
 let drag=null;
@@ -1009,7 +1009,7 @@ async function ntfRender(){
   const t=$('#nTest');if(t)t.onclick=async()=>{const r=swReg||await navigator.serviceWorker.ready;r.showNotification('KABU DROP（テスト）',{body:'今日は優待クロスの日：〇〇　差し引き +1,304円',icon:'icon-192.png',tag:'kd-test'})};
   const f=$('#nOff');if(f)f.onclick=disablePush;if(window.setSums)setSums()}
 $('#nBox').addEventListener('click',async e=>{const b=e.target.closest('[data-n]');if(!b)return;const k=b.dataset.n;const v=!(SET.ntf[k]!==false);SET.ntf[k]=v;saveSet();b.classList.toggle('on',v);setSums();const s=await curSub();if(s)pushSync(s)});
-['rateS','rateL'].forEach(k=>$('#'+k).addEventListener('change',async()=>{const s=await curSub();if(s&&SET.pushOn)pushSync(s)}));
+
 ntfRender();
 
 // ---- はじめての説明 ----
@@ -1125,7 +1125,8 @@ $('#tourAgain').onclick=()=>{['ipo','bunbai','yutai'].forEach(k=>{try{localStora
 // ---- 読み込み ----
 async function getJSON(u,def){try{const r=await fetch(u+'?'+Date.now());if(!r.ok)return def;return await r.json()}catch(e){return def}}
 async function load(){
-  [ipos,bunbai,prices,yosoData]=await Promise.all([getJSON('data/ipo.json',[]),getJSON('data/bunbai.json',{items:[],past:[]}),getJSON('data/prices.json',{}),getJSON('data/yoso.json',{})]);recList=((await getJSON('data/yutai_list.json',{items:[]})).items)||[];
+  [ipos,bunbai,prices,yosoData]=await Promise.all([getJSON('data/ipo.json',[]),getJSON('data/bunbai.json',{items:[],past:[]}),getJSON('data/prices.json',{}),getJSON('data/yoso.json',{})]);{const rt=await getJSON('data/rates.json',null);if(rt&&rt.s!=null){SET.rateS=rt.s;SET.rateL=rt.l;saveSet()}
+  $('#rateSv').textContent=`年${SET.rateS}％`;$('#rateLv').textContent=`年${SET.rateL}％`;if(rt&&rt.at)$('#rateAt').textContent=`最後に確認した日：${md(rt.at)}（楽天証券）`}recList=((await getJSON('data/yutai_list.json',{items:[]})).items)||[];
   try{const u=(await (await fetch('data/updated.txt?'+Date.now())).text()).trim();const d=new Date(u);if(!isNaN(d))document.querySelectorAll('.upd').forEach(el=>el.innerHTML=`楽天証券<br>${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')} 更新`)}catch(e){}
   renderAll();loadRemote();
   const ip=IPO.all(),bb=BUN.all(),yu=YU.all();const t=todayJ();

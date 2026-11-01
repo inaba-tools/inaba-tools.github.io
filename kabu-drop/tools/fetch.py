@@ -301,7 +301,27 @@ def fetch_yoso():
         save('yoso.json', {k: merged[k] for k in keys})
 
 
+# ---------- 楽天の一般信用の貸株料 ----------
+def fetch_rates():
+    old = load('rates.json', {'s': 3.9, 'l': 1.1})
+    try:
+        page = get('https://www.rakuten-sec.co.jp/web/domestic/margin/commission.html').decode('utf-8', 'ignore')
+        t = html.unescape(re.sub(r'\s+', ' ', re.sub(r'<[^>]+>', ' ', page)))
+        i = t.find('貸株料 証券会社から借りた')
+        part = t[i:i + 400] if i >= 0 else t
+        ml = re.search(r'一般信用取引「無期限」\s*年\s*([\d.]+)', part)
+        ms = re.search(r'一般信用取引「短期」\s*年\s*([\d.]+)', part)
+        if ml and ms:
+            l, s_ = float(ml.group(1)), float(ms.group(1))
+            if 0 <= l <= 20 and 0 <= s_ <= 20:
+                old.update({'s': s_, 'l': l, 'at': TODAY.isoformat()})
+    except Exception as e:
+        print('rates error', e, file=sys.stderr)
+    save('rates.json', old)
+
+
 def main():
+    fetch_rates()
     fetch_yoso()
     try:
         found, past = fetch_bunbai()
