@@ -346,6 +346,16 @@ button{font-family:inherit}
 .app{transition:transform .38s cubic-bezier(.2,1,.3,1),opacity .38s}
 .m3 .c .h{font:800 10px "Noto Sans JP";color:#7a5a06;margin-top:3px;padding:2px 6px;border-radius:6px;background:rgba(255,255,255,.6);display:inline-block;white-space:nowrap}
 .m3 .c.g .h{background:none}
+.tag.good{background:#e3f1ec;color:#1f7a55}.tag.skipm{background:#f1e6dc;color:#8a5a34}
+.skipbox{margin-top:6px}
+.skipbox summary{list-style:none;display:flex;align-items:center;gap:8px;padding:12px 6px;font:800 13px "Noto Sans JP";color:#8a5a34;cursor:pointer}
+.skipbox summary::-webkit-details-marker{display:none}
+.skipbox summary:before{content:"✋";width:26px;height:26px;border-radius:8px;background:#f1e6dc;display:grid;place-items:center;font-size:13px}
+.skipbox summary:after{content:"›";margin-left:auto;font:700 20px Inter;color:#c3b2a0;transition:transform .25s}
+.skipbox[open] summary:after{transform:rotate(90deg)}
+.skipbox .card{opacity:.62;filter:saturate(.6)}
+.skipbox .card .m3:after{display:none}
+.slot,.slot .card{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 /* splash */
 .splash{position:fixed;inset:0;background:linear-gradient(180deg,#8a8740,#55521f);z-index:100;display:grid;place-items:center;transition:opacity .5s .1s,visibility .5s .1s}
 .splash.off{opacity:0;visibility:hidden}
@@ -457,6 +467,7 @@ button{font-family:inherit}
 <details class="qa" id="qa-price"><summary>値段はいつ決まるの？（仮条件・公開価格）</summary><div class="a">値段は2段階で決まります。<br><b>①仮条件</b>：仮の値段の幅（例：550〜570円）。申込が始まる少し前に決まります。<br><b>②申込（ブックビルディング）</b>：この期間に楽天で申し込みます。<br><b>③公開価格</b>：本決まりの値段。抽選の日に決まり、ほとんどは仮条件の一番高い値段になります。<br>カードの「①②③」の丸で、今どこまで決まったかがわかります。</div></details>
 <details class="qa" id="qa-need"><summary>お金はいつ必要？</summary><div class="a">楽天証券の国内IPOは、<b>申込（抽選への参加）の時点ではお金はいりません</b>。<br><b>抽選日（公開価格が決まる日）の18時まで</b>に、<b>株数 × 公開価格</b>（ふつう100株）のお金が口座に入っていれば抽選の対象になります。例：公開価格 570円なら 570円×100株＝<b>57,000円</b>。<br>ハズレたら、お金はそのまま使えます。</div></details>
 <details class="qa" id="qa-skip"><summary>当選しても買わなくていいの？</summary><div class="a">いいです。楽天証券では、当選しても<b>購入申込期間に「購入」を押さなければ、買わなかった扱い</b>になります（自分から「辞退」もできます）。楽天の案内には、辞退したときのペナルティ（次から当たりにくくなる等）は書かれていません。<br>ただし証券会社によっては、辞退すると次の抽選で不利になるところもあるので、口座を増やすときは確認しましょう。初値予想が公開価格より低い（公募割れのおそれ）ときは、あえて買わないのも作戦です。</div></details>
+<details class="qa" id="qa-judge"><summary>「👍 よさそう」「✋ 見送り」って？</summary><div class="a">カードに出る買うかどうかの目安です。<br><b>👍 申し込んでよさそう／買ってよさそう</b>：評価がDではなく、予想利益がプラス<br><b>✋ 見送りがよさそう</b>：評価がD、または予想利益が0円以下<br>2026年のIPO 35件で試すと、全部買うと公募割れ12件（損の合計−131,400円）でしたが、このルールなら<b>25件中4件（−70,100円）</b>に減り、もうけの合計は<b>+887,700円</b>（100株ずつ・全部当選した場合）でした。<br>見送るときは、カードを <b>→ 右にスワイプ</b>すると一番下の「見送ったIPO」に入ります。</div></details>
 <details class="qa" id="qa-zettai"><summary>当選しても買わなくていいなら、絶対得する？</summary><div class="a">絶対ではありません。「買うか決める日（購入申込期間）」は<b>上場日より前</b>なので、本当の初値を見てから決めることはできません。決める時に使えるのは<b>初値予想だけ</b>です。<br>2026年のIPO 35件のうち<b>12件が公募割れ</b>（初値が公開価格より下）でした。中には予想がプラスだったのに外れたものもあり、例：公開価格 4,040円・予想 5,180円 → 初値 3,760円（<b>100株で−28,000円</b>）。<br>それでも全体の真ん中は<b>100株で+14,000円</b>くらいで、平均すると得の方が多いです。「評価が低い・公募割れのおそれ」が出ているものは買わない、を守ると損しにくくなります。</div></details>
 <details class="qa" id="qa-kokai"><summary>公開価格は予想できるの？</summary><div class="a">かなり予想できます。<br>①上場が決まった時に<b>想定価格</b>（会社が出す目安）が出ます<br>②申込の少し前に<b>仮条件</b>（例：550〜570円）が決まります<br>③人気のIPOは、ほとんどの場合<b>仮条件の一番高い値段</b>で公開価格が決まります<br>そのためアプリでは、公開価格が決まるまでは「仮条件の上限」、仮条件もまだなら「想定価格」を目安として出し、予想利益もその値段で計算しています。</div></details>
 <details class="qa" id="qa-yoso"><summary>初値予想って何？</summary><div class="a">上場して<b>最初につく値段（初値）の予想</b>です。予想サイト（96ut.com）の数字を出しています。<br>「直前予想」＝上場直前のプロの予想（いちばん当たりやすい）、「仮条件前の予想」＝少し早い段階の予想、「みんなの予想」＝読者の投票の平均。<br>「100株で +〇円」は、公開価格で買って初値で売ったら、という目安です。あくまで予想なので外れることもあります。</div></details>
@@ -649,7 +660,8 @@ async function loadNames(){if(names)return names;try{names=(await (await fetch('
 /* ============ IPO ============ */
 const IPO={kind:'ipo',cur:'can',last:{},
   segs:{can:'申込できる',done:'申込済み',win:'当選',end:'終了'},
-  moves:{can:{L:['done','申込済みへ','#2b6fd6']},done:{L:['win','当選！','#d2453b'],R:['can','申込前に戻す','#9aa097']},win:{R:['done','申込済みに戻す','#9aa097']}},
+  moves:{can:{L:['done','申込済みへ','#2b6fd6'],R:['skip','見送る','#8a5a34']},skip:{L:['can','申込前に戻す','#2b6fd6']},done:{L:['win','当選！','#d2453b'],R:['can','申込前に戻す','#9aa097']},win:{R:['done','申込済みに戻す','#9aa097']}},
+  hasSkip:true,
   all(){return ipos.map(x=>this.classify(x))},
   find(id){const x=ipos.find(x=>x.code===id);return x?this.classify(x):null},
   classify(x){
@@ -660,6 +672,7 @@ const IPO={kind:'ipo',cur:'can',last:{},
     if(r.st==='sold'||r.st==='lost')o.k='end';
     else if(r.st==='won')o.k='win';
     else if(r.st==='applied')o.k=(ls&&t>ls)?'end':'done';
+    else if(r.st==='skip')o.k=(be&&t>be)?'end':'skip';
     else if(be&&t>be)o.k='end';
     else o.k='can';
     o.open=bs&&be&&t>=bs&&t<=be;o.left=be?days(be,t):null;o.until=bs?days(bs,t):null;
@@ -670,14 +683,15 @@ const IPO={kind:'ipo',cur:'can',last:{},
   sort(g){g.can.sort((a,b)=>(b.open-a.open)||((a.bs||0)-(b.bs||0)));g.done.sort((a,b)=>(a.draw||0)-(b.draw||0));g.win.sort((a,b)=>(a.ls||0)-(b.ls||0));g.end.sort((a,b)=>(b.ls||0)-(a.ls||0))},
   lead(g){const open=g.can.filter(o=>o.open).length;return g.win.length?`当選が <span class="r">${g.win.length}件</span> あります`:open?`今日は <span class="b">${open}件</span> 申し込めます`:g.can.length?`次の申込は <span class="b">${md(g.can[0].x.data4)}</span> から`:'今は申し込めるIPOがありません'},
   empty:{can:'今は申し込めるIPOがありません',done:'申し込んだIPOはここに並びます',win:'当選したらここに並びます',end:'終わったIPOはここに並びます'},
-  hint(g){return{can:g.can.some(o=>o.open)?'申し込んだら、カードを ← 左にスワイプ':'',done:g.done.length?'← 左で当選へ ／ 右 → で申込前に戻す':'',win:g.win.length?'右 → で申込済みに戻す':'',end:''}[this.cur]},
+  hint(g){return{can:g.can.length?'申し込んだら ← 左 ／ 見送るなら → 右にスワイプ':'',done:g.done.length?'← 左で当選へ ／ 右 → で申込前に戻す':'',win:g.win.length?'右 → で申込済みに戻す':'',end:''}[this.cur]},
   guard(o,to){if(o.k==='can'&&to==='done'&&!o.open)return'まだ申込期間前です';return null},
-  setFor:{can:null,done:{st:'applied'},win:{st:'won'}},
-  toastFor(to,o){return{done:o.name+'：申込済みに移動',win:'当選おめでとう！ '+o.name,can:o.name+'：申込前に戻しました'}[to]},
+  setFor:{can:null,done:{st:'applied'},win:{st:'won'},skip:{st:'skip'}},
+  toastFor(to,o){return{done:o.name+'：申込済みに移動',win:'当選おめでとう！ '+o.name,can:o.name+'：申込前に戻しました',skip:o.name+'：見送りました（一番下に入れました）'}[to]},
   act(a,o){if(a==='sold')openSell({kind:'ipo',id:o.id,name:o.name,unit:o.unit,buy:o.price,note:'初値'})},
   card(o,i){
     const x=o.x;let cls='',tag='',memo='',btns='';
-    if(o.k==='can'){
+    if(o.k==='skip'){tag='<span class="tag skipm">見送り中</span>';memo='見送ったIPOです。やっぱり申し込むなら ← 左にスワイプ。';btns=`<button class="btn ghost" data-act="go:can">申込前に戻す</button>`}
+    else if(o.k==='can'){
       if(o.open){cls='now';tag=`<span class="tag blue ${o.left<=1?'pulse':''}">${o.left===0?'今日まで':'あと'+o.left+'日'}</span>`;
         btns=`<a class="btn" href="${RAKUTEN}" target="_blank" rel="noopener">楽天証券で申し込む</a><button class="btn ghost" data-act="go:done">申し込んだ（← 左スワイプでもOK）</button>`;}
       else{tag=`<span class="tag org">${o.until===1?'明日から':md(x.data4)+'から'}</span>`;}
@@ -694,6 +708,7 @@ const IPO={kind:'ipo',cur:'can',last:{},
     }else{
       const r=o.r;if(r.st==='sold'){tag=`<span class="tag ${o.pl>=0?'green':'red'}">${pm(o.pl)}</span>`;memo=`${yen(r.buy||o.price||0)}円で買って、${yen(r.sell)}円で売った（${r.sh||o.unit}株）`}
       else if(r.st==='lost'){tag='<span class="tag grey">落選</span>';memo='次のIPOでまた申し込もう'}
+      else if(r.st==='skip'){tag='<span class="tag skipm">見送り</span>'}
       else{tag='<span class="tag grey">終了</span>'}
       btns=r.st?`<button class="btn ghost" data-act="undo">記録を取り消す</button>`:'';
     }
@@ -708,7 +723,7 @@ const IPO={kind:'ipo',cur:'can',last:{},
      <div><div class="k">上場日（売る日）</div><div class="v ${o.k==='win'?'red':''}">${md(x.data18)}<small>${wd(x.data18)}</small></div></div>
     </div>
     ${o.k!=='end'?priceFlow(o):''}
-    ${o.k!=='end'?`<div class="chips"><span class="tag ${o.hint[0]}" data-tip="mkt">${o.hint[1]}</span></div>`:''}
+    ${o.k!=='end'?`<div class="chips">${judgeTag(o)}<span class="tag ${o.hint[0]}" data-tip="mkt">${o.hint[1]}</span></div>`:''}
     ${x.data22&&o.k==='can'?`<div class="desc">${esc(x.data22)}</div>`:''}
     ${yoso}${bar(memo,o.k==='win'?'red':'')}${btns}`)}
 };
@@ -718,6 +733,10 @@ function priceFlow(o){const x=o.x,t=todayJ();const d2=pd(x.data2),d9=pd(x.data9)
   return`<div class="flow" data-tip="price"><div class="st ${s1}"><b>①仮条件</b>${md(x.data2)}<em>${r?esc(String(x.data3).replace('円','')):'—'}</em></div><div class="ln ${s1==='done'?'done':''}"></div>
   <div class="st ${s2}"><b>②申込</b>${md(x.data4)}〜${md(x.data6)}</div><div class="ln ${s2==='done'?'done':''}"></div>
   <div class="st ${s3}"><b>③公開価格</b>${md(x.data9)}<em>${o.price?yen(o.price):'—'}</em></div></div>`}
+function judge(o){const y=yosoData[o.id]||{};const base=o.price||o.hiP||y.sotei;const p=y.last||y.bb||y.reader;
+  if(y.rank==='D')return'bad';if(!p||!base)return null;return p>base?'good':'bad'}
+function judgeTag(o){const j=judge(o);if(!j)return'';const w=o.k==='win';
+  return j==='good'?`<span class="tag good" data-tip="judge">👍 ${w?'買ってよさそう':'申し込んでよさそう'}</span>`:`<span class="tag skipm" data-tip="judge">✋ ${w?'買わないほうがよさそう':'見送りがよさそう'}</span>`}
 function yosoBox(o){
   const x=o.x,y=yosoData[o.id]||{};const base=o.price||o.hiP||y.sotei;const u=o.unit;
   const first=y.first;const pro=y.last||y.bb;const p=first||pro||y.reader;
@@ -874,12 +893,14 @@ const COLOR={can:'#9aa097',done:'#2b6fd6',win:'#d2453b',end:'#6d726b'};
 function bar(memo,c){return memo?`<div class="bar ${c||''}"><span class="dot"></span><span>${memo}</span></div>`:''}
 function slot(o,i,cls,inner){return `<div class="slot" data-id="${esc(o.id)}" data-k="${o.k}"><div class="under"></div><div class="card ${cls}" style="animation-delay:${Math.min(i,6)*70}ms">${inner}</div></div>`}
 function render(bk){
-  const b=B[bk];const all=b.all();const g={can:[],done:[],win:[],end:[]};all.forEach(o=>g[o.k].push(o));b.sort(g);
+  const b=B[bk];const all=b.all();const g={can:[],done:[],win:[],end:[],skip:[]};all.forEach(o=>g[o.k].push(o));b.sort(g);g.skip.sort((a,c)=>(a.bs||0)-(c.bs||0));
   document.querySelectorAll(`.seg[data-b="${bk}"] button`).forEach(btn=>{const k=btn.dataset.k,v=g[k].length,el=btn.querySelector('b');
     if(b.last[k]!==undefined&&b.last[k]!==v){btn.classList.remove('bump');void btn.offsetWidth;btn.classList.add('bump')}el.textContent=v;b.last[k]=v});
   $('#lead-'+bk).innerHTML=b.lead(g);
   const show=g[b.cur];
-  $('#list-'+bk).innerHTML=show.length?show.map((o,i)=>b.card(o,i)).join(''):`<div class="empty">${b.empty[b.cur]}</div>`;
+  const wasOpen=!!document.querySelector(`#list-${bk} .skipbox[open]`);
+  const skipHtml=b.cur==='can'&&g.skip.length?`<details class="skipbox" ${wasOpen?'open':''}><summary>見送ったIPO（${g.skip.length}件）</summary>${g.skip.map((o,i)=>b.card(o,i)).join('')}</details>`:'';
+  $('#list-'+bk).innerHTML=(show.length?show.map((o,i)=>b.card(o,i)).join(''):`<div class="empty">${b.empty[b.cur]}</div>`)+skipHtml;
   $('#hint-'+bk).textContent=b.hint(g)||'';
   if(b.pastBox)b.pastBox();
   return all}
@@ -892,7 +913,7 @@ function toast(t){$('#toastT').textContent=t;const el=$('#toast');el.classList.a
 // ---- 移動（スワイプ・ボタン共通） ----
 const ARROW={L:'<svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',R:'<svg viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>'};
 function slotOf(bk,id){return [...document.querySelectorAll(`#list-${bk} .slot`)].find(s=>s.dataset.id===id)}
-function flyTo(bk,slot,k,color){const btn=document.querySelector(`.seg[data-b="${bk}"] button[data-k="${k}"]`);if(!slot||!btn)return;const a=slot.getBoundingClientRect(),b=btn.getBoundingClientRect();
+function flyTo(bk,slot,k,color){const btn=k==='skip'?null:document.querySelector(`.seg[data-b="${bk}"] button[data-k="${k}"]`);if(!slot||!btn)return;const a=slot.getBoundingClientRect(),b=btn.getBoundingClientRect();
   const f=document.createElement('div');f.className='flyer';f.style.background=color;const sx=a.left+a.width/2,sy=a.top+Math.min(a.height/2,120);f.style.left=sx+'px';f.style.top=sy+'px';document.body.appendChild(f);
   requestAnimationFrame(()=>requestAnimationFrame(()=>{f.style.transform=`translate(${b.left+b.width/2-sx}px,${b.top+b.height/2-sy}px) scale(.6)`;f.style.opacity='0'}));
   setTimeout(()=>{f.remove();btn.classList.remove('bump');void btn.offsetWidth;btn.classList.add('bump')},560)}
@@ -908,7 +929,7 @@ function move(bk,id,to,dir){
   flyOut(bk,id,dir,()=>{setRec(b.kind,id,set);renderAll();toast(b.toastFor(to,o))},to,color)}
 function act(bk,a,id){
   const b=B[bk];const o=b.find(id);if(!o)return;
-  if(a.startsWith('go:')){const to=a.slice(3);const e=b.guard(o,to);if(e){toast(e);return}move(bk,id,to,'L')}
+  if(a.startsWith('go:')){const to=a.slice(3);const e=o.k==='skip'?null:b.guard(o,to);if(e){toast(e);return}move(bk,id,to,'L')}
   else if(a==='lost')flyOut(bk,id,'R',()=>{setRec(b.kind,id,{st:'lost'});renderAll();toast(o.name+'：落選を記録')},'end','#6d726b');
   else if(a==='undo')flyOut(bk,id,'R',()=>{setRec(b.kind,id,null);renderAll();toast('記録を取り消しました')});
   else b.act(a,o)}
@@ -1005,7 +1026,7 @@ document.querySelectorAll('.list').forEach(list=>{
 function endDrag(){if(!drag)return;const d=drag;drag=null;if(!d.on)return;d.slot.classList.remove('drag');setTimeout(()=>delete d.list.dataset.dragged,60);
   const w=d.slot.offsetWidth,dir=d.dx<0?'L':'R',m=d.mv[dir],v=Math.abs(d.dx)/Math.max(1,Date.now()-d.t);const id=d.slot.dataset.id;
   if(m&&(Math.abs(d.dx)>w*.33||(v>.6&&Math.abs(d.dx)>60))){
-    const b=B[d.bk];const o=b.find(id);const err=o&&dir==='L'?b.guard(o,m[0]):null;
+    const b=B[d.bk];const o=b.find(id);const err=o&&dir==='L'&&o.k!=='skip'?b.guard(o,m[0]):null;
     if(err){back(d);d.card.classList.add('shake');setTimeout(()=>d.card.classList.remove('shake'),400);toast(err);return}
     move(d.bk,id,m[0],dir)}
   else back(d)}
@@ -1115,7 +1136,8 @@ function setSums(){const n=$('#ntfSum');if(n)n.textContent=SET.pushOn&&'Notifica
   const r=$('#rateSum');if(r)r.textContent=`短期 ${SET.rateS}％・無期限 ${SET.rateL}％`}
 
 // ---- その場の説明（ⓘ） ----
-const TIPS={kokai:['公開価格（買う値段）は、人気のIPOならほとんど<b>仮条件の一番高い値段</b>で決まります。仮条件が出る前は、会社が出す<b>想定価格</b>を目安にしています。本決まりは抽選日。','qa-kokai'],
+const TIPS={judge:['<b>👍 よさそう</b>＝評価がDではなく、予想利益がプラス。<br><b>✋ 見送り</b>＝評価がD、または予想利益が0円以下。<br>2026年のIPOでこのルールを使うと、公募割れが12件→4件に減りました（それでも0にはなりません）。','qa-judge'],
+ kokai:['公開価格（買う値段）は、人気のIPOならほとんど<b>仮条件の一番高い値段</b>で決まります。仮条件が出る前は、会社が出す<b>想定価格</b>を目安にしています。本決まりは抽選日。','qa-kokai'],
  first:['上場して<b>最初についた値段</b>です。公開価格で買って、この値段で売れていたらいくらだったかがわかります。','qa-yoso'],
  gain:['（初値 − 公開価格）× 株数 です。<b>当たって、上場日の朝に初値で売ったら</b>これだけ得する、という目安。予想が外れることもあります。','qa-yoso'],
  cross:['<b>優待クロス</b>：同じ株を「現物で買う」と「一般信用で売る」を同じ株数で同時にやる方法。株価が動いても損得はほぼゼロで、<b>優待だけ</b>もらえます。<br><b>次のクロス</b>＝その注文を出す日（権利付最終日）。次の日に「現渡し」で終わりです。','qa-cross'],mkt:['上場する市場による傾向です。<b>グロース</b>は小さく成長中の会社が多く人気になりやすい。<b>プライム</b>は大きい会社で上がりにくめ。地方市場・REITは注意。','qa-mkt'],
@@ -1138,8 +1160,9 @@ const TOURS={
   ['#list-ipo .slot:first-child .flow','値段が決まるまで','IPOの値段は<b>2段階</b>で決まります。<br><b>①仮条件</b>＝仮の値段の幅（例 550〜570円）<br><b>③公開価格</b>＝本決まりの値段（抽選の日に決定）<br>緑の丸は決まったところ、青は今ここ。'],
   ['#list-ipo .slot:first-child .m3','公開価格 → 初値予想 ＝ 予想利益','<b>公開価格</b>（買う値段）、<b>初値予想</b>（上場して最初につきそうな値段）、<b>予想利益</b>（当たって初値で売ったら100株でいくら得か）。上場したあとは本当の初値と利益に変わります。'],
   ['#list-ipo .slot:first-child .rk','評価 S〜D','人気の目安です。<b>S・A</b>かなり人気、<b>B</b>まあまあ、<b>C</b>少し上がるかも、<b>D</b>は買った値段より下がる心配あり。'],
-  ['#list-ipo .slot:first-child .chips','市場のタグ','<b>グロース</b>は小さな成長中の会社が多く、人気になりやすい市場です。ⓘ のついた所は<b>タップすると説明</b>が出ます。'],
-  ['#list-ipo .slot:first-child .card','スワイプで移動','申し込んだら、カードを <b>← 左にスワイプ</b>。「申込済み」に移ります。まちがえたら <b>→ 右</b>で戻せます。','nudge'],
+  ['#list-ipo .slot:first-child .chips .tag[data-tip=mkt]','市場のタグ','<b>グロース</b>は小さな成長中の会社が多く、人気になりやすい市場です。ⓘ のついた所は<b>タップすると説明</b>が出ます。'],
+  ['#list-ipo .slot:first-child .chips','👍 よさそう／✋ 見送り','<b>評価がDではなく、予想利益がプラス</b>なら「よさそう」。そうでなければ「見送りがよさそう」。2026年のIPOでは、これで公募割れが12件→4件に減りました。'],
+  ['#list-ipo .slot:first-child .card','スワイプで移動','申し込んだら <b>← 左にスワイプ</b>で「申込済み」へ。見送るなら <b>→ 右にスワイプ</b>で一番下の「見送ったIPO」にしまえます。','nudge'],
   ['#p-ipo .help','わからなくなったら','この <b>？</b> を押すと、IPOの紹介とこの説明をいつでも見直せます。くわしくは設定の「Q&A」へ。']],
  bunbai:[['.seg[data-b=bunbai]','上の4つの箱','分売を<b>状態ごと</b>に分けています。申込できる → 申込済み → 当選 → 終了 の順に進みます。'],
   ['#list-bunbai .empty','今は分売がない時','分売は、実施の<b>前の日の夕方</b>に楽天に出て、ここに自動で並びます。通知をオンにすると知らせます。'],
