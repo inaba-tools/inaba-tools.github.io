@@ -938,7 +938,7 @@ const YU={kind:'yutai',cur:'can',last:{},
   lead(g){const t=todayJ();const td=g.can.filter(o=>days(o.c.E,t)<=0).length;    return td?`今日クロスする優待が <span class="r">${td}件</span>`:g.can.length?`次のクロスは <span class="b">${mdD(g.can[0].c.E)}</span>（${g.can.length}件）`:'下のおすすめから選んで追加しよう'},
   empty:{can:'下の「おすすめの優待」をタップするか、右上の＋で追加しよう。<br>株価は自動で入って、かかる費用を計算します。',done:'クロスした優待はここに並びます',win:'現渡ししたら、届くまでここで待ちます',end:'届いた優待はここに並びます'},
   hint(g){return{can:g.can.length?'クロスしたら ← 左 ／ 候補から外すなら → 右にスワイプ':'',done:g.done.length?'現渡ししたら ← 左 ／ 右 → で候補に戻す':'',win:g.win.length?'届いたら ← 左 ／ 右 → で戻す':'',end:''}[this.cur]},
-  guard(o,to){return null},
+  guard(o,to){if(o.k==='can'&&to==='done'&&days(o.c.E,todayJ())>0)return`まだクロスの日（${mdD(o.c.E)}）より前です`;return null},
   setFor:{can:{st:'watch'},done:{st:'cross'},win:{st:'wait'},end:{st:'got'},out:null},
   beforeMove(o,to){if(to==='done')return{last:iso(o.cyc.L)};if(to==='end')return{gotNet:o.c.net,gotAt:iso(todayJ())};if(to==='can')return{last:null};return{}},
   toastFor(to,o){return{out:o.name+'：候補から外しました（おすすめに戻りました）',done:o.name+'：クロス中に移動',win:o.name+'：届くのを待とう',end:'優待ゲット！ '+o.name,can:o.name+'：候補に戻しました'}[to]},
@@ -963,7 +963,7 @@ const YU={kind:'yutai',cur:'can',last:{},
      <div><div class="k" data-tip="cross">クロスする日</div><div class="v">${mdD(c.E)}<small>${wdD(c.E)}</small></div></div>
      <div><div class="k" data-tip="genwata">現渡しの日</div><div class="v">${mdD(c.X)}<small>${wdD(c.X)}</small></div></div>
      <div><div class="k">株価</div><div class="v">${o.px?yen(o.px)+'円':'—'}</div></div>
-     <div><div class="k">買うのに必要なお金</div><div class="v">${c.need?'約'+yen(c.need)+'円':'—'}</div></div>
+     <div><div class="k" data-tip="need">一時的に必要なお金</div><div class="v">${c.need?'約'+yen(c.need)+'円':'—'}<small>戻る</small></div></div>
     </div>
     ${bar(memo,o.k==='done'&&days(c.X,t)<=0?'red':'')}${btns}
     ${o.k!=='end'?`<div class="mini"><button data-act="edit">編集</button><a href="https://finance.yahoo.co.jp/quote/${encodeURIComponent(o.id)}.T/incentive" target="_blank" rel="noopener">優待の中身を見る</a></div>`:''}`)}
@@ -1228,7 +1228,8 @@ function setSums(){const n=$('#ntfSum');if(n)n.textContent=SET.pushOn&&'Notifica
   const r=$('#rateSum');if(r)r.textContent=`短期 ${SET.rateS}％・無期限 ${SET.rateL}％`}
 
 // ---- その場の説明（ⓘ） ----
-const TIPS={cost:['クロスに<b>確実にかかるお金</b>です。<br><b>貸株料</b>：売るために株を借りる借り賃（日数分）<br><b>配当の税</b>：配当をもらって同じ額を払うので、税金の分だけ損<br>手数料は楽天のゼロコースで0円。優待の価値は期限や使い道で変わるので、この費用より得か自分で判断してね。','qa-cost'],
+const TIPS={need:['クロスの間だけ口座に必要なお金です（<b>使ってなくなるお金ではありません</b>）。<br>①現物を買うお金（株価×株数）<br>②信用取引の保証金（楽天は最低30万円。持っている株でも代わりにできる）<br>次の日の現渡しで、現物は売りの返済にあてられて、お金は戻ります。実際に減るのは「かかる費用」だけ。','qa-cost'],
+ cost:['クロスに<b>確実にかかるお金</b>です。<br><b>貸株料</b>：売るために株を借りる借り賃（日数分）<br><b>配当の税</b>：配当をもらって同じ額を払うので、税金の分だけ損<br>手数料は楽天のゼロコースで0円。優待の価値は期限や使い道で変わるので、この費用より得か自分で判断してね。','qa-cost'],
  genwata:['<b>現渡し（げんわたし）</b>：クロスの次の日に、持っている「現物」の株を、借りて売った分の返済にあてる手続き。楽天では「信用取引 → 返済 → 現渡」から。これで買いと売りが両方なくなって、クロスは終わりです。','qa-cross'],
  judge:['<b>👍 よさそう</b>＝評価がDではなく、予想利益がプラス。<br><b>✋ 見送り</b>＝評価がD、または予想利益が0円以下。<br>2026年のIPOでこのルールを使うと、公募割れが12件→4件に減りました（それでも0にはなりません）。','qa-judge'],
  kokai:['公開価格（買う値段）は、人気のIPOならほとんど<b>仮条件の一番高い値段</b>で決まります。仮条件が出る前は、会社が出す<b>想定価格</b>を目安にしています。本決まりは抽選日。','qa-kokai'],
