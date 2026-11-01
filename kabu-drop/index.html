@@ -356,6 +356,7 @@ button{font-family:inherit}
 .skipbox .card{opacity:.62;filter:saturate(.6)}
 .skipbox .card .m3:after{display:none}
 .slot,.slot .card{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.m3meta .tag{font-size:11.5px;padding:5px 10px;animation:pop .6s .2s cubic-bezier(.2,1.6,.3,1) both}
 /* splash */
 .splash{position:fixed;inset:0;background:linear-gradient(180deg,#8a8740,#55521f);z-index:100;display:grid;place-items:center;transition:opacity .5s .1s,visibility .5s .1s}
 .splash.off{opacity:0;visibility:hidden}
@@ -714,7 +715,7 @@ const IPO={kind:'ipo',cur:'can',last:{},
     }
     const priceTxt=o.price?`${yen(o.price)}円`:(x.data3&&x.data3!=='-'?esc(x.data3):'—');
     const yoso='';
-    return slot(o,i,cls,`<div class="hd"><div class="nm"><div class="t">${esc(o.name)}</div><div class="m">${x.code} ・ ${esc(o.mkt)}</div></div>${tag}</div>
+    return slot(o,i,cls,`<div class="hd"><div class="nm"><div class="t">${esc(o.name)}</div><div class="m">${x.code} ・ <span data-tip="mkt" style="text-decoration:underline dotted">${esc(o.mkt)}</span></div></div>${tag}</div>
     ${yosoBox(o)}
     <div class="kv">
      <div><div class="k">申込期間</div><div class="v">${md(x.data4)} 〜 ${md(x.data6)}${x.data7&&x.data7!=='0:00'?`<small>${x.data7}まで</small>`:''}</div></div>
@@ -723,7 +724,7 @@ const IPO={kind:'ipo',cur:'can',last:{},
      <div><div class="k">上場日（売る日）</div><div class="v ${o.k==='win'?'red':''}">${md(x.data18)}<small>${wd(x.data18)}</small></div></div>
     </div>
     ${o.k!=='end'?priceFlow(o):''}
-    ${o.k!=='end'?`<div class="chips">${judgeTag(o)}<span class="tag ${o.hint[0]}" data-tip="mkt">${o.hint[1]}</span></div>`:''}
+
     ${x.data22&&o.k==='can'?`<div class="desc">${esc(x.data22)}</div>`:''}
     ${yoso}${bar(memo,o.k==='win'?'red':'')}${btns}`)}
 };
@@ -747,7 +748,8 @@ function yosoBox(o){
   const gain=p&&base?(p-base)*u:null;
   const c3=`<div class="c g ${gain!=null&&gain<0?'dn':''}" data-tip="gain"><div class="k">${first?'利益':'予想利益'}（${u}株）</div><div class="v">${gain!=null?pm(gain):'—'}</div><div class="s">${gain!=null?(first?'初値で売った場合':'初値で売ったら'):'値段が決まると出ます'}</div>${gain!=null?'<div class="h">&nbsp;</div>':''}</div>`;
   const meta=[y.rank&&!first?`<span class="rk ${y.rank}" data-tip="rank">評価 ${y.rank}</span>`:'',gain!=null&&gain<=0&&!first?'<span class="warn">公募割れのおそれ</span>':'',!first&&pro&&y.reader?`みんなの予想 ${yen(y.reader)}円（${y.n}人）`:'',p?'出典 96ut.com':''].filter(Boolean).join('<span>・</span>');
-  return`<div class="m3">${c1}<span class="op">→</span>${c2}<span class="op">＝</span>${c3}</div>${meta?`<div class="m3meta">${meta}</div>`:''}`}
+  const jt=o.k!=='end'&&!first?judgeTag(o):'';
+  return`<div class="m3">${c1}<span class="op">→</span>${c2}<span class="op">＝</span>${c3}</div>${meta||jt?`<div class="m3meta">${jt}${meta}</div>`:''}`}
 
 /* ============ 分売 ============ */
 function bunbaiWindow(date){ // 申込受付：前営業日17:15〜当日8:20
@@ -1160,8 +1162,7 @@ const TOURS={
   ['#list-ipo .slot:first-child .flow','値段が決まるまで','IPOの値段は<b>2段階</b>で決まります。<br><b>①仮条件</b>＝仮の値段の幅（例 550〜570円）<br><b>③公開価格</b>＝本決まりの値段（抽選の日に決定）<br>緑の丸は決まったところ、青は今ここ。'],
   ['#list-ipo .slot:first-child .m3','公開価格 → 初値予想 ＝ 予想利益','<b>公開価格</b>（買う値段）、<b>初値予想</b>（上場して最初につきそうな値段）、<b>予想利益</b>（当たって初値で売ったら100株でいくら得か）。上場したあとは本当の初値と利益に変わります。'],
   ['#list-ipo .slot:first-child .rk','評価 S〜D','人気の目安です。<b>S・A</b>かなり人気、<b>B</b>まあまあ、<b>C</b>少し上がるかも、<b>D</b>は買った値段より下がる心配あり。'],
-  ['#list-ipo .slot:first-child .chips .tag[data-tip=mkt]','市場のタグ','<b>グロース</b>は小さな成長中の会社が多く、人気になりやすい市場です。ⓘ のついた所は<b>タップすると説明</b>が出ます。'],
-  ['#list-ipo .slot:first-child .chips','👍 よさそう／✋ 見送り','<b>評価がDではなく、予想利益がプラス</b>なら「よさそう」。そうでなければ「見送りがよさそう」。2026年のIPOでは、これで公募割れが12件→4件に減りました。'],
+  ['#list-ipo .slot:first-child .m3meta','👍 よさそう／✋ 見送り','<b>評価がDではなく、予想利益がプラス</b>なら「よさそう」。そうでなければ「見送りがよさそう」。2026年のIPOでは、これで公募割れが12件→4件に減りました。'],
   ['#list-ipo .slot:first-child .card','スワイプで移動','申し込んだら <b>← 左にスワイプ</b>で「申込済み」へ。見送るなら <b>→ 右にスワイプ</b>で一番下の「見送ったIPO」にしまえます。','nudge'],
   ['#p-ipo .help','わからなくなったら','この <b>？</b> を押すと、IPOの紹介とこの説明をいつでも見直せます。くわしくは設定の「Q&A」へ。']],
  bunbai:[['.seg[data-b=bunbai]','上の4つの箱','分売を<b>状態ごと</b>に分けています。申込できる → 申込済み → 当選 → 終了 の順に進みます。'],
