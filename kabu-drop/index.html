@@ -227,6 +227,93 @@ button{font-family:inherit}
 #p-yutai .seg button[data-k=win].on{background:var(--orange);box-shadow:0 8px 18px rgba(217,138,28,.3)}
 .card.cross{box-shadow:0 0 0 2px var(--olive),0 12px 28px rgba(125,122,58,.2)}
 .card.wait{box-shadow:0 0 0 2px var(--orange),0 12px 28px rgba(217,138,28,.2)}
+/* ヘルプ・ツアー */
+.help{margin-left:auto;width:34px;height:34px;border-radius:50%;border:0;background:#fff;color:var(--green);font:900 17px Inter;box-shadow:0 2px 8px rgba(40,44,30,.12);flex:none;transition:transform .2s}
+.help:active{transform:scale(.9)}
+.top .help+.sub,.top .help+.plus{margin-left:8px}
+.tour{position:fixed;inset:0;z-index:95;visibility:hidden}
+.tour.on{visibility:visible}
+.tour .spot{position:absolute;border-radius:18px;box-shadow:0 0 0 9999px rgba(18,22,18,.66);transition:all .5s cubic-bezier(.2,1,.3,1);pointer-events:none}
+.tour .spot:after{content:"";position:absolute;inset:-6px;border-radius:22px;border:3px solid #ffe36b;animation:ring2 1.4s ease-out infinite}
+@keyframes ring2{0%{opacity:1;transform:scale(.97)}100%{opacity:0;transform:scale(1.08)}}
+.tour .tip{position:absolute;left:14px;right:14px;max-width:432px;margin:0 auto;background:#fff;border-radius:20px;padding:16px 16px 12px;box-shadow:0 14px 34px rgba(0,0,0,.25);transition:top .5s cubic-bezier(.2,1,.3,1),opacity .25s}
+.tour .tip.fade{opacity:0}
+.tour .tc{font:900 11px Inter;color:var(--olive);letter-spacing:.06em}
+.tour h4{margin:3px 0 6px;font:900 17px "Noto Sans JP"}
+.tour p{margin:0;font:700 13.5px "Noto Sans JP";color:#4b524c;line-height:1.7}
+.tour p b{color:var(--ink)}
+.tour .tbtn{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+.tour .tbtn button{border:0;background:none;font:800 13px "Noto Sans JP";color:var(--sub);padding:10px 6px}
+.tour .tbtn #tnext{background:var(--green);color:#fff;padding:11px 22px;border-radius:13px;font-size:14px}
+.card.nudge{animation:nudge 1.6s cubic-bezier(.4,0,.4,1) infinite!important}
+@keyframes nudge{0%,100%{transform:none}35%,55%{transform:translateX(-46%) rotate(-3deg)}}
+.slot.nudging .under{opacity:1!important;background:var(--blue)!important;justify-content:flex-end}
+/* その場の説明 */
+.pop{position:fixed;z-index:60;left:16px;right:16px;max-width:428px;margin:0 auto;background:#1f2622;color:#fff;border-radius:16px;padding:13px 14px;font:700 13px "Noto Sans JP";line-height:1.65;box-shadow:0 12px 28px rgba(0,0,0,.3);opacity:0;transform:translateY(6px) scale(.97);transition:opacity .2s,transform .25s cubic-bezier(.2,1.4,.3,1);pointer-events:none}
+.pop.on{opacity:1;transform:none;pointer-events:auto}
+.pop b{color:#ffe36b}
+.pop a{color:#9fe0c4;font-weight:800;text-decoration:none;display:inline-block;margin-top:4px}
+[data-tip]{cursor:pointer}
+.chips .tag[data-tip]:after,.rk[data-tip]:after{content:" ⓘ";opacity:.7}
+/* 値段が決まるまで */
+.flow{display:flex;align-items:flex-start;margin-top:12px;padding:10px 8px 8px;border-radius:14px;background:#f6f5ef}
+.flow .st{flex:1;text-align:center;font:700 10.5px "Noto Sans JP";color:var(--sub);position:relative}
+.flow .st:before{content:"";display:block;width:12px;height:12px;border-radius:50%;margin:0 auto 4px;background:#fff;border:2.5px solid #cfccbf}
+.flow .st b{display:block;font:900 11.5px "Noto Sans JP";color:#7a7f78}
+.flow .st em{display:block;font:900 12.5px Inter;font-style:normal;color:var(--ink);margin-top:1px}
+.flow .st.done:before{background:var(--green);border-color:var(--green)}
+.flow .st.done b{color:var(--green)}
+.flow .st.now:before{background:var(--blue);border-color:var(--blue);box-shadow:0 0 0 4px rgba(43,111,214,.2);animation:pulse 1.4s infinite}
+.flow .st.now b{color:var(--blue)}
+.flow .ln{flex:.5;height:2.5px;background:#cfccbf;margin-top:6px;border-radius:2px}
+.flow .ln.done{background:var(--green)}
+/* おすすめ優待 */
+.rec{margin:4px 16px 14px}
+.rec h3{display:flex;align-items:center;justify-content:space-between;margin:6px 2px 8px;font:900 16px "Noto Sans JP"}
+.rec h3 small{font:700 11px "Noto Sans JP";color:var(--sub)}
+.mchips{display:flex;gap:6px;overflow-x:auto;padding:2px 2px 8px;scrollbar-width:none}
+.mchips::-webkit-scrollbar{display:none}
+.mchips button{flex:none;border:0;background:#fff;border-radius:20px;padding:7px 13px;font:800 12px "Noto Sans JP";color:var(--sub);box-shadow:0 1px 0 var(--line);transition:all .2s}
+.mchips button.on{background:var(--olive);color:#fff}
+.ritem{display:flex;align-items:center;gap:11px;background:#fff;border-radius:16px;padding:11px 12px;margin-bottom:8px;box-shadow:0 1px 0 rgba(0,0,0,.03),0 6px 16px rgba(40,44,30,.05);animation:rise .45s cubic-bezier(.2,1,.3,1) both;border:0;width:100%;text-align:left;font-family:inherit}
+.ritem:active{transform:scale(.98)}
+.ritem .em{width:42px;height:42px;border-radius:13px;background:#f3f1ea;display:grid;place-items:center;font-size:22px;flex:none}
+.ritem .tx{flex:1;min-width:0}
+.ritem .tx b{display:block;font:800 14px "Noto Sans JP";color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ritem .tx span{display:block;font:700 11.5px "Noto Sans JP";color:var(--sub);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ritem .nt{text-align:right;flex:none}
+.ritem .nt b{display:block;font:900 16px Inter;color:#1f9d6b}
+.ritem .nt b.dn{color:var(--red)}
+.ritem .nt span{font:800 10.5px "Noto Sans JP";color:var(--sub)}
+.ritem .nt .added{color:var(--green)}
+.more{display:block;width:100%;border:0;background:none;font:800 13px "Noto Sans JP";color:var(--green);padding:8px}
+/* 設定メニュー */
+.menu{margin:10px 16px;background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 1px 0 rgba(0,0,0,.03),0 10px 26px rgba(40,44,30,.06)}
+.mi{display:flex;align-items:center;gap:12px;width:100%;border:0;background:#fff;padding:13px 14px;text-align:left;font-family:inherit;border-top:1px solid #f0eee6;transition:background .15s}
+.mi:first-child{border-top:0}
+.mi:active{background:#f6f5ef}
+.mi .ico{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;color:#fff;font:900 15px Inter;flex:none}
+.mi span:nth-child(2){flex:1;font:800 14.5px "Noto Sans JP";color:var(--ink)}
+.mi small{display:block;font:700 11.5px "Noto Sans JP";color:var(--sub);margin-top:1px}
+.mi i{font-style:normal;font:700 20px Inter;color:#c3c0b4}
+.subpage{position:fixed;inset:0;z-index:8;background:var(--bg);overflow-y:auto;transform:translateX(100%);transition:transform .38s cubic-bezier(.2,1,.3,1);padding-bottom:110px;visibility:hidden}
+.subpage.on{transform:none;visibility:visible}
+.subpage .in{max-width:460px;margin:0 auto}
+.subtop{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:6px;padding:calc(env(safe-area-inset-top) + 14px) 10px 10px;background:rgba(243,241,234,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.subtop .back{border:0;background:none;font:800 16px "Noto Sans JP";color:var(--green);padding:8px 6px;display:flex;align-items:center;gap:2px}
+.subtop .back b{font:400 28px Inter;line-height:0;margin-top:-3px}
+.subtop h2{margin:0 0 0 auto;margin-right:auto;font:900 17px "Noto Sans JP";transform:translateX(-30px)}
+/* Q&A */
+.qag{margin:14px 18px 6px;font:900 13px "Noto Sans JP";color:var(--olive);display:flex;align-items:center;gap:8px}
+.qa{margin:0 16px 8px;background:#fff;border-radius:16px;box-shadow:0 1px 0 rgba(0,0,0,.03),0 6px 16px rgba(40,44,30,.05);overflow:hidden}
+.qa summary{list-style:none;display:flex;gap:10px;align-items:flex-start;padding:14px;font:800 14px "Noto Sans JP";line-height:1.5;cursor:pointer}
+.qa summary::-webkit-details-marker{display:none}
+.qa summary:before{content:"Q";flex:none;width:22px;height:22px;border-radius:7px;background:var(--green);color:#fff;font:900 12px Inter;display:grid;place-items:center;margin-top:1px}
+.qa summary:after{content:"＋";margin-left:auto;color:#b5b2a5;font-weight:900;transition:transform .25s}
+.qa[open] summary:after{transform:rotate(45deg)}
+.qa .a{padding:0 14px 14px 46px;font:700 13.5px "Noto Sans JP";color:#4b524c;line-height:1.8;animation:fadeup .3s both}
+.qa .a b{color:var(--ink)}
+.qa.hl{box-shadow:0 0 0 2.5px var(--gold),0 8px 20px rgba(217,165,20,.25)}
 /* splash */
 .splash{position:fixed;inset:0;background:linear-gradient(180deg,#8a8740,#55521f);z-index:100;display:grid;place-items:center;transition:opacity .5s .1s,visibility .5s .1s}
 .splash.off{opacity:0;visibility:hidden}
@@ -266,7 +353,7 @@ button{font-family:inherit}
 <div class="app">
 <!-- IPO -->
 <section class="page on" id="p-ipo">
-<div class="top"><img src="icon-192.png" alt=""><h1>IPO</h1><div class="sub upd">楽天証券</div></div>
+<div class="top"><img src="icon-192.png" alt=""><h1>IPO</h1><button class="help" data-tour="ipo" aria-label="説明">?</button><div class="sub upd">楽天証券</div></div>
 <div class="lead" id="lead-ipo">読み込み中…</div>
 <div class="seg" data-b="ipo">
 <button class="on" data-k="can">申込できる<b>-</b></button>
@@ -280,7 +367,7 @@ button{font-family:inherit}
 
 <!-- 分売 -->
 <section class="page" id="p-bunbai">
-<div class="top"><img src="icon-192.png" alt=""><h1>分売</h1><div class="sub upd">楽天証券</div></div>
+<div class="top"><img src="icon-192.png" alt=""><h1>分売</h1><button class="help" data-tour="bunbai" aria-label="説明">?</button><div class="sub upd">楽天証券</div></div>
 <div class="lead" id="lead-bunbai">読み込み中…</div>
 <div class="seg" data-b="bunbai">
 <button class="on" data-k="can">申込できる<b>-</b></button>
@@ -291,14 +378,11 @@ button{font-family:inherit}
 <div class="list" id="list-bunbai" data-b="bunbai"></div>
 <p class="hint" id="hint-bunbai"></p>
 <div class="box" id="bb-past"></div>
-<div class="box"><h3>立会外分売（たちあいがいぶんばい）とは</h3>
-<p>すでに上場している株を、大株主などが<b>前の日の値段より少し安く</b>売り出す日があります。申し込んで当たると、その安い値段で買えて、当日の朝からすぐ売れます。</p>
-<p>申込は<b>前の営業日の夕方（17:15ごろ）〜当日の朝8:20</b>。ハズレたらお金はそのまま。<br>買った後に株価が下がることもあるので、下の「これまでの実績」で勝ちやすさを見て決めよう。</p></div>
 </section>
 
 <!-- 優待 -->
 <section class="page" id="p-yutai">
-<div class="top"><img src="icon-192.png" alt=""><h1>優待</h1><button class="plus" id="yAdd" aria-label="優待を追加">+</button></div>
+<div class="top"><img src="icon-192.png" alt=""><h1>優待</h1><button class="help" data-tour="yutai" aria-label="説明">?</button><button class="plus" id="yAdd" aria-label="優待を追加">+</button></div>
 <div class="lead" id="lead-yutai">読み込み中…</div>
 <div class="seg" data-b="yutai">
 <button class="on" data-k="can">候補<b>-</b></button>
@@ -308,39 +392,68 @@ button{font-family:inherit}
 </div>
 <div class="list" id="list-yutai" data-b="yutai"></div>
 <p class="hint" id="hint-yutai"></p>
-<div class="box"><h3>優待クロスとは</h3>
-<p>同じ株を<b>「現物で買う」と「一般信用で売る」を同時に</b>やると、株価が上がっても下がっても損得がほぼゼロのまま、株主優待だけもらえます。</p>
-<p>かかるのは<b>貸株料（株の借り賃）</b>と<b>配当にかかる税金</b>だけ。楽天のゼロコースなら手数料は0円。一般信用なので、怖い逆日歩（追加の借り賃）はかかりません。</p>
-<ol><li>クロスの日（権利付最終日）までに、楽天で「現物買い」と「一般信用売り」を同じ株数で注文（寄付き前に両方出すのが基本）</li>
-<li>次の日（権利落ち日）に「現渡し」で売りを返す → 終わり</li>
-<li>数か月後に優待が届く</li></ol>
-<p style="color:var(--sub)">一般信用の売りは在庫がなくなると注文できません。人気の銘柄は早めにクロスすると取りやすいけど、そのぶん貸株料が増えます（カードの金額は日数込みで計算しています）。</p></div>
+<div class="rec" id="yRec"></div>
 </section>
 
 <!-- 設定 -->
 <section class="page" id="p-set">
 <div class="top"><img src="icon-192.png" alt=""><h1>設定</h1></div>
 <div class="box"><h3>これまでのもうけ</h3><div class="stat3" id="sumbox"></div></div>
-<div class="box"><h3>使っている口座</h3><p>楽天証券（1口座）・手数料はゼロコース（0円）</p><p style="color:var(--sub)">口座を増やすと、同じIPOでくじを引ける回数が増えます。SBI・松井などはあとで追加できるようにします。</p></div>
-<div class="box"><h3>一般信用の貸株料（楽天証券）</h3>
-<p style="color:var(--sub)">楽天が料率を変えたら、ここを直せば優待の計算に反映されます。</p>
-<div class="setrow">短期（14日）<input id="rateS" inputmode="decimal">％／年</div>
-<div class="setrow">無期限<input id="rateL" inputmode="decimal">％／年</div></div>
-<div class="box"><h3>通知</h3>
-<div id="nState"></div>
-<div class="nbox" id="nBox"></div>
-<p style="color:var(--sub);font-size:12px;margin-top:10px">朝・夕方などに1日数回まとめて確認して送ります。少し遅れて届くことがあります。</p></div>
-<div class="box"><h3>使い方</h3><p>IPO・分売・優待のちがいと、スワイプの操作をもう一度見られます。</p><button class="btn ghost" id="introAgain">使い方の説明を見る</button></div>
-<div class="box"><h3>IPOの流れ</h3><ol>
-<li><b>申込期間</b>に楽天証券で申し込む（ブックビルディング）。申込に必要なお金が口座に入っている必要あり</li>
-<li><b>抽選日</b>の夕方に当落がわかる</li>
-<li>当選したら<b>購入申込期間</b>中に「購入」を押す（押さないと権利がなくなる）</li>
-<li><b>上場日</b>の朝に売る（初値で売るのが基本）</li>
-<li>落選したら、お金はそのまま使える</li></ol></div>
-<div class="box"><h3>データについて</h3><p>IPOと分売の日程は楽天証券の公開ページ、株価と配当はYahoo!ファイナンス、会社名は東証の一覧から、3時間ごとに自動で取り込んでいます。申込・当選・優待の記録はスプレッドシート「決算チェッカー」に保存されます。</p></div>
+<div class="menu">
+<button class="mi" data-sub="ntf"><span class="ico" style="background:#d98a1c">🔔</span><span>通知<small id="ntfSum">オフ</small></span><i>›</i></button>
+<button class="mi" data-sub="qa"><span class="ico" style="background:#2b6fd6">?</span><span>Q&amp;A（よくある質問）<small>初値予想・評価・クロスのしかた など</small></span><i>›</i></button>
+</div>
+<div class="menu">
+<button class="mi" id="introAgain"><span class="ico" style="background:#2f6f63">▶</span><span>アプリの紹介を見る<small>IPO・分売・優待のちがい</small></span><i>›</i></button>
+<button class="mi" id="tourAgain"><span class="ico" style="background:#7d7a3a">👆</span><span>画面の説明をもう一度見る<small>各タブを開いたときの説明</small></span><i>›</i></button>
+</div>
+<div class="menu">
+<button class="mi" data-sub="acct"><span class="ico" style="background:#9aa097">🏦</span><span>口座と手数料<small>楽天証券・ゼロコース</small></span><i>›</i></button>
+<button class="mi" data-sub="rate"><span class="ico" style="background:#9aa097">％</span><span>一般信用の貸株料<small id="rateSum">短期 3.9％・無期限 1.1％</small></span><i>›</i></button>
+<button class="mi" data-sub="data"><span class="ico" style="background:#9aa097">⟳</span><span>データについて<small>どこから・いつ更新</small></span><i>›</i></button>
+</div>
 </section>
 </div>
 
+
+<div class="subpage" id="sub-ntf"><div class="in"><div class="subtop"><button class="back"><b>‹</b>設定</button><h2>通知</h2></div>
+<div class="box"><div id="nState"></div><div class="nbox" id="nBox"></div>
+<p style="color:var(--sub);font-size:12px;margin-top:10px">朝・夕方などに1日数回まとめて確認して送ります。少し遅れて届くことがあります。</p></div></div></div>
+<div class="subpage" id="sub-qa"><div class="in"><div class="subtop"><button class="back"><b>‹</b>設定</button><h2>Q&amp;A</h2></div>
+<div class="qag">💧 IPO</div>
+<details class="qa" id="qa-ipo"><summary>IPOって何？</summary><div class="a">これから<b>新しく上場する会社の株</b>を、上場の前に抽選で買えるしくみです。人気の会社は上場した日に値段が上がることが多いので、当たったら<b>上場日の朝に売る</b>だけで利益になりやすいです。ハズレたら、お金はそのまま口座に残ります。</div></details>
+<details class="qa" id="qa-price"><summary>値段はいつ決まるの？（仮条件・公開価格）</summary><div class="a">値段は2段階で決まります。<br><b>①仮条件</b>：仮の値段の幅（例：550〜570円）。申込が始まる少し前に決まります。<br><b>②申込（ブックビルディング）</b>：この期間に楽天で申し込みます。<br><b>③公開価格</b>：本決まりの値段。抽選の日に決まり、ほとんどは仮条件の一番高い値段になります。<br>カードの「①②③」の丸で、今どこまで決まったかがわかります。</div></details>
+<details class="qa" id="qa-need"><summary>申込に必要なお金は？</summary><div class="a">楽天証券では、申込の時に<b>仮条件の一番高い値段 × 株数（ふつう100株）</b>のお金が口座に入っている必要があります。例：仮条件 550〜570円なら 570円×100株＝<b>57,000円</b>。ハズレたらそのまま使えます。</div></details>
+<details class="qa" id="qa-yoso"><summary>初値予想って何？</summary><div class="a">上場して<b>最初につく値段（初値）の予想</b>です。予想サイト（96ut.com）の数字を出しています。<br>「直前予想」＝上場直前のプロの予想（いちばん当たりやすい）、「仮条件前の予想」＝少し早い段階の予想、「みんなの予想」＝読者の投票の平均。<br>「100株で +〇円」は、公開価格で買って初値で売ったら、という目安です。あくまで予想なので外れることもあります。</div></details>
+<details class="qa" id="qa-rank"><summary>評価 S・A・B・C・D って？</summary><div class="a">予想サイトの管理人がつけた人気の目安です。<br><b>S・A</b>：かなり人気。大きく上がりそう<br><b>B</b>：まあまあ人気。上がりそう<br><b>C</b>：少し上がるかも<br><b>D</b>：公募割れ（買った値段より下がる）の心配あり<br>Dや「公募割れのおそれ」が出ているものは、申し込むか慎重に考えましょう。</div></details>
+<details class="qa" id="qa-mkt"><summary>「人気になりやすい市場」って？</summary><div class="a">上場する場所（市場）による傾向です。<br><b>グロース</b>：小さく成長中の会社が多く、株の数も少ないので人気になって上がりやすい<br><b>プライム</b>：大きい会社が多く、上がりにくめ<br><b>地方（名証・福証・札証）・PRO市場</b>：買う人が少なく、注意が必要<br><b>REIT（〜投資法人）</b>：不動産の投資信託。値上がりしにくい<br>あくまで傾向なので、初値予想とあわせて見てください。</div></details>
+<details class="qa"><summary>公募割れって？</summary><div class="a">初値が公開価格より<b>下になってしまう</b>ことです。当たっても売ると損になります。初値予想が公開価格以下のときは、カードに「公募割れのおそれ」と赤で出ます。</div></details>
+<details class="qa"><summary>当選したら何をすればいい？</summary><div class="a">①<b>購入申込期間</b>に楽天証券で「購入」を押す（押さないと当選が無効になります）<br>②<b>上場日の朝</b>に「成行」で売る（初値で売れます）<br>③アプリで「売った」を押して、売った値段を入れると、もうけが記録されます。</div></details>
+<div class="qag">🛍 分売</div>
+<details class="qa" id="qa-bunbai"><summary>立会外分売（たちあいがいぶんばい）って？</summary><div class="a">すでに上場している株を、大株主などが<b>前の日の終値より少し安く</b>まとめて売り出す日があります。申し込んで当たると安い値段で買えて、<b>当日の朝9時からすぐ売れます</b>。例：前の日2,000円の株が1,940円 → 100株で6,000円安く買える。</div></details>
+<details class="qa"><summary>いつ申し込むの？結果は？</summary><div class="a">申込は<b>実施日の前の営業日の夕方（17:15ごろ）〜当日の朝8:20</b>。楽天は「国内株式 → 注文 → 立会外分売」から。結果は当日の朝にわかります。値段と日にちは、実施の前の日の夕方に決まります。</div></details>
+<details class="qa"><summary>分売で損することはある？</summary><div class="a">あります。当日の始値が分売の値段より下がると、売ったときに損になります。分売タブの下にある<b>「これまでの実績」</b>で、始値で売ったら何件が得だったか・平均いくらかを確認してから申し込むと安心です。</div></details>
+<div class="qag">🎁 優待</div>
+<details class="qa" id="qa-cross"><summary>優待クロスって？</summary><div class="a">同じ株を<b>「現物で買う」と「一般信用で売る」を同じ株数で同時に</b>やる方法です。株価が上がっても下がっても、買いの得と売りの損が打ち消しあうので損得はほぼゼロ。それでいて株主なので<b>優待はもらえます</b>。</div></details>
+<details class="qa"><summary>クロスのやり方は？</summary><div class="a">①<b>クロスの日（権利付最終日）</b>の朝、寄付き前に楽天で「現物買い（成行）」と「一般信用売り（成行）」を同じ株数で注文<br>②次の日（<b>権利落ち日</b>）に「<b>現渡し</b>」をして売りを返す → これで終わり<br>③数か月後に優待が届く<br>カードの「クロスする日」「現渡しの日」に日にちが出ています。</div></details>
+<details class="qa" id="qa-cost"><summary>かかるお金は？（貸株料・配当の税）</summary><div class="a"><b>貸株料</b>：売るために株を借りる借り賃。楽天の一般信用は「短期」が年3.9%、「無期限」が年1.1%で、借りた日数分だけかかります（土日や連休をはさむと増えます）。<br><b>配当の税</b>：配当をもらう一方で同じ額を払うので、差し引きで<b>配当にかかる税金（約20%）だけ</b>損します。<br><b>手数料</b>：楽天のゼロコースなら0円。<br>アプリの「差し引き」は、優待の値段からこれらを引いた金額です。</div></details>
+<details class="qa"><summary>一般信用・制度信用・逆日歩って？</summary><div class="a">売りには「一般信用」と「制度信用」があります。<b>制度信用</b>だと、売りたい人が多いときに<b>逆日歩</b>という追加の借り賃が後から決まり、優待より高くつくことがあります。<b>一般信用</b>なら逆日歩はかからず、最初に費用がわかるので、このアプリは一般信用で計算しています。</div></details>
+<details class="qa"><summary>一般信用の在庫がないときは？</summary><div class="a">人気の優待は一般信用の「売り」の在庫がすぐなくなります。早めにクロスすると取りやすいですが、そのぶん貸株料が増えます。編集画面の「いつクロスする？」を変えると、日数込みの費用で計算し直せます。在庫がなければ見送りが安全です（制度信用は逆日歩が怖いのでおすすめしません）。</div></details>
+<details class="qa"><summary>「継続保有」の条件がある優待は？</summary><div class="a">「1年以上持っている人だけ」などの条件がある優待は、クロスでは<b>もらえない</b>か、少ない方の内容になります。おすすめ一覧は、条件なしでもらえる内容で載せています。</div></details>
+<details class="qa"><summary>おすすめ一覧の金額はどうやって出してるの？</summary><div class="a">各社が公表している優待の内容（2026年11月時点）をもとにした目安です。食事券など金額で書かれていないものは、だいたいの値段にしています。株価は3時間ごとに自動で更新して、貸株料と配当の税を引いた「差し引き」を出しています。追加したあとで値段は自由に直せます。</div></details>
+<div class="qag">⚙ アプリ</div>
+<details class="qa"><summary>データはどこから？いつ更新される？</summary><div class="a">IPOと分売の日程は楽天証券の公開ページ、初値予想は96ut.com、株価と配当はYahoo!ファイナンス、会社名は東証の一覧から、<b>3時間ごとに自動で</b>取り込んでいます。</div></details>
+<details class="qa"><summary>記録はどこに保存される？</summary><div class="a">申込・当選・優待の記録は、この端末と、Googleスプレッドシート「決算チェッカー」のログに保存されます。別の端末で開いても同じ記録が出ます。</div></details>
+<details class="qa"><summary>通知が届かないときは？</summary><div class="a">①iPhoneはSafariで「ホーム画面に追加」したアプリから開く必要があります ②設定 → 通知 でオンになっているか確認 ③iPhoneの設定 → 通知 → KABU DROP が許可されているか確認。通知は朝・夕方などに1日数回まとめて送るので、少し遅れることがあります。</div></details>
+</div></div>
+<div class="subpage" id="sub-acct"><div class="in"><div class="subtop"><button class="back"><b>‹</b>設定</button><h2>口座と手数料</h2></div>
+<div class="box"><h3>使っている口座</h3><p>楽天証券（1口座）</p><p>手数料は<b>ゼロコース（0円）</b>で計算しています。</p><p style="color:var(--sub)">口座を増やすと、同じIPOでくじを引ける回数が増えます。SBI・松井などはあとで追加できるようにします。</p></div></div></div>
+<div class="subpage" id="sub-rate"><div class="in"><div class="subtop"><button class="back"><b>‹</b>設定</button><h2>一般信用の貸株料</h2></div>
+<div class="box"><p style="color:var(--sub)">楽天が料率を変えたら、ここを直せば優待の計算に反映されます（2026年11月時点：短期 3.9％、無期限 1.1％）。</p>
+<div class="setrow">短期（14日）<input id="rateS" inputmode="decimal">％／年</div>
+<div class="setrow">無期限<input id="rateL" inputmode="decimal">％／年</div></div></div></div>
+<div class="subpage" id="sub-data"><div class="in"><div class="subtop"><button class="back"><b>‹</b>設定</button><h2>データについて</h2></div>
+<div class="box"><p>IPOと分売の日程は<b>楽天証券</b>の公開ページ、初値予想は<b>96ut.com</b>、株価と配当は<b>Yahoo!ファイナンス</b>、会社名は<b>東証の一覧</b>から、3時間ごとに自動で取り込んでいます。</p><p>申込・当選・優待の記録は、この端末とスプレッドシート「決算チェッカー」のログに保存されます。</p><p class="upd" style="color:var(--sub)"></p></div></div></div>
 <nav class="tabs" id="tabs">
 <button class="tab on" data-p="ipo"><svg viewBox="0 0 24 24"><path d="M12 3c0 0-5 6-5 9.5a5 5 0 0 0 10 0C17 9 12 3 12 3z"/></svg>IPO</button>
 <button class="tab" data-p="bunbai"><svg viewBox="0 0 24 24"><path d="M20 7H4l1 12h14z"/><path d="M8 7V5a4 4 0 0 1 8 0v2"/></svg>分売</button>
@@ -438,6 +551,8 @@ button{font-family:inherit}
 </div>
 <div class="foot"><div class="dots" id="dots"></div><button class="skip" id="introSkip">スキップ</button><button class="next" id="introNext">次へ</button></div>
 </div>
+<div class="tour" id="tour"><div class="spot" id="spot"></div><div class="tip" id="tip"><div class="tc" id="tc"></div><h4 id="tt"></h4><p id="tb"></p><div class="tbtn"><button id="tskip">とじる</button><button id="tnext">次へ</button></div></div></div>
+<div class="pop" id="pop"></div>
 <div class="toast" id="toast"><img src="icon-192.png" alt=""><span id="toastT"></span></div>
 <div class="sheet-bg" id="sbg"></div>
 <div class="sheet" id="sheet"></div>
@@ -530,7 +645,7 @@ const IPO={kind:'ipo',cur:'can',last:{},
       if(o.open){cls='now';tag=`<span class="tag blue ${o.left<=1?'pulse':''}">${o.left===0?'今日まで':'あと'+o.left+'日'}</span>`;
         btns=`<a class="btn" href="${RAKUTEN}" target="_blank" rel="noopener">楽天証券で申し込む</a><button class="btn ghost" data-act="go:done">申し込んだ（← 左スワイプでもOK）</button>`;}
       else{tag=`<span class="tag org">${o.until===1?'明日から':md(x.data4)+'から'}</span>`;}
-      memo=o.need?`申込に必要なお金 <b>約${yen(o.need)}円</b>（${o.unit}株）。ハズレたら全額そのまま。`:'値段はまだ決まっていません。';
+      memo=o.need?`申込に必要なお金 <b>約${yen(o.need)}円</b>（${o.unit}株）。ハズレたら全額そのまま。`:`値段は <b>${md(x.data2)}</b> に仮の幅（仮条件）、<b>${md(x.data9)}</b> に本決まり（公開価格）になります。`;
     }else if(o.k==='done'){
       const dd=o.draw?days(o.draw,todayJ()):null;tag=`<span class="tag blue">${dd>0?'抽選まで'+dd+'日':dd===0?'今日抽選':'結果を確認'}</span>`;
       memo=dd<=0?`<b>${md(x.data15)}の夕方</b>に当落が出ています。楽天証券で確認して、下のボタンで記録しよう。`:`抽選は <b>${md(x.data15)}（${wd(x.data15)}）</b>。結果が出たら記録しよう。`;
@@ -550,15 +665,21 @@ const IPO={kind:'ipo',cur:'can',last:{},
     return slot(o,i,cls,`<div class="hd"><div class="nm"><div class="t">${esc(o.name)}</div><div class="m">${x.code} ・ ${esc(o.mkt)}</div></div>${tag}</div>
     <div class="kv">
      <div><div class="k">申込期間</div><div class="v">${md(x.data4)} 〜 ${md(x.data6)}${x.data7&&x.data7!=='0:00'?`<small>${x.data7}まで</small>`:''}</div></div>
-     <div><div class="k">${o.price?'公開価格':'値段（仮）'}</div><div class="v">${priceTxt}</div></div>
+     <div data-tip="price"><div class="k">${o.price?'公開価格（本決まり）':hi(x.data3)?'仮条件（仮の値段）':'値段'}</div><div class="v">${priceTxt}${!o.price&&!hi(x.data3)&&pd(x.data2)?`<small>${md(x.data2)}に決まる</small>`:''}</div></div>
      <div><div class="k">抽選日</div><div class="v">${md(x.data15)}<small>${wd(x.data15)}</small></div></div>
      <div><div class="k">上場日（売る日）</div><div class="v ${o.k==='win'?'red':''}">${md(x.data18)}<small>${wd(x.data18)}</small></div></div>
     </div>
-    ${o.k!=='end'?`<div class="chips"><span class="tag ${o.hint[0]}">${o.hint[1]}</span></div>`:''}
+    ${o.k!=='end'?priceFlow(o):''}
+    ${o.k!=='end'?`<div class="chips"><span class="tag ${o.hint[0]}" data-tip="mkt">${o.hint[1]}</span></div>`:''}
     ${x.data22&&o.k==='can'?`<div class="desc">${esc(x.data22)}</div>`:''}
     ${yoso}${bar(memo,o.k==='win'?'red':'')}${btns}`)}
 };
 
+function priceFlow(o){const x=o.x,t=todayJ();const d2=pd(x.data2),d9=pd(x.data9);const r=hi(x.data3);
+  const s1=r?'done':(d2&&t>=d2?'now':''),s2=o.open?'now':(o.be&&t>o.be?'done':''),s3=o.price?'done':(d9&&t>=d9?'now':'');
+  return`<div class="flow" data-tip="price"><div class="st ${s1}"><b>①仮条件</b>${md(x.data2)}<em>${r?esc(String(x.data3).replace('円','')):'—'}</em></div><div class="ln ${s1==='done'?'done':''}"></div>
+  <div class="st ${s2}"><b>②申込</b>${md(x.data4)}〜${md(x.data6)}</div><div class="ln ${s2==='done'?'done':''}"></div>
+  <div class="st ${s3}"><b>③公開価格</b>${md(x.data9)}<em>${o.price?yen(o.price):'—'}</em></div></div>`}
 function yosoBox(o){
   const y=yosoData[o.id];const base=o.price||o.hiP;
   if(o.k==='end'){if(!y||!y.first)return'';const p=y.last||y.bb||y.reader;return`<div class="yoso none">初値 <b style="color:var(--ink)">${yen(y.first)}円</b>${p?`（予想 ${yen(p)}円）`:''}${base?` ・ ${o.unit}株で ${pm((y.first-base)*o.unit)}`:''}</div>`}
@@ -566,7 +687,7 @@ function yosoBox(o){
   if(!p)return`<div class="yoso none">初値予想はまだ出ていません（上場が決まってしばらくすると出ます）</div>`;
   const kind=y.last?'直前予想':y.bb?'仮条件前の予想':'みんなの予想';
   const gain=base?(p-base)*o.unit:null;const ratio=base?Math.max(.06,Math.min(1,(p/base-1)/1.5)):0;
-  return`<div class="yoso"><div class="yh"><span>初値予想</span>${y.rank?`<span class="rk ${y.rank}">評価 ${y.rank}</span>`:''}</div>
+  return`<div class="yoso"><div class="yh"><span data-tip="yoso">初値予想 ⓘ</span>${y.rank?`<span class="rk ${y.rank}" data-tip="rank">評価 ${y.rank}</span>`:''}</div>
   <div class="yn"><b>${yen(p)}円</b><small>${kind}</small></div>
   ${gain!=null?`<div class="gauge"><i style="width:${(gain>0?ratio:0.04)*100}%"></i></div><div class="yp">${o.unit}株で <b class="${gain<0?'dn':''}">${pm(gain)}</b>${gain<=0?' <span style="color:var(--red);font-size:12px">公募割れのおそれ</span>':''}${o.price?'':'<small style="font-size:11px;color:#a0894a">（仮条件の上限で計算）</small>'}</div>`:''}
   <div class="ys">${pro&&y.reader?`みんなの予想 ${yen(y.reader)}円（${y.n}人）・`:''}出典 96ut.com</div></div>`}
@@ -657,7 +778,7 @@ function crossCost(r,px,cyc){
   const E=addBiz(cyc.L,-(r.early||0));const X=addBiz(cyc.L,1);const so=addBiz(E,2),sc=addBiz(X,2);const d=days(sc,so)+1;
   const lend=px?Math.ceil(px*sh*rate*d/365):null;
   const dv=r.div!=null&&r.div!==''?+r.div:divFor(r.code,cyc.m);const tax=dv?Math.round(dv*sh*0.20315):0;
-  const val=+r.val||0;return{E,X,d,lend,dv,tax,val,net:lend!=null?val-lend-tax:null,need:px?px*sh:null}}
+  const val=+((r.vals&&r.vals[cyc.m])||r.val)||0;return{E,X,d,lend,dv,tax,val,net:lend!=null?val-lend-tax:null,need:px?px*sh:null}}
 const YU={kind:'yutai',cur:'can',last:{},
   segs:{can:'候補',done:'クロス中',win:'届くの待ち',end:'終了'},
   moves:{can:{L:['done','クロスした','#7d7a3a']},done:{L:['win','現渡しした','#d98a1c'],R:['can','候補に戻す','#9aa097']},win:{L:['end','届いた！','#1f9d6b'],R:['done','クロス中に戻す','#9aa097']}},
@@ -673,8 +794,8 @@ const YU={kind:'yutai',cur:'can',last:{},
     return o},
   sort(g){const f=o=>+o.cyc.L;g.can.sort((a,b)=>f(a)-f(b));g.done.sort((a,b)=>f(a)-f(b));g.win.sort((a,b)=>f(a)-f(b));g.end.sort((a,b)=>(b.r.at||0)-(a.r.at||0))},
   lead(g){const t=todayJ();const td=g.can.filter(o=>days(o.c.E,t)<=0).length;const tot=g.can.reduce((a,o)=>a+(o.c.net>0?o.c.net:0),0);
-    return td?`今日クロスする優待が <span class="r">${td}件</span>`:g.can.length?`次のクロスは <span class="b">${mdD(g.can[0].c.E)}</span>${tot?` ・ 候補で <span class="b">${pm(tot)}</span>`:''}`:'＋で優待を追加しよう'},
-  empty:{can:'右上の＋から、ほしい優待を追加しよう。<br>株価は自動で入って、差し引きいくら得かを計算します。',done:'クロスした優待はここに並びます',win:'現渡ししたら、届くまでここで待ちます',end:'届いた優待はここに並びます'},
+    return td?`今日クロスする優待が <span class="r">${td}件</span>`:g.can.length?`次のクロスは <span class="b">${mdD(g.can[0].c.E)}</span>${tot?` ・ 候補で <span class="b">${pm(tot)}</span>`:''}`:'下のおすすめから選んで追加しよう'},
+  empty:{can:'下の「おすすめの優待」をタップするか、右上の＋で追加しよう。<br>株価は自動で入って、差し引きいくら得かを計算します。',done:'クロスした優待はここに並びます',win:'現渡ししたら、届くまでここで待ちます',end:'届いた優待はここに並びます'},
   hint(g){return{can:g.can.length?'クロスしたら ← 左にスワイプ ／ タップで編集':'',done:g.done.length?'現渡ししたら ← 左 ／ 右 → で候補に戻す':'',win:g.win.length?'届いたら ← 左 ／ 右 → で戻す':'',end:''}[this.cur]},
   guard(o,to){return null},
   setFor:{can:{st:'watch'},done:{st:'cross'},win:{st:'wait'},end:{st:'got'}},
@@ -724,7 +845,7 @@ function render(bk){
   $('#hint-'+bk).textContent=b.hint(g)||'';
   if(b.pastBox)b.pastBox();
   return all}
-function renderAll(){const a=render('ipo'),c=render('bunbai'),d=render('yutai');
+function renderAll(){const a=render('ipo'),c=render('bunbai'),d=render('yutai');if(window.renderRec)renderRec();if(window.setSums)setSums();
   const sum=x=>x.reduce((s,o)=>s+(o.pl||0),0);const tot=[sum(a),sum(c),sum(d)];
   $('#sumbox').innerHTML=['IPO','分売','優待'].map((n,i)=>`<div>${n}<b class="${tot[i]>0?'up':''}">${pm(tot[i])}</b></div>`).join('')}
 
@@ -770,11 +891,11 @@ function openSell(p){const sh=$('#sheet');
   $('#sellNo').onclick=closeSheet}
 
 // 優待の追加・編集
-async function openYutai(id){
-  const r0=id?{...REC.yutai[id]}:{sh:100,mons:[],day:0,plan:'s',early:0};const sh=$('#sheet');
+async function openYutai(id,pre){
+  const r0=id?{...REC.yutai[id]}:{sh:100,mons:[],day:0,plan:'s',early:0,...(pre||{})};const sh=$('#sheet');
   const pick=(name,opts,val,multi)=>`<div class="pick ${name==='mons'?'months':''}" data-name="${name}" data-multi="${multi?1:''}">${opts.map(([v,l])=>`<button type="button" data-v="${v}" class="${(multi?(val||[]).includes(v):val===v)?'on':''}">${l}</button>`).join('')}</div>`;
   sh.innerHTML=`<h3>${id?'優待を編集':'優待を追加'}</h3>
-  <label>銘柄コード（4けた）</label><input id="yCode" class="f" inputmode="text" autocapitalize="characters" maxlength="4" value="${esc(id||'')}" ${id?'readonly':''} placeholder="例 2702">
+  <label>銘柄コード（4けた）</label><input id="yCode" class="f" inputmode="text" autocapitalize="characters" maxlength="4" value="${esc(id||r0.code||'')}" ${id?'readonly':''} placeholder="例 2702">
   <div class="found" id="yName"></div>
   <label>もらえる優待</label><input id="yItem" class="f" value="${esc(r0.item||'')}" placeholder="例 食事券 1,000円分 ×1冊">
   <label>優待の値段（円）</label><input id="yVal" class="f" inputmode="numeric" value="${r0.val||''}" placeholder="例 3000">
@@ -810,7 +931,7 @@ async function openYutai(id){
     if(!/^\d{3}[0-9A-Z]$/.test(c)){toast('銘柄コードを入れてね');return}
     if(!num($('#yVal').value)){toast('優待の値段を入れてね');return}
     if(!(st.mons&&st.mons.length)){toast('権利の月を選んでね');return}
-    const v={st:r0.st||'watch',code:c,name:clean(nm?nm[0]:(r0.name||c)),item:$('#yItem').value.trim(),val:num($('#yVal').value),sh:st.sh||100,mons:st.mons,day:st.day||0,plan:st.plan||'s',early:st.early||0,
+    const v={st:r0.st||'watch',code:c,vals:r0.code===c?r0.vals||null:null,name:clean(nm?nm[0]:(r0.name||c)),item:$('#yItem').value.trim(),val:num($('#yVal').value),sh:st.sh||100,mons:st.mons,day:st.day||0,plan:st.plan||'s',early:st.early||0,
       div:$('#yDiv').value===''?null:num($('#yDiv').value),px:num($('#yPx').value)};
     closeSheet();setRec('yutai',c,v);if(!id){YU.cur='can';segOn('yutai','can')}renderAll();toast(id?'保存しました':v.name+' を候補に追加しました')};
   if(id)$('#yDel').onclick=()=>{if(!confirm('この優待を削除しますか？'))return;closeSheet();flyOut('yutai',id,'R',()=>{setRec('yutai',id,null);renderAll();toast('削除しました')})};
@@ -819,7 +940,7 @@ async function openYutai(id){
 function openSheet(){$('#sheet').scrollTop=0;$('#sbg').classList.add('on');$('#sheet').classList.add('on')}
 function closeSheet(){$('#sbg').classList.remove('on');$('#sheet').classList.remove('on');document.activeElement&&document.activeElement.blur&&document.activeElement.blur()}
 $('#sbg').onclick=closeSheet;
-$('#yAdd').onclick=()=>openYutai(null);
+$('#yAdd').onclick=()=>openPicker();
 
 // ---- タップ ----
 function segOn(bk,k){document.querySelectorAll(`.seg[data-b="${bk}"] button`).forEach(x=>x.classList.toggle('on',x.dataset.k===k))}
@@ -827,7 +948,7 @@ document.querySelectorAll('.list').forEach(list=>list.addEventListener('click',e
   if(b&&sl){act(bk,b.dataset.act,sl.dataset.id);return}
   if(bk==='yutai'&&sl&&!e.target.closest('a')&&!list.dataset.dragged)openYutai(sl.dataset.id)}));
 document.querySelectorAll('.seg').forEach(seg=>seg.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const bk=seg.dataset.b;B[bk].cur=b.dataset.k;segOn(bk,b.dataset.k);render(bk)}));
-$('#tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(!b)return;document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.page').forEach(p=>p.classList.toggle('on',p.id==='p-'+b.dataset.p));window.scrollTo(0,0);try{localStorage.setItem('kd_tab',b.dataset.p)}catch(_){}});
+$('#tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(!b)return;document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.page').forEach(p=>p.classList.toggle('on',p.id==='p-'+b.dataset.p));window.scrollTo(0,0);closeSubs();try{localStorage.setItem('kd_tab',b.dataset.p)}catch(_){}if(window.maybeTour)setTimeout(()=>maybeTour(b.dataset.p),50)});
 ['rateS','rateL'].forEach(k=>{const el=$('#'+k);el.value=SET[k];el.onchange=()=>{const v=num(el.value);if(v!=null){SET[k]=v;saveSet();renderAll();toast('貸株料を変更しました')}else el.value=SET[k]}});
 
 // ---- スワイプ：左＝次へ、右＝戻す ----
@@ -886,8 +1007,8 @@ async function ntfRender(){
   box.innerHTML=NTF.map(([g,list])=>`<div class="ngrp">${g}</div>`+list.map(([k,t,d])=>`<div class="nrow"><div>${t}<small>${d}</small></div><button class="sw ${SET.ntf[k]===false?'':'on'}" data-n="${k}" aria-label="${t}"></button></div>`).join('')).join('');
   const m=$('#nMaster');if(m)m.onclick=()=>on?disablePush():enablePush();
   const t=$('#nTest');if(t)t.onclick=async()=>{const r=swReg||await navigator.serviceWorker.ready;r.showNotification('KABU DROP（テスト）',{body:'今日は優待クロスの日：〇〇　差し引き +1,304円',icon:'icon-192.png',tag:'kd-test'})};
-  const f=$('#nOff');if(f)f.onclick=disablePush}
-$('#nBox').addEventListener('click',async e=>{const b=e.target.closest('[data-n]');if(!b)return;const k=b.dataset.n;const v=!(SET.ntf[k]!==false);SET.ntf[k]=v;saveSet();b.classList.toggle('on',v);const s=await curSub();if(s)pushSync(s)});
+  const f=$('#nOff');if(f)f.onclick=disablePush;if(window.setSums)setSums()}
+$('#nBox').addEventListener('click',async e=>{const b=e.target.closest('[data-n]');if(!b)return;const k=b.dataset.n;const v=!(SET.ntf[k]!==false);SET.ntf[k]=v;saveSet();b.classList.toggle('on',v);setSums();const s=await curSub();if(s)pushSync(s)});
 ['rateS','rateL'].forEach(k=>$('#'+k).addEventListener('change',async()=>{const s=await curSub();if(s&&SET.pushOn)pushSync(s)}));
 ntfRender();
 
@@ -897,17 +1018,114 @@ $('#dots').innerHTML=SL.map(()=>'<i></i>').join('');
 function introGo(i){si=Math.max(0,Math.min(SL.length-1,i));$('#rail').style.transform=`translateX(${-si*100}%)`;SL.forEach((s,j)=>s.classList.toggle('on',j===si));
   document.querySelectorAll('#dots i').forEach((d,j)=>d.classList.toggle('on',j===si));$('#introNext').textContent=si===SL.length-1?'はじめる':'次へ';$('#introSkip').style.visibility=si===SL.length-1?'hidden':'visible'}
 function introOpen(){introGo(0);$('#intro').classList.add('on')}
-function introClose(){$('#intro').classList.remove('on');try{localStorage.setItem('kd_intro','1')}catch(e){}}
+function introClose(){$('#intro').classList.remove('on');try{localStorage.setItem('kd_intro','1')}catch(e){}const cur=document.querySelector('.tab.on');if(cur)setTimeout(()=>maybeTour(cur.dataset.p),400)}
 $('#introNext').onclick=()=>si===SL.length-1?introClose():introGo(si+1);
 $('#introSkip').onclick=introClose;$('#introAgain').onclick=introOpen;
 $('#introPush').onclick=async()=>{const ok=await enablePush();if(ok)introClose();else if(!pushOK())toast('あとで設定タブからオンにできます')};
 (()=>{let x0=null,y0=0;const r=$('#rail');r.addEventListener('pointerdown',e=>{x0=e.clientX;y0=e.clientY});
   r.addEventListener('pointerup',e=>{if(x0==null)return;const dx=e.clientX-x0,dy=e.clientY-y0;x0=null;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy))introGo(si+(dx<0?1:-1))});})();
 
+
+// ---- おすすめの優待 ----
+let recList=[],recMon='all',recMore=false;
+function recCalc(it){const r={...it,plan:'s',early:0,day:0};const cyc=nextCycle(r);if(!cyc)return null;const px=prices[it.code]&&prices[it.code].p;return{it,cyc,c:crossCost(r,px,cyc)}}
+function recRows(list,limit){return list.slice(0,limit).map((x,i)=>{const added=!!REC.yutai[x.it.code];const n=x.c.net;
+  return`<button class="ritem" data-rc="${x.it.code}" style="animation-delay:${Math.min(i,8)*50}ms"><span class="em">${x.it.emo||'🎁'}</span><span class="tx"><b>${esc(x.it.name)}</b><span>${esc(x.it.item)}</span><span>次のクロス ${mdD(x.c.E)}（${wdD(x.c.E)}）・${x.it.sh}株</span></span>
+  <span class="nt">${added?'<span class="added">追加済み ✓</span>':n==null?'<span>株価待ち</span>':`<span>差し引き</span><b class="${n<0?'dn':''}">${pm(n)}</b>`}</span></button>`}).join('')}
+function recSorted(){return recList.map(recCalc).filter(Boolean).filter(x=>recMon==='all'||x.cyc.m===recMon).sort((a,b)=>(a.c.E-b.c.E)||((b.c.net||0)-(a.c.net||0)))}
+function renderRec(){const el=$('#yRec');if(!el)return;if(YU.cur!=='can'||!recList.length){el.innerHTML='';return}
+  const all=recList.map(recCalc).filter(Boolean);const mons=[...new Set(all.sort((a,b)=>a.c.E-b.c.E).map(x=>x.cyc.m))];
+  const L=recSorted();
+  el.innerHTML=`<h3>おすすめの優待<small>次のクロスが近い順</small></h3><div class="mchips"><button data-m="all" class="${recMon==='all'?'on':''}">すべて</button>${mons.map(m=>`<button data-m="${m}" class="${recMon===m?'on':''}">${m}月</button>`).join('')}</div>
+  ${recRows(L,recMore?99:6)}${L.length>6&&!recMore?`<button class="more" id="recMore">もっと見る（全${L.length}件）</button>`:''}`}
+$('#yRec').addEventListener('click',e=>{const m=e.target.closest('[data-m]');if(m){recMon=m.dataset.m==='all'?'all':+m.dataset.m;recMore=false;renderRec();return}
+  if(e.target.closest('#recMore')){recMore=true;renderRec();return}
+  const b=e.target.closest('[data-rc]');if(b)pickRec(b.dataset.rc)});
+function pickRec(code){if(REC.yutai[code]){openYutai(code);return}const it=recList.find(x=>x.code===code);if(!it)return;
+  closeSheet();setTimeout(()=>openYutai(null,{code:it.code,item:it.item,val:it.val,vals:it.vals||null,sh:it.sh,mons:it.mons}),200)}
+function openPicker(){const sh=$('#sheet');const L=recList.map(recCalc).filter(Boolean).sort((a,b)=>a.c.E-b.c.E);
+  sh.innerHTML=`<h3>優待をえらぶ</h3><p>人気の優待から選ぶか、銘柄コードで追加できます。右の金額は費用を引いた差し引きの目安です。</p>
+  <input id="pkQ" class="f" placeholder="会社名で探す（例 マクドナルド）" style="font:700 16px 'Noto Sans JP';padding:11px 12px">
+  <div id="pkList" style="margin-top:10px">${recRows(L,99)}</div>
+  <button class="btn" id="pkCode">リストにない銘柄をコードで追加</button><button class="btn ghost" id="pkNo">やめる</button>`;
+  openSheet();
+  $('#pkQ').oninput=()=>{const q=$('#pkQ').value.trim();$('#pkList').innerHTML=recRows(L.filter(x=>!q||x.it.name.includes(q)||x.it.item.includes(q)||x.it.code.includes(q)),99)||'<p>見つかりません。下のボタンからコードで追加できます。</p>'};
+  $('#pkList').onclick=e=>{const b=e.target.closest('[data-rc]');if(b)pickRec(b.dataset.rc)};
+  $('#pkCode').onclick=()=>{closeSheet();setTimeout(()=>openYutai(null),200)};$('#pkNo').onclick=closeSheet}
+
+// ---- 設定のサブ画面 ----
+function openSub(k){const el=$('#sub-'+k);if(!el)return;el.scrollTop=0;el.classList.add('on');return el}
+function closeSubs(){document.querySelectorAll('.subpage.on').forEach(x=>x.classList.remove('on'))}
+document.querySelectorAll('.mi[data-sub]').forEach(b=>b.onclick=()=>openSub(b.dataset.sub));
+document.querySelectorAll('.subpage .back').forEach(b=>b.onclick=closeSubs);
+document.querySelectorAll('.subpage').forEach(sp=>{let x0=null,y0=0;sp.addEventListener('touchstart',e=>{const t=e.touches[0];if(t.clientX<40){x0=t.clientX;y0=t.clientY}else x0=null},{passive:true});
+  sp.addEventListener('touchend',e=>{if(x0==null)return;const t=e.changedTouches[0];if(t.clientX-x0>70&&Math.abs(t.clientY-y0)<60)closeSubs();x0=null})});
+function openQA(id){openSub('qa');const el=$('#'+id);if(!el)return;el.open=true;el.classList.add('hl');setTimeout(()=>el.scrollIntoView({block:'center',behavior:'smooth'}),380);setTimeout(()=>el.classList.remove('hl'),2600)}
+function setSums(){const n=$('#ntfSum');if(n)n.textContent=SET.pushOn&&'Notification' in window&&Notification.permission==='granted'?'オン・'+NTF.reduce((a,[g,l])=>a+l.filter(([k])=>SET.ntf[k]!==false).length,0)+'種類':'オフ';
+  const r=$('#rateSum');if(r)r.textContent=`短期 ${SET.rateS}％・無期限 ${SET.rateL}％`}
+
+// ---- その場の説明（ⓘ） ----
+const TIPS={mkt:['上場する市場による傾向です。<b>グロース</b>は小さく成長中の会社が多く人気になりやすい。<b>プライム</b>は大きい会社で上がりにくめ。地方市場・REITは注意。','qa-mkt'],
+ rank:['予想サイトの人気の目安。<b>S・A</b>かなり人気／<b>B</b>まあまあ／<b>C</b>少し上がるかも／<b>D</b>公募割れの心配あり。','qa-rank'],
+ yoso:['上場して最初につく値段（初値）の予想。<b>公開価格で買って初値で売ると</b>いくら得かの目安です。予想なので外れることもあります。','qa-yoso'],
+ price:['値段は2段階。<b>①仮条件</b>＝仮の値段の幅（申込の少し前に決定）→ <b>②申込</b> → <b>③公開価格</b>＝本決まり（抽選の日に決定）。申込には仮条件の一番高い値段×株数のお金が必要。','qa-price']};
+function showTip(el,k){const t=TIPS[k];if(!t)return;const p=$('#pop');p.innerHTML=`${t[0]}<br><a href="#" data-qa="${t[1]}">くわしくはQ&amp;A ›</a>`;
+  const r=el.getBoundingClientRect();const below=r.bottom+170<innerHeight;p.style.top=(below?r.bottom+8:Math.max(10,r.top-8-150))+'px';p.classList.add('on');
+  if(!below)requestAnimationFrame(()=>{p.style.top=Math.max(10,r.top-8-p.offsetHeight)+'px'});clearTimeout(showTip.t);showTip.t=setTimeout(()=>p.classList.remove('on'),6000)}
+document.addEventListener('click',e=>{const q=e.target.closest('[data-qa]');if(q){e.preventDefault();$('#pop').classList.remove('on');goTab('set');openQA(q.dataset.qa);return}
+  const t=e.target.closest('[data-tip]');if(t&&!e.target.closest('a,button:not([data-tip])')){e.stopPropagation();showTip(t,t.dataset.tip);return}
+  if(!e.target.closest('#pop'))$('#pop').classList.remove('on')},true);
+window.addEventListener('scroll',()=>$('#pop').classList.remove('on'),{passive:true});
+function goTab(p){const b=document.querySelector(`.tab[data-p="${p}"]`);if(b)b.click()}
+
+// ---- 画面の説明ツアー ----
+const TOURS={
+ ipo:[['.seg[data-b=ipo]','上の4つの箱','IPOを<b>状態ごと</b>に分けています。<br>申込できる → 申込済み → 当選 → 終了 の順に進みます。数字はその件数です。'],
+  ['#list-ipo .slot:first-child .hd','会社の名前と締切','右上のマークは<b>申込が始まる日・締切までの日数</b>。青く光っていたら今日申し込めます。'],
+  ['#list-ipo .slot:first-child .flow','値段が決まるまで','IPOの値段は<b>2段階</b>で決まります。<br><b>①仮条件</b>＝仮の値段の幅（例 550〜570円）<br><b>③公開価格</b>＝本決まりの値段（抽選の日に決定）<br>緑の丸は決まったところ、青は今ここ。'],
+  ['#list-ipo .slot:first-child .yoso','初値予想','上場して<b>最初につく値段</b>の予想です。公開価格で買って初値で売ると、<b>100株でいくら得しそうか</b>の目安も出ます。'],
+  ['#list-ipo .slot:first-child .rk','評価 S〜D','人気の目安です。<b>S・A</b>かなり人気、<b>B</b>まあまあ、<b>C</b>少し上がるかも、<b>D</b>は買った値段より下がる心配あり。'],
+  ['#list-ipo .slot:first-child .chips','市場のタグ','<b>グロース</b>は小さな成長中の会社が多く、人気になりやすい市場です。ⓘ のついた所は<b>タップすると説明</b>が出ます。'],
+  ['#list-ipo .slot:first-child .card','スワイプで移動','申し込んだら、カードを <b>← 左にスワイプ</b>。「申込済み」に移ります。まちがえたら <b>→ 右</b>で戻せます。','nudge'],
+  ['#p-ipo .help','わからなくなったら','この <b>？</b> を押すと、いつでもこの説明を見直せます。くわしくは設定の「Q&A」へ。']],
+ bunbai:[['.seg[data-b=bunbai]','上の4つの箱','分売を<b>状態ごと</b>に分けています。申込できる → 申込済み → 当選 → 終了 の順に進みます。'],
+  ['#list-bunbai .empty','今は分売がない時','分売は、実施の<b>前の日の夕方</b>に楽天に出て、ここに自動で並びます。通知をオンにすると知らせます。'],
+  ['#list-bunbai .slot:first-child .kv','値段と日にち','<b>前の日より〇円安い</b>＝前の日の終値より、いくら安く買えるか（申込単位の株数で）。実施日の朝から売れます。'],
+  ['#list-bunbai .slot:first-child .card','スワイプで移動','申し込んだら <b>← 左にスワイプ</b>。まちがえたら <b>→ 右</b>で戻せます。','nudge'],
+  ['#bb-past','これまでの実績','楽天で扱った分売で、当たって<b>始値で売っていたら100株でいくら</b>だったか。得した件数と平均がわかります。'],
+  ['#p-bunbai .help','わからなくなったら','この <b>？</b> でいつでも見直せます。']],
+ yutai:[['#yRec','おすすめの優待','人気の優待を、<b>次のクロスが近い順</b>に並べています。右の金額は、費用を引いた<b>差し引きいくら得か</b>の目安。タップすると追加できます。'],
+  ['#yRec .mchips','月でしぼる','権利の月でしぼりこめます。'],
+  ['#yAdd','自分で探して追加','＋からおすすめを探したり、<b>銘柄コード</b>で好きな優待を追加できます。'],
+  ['#list-yutai .slot:first-child .big','差し引き','優待の値段から、<b>貸株料（株の借り賃）と配当の税</b>を引いた金額。プラスなら得です。'],
+  ['#list-yutai .slot:first-child .kv','クロスの日と現渡しの日','<b>クロスする日</b>に「現物買い」と「一般信用売り」を同時に。次の日の<b>現渡し</b>で終わりです。'],
+  ['.seg[data-b=yutai]','上の4つの箱','候補 → クロス中 → 届くの待ち → 終了 の順に、<b>左スワイプ</b>で進めます。'],
+  ['#p-yutai .help','わからなくなったら','この <b>？</b> でいつでも見直せます。']]};
+let tour=null;
+function startTour(k){const steps=TOURS[k].filter(st=>{const el=document.querySelector(st[0]);return el&&el.offsetParent!==null});if(!steps.length)return;
+  window.scrollTo(0,0);tour={k,steps,i:0};$('#tour').classList.add('on');tourShow()}
+function tourEnd(){if(!tour)return;try{localStorage.setItem('kd_tour_'+tour.k,'1')}catch(e){}document.querySelectorAll('.nudge').forEach(c=>c.classList.remove('nudge'));document.querySelectorAll('.nudging').forEach(c=>c.classList.remove('nudging'));
+  $('#tour').classList.remove('on');tour=null}
+function tourShow(){const st=tour.steps[tour.i];const el=document.querySelector(st[0]);document.querySelectorAll('.nudge').forEach(c=>c.classList.remove('nudge'));document.querySelectorAll('.nudging').forEach(c=>c.classList.remove('nudging'));
+  if(!el){tourNext();return}
+  const tip=$('#tip');tip.classList.add('fade');
+  const r0=el.getBoundingClientRect();if(r0.top<70||r0.bottom>innerHeight-260){window.scrollBy({top:r0.top-Math.min(140,innerHeight*.22),behavior:'smooth'})}
+  setTimeout(()=>{if(!tour)return;const r=el.getBoundingClientRect();const pad=6;const sp=$('#spot');
+    sp.style.left=(r.left-pad)+'px';sp.style.top=(r.top-pad)+'px';sp.style.width=(r.width+pad*2)+'px';sp.style.height=(r.height+pad*2)+'px';
+    if(st[3]==='nudge'){el.classList.add('nudge');el.parentNode.classList.add('nudging');const u=el.parentNode.querySelector('.under');if(u)u.innerHTML='<div class="l"></div><div class="r" style="opacity:1">→ 次へ</div>'}
+    $('#tc').textContent=`${tour.i+1} / ${tour.steps.length}`;$('#tt').textContent=st[1];$('#tb').innerHTML=st[2];$('#tnext').textContent=tour.i===tour.steps.length-1?'わかった':'次へ';
+    const th=tip.offsetHeight||170;const below=r.bottom+pad+14+th<innerHeight-10;tip.style.top=(below?r.bottom+pad+14:Math.max(12,r.top-pad-14-th))+'px';tip.classList.remove('fade')},380)}
+function tourNext(){if(!tour)return;if(tour.i>=tour.steps.length-1){tourEnd();return}tour.i++;tourShow()}
+$('#tnext').onclick=e=>{e.stopPropagation();tourNext()};$('#tskip').onclick=e=>{e.stopPropagation();tourEnd()};
+$('#tour').addEventListener('click',()=>tourNext());
+function maybeTour(k){if(!TOURS[k]||tour||$('#intro').classList.contains('on'))return;let done=false;try{done=!!localStorage.getItem('kd_tour_'+k)}catch(e){}if(!done)setTimeout(()=>startTour(k),550)}
+document.querySelectorAll('.help[data-tour]').forEach(b=>b.onclick=()=>startTour(b.dataset.tour));
+$('#tourAgain').onclick=()=>{['ipo','bunbai','yutai'].forEach(k=>{try{localStorage.removeItem('kd_tour_'+k)}catch(e){}});toast('各タブを開くと説明が出ます');setTimeout(()=>goTab('ipo'),500)};
+
 // ---- 読み込み ----
 async function getJSON(u,def){try{const r=await fetch(u+'?'+Date.now());if(!r.ok)return def;return await r.json()}catch(e){return def}}
 async function load(){
-  [ipos,bunbai,prices,yosoData]=await Promise.all([getJSON('data/ipo.json',[]),getJSON('data/bunbai.json',{items:[],past:[]}),getJSON('data/prices.json',{}),getJSON('data/yoso.json',{})]);
+  [ipos,bunbai,prices,yosoData]=await Promise.all([getJSON('data/ipo.json',[]),getJSON('data/bunbai.json',{items:[],past:[]}),getJSON('data/prices.json',{}),getJSON('data/yoso.json',{})]);recList=((await getJSON('data/yutai_list.json',{items:[]})).items)||[];
   try{const u=(await (await fetch('data/updated.txt?'+Date.now())).text()).trim();const d=new Date(u);if(!isNaN(d))document.querySelectorAll('.upd').forEach(el=>el.innerHTML=`楽天証券<br>${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')} 更新`)}catch(e){}
   renderAll();loadRemote();
   const ip=IPO.all(),bb=BUN.all(),yu=YU.all();const t=todayJ();
@@ -916,7 +1134,7 @@ async function load(){
 }
 const qTab=new URLSearchParams(location.search).get('tab');if(qTab)try{localStorage.setItem('kd_tab',qTab)}catch(e){}
 let firstTime=false;try{firstTime=!localStorage.getItem('kd_intro')}catch(e){}
-if(firstTime)setTimeout(introOpen,2150);
+if(firstTime)setTimeout(introOpen,2150);else setTimeout(()=>{const cur=document.querySelector('.tab.on');if(cur)maybeTour(cur.dataset.p)},2500);
 try{const tb=localStorage.getItem('kd_tab');if(tb&&tb!=='ipo'){const b=document.querySelector(`.tab[data-p="${tb}"]`);if(b)b.click()}}catch(e){}
 setTimeout(()=>$('#splash').classList.add('off'),2100);
 load();setTimeout(loadNames,4000);
