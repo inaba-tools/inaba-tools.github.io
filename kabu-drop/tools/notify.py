@@ -270,10 +270,19 @@ def main():
     msgs = build(rec, sent)
     subs = {d: m for d, m in rec['push'].items() if m.get('sub') and m.get('st') == 'on'}
     print('slot', SLOT, 'msgs', len(msgs), 'devices', len(subs))
-    if key and subs and msgs:
+    if key and subs:
         from pywebpush import webpush, WebPushException
         for dev, m in subs.items():
             prefs = m.get('prefs') or {}
+            hk = dev[:12] + '|hello'
+            if hk not in sent:
+                try:
+                    webpush(subscription_info=m['sub'], data=json.dumps({'title': 'KABU DROP の通知がつながりました', 'body': 'これから締切や売る日をお知らせします。種類は設定タブで選べます', 'tab': 'set', 'tag': 'hello'}, ensure_ascii=False),
+                            vapid_private_key=key, vapid_claims={'sub': APP.rstrip('/')}, ttl=6 * 3600)
+                    sent[hk] = TODAY.isoformat()
+                    print('sent hello')
+                except Exception as e:
+                    print('hello error', e, file=sys.stderr)
             for (k, kind, title, body, tab) in msgs:
                 sk = dev[:12] + '|' + k
                 if sk in sent or not prefs.get(kind, kind in DEFAULT_ON):
@@ -289,7 +298,7 @@ def main():
                     print('push error', dev[:6], e, file=sys.stderr)
     # 40日より古い送信記録は消す
     lim = (TODAY - dt.timedelta(days=40)).isoformat()
-    sent = {k: v for k, v in sent.items() if k == '_seen' or v >= lim}
+    sent = {k: v for k, v in sent.items() if k == '_seen' or k.endswith('|hello') or v >= lim}
     save('sent.json', sent)
 
 
