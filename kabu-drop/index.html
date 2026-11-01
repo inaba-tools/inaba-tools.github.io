@@ -1357,10 +1357,10 @@ async function load(){
   const urgent=bb.find(o=>o.k==='can'&&o.open)?['分売の申込を受付中だよ']:ip.find(o=>o.k==='can'&&o.open&&o.left<=1)?[ip.find(o=>o.k==='can'&&o.open&&o.left<=1).name+'：申込の締切が近いよ']:yu.find(o=>o.k==='can'&&days(o.c.E,t)<=0)?['今日クロスする優待があるよ']:ip.find(o=>o.k==='win')?[ip.find(o=>o.k==='win').name+'：売る日をチェック']:null;
   if(urgent)setTimeout(()=>toast(urgent[0]),2300);
 }
-const qTab=new URLSearchParams(location.search).get('tab');if(qTab)try{localStorage.setItem('kd_tab',qTab)}catch(e){}
+const qTab=new URLSearchParams(location.search).get('tab');
 let firstTime=false;try{firstTime=!localStorage.getItem('kd_intro')}catch(e){}
 if(firstTime)setTimeout(introOpen,2150);else setTimeout(()=>{const cur=document.querySelector('.tab.on');if(cur)maybeTour(cur.dataset.p)},2500);
-try{const tb=localStorage.getItem('kd_tab');if(tb&&tb!=='ipo'){const b=document.querySelector(`.tab[data-p="${tb}"]`);if(b)b.click()}}catch(e){}
+if(qTab&&qTab!=='ipo'){const b=document.querySelector(`.tab[data-p="${qTab}"]`);if(b)b.click()}
 setTimeout(()=>$('#splash').classList.add('off'),2100);
 load();setTimeout(loadNames,4000);
 </script>
