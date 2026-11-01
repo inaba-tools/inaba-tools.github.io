@@ -535,6 +535,26 @@ html.dark .apl{background:#18233a;border-color:#22324f}
 .apl .f{margin-top:8px;font:700 11px "Noto Sans JP";color:var(--sub);line-height:1.6}
 .aplog{margin-top:8px;font:700 12px "Noto Sans JP";color:var(--sub)}
 .aplog b{color:#1f7a55}
+/* 値段の流れ：状況に合わせて光る */
+.flow .st.done:before{content:"✓";display:grid;place-items:center;color:#fff;font:900 9px Inter;width:16px;height:16px;border-width:0}
+.flow .st.now{z-index:1}
+.flow .st.now:before{width:16px;height:16px;border-width:3px}
+.flow .st.now:after{content:"";position:absolute;left:50%;top:-1px;width:20px;height:20px;margin-left:-10px;border-radius:50%;border:2px solid var(--blue);animation:ripple 1.6s ease-out infinite;pointer-events:none}
+@keyframes ripple{0%{transform:scale(.8);opacity:.9}100%{transform:scale(2.1);opacity:0}}
+.flow .st .here{display:inline-block;margin-top:3px;font:900 9.5px "Noto Sans JP";color:#fff;background:var(--blue);padding:1px 6px;border-radius:6px}
+.flow .ln.done{background:var(--green)}
+.flow .ln.go{background:linear-gradient(90deg,var(--green),var(--blue),#cfccbf);background-size:200% 100%;animation:lnflow 1.8s linear infinite}
+@keyframes lnflow{0%{background-position:100% 0}100%{background-position:0 0}}
+/* ほかの証券会社 */
+.apo{margin-top:10px;padding-top:10px;border-top:1px dashed #c9d6ef}
+html.dark .apo{border-color:#2a3a58}
+.apo .t{font:800 11.5px "Noto Sans JP";color:var(--blue);line-height:1.5}
+.apo .t b{font-size:13px}
+.apo .ch{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.apo .ch a{display:flex;align-items:center;gap:5px;padding:4px 9px 4px 4px;border-radius:20px;background:var(--card);text-decoration:none;font:800 11px "Noto Sans JP";color:var(--sub);box-shadow:0 0 0 1px var(--line)}
+.apo .ch a .lg{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;color:#fff;font:900 10px "Noto Sans JP";filter:grayscale(.5);opacity:.85}
+.apo .ch a.lead{box-shadow:0 0 0 1.5px #d9a514;color:#a07a10}
+.apo .ch a:after{content:"＋";font-weight:900;color:var(--green)}
 /* splash */
 .splash{position:fixed;inset:0;background:linear-gradient(180deg,#8a8740,#55521f);z-index:100;display:grid;place-items:center;transition:opacity .5s .1s,visibility .5s .1s}
 .splash.off{opacity:0;visibility:hidden}
@@ -945,10 +965,16 @@ const IPO={kind:'ipo',cur:'can',last:{},
 };
 
 function priceFlow(o){const x=o.x,t=todayJ();const d2=pd(x.data2),d9=pd(x.data9);const r=hi(x.data3);
-  const s1=r?'done':(d2&&t>=d2?'now':''),s2=o.open?'now':(o.be&&t>o.be?'done':''),s3=o.price?'done':(d9&&t>=d9?'now':'');
-  return`<div class="flow" data-tip="price"><div class="st ${s1}"><b>①仮条件</b>${md(x.data2)}<em>${r?esc(String(x.data3).replace('円','')):'—'}</em></div><div class="ln ${s1==='done'?'done':''}"></div>
-  <div class="st ${s2}"><b>②申込</b>${md(x.data4)}〜${md(x.data6)}</div><div class="ln ${s2==='done'?'done':''}"></div>
-  <div class="st ${s3}"><b>③公開価格</b>${md(x.data9)}<em>${o.price?yen(o.price):'—'}</em></div></div>`}
+  const bs=pd(x.data4),be=pd(x.data6);
+  const s1=r?'done':(d2&&t>=d2?'now':'');
+  const s2=o.price||(be&&t>be)?'done':(bs&&t>=bs?'now':'');
+  const s3=o.price?'done':(be&&t>be?'now':'');
+  const cur=s3==='now'?3:s2==='now'?2:s1==='now'||!s1?1:0;
+  const here=n=>cur===n?'<span class="here">今ここ</span>':'';
+  const ln=(a,b)=>a==='done'&&b==='now'?'go':a==='done'?'done':'';
+  return`<div class="flow" data-tip="price"><div class="st ${s1}${!s1&&cur===1?' now':''}"><b>①仮条件</b>${md(x.data2)}<em>${r?esc(String(x.data3).replace('円','')):'—'}</em>${here(1)}</div><div class="ln ${ln(s1,s2)}"></div>
+  <div class="st ${s2}"><b>②申込</b>${md(x.data4)}〜${md(x.data6)}${here(2)}</div><div class="ln ${ln(s2,s3)}"></div>
+  <div class="st ${s3}"><b>③公開価格</b>${md(x.data9)}<em>${o.price?yen(o.price):'—'}</em>${here(3)}</div></div>`}
 function judge(o){const y=yosoData[o.id]||{};const base=o.price||o.hiP||y.sotei;const p=y.last||y.bb||y.reader;
   if(y.rank==='D')return'bad';if(!p||!base)return null;return p>base?'good':'bad'}
 function judgeTag(o){const j=judge(o);if(!j)return'';const w=o.k==='win';
@@ -1371,11 +1397,19 @@ function applyBox(o){const A=ownAccs(o);const acc=(o.r&&o.r.acc)||{};const n=A.f
   return`<div class="apl"><div class="h">申込チェック<small>${n}/${A.length}社 申込済み</small></div><div class="r">${A.map(({b,lead})=>{const on=!!acc[b.id];
     return`<div class="ap ${on?'on':''}"><button class="ck" data-act="ac:${b.id}" aria-label="${b.name}の申込チェック"><span class="lg" style="background:${b.color}">${b.short}</span><i>✓</i></button>
     <span class="nm">${b.name.replace(/証券|證券/,'')}${lead?' <span class="star">★主幹事</span>':''}<small>${on?'申込済み ✓':'まだ'}</small></span>${on?'':`<a href="${APPLY_URL[b.id]||b.aff||b.url}" target="_blank" rel="noopener">申し込む ›</a>`}</div>`}).join('')}</div>
+  ${(()=>{const y=yosoData[o.id]||{};const others=(brokers||[]).filter(b=>!hasAcc(b.id)).map(b=>({b,lead:(b.lead||[]).includes(y.lead)})).sort((a,c)=>c.lead-a.lead);if(!others.length)return'';
+    return`<div class="apo"><div class="t">🎟 くじは今 <b>${A.length}回</b>。ほかの証券会社にも口座があれば、<b>その会社がこのIPOを扱っていれば</b>1社ごとにくじが1回増えます（最大 ${A.length+others.length}回）。${others.some(x=>x.lead)?'<b>★主幹事</b>は扱いが確実で、いちばん当たりやすい':''}</div>
+    <div class="ch">${others.map(({b,lead})=>`<a class="${lead?'lead':''}" href="${b.aff||b.url}" target="_blank" rel="noopener sponsored"><span class="lg" style="background:${b.color}">${b.short}</span>${lead?'★':''}${b.name.replace(/証券|證券/,'')}</a>`).join('')}</div></div>`})()}
   <div class="f">${A.length===1?'楽天は '+APPLY_HOW.rakuten+'。':'各社のサイトでログインしてIPOのページから申し込みます。'}申し込んだら<b>アイコンをタップ</b>してチェック。全部チェックすると「申込済み」に移ります（→ 右スワイプで全部まとめてチェック）</div></div>`}
 function toggleAcc(o,id){const acc={...((o.r&&o.r.acc)||{})};acc[id]=!acc[id];const A=ownAccs(o);const all=A.length&&A.every(a=>acc[a.b.id]);
   if(all){move('ipo',o.id,'done',FWD);setTimeout(()=>{setRec('ipo',o.id,{acc});renderAll()},700);return}
   setRec('ipo',o.id,{acc});const list=$('#list-ipo');list.classList.add('noanim');renderAll();setTimeout(()=>list.classList.remove('noanim'),50);toast(acc[id]?'申込済みにチェックしました':'チェックを外しました')}
 
+
+// ---- 外のリンクは、ホーム画面アプリでもSafariで開く ----
+const isIOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+document.addEventListener('click',e=>{const a=e.target.closest('a[target=_blank]');if(!a||e.defaultPrevented)return;const u=a.href;if(!/^https?:/.test(u))return;
+  if(isIOS&&standalone()){e.preventDefault();location.href='x-safari-'+u}},false);
 
 // ---- 練習用のIPOカード ----
 function testIPO(){const t=todayJ();const f=n=>{const d=new Date(t.getTime()+n*864e5);return`${d.getUTCFullYear()}/${String(d.getUTCMonth()+1).padStart(2,'0')}/${String(d.getUTCDate()).padStart(2,'0')}`};
