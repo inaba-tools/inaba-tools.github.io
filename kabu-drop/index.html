@@ -556,6 +556,59 @@ html.dark .apo .t{color:#c3c9c2}
 .apo .ch a .lg{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;color:#fff;font:900 10px "Noto Sans JP";filter:grayscale(.5);opacity:.85}
 .apo .ch a.lead{box-shadow:0 0 0 1.5px #d9a514;color:#a07a10}
 .apo .ch a:after{content:"＋";font-weight:900;color:var(--green)}
+/* ===== ダークモードの見やすさ調整 ===== */
+html.dark{--bg:#0f1210;--card:#1c221e;--ink:#f1f3ee;--sub:#aab3ab;--line:#2f3732;--grey:#9aa39b;--blue:#4c8ef0;--red:#ef6a5f;--green:#3f8f80;--olive:#a6a25a;--orange:#e8a03a}
+html.dark .card,html.dark .box,html.dark .menu,html.dark .qa,html.dark .ritem,html.dark .bk:not(.no),html.dark .bud{box-shadow:0 0 0 1px #2a322d,0 8px 22px rgba(0,0,0,.35)}
+html.dark .kv .k,html.dark .hd .m,html.dark .desc,html.dark .calc,html.dark .hint,html.dark .mi small,html.dark .ritem .tx span,html.dark .ritem .nt span,html.dark .ritem .nt small,html.dark .yc .tx span,html.dark .yc .rt .k,html.dark .yc .rt small,html.dark .kv .v small,html.dark .pastrow small,html.dark .nrow small,html.dark .bk .tx p,html.dark .apl .f,html.dark .leadrow,html.dark .m3meta,html.dark .stat3 div,html.dark .seg button,html.dark .top .sub{color:#b6beb6}
+html.dark .kv .v,html.dark .ap .nm,html.dark .leadrow b{color:var(--ink)}
+/* ①②③の丸 */
+html.dark .flow{background:#252c27}
+html.dark .flow .st{color:#b6beb6}
+html.dark .flow .st b{color:#cfd5ce}
+html.dark .flow .st:before{background:#1c221e;border-color:#5a645c}
+html.dark .flow .st.done:before{background:#3fbf8f;border-color:#3fbf8f;color:#0f1210}
+html.dark .flow .st.done b{color:#6fe0b0}
+html.dark .flow .st.now:before{background:#5b9cff;border-color:#5b9cff;box-shadow:0 0 0 4px rgba(91,156,255,.25)}
+html.dark .flow .st.now b{color:#9cc3ff}
+html.dark .flow .st.now:after{border-color:#5b9cff}
+html.dark .flow .st .here{background:#5b9cff;color:#0f1210}
+html.dark .flow .ln{background:#4a534c}html.dark .flow .ln.done{background:#3fbf8f}
+html.dark .flow .st em{color:var(--ink)}
+/* 緑・青・赤の文字を明るく */
+html.dark .pastrow .p.up,html.dark .stat3 b.up,html.dark .sum b.up,html.dark .kv .v span[style*="1f9d6b"],html.dark .big .n,html.dark .leadrow .ok,html.dark .ap.on .nm small{color:#5fe0a8!important}
+html.dark .pastrow .p.dn,html.dark .kv .v.red{color:#ff8b80}
+html.dark .lead .b{color:#7fb0ff}html.dark .lead .r{color:#ff8b80}
+html.dark .apl{background:#16223a;border-color:#2a3d63}
+html.dark .apl .h{color:#9cc3ff}
+html.dark .ap{background:#1f2724}
+html.dark .ap a{background:#4c8ef0}
+html.dark .apo .ch a{background:#1f2724;box-shadow:0 0 0 1px #34403a;color:#c9d0c8}
+html.dark .apo .ch a.lead{box-shadow:0 0 0 1.5px #e0b84a;color:#ffd970}
+html.dark .tag.grey{background:#2c342f;color:#c3cbc3}
+html.dark .bar{background:#252c27;color:#d0d6cf}
+html.dark .bar .dot{background:#c9c47a}
+html.dark .yoso.none,html.dark .m3.none{color:#b6beb6}
+html.dark .rec h3 small,html.dark .qag,html.dark .ngrp,html.dark .bkgrp{color:#c9c47a}
+html.dark .mchips button:not(.on){color:#c3cbc3}
+html.dark .mchips button.on{background:#a6a25a;color:#0f1210}
+html.dark .more,html.dark .intro .sm a,html.dark .pop a{color:#6fe0b0}
+html.dark .subtop .back{color:#6fe0b0}
+html.dark .mi i{color:#5f6a62}
+html.dark .tour .tc{color:#c9c47a}
+html.dark .intro .pill{background:#3f8f80}
+html.dark .intro li i{background:#1f3a31;color:#6fe0b0}
+html.dark .intro .dots i{background:#3a433d}html.dark .intro .dots i.on{background:#3fbf8f}
+html.dark .nbox.off .nrow{opacity:.6}
+html.dark .thm .ok{color:#b6beb6}
+html.dark .bk .msg{color:#e0a876}
+html.dark .bk .ld{color:#d9d38a}
+html.dark .notebox{background:#2e2712;color:#ecd48a}
+html.dark .flowm .st p{color:#cfd5ce!important}
+html.dark .toast{box-shadow:0 0 0 1px #2f3732,0 10px 26px rgba(0,0,0,.5)}
+html.dark .seg button.on,html.dark .seg button.on b{color:#fff!important}
+/* 紹介画面のボタンが折れないように */
+.intro .skip{white-space:nowrap;flex:none}
+.intro .next{white-space:nowrap;flex:none;padding:14px 20px}
 /* splash */
 .splash{position:fixed;inset:0;background:linear-gradient(180deg,#8a8740,#55521f);z-index:100;display:grid;place-items:center;transition:opacity .5s .1s,visibility .5s .1s}
 .splash.off{opacity:0;visibility:hidden}
@@ -1335,7 +1388,7 @@ function introGo(i){si=Math.max(0,Math.min(SL.length-1,i));$('#rail').style.tran
 let introSingle=null;
 function introOpen(){introSingle=null;$('#intro').classList.remove('single');introGo(0);$('#intro').classList.add('on')}
 function introOne(k){const idx={ipo:1,bunbai:3,yutai:4}[k];introSingle=k;$('#intro').classList.add('single');introGo(idx);$('#intro').classList.add('on');
-  if(k==='ipo')$('#introNext').textContent='次へ（当たりやすくするコツ）';else $('#introNext').textContent='画面の説明を見る';$('#introSkip').textContent='とじる';$('#introSkip').style.visibility='visible'}
+  if(k==='ipo')$('#introNext').textContent='次へ';else $('#introNext').textContent='画面の説明を見る';$('#introSkip').textContent='とじる';$('#introSkip').style.visibility='visible'}
 function introClose(){$('#intro').classList.remove('on');try{localStorage.setItem('kd_intro','1')}catch(e){}const cur=document.querySelector('.tab.on');if(cur)setTimeout(()=>maybeTour(cur.dataset.p),400)}
 $('#introNext').onclick=()=>{if(introSingle==='ipo'&&si===1){introGo(2);$('#introNext').textContent='画面の説明を見る';$('#introSkip').textContent='とじる';$('#introSkip').style.visibility='visible';return}if(introSingle){const k=introSingle;introSingle=null;$('#intro').classList.remove('on','single');setTimeout(()=>startTour(k),450);return}si===SL.length-1?introClose():introGo(si+1)};
 $('#introSkip').onclick=()=>{if(introSingle){introSingle=null;$('#intro').classList.remove('on','single');return}introClose()};$('#introAgain').onclick=introOpen;
