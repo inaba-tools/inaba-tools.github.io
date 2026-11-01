@@ -281,6 +281,8 @@ def fetch_yoso():
             continue
         code = m.group(1)
         pro = text(tds[4])
+        cond = re.sub(r'<[^>]+>', '', tds[3])
+        so = re.search(r'([\d,]+)\s*⇒', cond)
         rank = re.findall(r'([SABCD])\s*\((\d+)\)', re.sub(r'<[^>]+>', '', tds[5]))
         rd = re.search(r'([\d,]+)\s*\((\d+)件\)', re.sub(r'<[^>]+>', '', tds[5]))
         it = {
@@ -290,6 +292,7 @@ def fetch_yoso():
             'reader': number(rd.group(1)) if rd else None,
             'n': int(rd.group(2)) if rd else 0,
             'first': number(' '.join(text(tds[7]))),
+            'sotei': number(so.group(1)) if so else None,
         }
         if any(v for k, v in it.items() if k != 'n'):
             out[code] = it

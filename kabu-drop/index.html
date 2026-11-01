@@ -333,6 +333,17 @@ button{font-family:inherit}
 .ritem.adding{animation:addok .6s cubic-bezier(.2,1.4,.3,1)}
 @keyframes addok{40%{transform:scale(.95);background:#e6f4ec}100%{transform:none}}
 .intro.single .dots{visibility:hidden}
+.rk.S{background:linear-gradient(135deg,#f6d365,#d9a514)!important;color:#5c4305!important;box-shadow:0 0 0 1px rgba(217,165,20,.4),0 3px 8px rgba(217,165,20,.35)}
+.rk.A{background:#d2453b!important;color:#fff!important}
+.rk.B{background:#2b6fd6!important;color:#fff!important}
+.rk.C{background:#1f9d6b!important;color:#fff!important}
+.rk.D{background:#8a5a34!important;color:#fff!important}
+.subpage.drag{transition:none}
+.subpage .edge{position:fixed;left:0;top:0;bottom:0;width:22px;z-index:3}
+.subshade{position:fixed;inset:0;z-index:7;background:rgba(20,24,20,.25);opacity:0;pointer-events:none;transition:opacity .38s}
+.subshade.on{opacity:1}
+.app.pushed{transform:translateX(-22%);opacity:.6}
+.app{transition:transform .38s cubic-bezier(.2,1,.3,1),opacity .38s}
 /* splash */
 .splash{position:fixed;inset:0;background:linear-gradient(180deg,#8a8740,#55521f);z-index:100;display:grid;place-items:center;transition:opacity .5s .1s,visibility .5s .1s}
 .splash.off{opacity:0;visibility:hidden}
@@ -442,7 +453,9 @@ button{font-family:inherit}
 <div class="qag">💧 IPO</div>
 <details class="qa" id="qa-ipo"><summary>IPOって何？</summary><div class="a">これから<b>新しく上場する会社の株</b>を、上場の前に抽選で買えるしくみです。人気の会社は上場した日に値段が上がることが多いので、当たったら<b>上場日の朝に売る</b>だけで利益になりやすいです。ハズレたら、お金はそのまま口座に残ります。</div></details>
 <details class="qa" id="qa-price"><summary>値段はいつ決まるの？（仮条件・公開価格）</summary><div class="a">値段は2段階で決まります。<br><b>①仮条件</b>：仮の値段の幅（例：550〜570円）。申込が始まる少し前に決まります。<br><b>②申込（ブックビルディング）</b>：この期間に楽天で申し込みます。<br><b>③公開価格</b>：本決まりの値段。抽選の日に決まり、ほとんどは仮条件の一番高い値段になります。<br>カードの「①②③」の丸で、今どこまで決まったかがわかります。</div></details>
-<details class="qa" id="qa-need"><summary>申込に必要なお金は？</summary><div class="a">楽天証券では、申込の時に<b>仮条件の一番高い値段 × 株数（ふつう100株）</b>のお金が口座に入っている必要があります。例：仮条件 550〜570円なら 570円×100株＝<b>57,000円</b>。ハズレたらそのまま使えます。</div></details>
+<details class="qa" id="qa-need"><summary>お金はいつ必要？</summary><div class="a">楽天証券の国内IPOは、<b>申込（抽選への参加）の時点ではお金はいりません</b>。<br><b>抽選日（公開価格が決まる日）の18時まで</b>に、<b>株数 × 公開価格</b>（ふつう100株）のお金が口座に入っていれば抽選の対象になります。例：公開価格 570円なら 570円×100株＝<b>57,000円</b>。<br>ハズレたら、お金はそのまま使えます。</div></details>
+<details class="qa" id="qa-skip"><summary>当選しても買わなくていいの？</summary><div class="a">いいです。楽天証券では、当選しても<b>購入申込期間に「購入」を押さなければ、買わなかった扱い</b>になります（自分から「辞退」もできます）。楽天の案内には、辞退したときのペナルティ（次から当たりにくくなる等）は書かれていません。<br>ただし証券会社によっては、辞退すると次の抽選で不利になるところもあるので、口座を増やすときは確認しましょう。初値予想が公開価格より低い（公募割れのおそれ）ときは、あえて買わないのも作戦です。</div></details>
+<details class="qa" id="qa-kokai"><summary>公開価格は予想できるの？</summary><div class="a">かなり予想できます。<br>①上場が決まった時に<b>想定価格</b>（会社が出す目安）が出ます<br>②申込の少し前に<b>仮条件</b>（例：550〜570円）が決まります<br>③人気のIPOは、ほとんどの場合<b>仮条件の一番高い値段</b>で公開価格が決まります<br>そのためアプリでは、公開価格が決まるまでは「仮条件の上限」、仮条件もまだなら「想定価格」を目安として出し、予想利益もその値段で計算しています。</div></details>
 <details class="qa" id="qa-yoso"><summary>初値予想って何？</summary><div class="a">上場して<b>最初につく値段（初値）の予想</b>です。予想サイト（96ut.com）の数字を出しています。<br>「直前予想」＝上場直前のプロの予想（いちばん当たりやすい）、「仮条件前の予想」＝少し早い段階の予想、「みんなの予想」＝読者の投票の平均。<br>「100株で +〇円」は、公開価格で買って初値で売ったら、という目安です。あくまで予想なので外れることもあります。</div></details>
 <details class="qa" id="qa-rank"><summary>評価 S・A・B・C・D って？</summary><div class="a">予想サイトの管理人がつけた人気の目安です。<br><b>S・A</b>：かなり人気。大きく上がりそう<br><b>B</b>：まあまあ人気。上がりそう<br><b>C</b>：少し上がるかも<br><b>D</b>：公募割れ（買った値段より下がる）の心配あり<br>Dや「公募割れのおそれ」が出ているものは、申し込むか慎重に考えましょう。</div></details>
 <details class="qa" id="qa-mkt"><summary>「人気になりやすい市場」って？</summary><div class="a">上場する場所（市場）による傾向です。<br><b>グロース</b>：小さく成長中の会社が多く、株の数も少ないので人気になって上がりやすい<br><b>プライム</b>：大きい会社が多く、上がりにくめ<br><b>地方（名証・福証・札証）・PRO市場</b>：買う人が少なく、注意が必要<br><b>REIT（〜投資法人）</b>：不動産の投資信託。値上がりしにくい<br>あくまで傾向なので、初値予想とあわせて見てください。</div></details>
@@ -473,6 +486,7 @@ button{font-family:inherit}
 <p id="rateAt" style="color:var(--sub);font-size:12px"></p></div></div></div></div></div>
 <div class="subpage" id="sub-data"><div class="in"><div class="subtop"><button class="back"><b>‹</b>設定</button><h2>データについて</h2></div>
 <div class="box"><p>IPOと分売の日程は<b>楽天証券</b>の公開ページ、初値予想は<b>96ut.com</b>、株価と配当は<b>Yahoo!ファイナンス</b>、会社名は<b>東証の一覧</b>から、3時間ごとに自動で取り込んでいます。</p><p>申込・当選・優待の記録は、この端末とスプレッドシート「決算チェッカー」のログに保存されます。</p><p class="upd" style="color:var(--sub)"></p></div></div></div>
+<div class="subshade" id="subshade"></div>
 <nav class="tabs" id="tabs">
 <button class="tab on" data-p="ipo"><svg viewBox="0 0 24 24"><path d="M12 3c0 0-5 6-5 9.5a5 5 0 0 0 10 0C17 9 12 3 12 3z"/></svg>IPO</button>
 <button class="tab" data-p="bunbai"><svg viewBox="0 0 24 24"><path d="M20 7H4l1 12h14z"/><path d="M8 7V5a4 4 0 0 1 8 0v2"/></svg>分売</button>
@@ -664,10 +678,11 @@ const IPO={kind:'ipo',cur:'can',last:{},
       if(o.open){cls='now';tag=`<span class="tag blue ${o.left<=1?'pulse':''}">${o.left===0?'今日まで':'あと'+o.left+'日'}</span>`;
         btns=`<a class="btn" href="${RAKUTEN}" target="_blank" rel="noopener">楽天証券で申し込む</a><button class="btn ghost" data-act="go:done">申し込んだ（← 左スワイプでもOK）</button>`;}
       else{tag=`<span class="tag org">${o.until===1?'明日から':md(x.data4)+'から'}</span>`;}
-      memo=o.need?`申込に必要なお金 <b>約${yen(o.need)}円</b>（${o.unit}株）。ハズレたら全額そのまま。`:`値段は <b>${md(x.data2)}</b> に仮の幅（仮条件）、<b>${md(x.data9)}</b> に本決まり（公開価格）になります。`;
+      memo=o.need?`申込のときはお金いらず。<b>抽選日 ${md(x.data15)} の18時まで</b>に <b>約${yen(o.need)}円</b>（${o.unit}株）を楽天の口座に。ハズレたらそのまま使えます。`:`値段は <b>${md(x.data2)}</b> に仮の幅（仮条件）、<b>${md(x.data9)}</b> に本決まり（公開価格）になります。`;
     }else if(o.k==='done'){
       const dd=o.draw?days(o.draw,todayJ()):null;tag=`<span class="tag blue">${dd>0?'抽選まで'+dd+'日':dd===0?'今日抽選':'結果を確認'}</span>`;
-      memo=dd<=0?`<b>${md(x.data15)}の夕方</b>に当落が出ています。楽天証券で確認して、下のボタンで記録しよう。`:`抽選は <b>${md(x.data15)}（${wd(x.data15)}）</b>。結果が出たら記録しよう。`;
+      const fund=o.need?`<b>${md(x.data15)}の18時まで</b>に 約${yen(o.need)}円 を口座に入れておこう。`:'';
+      memo=dd<0?`当落が出ています。楽天証券で確認して、下のボタンで記録しよう。`:dd===0?`今日が抽選日。${fund}結果は夕方に出ます。`:`抽選は <b>${md(x.data15)}（${wd(x.data15)}）</b>。${fund}`;
       btns=`<div class="row2"><button class="btn red" data-act="go:win">当選した！</button><button class="btn ghost" data-act="lost">落選</button></div>`;
     }else if(o.k==='win'){
       cls='win';const to=o.ls?days(o.ls,todayJ()):null;tag=`<span class="tag red ${to<=1?'pulse':''}">${to>0?'売る日まで'+to+'日':to===0?'今日が売る日':'売った？'}</span>`;
@@ -701,11 +716,11 @@ function priceFlow(o){const x=o.x,t=todayJ();const d2=pd(x.data2),d9=pd(x.data9)
   <div class="st ${s2}"><b>②申込</b>${md(x.data4)}〜${md(x.data6)}</div><div class="ln ${s2==='done'?'done':''}"></div>
   <div class="st ${s3}"><b>③公開価格</b>${md(x.data9)}<em>${o.price?yen(o.price):'—'}</em></div></div>`}
 function yosoBox(o){
-  const x=o.x,y=yosoData[o.id]||{};const base=o.price||o.hiP;const u=o.unit;
+  const x=o.x,y=yosoData[o.id]||{};const base=o.price||o.hiP||y.sotei;const u=o.unit;
   const first=y.first;const pro=y.last||y.bb;const p=first||pro||y.reader;
   const kind=first?'確定':y.last?'直前予想':y.bb?'仮条件前の予想':y.reader?'みんなの予想':'';
   if(o.k==='end'&&!p)return'';
-  const c1=`<div class="c" data-tip="price"><div class="k">公開価格</div><div class="v">${base?yen(base):'—'}<small>円</small></div><div class="s">${o.price?'本決まり':base?'仮条件の上限':md(x.data9)+'に決定'}</div></div>`;
+  const c1=`<div class="c" data-tip="kokai"><div class="k">${o.price?'公開価格':'公開価格（予想）'} ⓘ</div><div class="v">${base?yen(base):'—'}<small>円</small></div><div class="s">${o.price?'本決まり':o.hiP?'仮条件の上限で予想':base?'想定価格で予想':md(x.data9)+'に決定'}</div></div>`;
   const c2=`<div class="c" data-tip="${first?'first':'yoso'}"><div class="k">${first?'初値':'初値予想'} ⓘ</div><div class="v">${p?yen(p):'—'}<small>${p?'円':''}</small></div><div class="s">${p?kind:'まだ出ていません'}</div></div>`;
   const gain=p&&base?(p-base)*u:null;
   const c3=`<div class="c g ${gain!=null&&gain<0?'dn':''}" data-tip="gain"><div class="k">${first?'利益':'予想利益'}（${u}株）</div><div class="v">${gain!=null?pm(gain):'—'}</div><div class="s">${gain!=null?(first?'初値で売った場合':'初値で売ったら'):'値段が決まると出ます'}</div></div>`;
@@ -996,7 +1011,7 @@ function back(d){d.card.style.transition='transform .45s cubic-bezier(.2,1.5,.4,
 
 // ---- 通知（Web Push） ----
 const VAPID='BB-VNadIELVCIZ58O4WvglYbtSIJm5NgUe-djLQozp8LYwZGHAgbqoQYx4tUAFAvVYCHPuLFSQDv_MgNWrcdhWg';
-const NTF=[['IPO',[['ipo_new','新しいIPOが出たとき','申込期間と初値予想をお知らせ'],['ipo_open','申込が始まる日の朝','必要なお金と初値予想つき'],['ipo_last','申込締切の日の朝','まだ申し込んでいないときだけ'],['ipo_draw','抽選結果が出た日の夕方','申し込んだIPOだけ'],['ipo_buy','「購入」締切の日の朝','当選したIPOだけ（押し忘れ防止）'],['ipo_sell','上場日（売る日）の朝','当選したIPOだけ']]],
+const NTF=[['IPO',[['ipo_new','新しいIPOが出たとき','申込期間と初値予想をお知らせ'],['ipo_open','申込が始まる日の朝','初値予想と予想利益つき'],['ipo_fund','抽選日の朝（お金の準備）','申し込んだIPOだけ。18時までに必要な金額'],['ipo_last','申込締切の日の朝','まだ申し込んでいないときだけ'],['ipo_draw','抽選結果が出た日の夕方','申し込んだIPOだけ'],['ipo_buy','「購入」締切の日の朝','当選したIPOだけ（押し忘れ防止）'],['ipo_sell','上場日（売る日）の朝','当選したIPOだけ']]],
  ['分売',[['bun_new','新しい分売の予定が出たとき','実施日をお知らせ'],['bun_open','申込受付が始まった夕方・締切前の朝','値段と、前の日よりいくら安いか'],['bun_result','結果が出た日の朝','申し込んだ分売だけ']]],
  ['優待',[['yu_cross','クロスの日（前の日の夜と当日の朝）','差し引きいくら得かつき'],['yu_return','現渡しの日の朝','クロス中の優待だけ'],['yu_warn','損になりそうなとき','株価が上がって差し引きがマイナスになったら']]]];
 SET.ntf=SET.ntf||{};
@@ -1080,23 +1095,30 @@ function openPicker(){const sh=$('#sheet');const L=recList.map(recCalc).filter(B
   $('#pkCode').onclick=()=>{closeSheet();setTimeout(()=>openYutai(null),200)};$('#pkNo').onclick=closeSheet}
 
 // ---- 設定のサブ画面 ----
-function openSub(k){const el=$('#sub-'+k);if(!el)return;el.scrollTop=0;el.classList.add('on');return el}
-function closeSubs(){document.querySelectorAll('.subpage.on').forEach(x=>x.classList.remove('on'))}
+function openSub(k){const el=$('#sub-'+k);if(!el)return;el.scrollTop=0;el.style.transform='';el.classList.add('on');$('.app').classList.add('pushed');$('#subshade').classList.add('on');return el}
+function closeSubs(){document.querySelectorAll('.subpage.on').forEach(x=>{x.style.transform='';x.classList.remove('on')});$('.app').classList.remove('pushed');$('.app').style.transform='';$('.app').style.opacity='';$('#subshade').classList.remove('on');$('#subshade').style.opacity=''}
 document.querySelectorAll('.mi[data-sub]').forEach(b=>b.onclick=()=>openSub(b.dataset.sub));
 document.querySelectorAll('.subpage .back').forEach(b=>b.onclick=closeSubs);
-document.querySelectorAll('.subpage').forEach(sp=>{let x0=null,y0=0;sp.addEventListener('touchstart',e=>{const t=e.touches[0];if(t.clientX<40){x0=t.clientX;y0=t.clientY}else x0=null},{passive:true});
-  sp.addEventListener('touchend',e=>{if(x0==null)return;const t=e.changedTouches[0];if(t.clientX-x0>70&&Math.abs(t.clientY-y0)<60)closeSubs();x0=null})});
+document.querySelectorAll('.subpage').forEach(sp=>{let x0=null,y0=0,dx=0,on=false,t0=0;const app=$('.app'),sh=$('#subshade');
+  sp.addEventListener('touchstart',e=>{const t=e.touches[0];if(t.clientX<44){x0=t.clientX;y0=t.clientY;dx=0;on=false;t0=Date.now()}else x0=null},{passive:true});
+  sp.addEventListener('touchmove',e=>{if(x0==null)return;const t=e.touches[0];dx=Math.max(0,t.clientX-x0);const dy=Math.abs(t.clientY-y0);
+    if(!on){if(dy>12&&dy>dx){x0=null;return}if(dx<6)return;on=true;sp.classList.add('drag');app.style.transition='none';sh.style.transition='none'}
+    const w=innerWidth,p=Math.min(1,dx/w);sp.style.transform=`translateX(${dx}px)`;app.style.transform=`translateX(${-22*(1-p)}%)`;app.style.opacity=String(.6+.4*p);sh.style.opacity=String(1-p)},{passive:true});
+  sp.addEventListener('touchend',()=>{if(x0==null)return;x0=null;if(!on)return;on=false;sp.classList.remove('drag');app.style.transition='';sh.style.transition='';
+    const v=dx/Math.max(1,Date.now()-t0);if(dx>innerWidth*.33||v>.5){sp.style.transform=`translateX(100%)`;setTimeout(closeSubs,10)}
+    else{sp.style.transform='';app.style.transform='';app.style.opacity='';sh.style.opacity=''}})});
 function openQA(id){openSub('qa');const el=$('#'+id);if(!el)return;el.open=true;el.classList.add('hl');setTimeout(()=>el.scrollIntoView({block:'center',behavior:'smooth'}),380);setTimeout(()=>el.classList.remove('hl'),2600)}
 function setSums(){const n=$('#ntfSum');if(n)n.textContent=SET.pushOn&&'Notification' in window&&Notification.permission==='granted'?'オン・'+NTF.reduce((a,[g,l])=>a+l.filter(([k])=>SET.ntf[k]!==false).length,0)+'種類':'オフ';
   const r=$('#rateSum');if(r)r.textContent=`短期 ${SET.rateS}％・無期限 ${SET.rateL}％`}
 
 // ---- その場の説明（ⓘ） ----
-const TIPS={first:['上場して<b>最初についた値段</b>です。公開価格で買って、この値段で売れていたらいくらだったかがわかります。','qa-yoso'],
+const TIPS={kokai:['公開価格（買う値段）は、人気のIPOならほとんど<b>仮条件の一番高い値段</b>で決まります。仮条件が出る前は、会社が出す<b>想定価格</b>を目安にしています。本決まりは抽選日。','qa-kokai'],
+ first:['上場して<b>最初についた値段</b>です。公開価格で買って、この値段で売れていたらいくらだったかがわかります。','qa-yoso'],
  gain:['（初値 − 公開価格）× 株数 です。<b>当たって、上場日の朝に初値で売ったら</b>これだけ得する、という目安。予想が外れることもあります。','qa-yoso'],
  cross:['<b>優待クロス</b>：同じ株を「現物で買う」と「一般信用で売る」を同じ株数で同時にやる方法。株価が動いても損得はほぼゼロで、<b>優待だけ</b>もらえます。<br><b>次のクロス</b>＝その注文を出す日（権利付最終日）。次の日に「現渡し」で終わりです。','qa-cross'],mkt:['上場する市場による傾向です。<b>グロース</b>は小さく成長中の会社が多く人気になりやすい。<b>プライム</b>は大きい会社で上がりにくめ。地方市場・REITは注意。','qa-mkt'],
  rank:['予想サイトの人気の目安。<b>S・A</b>かなり人気／<b>B</b>まあまあ／<b>C</b>少し上がるかも／<b>D</b>公募割れの心配あり。','qa-rank'],
  yoso:['上場して最初につく値段（初値）の予想。<b>公開価格で買って初値で売ると</b>いくら得かの目安です。予想なので外れることもあります。','qa-yoso'],
- price:['値段は2段階。<b>①仮条件</b>＝仮の値段の幅（申込の少し前に決定）→ <b>②申込</b> → <b>③公開価格</b>＝本決まり（抽選の日に決定）。申込には仮条件の一番高い値段×株数のお金が必要。','qa-price']};
+ price:['値段は2段階。<b>①仮条件</b>＝仮の値段の幅（申込の少し前に決定）→ <b>②申込</b> → <b>③公開価格</b>＝本決まり（抽選の日に決定）。お金は<b>抽選日の18時まで</b>に 株数×公開価格 を口座に入れればOK。','qa-price']};
 function showTip(el,k){const t=TIPS[k];if(!t)return;const p=$('#pop');p.innerHTML=`${t[0]}<br><a href="#" data-qa="${t[1]}">くわしくはQ&amp;A ›</a>`;
   const r=el.getBoundingClientRect();const below=r.bottom+170<innerHeight;p.style.top=(below?r.bottom+8:Math.max(10,r.top-8-150))+'px';p.classList.add('on');
   if(!below)requestAnimationFrame(()=>{p.style.top=Math.max(10,r.top-8-p.offsetHeight)+'px'});clearTimeout(showTip.t);showTip.t=setTimeout(()=>p.classList.remove('on'),6000)}
