@@ -314,6 +314,25 @@ button{font-family:inherit}
 .qa .a{padding:0 14px 14px 46px;font:700 13.5px "Noto Sans JP";color:#4b524c;line-height:1.8;animation:fadeup .3s both}
 .qa .a b{color:var(--ink)}
 .qa.hl{box-shadow:0 0 0 2.5px var(--gold),0 8px 20px rgba(217,165,20,.25)}
+.m3{display:grid;grid-template-columns:1fr auto 1fr auto 1.1fr;align-items:center;gap:4px;margin-top:12px;padding:12px 10px;border-radius:16px;background:linear-gradient(135deg,#fdf7e3,#f8edcc);position:relative;overflow:hidden}
+.m3:after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);animation:shine 3.2s 1s ease-in-out infinite;pointer-events:none}
+.m3 .c{text-align:center;min-width:0}
+.m3 .c .k{font:800 10.5px "Noto Sans JP";color:#a0894a;white-space:nowrap}
+.m3 .c .v{font:900 17px Inter;color:#5c4305;margin-top:2px;white-space:nowrap;animation:pop .6s cubic-bezier(.2,1.6,.3,1) both}
+.m3 .c .v small{font:800 10px "Noto Sans JP";color:#a0894a;margin-left:1px}
+.m3 .c .s{font:700 9.5px "Noto Sans JP";color:#a0894a;margin-top:1px;white-space:nowrap}
+.m3 .c.g .v{font-size:19px;color:#1f9d6b}.m3 .c.g.dn .v{color:var(--red)}
+.m3 .op{font:900 14px Inter;color:#c9a94a}
+.m3.none{display:block;text-align:center;font:700 12.5px "Noto Sans JP";color:var(--sub);background:#f6f5ef}.m3.none:after{display:none}
+.m3meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:7px;font:700 11px "Noto Sans JP";color:#a0894a}
+.m3meta .rk{font:900 11px Inter;padding:3px 8px;border-radius:8px;background:#f8edcc;color:#a07a10}
+.m3meta .rk.S,.m3meta .rk.A{background:#d2453b;color:#fff}.m3meta .rk.B{background:#d98a1c;color:#fff}.m3meta .rk.D{background:#9aa097;color:#fff}
+.m3meta .warn{color:var(--red);font-weight:800}
+.rec h3 .lbl{display:flex;align-items:center;gap:6px}
+.rec h3 small[data-tip]:after{content:" ⓘ";opacity:.8}
+.ritem.adding{animation:addok .6s cubic-bezier(.2,1.4,.3,1)}
+@keyframes addok{40%{transform:scale(.95);background:#e6f4ec}100%{transform:none}}
+.intro.single .dots{visibility:hidden}
 /* splash */
 .splash{position:fixed;inset:0;background:linear-gradient(180deg,#8a8740,#55521f);z-index:100;display:grid;place-items:center;transition:opacity .5s .1s,visibility .5s .1s}
 .splash.off{opacity:0;visibility:hidden}
@@ -661,11 +680,12 @@ const IPO={kind:'ipo',cur:'can',last:{},
       btns=r.st?`<button class="btn ghost" data-act="undo">記録を取り消す</button>`:'';
     }
     const priceTxt=o.price?`${yen(o.price)}円`:(x.data3&&x.data3!=='-'?esc(x.data3):'—');
-    const yoso=yosoBox(o);
+    const yoso='';
     return slot(o,i,cls,`<div class="hd"><div class="nm"><div class="t">${esc(o.name)}</div><div class="m">${x.code} ・ ${esc(o.mkt)}</div></div>${tag}</div>
+    ${yosoBox(o)}
     <div class="kv">
      <div><div class="k">申込期間</div><div class="v">${md(x.data4)} 〜 ${md(x.data6)}${x.data7&&x.data7!=='0:00'?`<small>${x.data7}まで</small>`:''}</div></div>
-     <div data-tip="price"><div class="k">${o.price?'公開価格（本決まり）':hi(x.data3)?'仮条件（仮の値段）':'値段'}</div><div class="v">${priceTxt}${!o.price&&!hi(x.data3)&&pd(x.data2)?`<small>${md(x.data2)}に決まる</small>`:''}</div></div>
+     <div><div class="k">購入申込（当選したら）</div><div class="v">${md(x.data11)} 〜 ${md(x.data13)}</div></div>
      <div><div class="k">抽選日</div><div class="v">${md(x.data15)}<small>${wd(x.data15)}</small></div></div>
      <div><div class="k">上場日（売る日）</div><div class="v ${o.k==='win'?'red':''}">${md(x.data18)}<small>${wd(x.data18)}</small></div></div>
     </div>
@@ -681,16 +701,16 @@ function priceFlow(o){const x=o.x,t=todayJ();const d2=pd(x.data2),d9=pd(x.data9)
   <div class="st ${s2}"><b>②申込</b>${md(x.data4)}〜${md(x.data6)}</div><div class="ln ${s2==='done'?'done':''}"></div>
   <div class="st ${s3}"><b>③公開価格</b>${md(x.data9)}<em>${o.price?yen(o.price):'—'}</em></div></div>`}
 function yosoBox(o){
-  const y=yosoData[o.id];const base=o.price||o.hiP;
-  if(o.k==='end'){if(!y||!y.first)return'';const p=y.last||y.bb||y.reader;return`<div class="yoso none">初値 <b style="color:var(--ink)">${yen(y.first)}円</b>${p?`（予想 ${yen(p)}円）`:''}${base?` ・ ${o.unit}株で ${pm((y.first-base)*o.unit)}`:''}</div>`}
-  const pro=y&&(y.last||y.bb);const p=pro||(y&&y.reader);
-  if(!p)return`<div class="yoso none">初値予想はまだ出ていません（上場が決まってしばらくすると出ます）</div>`;
-  const kind=y.last?'直前予想':y.bb?'仮条件前の予想':'みんなの予想';
-  const gain=base?(p-base)*o.unit:null;const ratio=base?Math.max(.06,Math.min(1,(p/base-1)/1.5)):0;
-  return`<div class="yoso"><div class="yh"><span data-tip="yoso">初値予想 ⓘ</span>${y.rank?`<span class="rk ${y.rank}" data-tip="rank">評価 ${y.rank}</span>`:''}</div>
-  <div class="yn"><b>${yen(p)}円</b><small>${kind}</small></div>
-  ${gain!=null?`<div class="gauge"><i style="width:${(gain>0?ratio:0.04)*100}%"></i></div><div class="yp">${o.unit}株で <b class="${gain<0?'dn':''}">${pm(gain)}</b>${gain<=0?' <span style="color:var(--red);font-size:12px">公募割れのおそれ</span>':''}${o.price?'':'<small style="font-size:11px;color:#a0894a">（仮条件の上限で計算）</small>'}</div>`:''}
-  <div class="ys">${pro&&y.reader?`みんなの予想 ${yen(y.reader)}円（${y.n}人）・`:''}出典 96ut.com</div></div>`}
+  const x=o.x,y=yosoData[o.id]||{};const base=o.price||o.hiP;const u=o.unit;
+  const first=y.first;const pro=y.last||y.bb;const p=first||pro||y.reader;
+  const kind=first?'確定':y.last?'直前予想':y.bb?'仮条件前の予想':y.reader?'みんなの予想':'';
+  if(o.k==='end'&&!p)return'';
+  const c1=`<div class="c" data-tip="price"><div class="k">公開価格</div><div class="v">${base?yen(base):'—'}<small>円</small></div><div class="s">${o.price?'本決まり':base?'仮条件の上限':md(x.data9)+'に決定'}</div></div>`;
+  const c2=`<div class="c" data-tip="${first?'first':'yoso'}"><div class="k">${first?'初値':'初値予想'} ⓘ</div><div class="v">${p?yen(p):'—'}<small>${p?'円':''}</small></div><div class="s">${p?kind:'まだ出ていません'}</div></div>`;
+  const gain=p&&base?(p-base)*u:null;
+  const c3=`<div class="c g ${gain!=null&&gain<0?'dn':''}" data-tip="gain"><div class="k">${first?'利益':'予想利益'}（${u}株）</div><div class="v">${gain!=null?pm(gain):'—'}</div><div class="s">${gain!=null?(first?'初値で売った場合':'初値で売ったら'):'値段が決まると出ます'}</div></div>`;
+  const meta=[y.rank&&!first?`<span class="rk ${y.rank}" data-tip="rank">評価 ${y.rank}</span>`:'',gain!=null&&gain<=0&&!first?'<span class="warn">公募割れのおそれ</span>':'',!first&&pro&&y.reader?`みんなの予想 ${yen(y.reader)}円（${y.n}人）`:'',p?'出典 96ut.com':''].filter(Boolean).join('<span>・</span>');
+  return`<div class="m3">${c1}<span class="op">→</span>${c2}<span class="op">＝</span>${c3}</div>${meta?`<div class="m3meta">${meta}</div>`:''}`}
 
 /* ============ 分売 ============ */
 function bunbaiWindow(date){ // 申込受付：前営業日17:15〜当日8:20
@@ -1017,13 +1037,16 @@ let si=0;const SL=[...document.querySelectorAll('#rail .sl')];
 $('#dots').innerHTML=SL.map(()=>'<i></i>').join('');
 function introGo(i){si=Math.max(0,Math.min(SL.length-1,i));$('#rail').style.transform=`translateX(${-si*100}%)`;SL.forEach((s,j)=>s.classList.toggle('on',j===si));
   document.querySelectorAll('#dots i').forEach((d,j)=>d.classList.toggle('on',j===si));$('#introNext').textContent=si===SL.length-1?'はじめる':'次へ';$('#introSkip').style.visibility=si===SL.length-1?'hidden':'visible'}
-function introOpen(){introGo(0);$('#intro').classList.add('on')}
+let introSingle=null;
+function introOpen(){introSingle=null;$('#intro').classList.remove('single');introGo(0);$('#intro').classList.add('on')}
+function introOne(k){const idx={ipo:1,bunbai:2,yutai:3}[k];introSingle=k;$('#intro').classList.add('single');introGo(idx);$('#intro').classList.add('on');
+  $('#introNext').textContent='画面の説明を見る';$('#introSkip').textContent='とじる';$('#introSkip').style.visibility='visible'}
 function introClose(){$('#intro').classList.remove('on');try{localStorage.setItem('kd_intro','1')}catch(e){}const cur=document.querySelector('.tab.on');if(cur)setTimeout(()=>maybeTour(cur.dataset.p),400)}
-$('#introNext').onclick=()=>si===SL.length-1?introClose():introGo(si+1);
-$('#introSkip').onclick=introClose;$('#introAgain').onclick=introOpen;
+$('#introNext').onclick=()=>{if(introSingle){const k=introSingle;introSingle=null;$('#intro').classList.remove('on','single');setTimeout(()=>startTour(k),450);return}si===SL.length-1?introClose():introGo(si+1)};
+$('#introSkip').onclick=()=>{if(introSingle){introSingle=null;$('#intro').classList.remove('on','single');return}introClose()};$('#introAgain').onclick=introOpen;
 $('#introPush').onclick=async()=>{const ok=await enablePush();if(ok)introClose();else if(!pushOK())toast('あとで設定タブからオンにできます')};
 (()=>{let x0=null,y0=0;const r=$('#rail');r.addEventListener('pointerdown',e=>{x0=e.clientX;y0=e.clientY});
-  r.addEventListener('pointerup',e=>{if(x0==null)return;const dx=e.clientX-x0,dy=e.clientY-y0;x0=null;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy))introGo(si+(dx<0?1:-1))});})();
+  r.addEventListener('pointerup',e=>{if(x0==null||introSingle)return;const dx=e.clientX-x0,dy=e.clientY-y0;x0=null;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy))introGo(si+(dx<0?1:-1))});})();
 
 
 // ---- おすすめの優待 ----
@@ -1036,21 +1059,24 @@ function recSorted(){return recList.map(recCalc).filter(Boolean).filter(x=>recMo
 function renderRec(){const el=$('#yRec');if(!el)return;if(YU.cur!=='can'||!recList.length){el.innerHTML='';return}
   const all=recList.map(recCalc).filter(Boolean);const mons=[...new Set(all.sort((a,b)=>a.c.E-b.c.E).map(x=>x.cyc.m))];
   const L=recSorted();
-  el.innerHTML=`<h3>おすすめの優待<small>次のクロスが近い順</small></h3><div class="mchips"><button data-m="all" class="${recMon==='all'?'on':''}">すべて</button>${mons.map(m=>`<button data-m="${m}" class="${recMon===m?'on':''}">${m}月</button>`).join('')}</div>
+  el.innerHTML=`<h3><span class="lbl">おすすめの優待</span><small data-tip="cross">次のクロスが近い順</small></h3><p style="margin:-4px 2px 8px;font:700 11.5px 'Noto Sans JP';color:var(--sub)">タップするだけで候補に追加されます</p><div class="mchips"><button data-m="all" class="${recMon==='all'?'on':''}">すべて</button>${mons.map(m=>`<button data-m="${m}" class="${recMon===m?'on':''}">${m}月</button>`).join('')}</div>
   ${recRows(L,recMore?99:6)}${L.length>6&&!recMore?`<button class="more" id="recMore">もっと見る（全${L.length}件）</button>`:''}`}
 $('#yRec').addEventListener('click',e=>{const m=e.target.closest('[data-m]');if(m){recMon=m.dataset.m==='all'?'all':+m.dataset.m;recMore=false;renderRec();return}
   if(e.target.closest('#recMore')){recMore=true;renderRec();return}
-  const b=e.target.closest('[data-rc]');if(b)pickRec(b.dataset.rc)});
-function pickRec(code){if(REC.yutai[code]){openYutai(code);return}const it=recList.find(x=>x.code===code);if(!it)return;
-  closeSheet();setTimeout(()=>openYutai(null,{code:it.code,item:it.item,val:it.val,vals:it.vals||null,sh:it.sh,mons:it.mons}),200)}
+  const b=e.target.closest('[data-rc]');if(b)pickRec(b.dataset.rc,b)});
+function pickRec(code,btn){if(REC.yutai[code]){closeSheet();setTimeout(()=>openYutai(code),200);return}const it=recList.find(x=>x.code===code);if(!it)return;
+  const nm=names&&names[code]?clean(names[code][0]):it.name;
+  if(btn){btn.classList.add('adding');const e=btn.querySelector('.nt');if(e)e.innerHTML='<span class="added">追加しました ✓</span>'}
+  setTimeout(()=>{setRec('yutai',code,{st:'watch',code,name:it.name||nm,item:it.item,val:it.val,vals:it.vals||null,sh:it.sh,mons:it.mons,day:0,plan:'s',early:0,div:null,px:null});
+    YU.cur='can';segOn('yutai','can');closeSheet();renderAll();toast(it.name+' を候補に追加しました（タップで編集）')},420)}
 function openPicker(){const sh=$('#sheet');const L=recList.map(recCalc).filter(Boolean).sort((a,b)=>a.c.E-b.c.E);
-  sh.innerHTML=`<h3>優待をえらぶ</h3><p>人気の優待から選ぶか、銘柄コードで追加できます。右の金額は費用を引いた差し引きの目安です。</p>
+  sh.innerHTML=`<h3>優待をえらぶ</h3><p>タップするだけで候補に追加されます。右の金額は費用を引いた差し引きの目安です。</p>
   <input id="pkQ" class="f" placeholder="会社名で探す（例 マクドナルド）" style="font:700 16px 'Noto Sans JP';padding:11px 12px">
   <div id="pkList" style="margin-top:10px">${recRows(L,99)}</div>
   <button class="btn" id="pkCode">リストにない銘柄をコードで追加</button><button class="btn ghost" id="pkNo">やめる</button>`;
   openSheet();
   $('#pkQ').oninput=()=>{const q=$('#pkQ').value.trim();$('#pkList').innerHTML=recRows(L.filter(x=>!q||x.it.name.includes(q)||x.it.item.includes(q)||x.it.code.includes(q)),99)||'<p>見つかりません。下のボタンからコードで追加できます。</p>'};
-  $('#pkList').onclick=e=>{const b=e.target.closest('[data-rc]');if(b)pickRec(b.dataset.rc)};
+  $('#pkList').onclick=e=>{const b=e.target.closest('[data-rc]');if(b)pickRec(b.dataset.rc,b)};
   $('#pkCode').onclick=()=>{closeSheet();setTimeout(()=>openYutai(null),200)};$('#pkNo').onclick=closeSheet}
 
 // ---- 設定のサブ画面 ----
@@ -1065,7 +1091,9 @@ function setSums(){const n=$('#ntfSum');if(n)n.textContent=SET.pushOn&&'Notifica
   const r=$('#rateSum');if(r)r.textContent=`短期 ${SET.rateS}％・無期限 ${SET.rateL}％`}
 
 // ---- その場の説明（ⓘ） ----
-const TIPS={mkt:['上場する市場による傾向です。<b>グロース</b>は小さく成長中の会社が多く人気になりやすい。<b>プライム</b>は大きい会社で上がりにくめ。地方市場・REITは注意。','qa-mkt'],
+const TIPS={first:['上場して<b>最初についた値段</b>です。公開価格で買って、この値段で売れていたらいくらだったかがわかります。','qa-yoso'],
+ gain:['（初値 − 公開価格）× 株数 です。<b>当たって、上場日の朝に初値で売ったら</b>これだけ得する、という目安。予想が外れることもあります。','qa-yoso'],
+ cross:['<b>優待クロス</b>：同じ株を「現物で買う」と「一般信用で売る」を同じ株数で同時にやる方法。株価が動いても損得はほぼゼロで、<b>優待だけ</b>もらえます。<br><b>次のクロス</b>＝その注文を出す日（権利付最終日）。次の日に「現渡し」で終わりです。','qa-cross'],mkt:['上場する市場による傾向です。<b>グロース</b>は小さく成長中の会社が多く人気になりやすい。<b>プライム</b>は大きい会社で上がりにくめ。地方市場・REITは注意。','qa-mkt'],
  rank:['予想サイトの人気の目安。<b>S・A</b>かなり人気／<b>B</b>まあまあ／<b>C</b>少し上がるかも／<b>D</b>公募割れの心配あり。','qa-rank'],
  yoso:['上場して最初につく値段（初値）の予想。<b>公開価格で買って初値で売ると</b>いくら得かの目安です。予想なので外れることもあります。','qa-yoso'],
  price:['値段は2段階。<b>①仮条件</b>＝仮の値段の幅（申込の少し前に決定）→ <b>②申込</b> → <b>③公開価格</b>＝本決まり（抽選の日に決定）。申込には仮条件の一番高い値段×株数のお金が必要。','qa-price']};
@@ -1083,11 +1111,11 @@ const TOURS={
  ipo:[['.seg[data-b=ipo]','上の4つの箱','IPOを<b>状態ごと</b>に分けています。<br>申込できる → 申込済み → 当選 → 終了 の順に進みます。数字はその件数です。'],
   ['#list-ipo .slot:first-child .hd','会社の名前と締切','右上のマークは<b>申込が始まる日・締切までの日数</b>。青く光っていたら今日申し込めます。'],
   ['#list-ipo .slot:first-child .flow','値段が決まるまで','IPOの値段は<b>2段階</b>で決まります。<br><b>①仮条件</b>＝仮の値段の幅（例 550〜570円）<br><b>③公開価格</b>＝本決まりの値段（抽選の日に決定）<br>緑の丸は決まったところ、青は今ここ。'],
-  ['#list-ipo .slot:first-child .yoso','初値予想','上場して<b>最初につく値段</b>の予想です。公開価格で買って初値で売ると、<b>100株でいくら得しそうか</b>の目安も出ます。'],
+  ['#list-ipo .slot:first-child .m3','公開価格 → 初値予想 ＝ 予想利益','<b>公開価格</b>（買う値段）、<b>初値予想</b>（上場して最初につきそうな値段）、<b>予想利益</b>（当たって初値で売ったら100株でいくら得か）。上場したあとは本当の初値と利益に変わります。'],
   ['#list-ipo .slot:first-child .rk','評価 S〜D','人気の目安です。<b>S・A</b>かなり人気、<b>B</b>まあまあ、<b>C</b>少し上がるかも、<b>D</b>は買った値段より下がる心配あり。'],
   ['#list-ipo .slot:first-child .chips','市場のタグ','<b>グロース</b>は小さな成長中の会社が多く、人気になりやすい市場です。ⓘ のついた所は<b>タップすると説明</b>が出ます。'],
   ['#list-ipo .slot:first-child .card','スワイプで移動','申し込んだら、カードを <b>← 左にスワイプ</b>。「申込済み」に移ります。まちがえたら <b>→ 右</b>で戻せます。','nudge'],
-  ['#p-ipo .help','わからなくなったら','この <b>？</b> を押すと、いつでもこの説明を見直せます。くわしくは設定の「Q&A」へ。']],
+  ['#p-ipo .help','わからなくなったら','この <b>？</b> を押すと、IPOの紹介とこの説明をいつでも見直せます。くわしくは設定の「Q&A」へ。']],
  bunbai:[['.seg[data-b=bunbai]','上の4つの箱','分売を<b>状態ごと</b>に分けています。申込できる → 申込済み → 当選 → 終了 の順に進みます。'],
   ['#list-bunbai .empty','今は分売がない時','分売は、実施の<b>前の日の夕方</b>に楽天に出て、ここに自動で並びます。通知をオンにすると知らせます。'],
   ['#list-bunbai .slot:first-child .kv','値段と日にち','<b>前の日より〇円安い</b>＝前の日の終値より、いくら安く買えるか（申込単位の株数で）。実施日の朝から売れます。'],
@@ -1119,7 +1147,7 @@ function tourNext(){if(!tour)return;if(tour.i>=tour.steps.length-1){tourEnd();re
 $('#tnext').onclick=e=>{e.stopPropagation();tourNext()};$('#tskip').onclick=e=>{e.stopPropagation();tourEnd()};
 $('#tour').addEventListener('click',()=>tourNext());
 function maybeTour(k){if(!TOURS[k]||tour||$('#intro').classList.contains('on'))return;let done=false;try{done=!!localStorage.getItem('kd_tour_'+k)}catch(e){}if(!done)setTimeout(()=>startTour(k),550)}
-document.querySelectorAll('.help[data-tour]').forEach(b=>b.onclick=()=>startTour(b.dataset.tour));
+document.querySelectorAll('.help[data-tour]').forEach(b=>b.onclick=()=>introOne(b.dataset.tour));
 $('#tourAgain').onclick=()=>{['ipo','bunbai','yutai'].forEach(k=>{try{localStorage.removeItem('kd_tour_'+k)}catch(e){}});toast('各タブを開くと説明が出ます');setTimeout(()=>goTab('ipo'),500)};
 
 // ---- 読み込み ----
