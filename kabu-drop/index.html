@@ -53,8 +53,99 @@ button{font-family:inherit}
 .flyer{position:fixed;z-index:50;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;pointer-events:none;box-shadow:0 4px 12px rgba(0,0,0,.25);transition:transform .55s cubic-bezier(.5,-.3,.6,1),opacity .2s .5s}
 .card.shake{animation:shake .4s}
 @keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
-.yoso{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding:10px 12px;border-radius:12px;background:#fbf6e6;text-decoration:none;color:#7a5a06;font:800 13px "Noto Sans JP"}
-.yoso span{font-weight:700;color:#a0894a;font-size:11.5px}
+.yoso{margin-top:12px;padding:12px 14px;border-radius:14px;background:linear-gradient(135deg,#fdf7e3,#f8edcc);color:#7a5a06;position:relative;overflow:hidden}
+.yoso:after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);animation:shine 3.2s 1s ease-in-out infinite}
+.yoso .yh{display:flex;align-items:center;justify-content:space-between;font:800 12px "Noto Sans JP"}
+.yoso .rk{font:900 11px Inter;padding:3px 8px;border-radius:8px;background:#fff;color:#a07a10}
+.yoso .rk.S,.yoso .rk.A{background:#d2453b;color:#fff}.yoso .rk.B{background:#d98a1c;color:#fff}.yoso .rk.D{background:#9aa097;color:#fff}
+.yoso .yn{display:flex;align-items:baseline;gap:8px;margin-top:4px}
+.yoso .yn b{font:900 26px Inter;color:#5c4305;letter-spacing:-.01em;animation:pop .6s cubic-bezier(.2,1.6,.3,1) both}
+.yoso .yn small{font:700 11px "Noto Sans JP";color:#a0894a}
+.yoso .yp{font:800 14px "Noto Sans JP";margin-top:2px}.yoso .yp b{font:900 18px Inter;color:#1f9d6b}.yoso .yp b.dn{color:var(--red)}
+.yoso .gauge{height:6px;border-radius:6px;background:rgba(160,122,16,.15);margin:8px 0 2px;overflow:hidden}
+.yoso .gauge i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,#e8b923,#d9a514);transform-origin:left;animation:grow 1s .2s cubic-bezier(.2,1,.3,1) both}
+.yoso .ys{font:700 11px "Noto Sans JP";color:#a0894a;margin-top:4px}
+.yoso.none{background:#f6f5ef;color:var(--sub);font:700 12.5px "Noto Sans JP"}.yoso.none:after{display:none}
+@keyframes shine{0%{left:-60%}60%,100%{left:130%}}
+@keyframes pop{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:none}}
+@keyframes grow{from{transform:scaleX(0)}to{transform:none}}
+/* 通知 */
+.sw{position:relative;width:46px;height:28px;flex:none;border-radius:20px;background:#d9d7cd;border:0;transition:background .25s}
+.sw:after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.2);transition:transform .3s cubic-bezier(.2,1.5,.3,1)}
+.sw.on{background:#1f9d6b}.sw.on:after{transform:translateX(18px)}
+.nrow{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid #f0eee6}
+.nrow div{flex:1;font:800 13.5px "Noto Sans JP";color:var(--ink);line-height:1.4}
+.nrow small{display:block;font:700 11.5px "Noto Sans JP";color:var(--sub);margin-top:2px;line-height:1.5}
+.ngrp{font:900 12px "Noto Sans JP";color:var(--olive);margin:14px 0 2px;display:flex;align-items:center;gap:6px}
+.ngrp:before{content:"";width:6px;height:6px;border-radius:50%;background:var(--olive)}
+.nbox.off .nrow{opacity:.45;pointer-events:none}
+.nstate{display:flex;align-items:center;gap:10px;background:#f6f5ef;border-radius:14px;padding:12px;font:800 13px "Noto Sans JP";line-height:1.5}
+.nstate .ic{font-size:22px}
+.nstate.ok{background:#e6f4ec;color:#176b49}
+/* はじめての説明 */
+.intro{position:fixed;inset:0;z-index:90;background:var(--bg);display:flex;flex-direction:column;opacity:0;visibility:hidden;transition:opacity .35s,visibility .35s}
+.intro.on{opacity:1;visibility:visible}
+.intro .rail{flex:1;display:flex;transition:transform .5s cubic-bezier(.2,1,.3,1);touch-action:pan-y}
+.intro .sl{flex:0 0 100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:calc(env(safe-area-inset-top) + 20px) 26px 10px;text-align:center;overflow:hidden}
+.intro .art{width:min(260px,70vw);height:min(210px,46vw);margin-bottom:18px}
+.intro .art svg{width:100%;height:100%;overflow:visible}
+.intro .pill{display:inline-flex;align-items:center;gap:6px;font:900 11px "Noto Sans JP";color:#fff;background:var(--green);padding:5px 11px;border-radius:20px;margin-bottom:10px}
+.intro h2{margin:0 0 10px;font:900 24px "Noto Sans JP";letter-spacing:-.01em;line-height:1.35}
+.intro p{margin:0 auto;max-width:330px;font:700 14px "Noto Sans JP";color:#4b524c;line-height:1.75}
+.intro ul{list-style:none;padding:0;margin:4px auto 0;max-width:330px;text-align:left}
+.intro li{display:flex;gap:10px;align-items:flex-start;font:700 13.5px "Noto Sans JP";color:#4b524c;line-height:1.6;padding:7px 0}
+.intro li b{color:var(--ink)}
+.intro li i{flex:none;width:22px;height:22px;border-radius:50%;background:#e3f1ec;color:var(--green);font:900 12px Inter;display:grid;place-items:center;font-style:normal;margin-top:1px}
+.intro .sl.on .art{animation:artin .7s cubic-bezier(.2,1.3,.3,1) both}
+.intro .sl.on h2,.intro .sl.on p,.intro .sl.on ul,.intro .sl.on .pill{animation:fadeup .5s .15s both}
+.intro .foot{padding:10px 20px calc(16px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:12px}
+.intro .dots{display:flex;gap:6px;flex:1}
+.intro .dots i{width:7px;height:7px;border-radius:7px;background:#d6d3c6;transition:width .3s,background .3s}
+.intro .dots i.on{width:22px;background:var(--green)}
+.intro .skip{border:0;background:none;font:800 13px "Noto Sans JP";color:var(--sub);padding:12px}
+.intro .next{border:0;background:var(--green);color:#fff;font:900 15px "Noto Sans JP";padding:14px 26px;border-radius:16px;box-shadow:0 8px 18px rgba(47,111,99,.3);transition:transform .15s}
+.intro .next:active{transform:scale(.95)}
+@keyframes artin{from{opacity:0;transform:translateY(20px) scale(.9)}to{opacity:1;transform:none}}
+.fl{animation:fl 3s ease-in-out infinite}.fl2{animation:fl 3.4s .4s ease-in-out infinite}
+@keyframes fl{50%{transform:translateY(-6px)}}
+.stamp{transform-origin:150px 70px;animation:stamp 2.6s 0.5s cubic-bezier(.2,1.6,.3,1) infinite}
+@keyframes stamp{0%{opacity:0;transform:scale(2.2) rotate(-30deg)}14%{opacity:1;transform:scale(1) rotate(-12deg)}80%{opacity:1;transform:scale(1) rotate(-12deg)}100%{opacity:0;transform:scale(1) rotate(-12deg)}}
+.coin{animation:coin 2.6s ease-in infinite}.coin.c2{animation-delay:.35s}.coin.c3{animation-delay:.7s}
+@keyframes coin{0%{transform:translateY(-40px);opacity:0}15%{opacity:1}55%{transform:translateY(0)}65%{transform:translateY(-8px)}75%,100%{transform:translateY(0);opacity:1}}
+.tag2{transform-origin:150px 40px;animation:swing 2.4s ease-in-out infinite}
+@keyframes swing{0%,100%{transform:rotate(8deg)}50%{transform:rotate(-8deg)}}
+.lid{transform-origin:100px 82px;animation:lid 3s ease-in-out infinite}
+@keyframes lid{0%,30%,100%{transform:none}45%,80%{transform:translateY(-16px) rotate(-6deg)}}
+.spark{animation:spark 3s ease-out infinite;opacity:0}
+@keyframes spark{0%,40%{opacity:0;transform:scale(.4)}55%{opacity:1;transform:scale(1)}85%,100%{opacity:0;transform:scale(1.3)}}
+.seesaw{transform-origin:100px 150px;animation:saw 3s ease-in-out infinite}
+@keyframes saw{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
+.bell{transform-origin:100px 40px;animation:bell 2.2s ease-in-out infinite}
+@keyframes bell{0%,50%,100%{transform:none}10%{transform:rotate(14deg)}20%{transform:rotate(-12deg)}30%{transform:rotate(8deg)}40%{transform:rotate(-4deg)}}
+/* 操作デモ */
+.demo{position:relative;width:min(290px,78vw);height:210px;margin:0 auto 14px}
+.demo .dseg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.demo .dseg div{background:#fff;border-radius:12px;padding:7px 4px 6px;font:700 10px "Noto Sans JP";color:var(--sub);box-shadow:0 1px 0 var(--line)}
+.demo .dseg div b{display:block;font:900 17px Inter;color:var(--ink);position:relative;height:20px;overflow:hidden}
+.demo .dseg div:first-child{background:var(--blue);color:#fff}.demo .dseg div:first-child b{color:#fff}
+.demo .dseg b span{position:absolute;left:0;right:0}
+.demo .n0{animation:n0 4s infinite}.demo .n1{animation:n1 4s infinite}
+@keyframes n0{0%,60%{transform:none;opacity:1}68%,92%{transform:translateY(-20px);opacity:0}100%{transform:none;opacity:1}}
+@keyframes n1{0%,60%{transform:translateY(20px);opacity:0}68%,92%{transform:none;opacity:1}100%{transform:translateY(20px);opacity:0}}
+.demo .m0{animation:n1 4s infinite reverse}
+.demo .dcard{position:absolute;left:0;right:0;top:62px;height:118px}
+.demo .dund{position:absolute;inset:0;border-radius:18px;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:flex-end;padding-right:18px;font:900 13px "Noto Sans JP";animation:und 4s infinite}
+.demo .dfront{position:absolute;inset:0;background:#fff;border-radius:18px;box-shadow:0 10px 24px rgba(40,44,30,.1);padding:14px;text-align:left;animation:dc 4s cubic-bezier(.4,0,.4,1) infinite}
+.demo .dfront .l1{width:60%;height:12px;border-radius:6px;background:#2a302c}
+.demo .dfront .l2{width:38%;height:8px;border-radius:6px;background:#d6d3c6;margin-top:8px}
+.demo .dfront .l3{display:flex;gap:8px;margin-top:16px}.demo .dfront .l3 i{flex:1;height:30px;border-radius:9px;background:#f3f1ea}
+.demo .finger{position:absolute;width:38px;height:38px;border-radius:50%;background:rgba(43,111,214,.25);border:3px solid rgba(43,111,214,.8);top:110px;left:70%;animation:fg 4s cubic-bezier(.4,0,.4,1) infinite}
+.demo .ball{position:absolute;width:14px;height:14px;border-radius:50%;background:var(--blue);top:118px;left:46%;opacity:0;animation:ball 4s infinite}
+@keyframes dc{0%,15%{transform:none;opacity:1}50%{transform:translateX(-58%) rotate(-3deg);opacity:1}60%{transform:translateX(-130%) rotate(-6deg);opacity:0}61%,85%{transform:translateY(16px);opacity:0}100%{transform:none;opacity:1}}
+@keyframes und{0%,15%{opacity:0}35%,58%{opacity:1}62%,100%{opacity:0}}
+@keyframes fg{0%{transform:scale(1.2);opacity:0}10%{transform:none;opacity:1}15%{transform:none}50%{transform:translateX(-140px)}58%{transform:translateX(-140px);opacity:1}66%,100%{transform:translateX(-140px);opacity:0}}
+@keyframes ball{0%,58%{opacity:0;transform:none}60%{opacity:1;transform:none}70%{opacity:1;transform:translate(70px,-104px) scale(.6)}72%,100%{opacity:0;transform:translate(70px,-104px) scale(.6)}}
+
 .hd{display:flex;align-items:flex-start;gap:12px}
 .hd .nm{flex:1;min-width:0}
 .hd .t{font-size:17px;font-weight:800;line-height:1.3}
@@ -235,6 +326,11 @@ button{font-family:inherit}
 <p style="color:var(--sub)">楽天が料率を変えたら、ここを直せば優待の計算に反映されます。</p>
 <div class="setrow">短期（14日）<input id="rateS" inputmode="decimal">％／年</div>
 <div class="setrow">無期限<input id="rateL" inputmode="decimal">％／年</div></div>
+<div class="box"><h3>通知</h3>
+<div id="nState"></div>
+<div class="nbox" id="nBox"></div>
+<p style="color:var(--sub);font-size:12px;margin-top:10px">朝・夕方などに1日数回まとめて確認して送ります。少し遅れて届くことがあります。</p></div>
+<div class="box"><h3>使い方</h3><p>IPO・分売・優待のちがいと、スワイプの操作をもう一度見られます。</p><button class="btn ghost" id="introAgain">使い方の説明を見る</button></div>
 <div class="box"><h3>IPOの流れ</h3><ol>
 <li><b>申込期間</b>に楽天証券で申し込む（ブックビルディング）。申込に必要なお金が口座に入っている必要あり</li>
 <li><b>抽選日</b>の夕方に当落がわかる</li>
@@ -252,6 +348,96 @@ button{font-family:inherit}
 <button class="tab" data-p="set"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2-1.2L14 3h-4l-.5 2.6a7 7 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6A7 7 0 0 0 5 12a7 7 0 0 0 .1 1.2l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 2 1.2L10 21h4l.5-2.6a7 7 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.1-.4.1-.8.1-1.2z"/></svg>設定</button>
 </nav>
 
+<div class="intro" id="intro">
+<div class="rail" id="rail">
+<section class="sl">
+ <div class="art"><svg viewBox="0 0 200 170">
+  <circle cx="100" cy="98" r="70" fill="#e9e4d3"/>
+  <g class="fl"><rect x="62" y="56" width="76" height="76" rx="20" fill="#7d7a3a"/>
+  <path d="M100 74c13 0 22 9 22 20 0 12-10 19-22 19s-22-7-22-19c0-11 9-20 22-20z" fill="#fff"/>
+  <path d="M78 94c0-11 9-20 22-20s22 9 22 20c-6 4-10 0-15 4s-4 8-7 8-4-8-8-8-8 4-14-4z" fill="#e2a412"/>
+  <path d="M100 74c-6-7-14-7-17-3 5 1 11 3 17 3zM100 74c6-7 14-7 17-3-5 1-11 3-17 3z" fill="#6cc055"/></g>
+  <g class="coin"><path d="M100 22c0 0-8 10-8 16a8 8 0 0 0 16 0c0-6-8-16-8-16z" fill="#e8b923"/></g>
+  <g class="spark"><path d="M40 60l4 10 10 4-10 4-4 10-4-10-10-4 10-4z" fill="#e8b923"/></g>
+  <g class="spark" style="animation-delay:1s"><path d="M162 120l3 7 7 3-7 3-3 7-3-7-7-3 7-3z" fill="#e8b923"/></g>
+ </svg></div>
+ <h2>KABU DROP へようこそ</h2>
+ <p>株で<b>「損しにくく」</b>お金を増やす3つの方法を、このアプリでまとめて管理します。<br>まずは、それぞれが何なのか紹介します。</p>
+</section>
+<section class="sl">
+ <div class="art"><svg viewBox="0 0 200 170">
+  <circle cx="100" cy="95" r="70" fill="#e6eefb"/>
+  <g class="fl"><rect x="34" y="52" width="132" height="76" rx="14" fill="#fff" stroke="#2b6fd6" stroke-width="3"/>
+  <line x1="122" y1="58" x2="122" y2="122" stroke="#c9d6ef" stroke-width="3" stroke-dasharray="5 5"/>
+  <text x="52" y="86" font-family="Inter" font-weight="900" font-size="22" fill="#2b6fd6">IPO</text>
+  <rect x="52" y="96" width="54" height="8" rx="4" fill="#dfe6f3"/><rect x="52" y="110" width="36" height="8" rx="4" fill="#dfe6f3"/></g>
+  <g class="stamp"><circle cx="150" cy="70" r="22" fill="none" stroke="#d2453b" stroke-width="4"/><text x="150" y="79" text-anchor="middle" font-family="Noto Sans JP" font-weight="900" font-size="24" fill="#d2453b">当</text></g>
+  <g class="coin"><circle cx="58" cy="150" r="10" fill="#e8b923"/><circle cx="58" cy="150" r="6" fill="none" stroke="#c98d0c" stroke-width="2"/></g>
+  <g class="coin c2"><circle cx="82" cy="154" r="10" fill="#e8b923"/><circle cx="82" cy="154" r="6" fill="none" stroke="#c98d0c" stroke-width="2"/></g>
+  <g class="coin c3"><circle cx="106" cy="150" r="10" fill="#e8b923"/><circle cx="106" cy="150" r="6" fill="none" stroke="#c98d0c" stroke-width="2"/></g>
+ </svg></div>
+ <div class="pill">💧 IPOタブ</div>
+ <h2>IPO ＝ 新しい株の抽選</h2>
+ <ul><li><i>1</i><span>これから上場する会社の株を、<b>抽選で買える</b>チャンス</span></li>
+ <li><i>2</i><span>当たったら<b>上場日の朝に売るだけ</b>。人気の株は上がりやすい</span></li>
+ <li><i>3</i><span>ハズレても<b>お金はそのまま戻る</b>。初値予想でもうけの目安がわかる</span></li></ul>
+</section>
+<section class="sl">
+ <div class="art"><svg viewBox="0 0 200 170">
+  <circle cx="100" cy="95" r="70" fill="#e3f1ec"/>
+  <g class="fl"><path d="M52 70h86l-6 76H58z" fill="#2f6f63"/><path d="M76 70v-10a19 19 0 0 1 38 0v10" fill="none" stroke="#2f6f63" stroke-width="7" stroke-linecap="round"/>
+  <path d="M70 96h50" stroke="#fff" stroke-opacity=".25" stroke-width="6" stroke-linecap="round"/></g>
+  <g class="tag2"><line x1="150" y1="32" x2="150" y2="52" stroke="#a0894a" stroke-width="2"/><path d="M128 52h44l6 10v40a6 6 0 0 1-6 6h-44a6 6 0 0 1-6-6V62z" fill="#e8b923"/><circle cx="150" cy="62" r="4" fill="#fff"/>
+  <text x="150" y="86" text-anchor="middle" font-family="Noto Sans JP" font-weight="900" font-size="14" fill="#5c4305">いつもより</text><text x="150" y="102" text-anchor="middle" font-family="Noto Sans JP" font-weight="900" font-size="14" fill="#d2453b">安い！</text></g>
+ </svg></div>
+ <div class="pill">🛍 分売タブ</div>
+ <h2>分売 ＝ 少し安く買える日</h2>
+ <ul><li><i>1</i><span>上場している株を、<b>前の日より少し安く</b>売り出す日がある</span></li>
+ <li><i>2</i><span>前の日の夕方〜当日の朝8:20に申し込む。<b>当たったら朝すぐ売れる</b></span></li>
+ <li><i>3</i><span>これまでの実績で、<b>始値で売ったらいくら得</b>だったかがわかる</span></li></ul>
+</section>
+<section class="sl">
+ <div class="art"><svg viewBox="0 0 200 170">
+  <circle cx="100" cy="95" r="70" fill="#fbf0de"/>
+  <g class="seesaw"><rect x="28" y="146" width="144" height="7" rx="3.5" fill="#7d7a3a"/>
+  <g><rect x="34" y="118" width="38" height="28" rx="8" fill="#1f9d6b"/><text x="53" y="138" text-anchor="middle" font-family="Noto Sans JP" font-weight="900" font-size="14" fill="#fff">買い</text></g>
+  <g><rect x="128" y="118" width="38" height="28" rx="8" fill="#d98a1c"/><text x="147" y="138" text-anchor="middle" font-family="Noto Sans JP" font-weight="900" font-size="14" fill="#fff">売り</text></g></g>
+  <path d="M100 153l-10 14h20z" fill="#7d7a3a"/>
+  <g class="fl2"><rect x="74" y="82" width="52" height="40" rx="6" fill="#d2453b"/><rect x="96" y="82" width="8" height="40" fill="#e8b923"/>
+  <g class="lid"><rect x="70" y="70" width="60" height="14" rx="5" fill="#e0574c"/><rect x="96" y="70" width="8" height="14" fill="#e8b923"/>
+  <path d="M100 70c-8-12-20-12-20-4s12 4 20 4zm0 0c8-12 20-12 20-4s-12 4-20 4z" fill="#e8b923"/></g></g>
+  <g class="spark"><path d="M100 30l4 10 10 4-10 4-4 10-4-10-10-4 10-4z" fill="#e8b923"/></g>
+ </svg></div>
+ <div class="pill">🎁 優待タブ</div>
+ <h2>優待 ＝ 損得ゼロで優待だけ</h2>
+ <ul><li><i>1</i><span>同じ株を<b>「買い」と「売り」で同時に</b>持つ（優待クロス）</span></li>
+ <li><i>2</i><span>株価が動いても損得はほぼゼロ。<b>株主優待だけ</b>もらえる</span></li>
+ <li><i>3</i><span>かかる費用を引いて<b>差し引きいくら得か</b>を円で計算</span></li></ul>
+</section>
+<section class="sl">
+ <div class="demo"><div class="dseg"><div>申込できる<b><span class="n0">1</span><span class="n1">0</span></b></div><div>申込済み<b><span class="m0">0</span><span class="n1">1</span></b></div></div>
+ <div class="dcard"><div class="dund">申込済みへ →</div><div class="dfront"><div class="l1"></div><div class="l2"></div><div class="l3"><i></i><i></i></div></div></div>
+ <div class="ball"></div><div class="finger"></div></div>
+ <div class="pill">👆 操作のしかた</div>
+ <h2>左にスワイプで次へ進む</h2>
+ <ul><li><i>←</i><span>カードを<b>左にスワイプ</b>すると「申込済み」「当選」と次へ進む</span></li>
+ <li><i>→</i><span><b>右にスワイプ</b>で1つ前に戻す。カードのボタンを押してもOK</span></li>
+ <li><i>▦</i><span>上の<b>4つのボタン</b>で「申込できる・申込済み・当選・終了」を切りかえ</span></li></ul>
+</section>
+<section class="sl">
+ <div class="art"><svg viewBox="0 0 200 170">
+  <circle cx="100" cy="95" r="70" fill="#e9e4d3"/>
+  <g class="bell"><path d="M100 40c-22 0-34 17-34 38v24l-10 14h88l-10-14V78c0-21-12-38-34-38z" fill="#7d7a3a"/><circle cx="100" cy="36" r="6" fill="#7d7a3a"/><path d="M88 122a12 12 0 0 0 24 0z" fill="#e8b923"/></g>
+  <g class="spark"><circle cx="150" cy="54" r="14" fill="#d2453b"/><text x="150" y="60" text-anchor="middle" font-family="Inter" font-weight="900" font-size="15" fill="#fff">1</text></g>
+ </svg></div>
+ <div class="pill">🔔 通知</div>
+ <h2>大事な日はお知らせ</h2>
+ <p>申込の締切、抽選の結果、売る日、クロスの日などを通知します。どの通知を受け取るかは<b>設定タブ</b>で選べます。</p>
+ <button class="btn" id="introPush" style="max-width:300px;margin:16px auto 0">通知をオンにする</button>
+</section>
+</div>
+<div class="foot"><div class="dots" id="dots"></div><button class="skip" id="introSkip">スキップ</button><button class="next" id="introNext">次へ</button></div>
+</div>
 <div class="toast" id="toast"><img src="icon-192.png" alt=""><span id="toastT"></span></div>
 <div class="sheet-bg" id="sbg"></div>
 <div class="sheet" id="sheet"></div>
@@ -306,7 +492,7 @@ async function loadRemote(){try{const r=await fetch(API+'?action=state');const j
   renderAll()}catch(e){}}
 
 // ---- データ ----
-let ipos=[],bunbai={items:[],past:[]},prices={},names=null;
+let ipos=[],bunbai={items:[],past:[]},prices={},names=null,yosoData={};
 async function loadNames(){if(names)return names;try{names=(await (await fetch('data/names.json')).json()).n}catch(e){names={}}return names}
 
 /* ============ IPO ============ */
@@ -360,7 +546,7 @@ const IPO={kind:'ipo',cur:'can',last:{},
       btns=r.st?`<button class="btn ghost" data-act="undo">記録を取り消す</button>`:'';
     }
     const priceTxt=o.price?`${yen(o.price)}円`:(x.data3&&x.data3!=='-'?esc(x.data3):'—');
-    const yoso=o.k!=='end'?`<a class="yoso" href="https://www.google.com/search?q=${encodeURIComponent(o.name+' IPO 初値予想')}" target="_blank" rel="noopener">初値予想を見る<span>専門サイトの予想 ›</span></a>`:'';
+    const yoso=yosoBox(o);
     return slot(o,i,cls,`<div class="hd"><div class="nm"><div class="t">${esc(o.name)}</div><div class="m">${x.code} ・ ${esc(o.mkt)}</div></div>${tag}</div>
     <div class="kv">
      <div><div class="k">申込期間</div><div class="v">${md(x.data4)} 〜 ${md(x.data6)}${x.data7&&x.data7!=='0:00'?`<small>${x.data7}まで</small>`:''}</div></div>
@@ -372,6 +558,18 @@ const IPO={kind:'ipo',cur:'can',last:{},
     ${x.data22&&o.k==='can'?`<div class="desc">${esc(x.data22)}</div>`:''}
     ${yoso}${bar(memo,o.k==='win'?'red':'')}${btns}`)}
 };
+
+function yosoBox(o){
+  const y=yosoData[o.id];const base=o.price||o.hiP;
+  if(o.k==='end'){if(!y||!y.first)return'';const p=y.last||y.bb||y.reader;return`<div class="yoso none">初値 <b style="color:var(--ink)">${yen(y.first)}円</b>${p?`（予想 ${yen(p)}円）`:''}${base?` ・ ${o.unit}株で ${pm((y.first-base)*o.unit)}`:''}</div>`}
+  const pro=y&&(y.last||y.bb);const p=pro||(y&&y.reader);
+  if(!p)return`<div class="yoso none">初値予想はまだ出ていません（上場が決まってしばらくすると出ます）</div>`;
+  const kind=y.last?'直前予想':y.bb?'仮条件前の予想':'みんなの予想';
+  const gain=base?(p-base)*o.unit:null;const ratio=base?Math.max(.06,Math.min(1,(p/base-1)/1.5)):0;
+  return`<div class="yoso"><div class="yh"><span>初値予想</span>${y.rank?`<span class="rk ${y.rank}">評価 ${y.rank}</span>`:''}</div>
+  <div class="yn"><b>${yen(p)}円</b><small>${kind}</small></div>
+  ${gain!=null?`<div class="gauge"><i style="width:${(gain>0?ratio:0.04)*100}%"></i></div><div class="yp">${o.unit}株で <b class="${gain<0?'dn':''}">${pm(gain)}</b>${gain<=0?' <span style="color:var(--red);font-size:12px">公募割れのおそれ</span>':''}${o.price?'':'<small style="font-size:11px;color:#a0894a">（仮条件の上限で計算）</small>'}</div>`:''}
+  <div class="ys">${pro&&y.reader?`みんなの予想 ${yen(y.reader)}円（${y.n}人）・`:''}出典 96ut.com</div></div>`}
 
 /* ============ 分売 ============ */
 function bunbaiWindow(date){ // 申込受付：前営業日17:15〜当日8:20
@@ -654,16 +852,71 @@ function endDrag(){if(!drag)return;const d=drag;drag=null;if(!d.on)return;d.slot
   else back(d)}
 function back(d){d.card.style.transition='transform .45s cubic-bezier(.2,1.5,.4,1)';d.card.style.transform='';d.under.style.opacity=0;setTimeout(()=>{d.card.style.transition=''},460)}
 
+
+// ---- 通知（Web Push） ----
+const VAPID='BB-VNadIELVCIZ58O4WvglYbtSIJm5NgUe-djLQozp8LYwZGHAgbqoQYx4tUAFAvVYCHPuLFSQDv_MgNWrcdhWg';
+const NTF=[['IPO',[['ipo_new','新しいIPOが出たとき','申込期間と初値予想をお知らせ'],['ipo_open','申込が始まる日の朝','必要なお金と初値予想つき'],['ipo_last','申込締切の日の朝','まだ申し込んでいないときだけ'],['ipo_draw','抽選結果が出た日の夕方','申し込んだIPOだけ'],['ipo_buy','「購入」締切の日の朝','当選したIPOだけ（押し忘れ防止）'],['ipo_sell','上場日（売る日）の朝','当選したIPOだけ']]],
+ ['分売',[['bun_new','新しい分売の予定が出たとき','実施日をお知らせ'],['bun_open','申込受付が始まった夕方・締切前の朝','値段と、前の日よりいくら安いか'],['bun_result','結果が出た日の朝','申し込んだ分売だけ']]],
+ ['優待',[['yu_cross','クロスの日（前の日の夜と当日の朝）','差し引きいくら得かつき'],['yu_return','現渡しの日の朝','クロス中の優待だけ'],['yu_warn','損になりそうなとき','株価が上がって差し引きがマイナスになったら']]]];
+SET.ntf=SET.ntf||{};
+const devId=(()=>{try{let d=localStorage.getItem('kd_dev');if(!d){d='d'+Math.random().toString(36).slice(2,12)+Date.now().toString(36);localStorage.setItem('kd_dev',d)}return d}catch(e){return'dx'}})();
+const standalone=()=>window.navigator.standalone===true||matchMedia('(display-mode: standalone)').matches;
+const pushOK=()=>'serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window;
+let swReg=null;
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{swReg=r;r.update&&r.update();ntfRender()}).catch(()=>{});
+const b64=s=>{const p='='.repeat((4-s.length%4)%4);const r=atob((s+p).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from([...r].map(c=>c.charCodeAt(0)))};
+async function pushSync(sub){try{await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'log',kind:'push',code:devId,xp:0,memo:sub?{st:'on',sub:sub.toJSON?sub.toJSON():sub,prefs:SET.ntf,rates:{s:SET.rateS,l:SET.rateL}}:{st:'clear'}})})}catch(e){}}
+async function curSub(){try{const r=swReg||await navigator.serviceWorker.ready;return await r.pushManager.getSubscription()}catch(e){return null}}
+async function enablePush(){
+  if(!pushOK()){toast(standalone()?'この端末は通知に対応していません':'ホーム画面に追加してから開くと通知をオンにできます');ntfRender();return false}
+  try{const perm=await Notification.requestPermission();if(perm!=='granted'){toast('通知が許可されませんでした');ntfRender();return false}
+    const r=swReg||await navigator.serviceWorker.ready;let sub=await r.pushManager.getSubscription();
+    if(!sub)sub=await r.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64(VAPID)});
+    await pushSync(sub);SET.pushOn=true;saveSet();ntfRender();toast('通知をオンにしました');
+    r.showNotification('KABU DROP',{body:'通知はこんな感じで届きます。締切や売る日をお知らせします',icon:'icon-192.png',tag:'kd-test'});return true}
+  catch(e){toast('通知をオンにできませんでした');ntfRender();return false}}
+async function disablePush(){const s=await curSub();try{s&&await s.unsubscribe()}catch(e){}await pushSync(null);SET.pushOn=false;saveSet();ntfRender();toast('この端末の通知をオフにしました')}
+async function ntfRender(){
+  const st=$('#nState'),box=$('#nBox');if(!st)return;
+  const on=SET.pushOn&&pushOK()&&Notification.permission==='granted';
+  if(!pushOK()){st.innerHTML=`<div class="nstate"><span class="ic">📲</span><span>${standalone()?'この端末では通知を使えません（iPhoneはiOS 16.4以上が必要）':'通知を受け取るには、Safariの共有ボタン <b>→「ホーム画面に追加」</b>をして、追加したアプリから開いてね'}</span></div>`}
+  else if(on){st.innerHTML=`<div class="nstate ok"><span class="ic">🔔</span><span style="flex:1">この端末で通知を受け取ります</span><button class="sw on" id="nMaster" aria-label="通知"></button></div><div class="row2"><button class="btn ghost" id="nTest">テスト通知</button><button class="btn ghost" id="nOff">この端末はオフ</button></div>`}
+  else{st.innerHTML=`<div class="nstate"><span class="ic">🔕</span><span style="flex:1">通知はオフです</span><button class="sw" id="nMaster" aria-label="通知"></button></div>`}
+  box.className='nbox'+(on?'':' off');
+  box.innerHTML=NTF.map(([g,list])=>`<div class="ngrp">${g}</div>`+list.map(([k,t,d])=>`<div class="nrow"><div>${t}<small>${d}</small></div><button class="sw ${SET.ntf[k]===false?'':'on'}" data-n="${k}" aria-label="${t}"></button></div>`).join('')).join('');
+  const m=$('#nMaster');if(m)m.onclick=()=>on?disablePush():enablePush();
+  const t=$('#nTest');if(t)t.onclick=async()=>{const r=swReg||await navigator.serviceWorker.ready;r.showNotification('KABU DROP（テスト）',{body:'今日は優待クロスの日：〇〇　差し引き +1,304円',icon:'icon-192.png',tag:'kd-test'})};
+  const f=$('#nOff');if(f)f.onclick=disablePush}
+$('#nBox').addEventListener('click',async e=>{const b=e.target.closest('[data-n]');if(!b)return;const k=b.dataset.n;const v=!(SET.ntf[k]!==false);SET.ntf[k]=v;saveSet();b.classList.toggle('on',v);const s=await curSub();if(s)pushSync(s)});
+['rateS','rateL'].forEach(k=>$('#'+k).addEventListener('change',async()=>{const s=await curSub();if(s&&SET.pushOn)pushSync(s)}));
+ntfRender();
+
+// ---- はじめての説明 ----
+let si=0;const SL=[...document.querySelectorAll('#rail .sl')];
+$('#dots').innerHTML=SL.map(()=>'<i></i>').join('');
+function introGo(i){si=Math.max(0,Math.min(SL.length-1,i));$('#rail').style.transform=`translateX(${-si*100}%)`;SL.forEach((s,j)=>s.classList.toggle('on',j===si));
+  document.querySelectorAll('#dots i').forEach((d,j)=>d.classList.toggle('on',j===si));$('#introNext').textContent=si===SL.length-1?'はじめる':'次へ';$('#introSkip').style.visibility=si===SL.length-1?'hidden':'visible'}
+function introOpen(){introGo(0);$('#intro').classList.add('on')}
+function introClose(){$('#intro').classList.remove('on');try{localStorage.setItem('kd_intro','1')}catch(e){}}
+$('#introNext').onclick=()=>si===SL.length-1?introClose():introGo(si+1);
+$('#introSkip').onclick=introClose;$('#introAgain').onclick=introOpen;
+$('#introPush').onclick=async()=>{const ok=await enablePush();if(ok)introClose();else if(!pushOK())toast('あとで設定タブからオンにできます')};
+(()=>{let x0=null,y0=0;const r=$('#rail');r.addEventListener('pointerdown',e=>{x0=e.clientX;y0=e.clientY});
+  r.addEventListener('pointerup',e=>{if(x0==null)return;const dx=e.clientX-x0,dy=e.clientY-y0;x0=null;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy))introGo(si+(dx<0?1:-1))});})();
+
 // ---- 読み込み ----
 async function getJSON(u,def){try{const r=await fetch(u+'?'+Date.now());if(!r.ok)return def;return await r.json()}catch(e){return def}}
 async function load(){
-  [ipos,bunbai,prices]=await Promise.all([getJSON('data/ipo.json',[]),getJSON('data/bunbai.json',{items:[],past:[]}),getJSON('data/prices.json',{})]);
+  [ipos,bunbai,prices,yosoData]=await Promise.all([getJSON('data/ipo.json',[]),getJSON('data/bunbai.json',{items:[],past:[]}),getJSON('data/prices.json',{}),getJSON('data/yoso.json',{})]);
   try{const u=(await (await fetch('data/updated.txt?'+Date.now())).text()).trim();const d=new Date(u);if(!isNaN(d))document.querySelectorAll('.upd').forEach(el=>el.innerHTML=`楽天証券<br>${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')} 更新`)}catch(e){}
   renderAll();loadRemote();
   const ip=IPO.all(),bb=BUN.all(),yu=YU.all();const t=todayJ();
   const urgent=bb.find(o=>o.k==='can'&&o.open)?['分売の申込を受付中だよ']:ip.find(o=>o.k==='can'&&o.open&&o.left<=1)?[ip.find(o=>o.k==='can'&&o.open&&o.left<=1).name+'：申込の締切が近いよ']:yu.find(o=>o.k==='can'&&days(o.c.E,t)<=0)?['今日クロスする優待があるよ']:ip.find(o=>o.k==='win')?[ip.find(o=>o.k==='win').name+'：売る日をチェック']:null;
   if(urgent)setTimeout(()=>toast(urgent[0]),2300);
 }
+const qTab=new URLSearchParams(location.search).get('tab');if(qTab)try{localStorage.setItem('kd_tab',qTab)}catch(e){}
+let firstTime=false;try{firstTime=!localStorage.getItem('kd_intro')}catch(e){}
+if(firstTime)setTimeout(introOpen,2150);
 try{const tb=localStorage.getItem('kd_tab');if(tb&&tb!=='ipo'){const b=document.querySelector(`.tab[data-p="${tb}"]`);if(b)b.click()}}catch(e){}
 setTimeout(()=>$('#splash').classList.add('off'),2100);
 load();setTimeout(loadNames,4000);
