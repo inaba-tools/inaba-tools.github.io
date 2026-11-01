@@ -1,0 +1,13 @@
+{"note":"url は今は各社の公式ページ。ASPに登録したら aff に紹介リンクを入れると、そちらが使われます。lead は 96ut.com の主幹事の書き方。",
+"items":[
+{"id":"rakuten","name":"楽天証券","short":"楽","color":"#bf0000","lead":["rakuten"],"url":"https://www.rakuten-sec.co.jp/","aff":"","feat":"抽選日の18時までお金がいらない。いま使っている口座","lead2026":0},
+{"id":"sbi","name":"SBI証券","short":"S","color":"#0a3d91","lead":["sbi"],"url":"https://www.sbisec.co.jp/","aff":"","feat":"ネット証券でIPOの取扱数がいちばん多い。外れるたびにポイントがたまって当たりやすくなる","lead2026":11},
+{"id":"nomura","name":"野村證券","short":"野","color":"#5a3d8a","lead":["nomura"],"url":"https://www.nomura.co.jp/","aff":"","feat":"2026年の主幹事がいちばん多い。ネットからも申し込める","lead2026":12},
+{"id":"nikko","name":"SMBC日興証券","short":"日","color":"#008c5a","lead":["nikko"],"url":"https://www.smbcnikko.co.jp/","aff":"","feat":"主幹事が多い大手。主幹事は配る株がいちばん多い","lead2026":9},
+{"id":"mizuho","name":"みずほ証券","short":"み","color":"#0b2f7a","lead":["mizuho"],"url":"https://www.mizuho-sc.com/","aff":"","feat":"主幹事になることがある大手","lead2026":4},
+{"id":"monex","name":"マネックス証券","short":"M","color":"#e8690b","lead":["monex"],"url":"https://www.monex.co.jp/","aff":"","feat":"1人1票の完全平等抽選。少ない資金でも当たる確率は同じ","lead2026":0},
+{"id":"matsui","name":"松井証券","short":"松","color":"#d6001c","lead":["matsui"],"url":"https://www.matsui.co.jp/","aff":"","feat":"事前入金なしで抽選に参加できる","lead2026":0},
+{"id":"daiwa","name":"大和証券","short":"大","color":"#c4161c","lead":["daiwa"],"url":"https://www.daiwa.jp/","aff":"","feat":"主幹事になることがある大手","lead2026":1},
+{"id":"okasan","name":"岡三証券","short":"岡","color":"#1c5aa6","lead":["okasan"],"url":"https://www.okasan.co.jp/","aff":"","feat":"中小型のIPOで主幹事になることがある","lead2026":3},
+{"id":"tokaitokyo","name":"東海東京証券","short":"東","color":"#00788c","lead":["tokaitokyo"],"url":"https://www.tokaitokyo.co.jp/","aff":"","feat":"地方・中小型のIPOで主幹事になることがある","lead2026":3}
+]}

@@ -293,6 +293,7 @@ def fetch_yoso():
             'n': int(rd.group(2)) if rd else 0,
             'first': number(' '.join(text(tds[7]))),
             'sotei': number(so.group(1)) if so else None,
+            'lead': (re.search(r'security/([a-z0-9_-]+)/', tds[0]) or [None, None])[1],
         }
         if any(v for k, v in it.items() if k != 'n'):
             out[code] = it
