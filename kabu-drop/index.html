@@ -512,6 +512,8 @@ html.dark .bk.no{border-color:#323a34}html.dark .bk .acts button,html.dark .bk.n
 .leadrow .ok{color:#1f7a55;font-weight:800}
 .leadrow a{margin-left:auto;font:800 12px "Noto Sans JP";color:#fff;background:var(--green);padding:6px 10px;border-radius:9px;text-decoration:none}
 .slot.nudging>.card{animation:none!important}
+.leadrow [data-tip]:after{content:" ⓘ";opacity:.7}
+.bk .ld[data-tip]:after{content:" ⓘ";opacity:.7}
 /* splash */
 .splash{position:fixed;inset:0;background:linear-gradient(180deg,#8a8740,#55521f);z-index:100;display:grid;place-items:center;transition:opacity .5s .1s,visibility .5s .1s}
 .splash.off{opacity:0;visibility:hidden}
@@ -635,6 +637,8 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
 <details class="qa" id="qa-mkt"><summary>「人気になりやすい市場」って？</summary><div class="a">上場する場所（市場）による傾向です。<br><b>グロース</b>：小さく成長中の会社が多く、株の数も少ないので人気になって上がりやすい<br><b>プライム</b>：大きい会社が多く、上がりにくめ<br><b>地方（名証・福証・札証）・PRO市場</b>：買う人が少なく、注意が必要<br><b>REIT（〜投資法人）</b>：不動産の投資信託。値上がりしにくい<br>あくまで傾向なので、初値予想とあわせて見てください。</div></details>
 <details class="qa"><summary>公募割れって？</summary><div class="a">初値が公開価格より<b>下になってしまう</b>ことです。当たっても売ると損になります。初値予想が公開価格以下のときは、カードに「公募割れのおそれ」と赤で出ます。</div></details>
 <details class="qa"><summary>当選したら何をすればいい？</summary><div class="a">①<b>購入申込期間</b>に楽天証券で「購入」を押す（押さないと当選が無効になります）<br>②<b>上場日の朝</b>に「成行」で売る（初値で売れます）<br>③アプリで「売った」を押して、売った値段を入れると、もうけが記録されます。</div></details>
+<details class="qa" id="qa-rate"><summary>IPOの当選率はどれくらい？</summary><div class="a">公表はされていませんが、人気のIPOだとネット抽選は<b>0.01〜0.1％くらい（数千〜数万人に1人）</b>と言われます。ふつうの人気なら0.1〜数％、不人気なものはもっと当たりやすい（そのかわり公募割れも多い）です。<br>楽天1口座だけだと、<b>年に1回当たるかも微妙</b>。だから<b>証券口座を複数持つ</b>のが基本です。口座の数だけ抽選に参加できます（同じ会社に2つはNG）。</div></details>
+<details class="qa" id="qa-lead"><summary>主幹事って何？なぜ大事？</summary><div class="a">そのIPOのまとめ役の証券会社で、<b>株の8〜9割を持ちます</b>。ネット抽選に回すのは1割ほどですが、元の量がケタちがいなので、抽選に回る株もいちばん多くなります。例：あるIPOでは、主幹事のSMBC日興のネット当選者が<b>172人</b>、ほかのSBIは11人、マネックスは16人でした。<br>主幹事はIPOごとに変わります（2026年は野村12回・SBI11回・SMBC日興9回・みずほ4回）。IPOカードに「主幹事：〇〇」と、口座を持っているかが出ます。</div></details>
 <details class="qa" id="qa-acc"><summary>証券口座を増やすデメリットは？</summary><div class="a">大きなデメリットはありませんが、気をつけることはあります。<br>・<b>管理が増える</b>：ログインIDやパスワードが増える。パスワード管理アプリでまとめると安心<br>・<b>乗っ取りに注意</b>：証券口座をねらった不正ログインが増えているので、<b>二段階認証は必ずオン</b>に<br>・<b>お金が分かれる</b>：申込の時点でお金が必要な会社だと、口座ごとにお金を入れておく必要がある<br>・<b>NISAは1社だけ</b>：NISA口座は同じ年に1つの会社でしか使えない。新しい会社ではNISAを申し込まず、ふつうの「特定口座（源泉徴収あり）」にすれば、今のNISAはそのまま<br>・<b>メールやお知らせが増える</b>：いらないものは設定で止められる<br>口座を作るのも持っておくのも、主なネット証券・大手はお金がかかりません。</div></details>
 <div class="qag">🛍 分売</div>
 <details class="qa" id="qa-bunbai"><summary>立会外分売（たちあいがいぶんばい）って？</summary><div class="a">すでに上場している株を、大株主などが<b>前の日の終値より少し安く</b>まとめて売り出す日があります。申し込んで当たると安い値段で買えて、<b>当日の朝9時からすぐ売れます</b>。例：前の日2,000円の株が1,940円 → 100株で6,000円安く買える。</div></details>
@@ -710,6 +714,21 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
  <ul><li><i>1</i><span>これから上場する会社の株を、<b>抽選で買える</b>チャンス</span></li>
  <li><i>2</i><span>当たったら<b>上場日の朝に売るだけ</b>。人気の株は上がりやすい</span></li>
  <li><i>3</i><span>ハズレても<b>お金はそのまま戻る</b>。初値予想でもうけの目安がわかる</span></li></ul>
+</section>
+<section class="sl">
+ <div class="art"><svg viewBox="0 0 200 170">
+  <circle cx="100" cy="95" r="70" fill="#e6eefb"/>
+  <g class="fl"><rect x="26" y="66" width="62" height="40" rx="9" fill="#fff" stroke="#bf0000" stroke-width="3"/><text x="57" y="92" text-anchor="middle" font-family="Noto Sans JP" font-weight="900" font-size="14" fill="#bf0000">楽天</text></g>
+  <g class="fl2"><rect x="112" y="56" width="62" height="40" rx="9" fill="#fff" stroke="#0a3d91" stroke-width="3"/><text x="143" y="82" text-anchor="middle" font-family="Noto Sans JP" font-weight="900" font-size="14" fill="#0a3d91">SBI</text></g>
+  <g class="fl"><rect x="68" y="112" width="64" height="40" rx="9" fill="#2b6fd6"/><text x="100" y="131" text-anchor="middle" font-family="Noto Sans JP" font-weight="900" font-size="11" fill="#fff">主幹事</text><text x="100" y="145" text-anchor="middle" font-family="Noto Sans JP" font-weight="900" font-size="10" fill="#cfe0ff">株の8〜9割</text></g>
+  <g class="coin"><circle cx="100" cy="30" r="12" fill="#e8b923"/><text x="100" y="35" text-anchor="middle" font-family="Noto Sans JP" font-weight="900" font-size="13" fill="#5c4305">当</text></g>
+ </svg></div>
+ <div class="pill">🎯 当たりやすくするコツ</div>
+ <h2>IPOはめったに当たらない</h2>
+ <ul><li><i>%</i><span>人気のIPOは<b>数千人に1人</b>くらいしか当たらない。1つの口座だと<b>年に1回当たるかも微妙</b></span></li>
+ <li><i>＋</i><span>だから<b>証券口座は複数</b>持つのがおすすめ。<b>口座の数だけくじが引ける</b>（同じ会社に2つはNG）</span></li>
+ <li><i>★</i><span>いちばん大事なのは<b>主幹事</b>の口座。主幹事は株の<b>8〜9割</b>を持つので、ほかの会社より<b>10倍くらい当たりやすい</b>。カードに「主幹事：〇〇」と出ます</span></li></ul>
+ <p class="sm"><a href="#" id="introAcc">証券口座を見る・増やす ›</a></p>
 </section>
 <section class="sl">
  <div class="art"><svg viewBox="0 0 200 170">
@@ -1258,11 +1277,12 @@ function introGo(i){si=Math.max(0,Math.min(SL.length-1,i));$('#rail').style.tran
   document.querySelectorAll('#dots i').forEach((d,j)=>d.classList.toggle('on',j===si));$('#introNext').textContent=si===SL.length-1?'はじめる':'次へ';$('#introSkip').style.visibility=si===SL.length-1?'hidden':'visible'}
 let introSingle=null;
 function introOpen(){introSingle=null;$('#intro').classList.remove('single');introGo(0);$('#intro').classList.add('on')}
-function introOne(k){const idx={ipo:1,bunbai:2,yutai:3}[k];introSingle=k;$('#intro').classList.add('single');introGo(idx);$('#intro').classList.add('on');
-  $('#introNext').textContent='画面の説明を見る';$('#introSkip').textContent='とじる';$('#introSkip').style.visibility='visible'}
+function introOne(k){const idx={ipo:1,bunbai:3,yutai:4}[k];introSingle=k;$('#intro').classList.add('single');introGo(idx);$('#intro').classList.add('on');
+  if(k==='ipo')$('#introNext').textContent='次へ（当たりやすくするコツ）';else $('#introNext').textContent='画面の説明を見る';$('#introSkip').textContent='とじる';$('#introSkip').style.visibility='visible'}
 function introClose(){$('#intro').classList.remove('on');try{localStorage.setItem('kd_intro','1')}catch(e){}const cur=document.querySelector('.tab.on');if(cur)setTimeout(()=>maybeTour(cur.dataset.p),400)}
-$('#introNext').onclick=()=>{if(introSingle){const k=introSingle;introSingle=null;$('#intro').classList.remove('on','single');setTimeout(()=>startTour(k),450);return}si===SL.length-1?introClose():introGo(si+1)};
+$('#introNext').onclick=()=>{if(introSingle==='ipo'&&si===1){introGo(2);$('#introNext').textContent='画面の説明を見る';$('#introSkip').textContent='とじる';$('#introSkip').style.visibility='visible';return}if(introSingle){const k=introSingle;introSingle=null;$('#intro').classList.remove('on','single');setTimeout(()=>startTour(k),450);return}si===SL.length-1?introClose():introGo(si+1)};
 $('#introSkip').onclick=()=>{if(introSingle){introSingle=null;$('#intro').classList.remove('on','single');return}introClose()};$('#introAgain').onclick=introOpen;
+$('#introAcc').onclick=e=>{e.preventDefault();introSingle=null;$('#intro').classList.remove('on','single');try{localStorage.setItem('kd_intro','1')}catch(_){}goTab('set');setTimeout(()=>openSub('acct'),300)};
 $('#introBudget').onclick=e=>{e.preventDefault();introSingle=null;$('#intro').classList.remove('on','single');try{localStorage.setItem('kd_intro','1')}catch(_){}setTimeout(()=>openBudget(),380)};
 $('#introPush').onclick=async()=>{const ok=await enablePush();if(ok)introClose();else if(!pushOK())toast('あとで設定タブからオンにできます')};
 (()=>{let x0=null,y0=0;const r=$('#rail');r.addEventListener('pointerdown',e=>{x0=e.clientX;y0=e.clientY});
@@ -1299,16 +1319,17 @@ function hasAcc(id){return !!(SET.acc||{})[id]}
 function brokerByLead(slug){return brokers.find(b=>(b.lead||[]).includes(slug))}
 function renderBrokers(){const el=$('#bkList');if(!el)return;const own=brokers.filter(b=>hasAcc(b.id)),no=brokers.filter(b=>!hasAcc(b.id));
   const card=(b,i)=>`<div class="bk ${hasAcc(b.id)?'':'no'}" style="animation-delay:${i*40}ms"><span class="lg" style="background:${b.color}">${b.short}</span><div class="tx">
-    <b>${b.name} <span class="st">${hasAcc(b.id)?'開設済み ✓':'まだ'}</span></b><p>${b.feat}</p>${b.lead2026?`<span class="ld">2026年 主幹事 ${b.lead2026}回</span>`:''}
+    <b>${b.name} <span class="st">${hasAcc(b.id)?'開設済み ✓':'まだ'}</span></b><p>${b.feat}</p>${b.lead2026?`<span class="ld" data-tip="lead">2026年 主幹事 ${b.lead2026}回</span>`:''}
     ${hasAcc(b.id)?`<div class="acts"><button class="small" data-unacc="${b.id}">開設していない</button></div>`
       :`<div class="msg">${b.name}はまだ開設していません</div><div class="acts"><a href="${bkUrl(b)}" target="_blank" rel="noopener sponsored">口座を開設する ›</a><button class="small" data-acc="${b.id}">開設した</button></div>`}</div></div>`;
   el.innerHTML=`<div class="bkhead"><b>${own.length}社</b><span>持っている証券口座。口座が多いほど、同じIPOでくじを引ける回数が増えます。</span></div>
+  <div class="box" style="margin-top:0"><div class="leadrow" style="margin:0"><span data-tip="accn" style="font-weight:800;color:var(--ink)">なぜ口座を増やすの？</span></div><div class="leadrow"><span data-tip="lead" style="font-weight:800;color:var(--ink)">主幹事とは？</span><span style="margin-left:auto;font-size:11px">タップで説明</span></div></div>
   <div class="bkgrp">持っている口座</div>${own.map(card).join('')||'<p class="hint">まだありません</p>'}
   <div class="bkgrp">まだ開設していない口座</div>${no.map((b,i)=>card(b,i+own.length)).join('')}`}
 $('#bkList').addEventListener('click',e=>{const a=e.target.closest('[data-acc]'),u=e.target.closest('[data-unacc]');if(!a&&!u)return;
   const id=(a||u).dataset[a?'acc':'unacc'];SET.acc[id]=!!a;saveSet();renderBrokers();renderAll();toast(a?'開設済みにしました':'まだ開設していないにしました')});
 function leadRow(o){const y=yosoData[o.id]||{};const b=y.lead&&brokerByLead(y.lead);if(!b||o.k==='end')return'';
-  return`<div class="leadrow">主幹事：<b>${b.name}</b>${hasAcc(b.id)?'<span class="ok">口座あり ✓</span>':`<span>口座なし</span><a href="${bkUrl(b)}" target="_blank" rel="noopener sponsored">開設する ›</a>`}</div>`}
+  return`<div class="leadrow"><span data-tip="lead">主幹事</span>：<b>${b.name}</b>${hasAcc(b.id)?'<span class="ok">口座あり ✓</span>':`<span>口座なし</span><a href="${bkUrl(b)}" target="_blank" rel="noopener sponsored">開設する ›</a>`}</div>`}
 
 // ---- おすすめの優待 ----
 let recList=[],recMon='all',recMore=false;
@@ -1372,7 +1393,9 @@ function setSums(){const bs2=$('#bkSum');if(bs2&&brokers&&brokers.length)bs2.tex
   const r=$('#rateSum');if(r)r.textContent=`短期 ${SET.rateS}％・無期限 ${SET.rateL}％`}
 
 // ---- その場の説明（ⓘ） ----
-const TIPS={need:['クロスの間だけ口座に必要なお金です（<b>使ってなくなるお金ではありません</b>）。<br>①現物を買うお金（株価×株数）<br>②信用取引の保証金（楽天は最低30万円。持っている株でも代わりにできる）<br>次の日の現渡しで、現物は売りの返済にあてられて、お金は戻ります。実際に減るのは「かかる費用」だけ。','qa-money'],
+const TIPS={lead:['<b>主幹事（しゅかんじ）</b>：そのIPOのまとめ役の証券会社。株の<b>8〜9割</b>を持つので、主幹事の口座から申し込むと、ほかの会社より<b>10倍くらい当たりやすい</b>。主幹事はIPOごとに変わるので、よく主幹事になる会社の口座を持っておくとチャンスが増えます。','qa-lead'],
+ accn:['IPOは<b>証券会社ごとに1回ずつ</b>抽選に参加できます。人気のIPOは数千人に1人しか当たらないので、口座が多いほどくじを引ける回数が増えます（同じ会社に2つはNG）。','qa-rate'],
+ need:['クロスの間だけ口座に必要なお金です（<b>使ってなくなるお金ではありません</b>）。<br>①現物を買うお金（株価×株数）<br>②信用取引の保証金（楽天は最低30万円。持っている株でも代わりにできる）<br>次の日の現渡しで、現物は売りの返済にあてられて、お金は戻ります。実際に減るのは「かかる費用」だけ。','qa-money'],
  cost:['クロスに<b>確実にかかるお金</b>です。<br><b>貸株料</b>：売るために株を借りる借り賃（日数分）<br><b>配当の税</b>：配当をもらって同じ額を払うので、税金の分だけ損<br>手数料は楽天のゼロコースで0円。優待の価値は期限や使い道で変わるので、この費用より得か自分で判断してね。','qa-cost'],
  genwata:['<b>現渡し（げんわたし）</b>：クロスの次の日に、持っている「現物」の株を、借りて売った分の返済にあてる手続き。楽天では「信用取引 → 返済 → 現渡」から。これで買いと売りが両方なくなって、クロスは終わりです。','qa-cross'],
  judge:['<b>👍 よさそう</b>＝評価がDではなく、予想利益がプラス。<br><b>✋ 見送り</b>＝評価がD、または予想利益が0円以下。<br>2026年のIPOでこのルールを使うと、公募割れが12件→4件に減りました（それでも0にはなりません）。','qa-judge'],
@@ -1398,6 +1421,7 @@ const TOURS={
   ['#list-ipo .slot:first-child .hd','会社の名前と締切','右上のマークは<b>申込が始まる日・締切までの日数</b>。青く光っていたら今日申し込めます。'],
   ['#list-ipo .slot:first-child .flow','値段が決まるまで','IPOの値段は<b>2段階</b>で決まります。<br><b>①仮条件</b>＝仮の値段の幅（例 550〜570円）<br><b>③公開価格</b>＝本決まりの値段（抽選の日に決定）<br>緑の丸は決まったところ、青は今ここ。'],
   ['#list-ipo .slot:first-child .m3','公開価格 → 初値予想 ＝ 予想利益','<b>公開価格</b>（買う値段）、<b>初値予想</b>（上場して最初につきそうな値段）、<b>予想利益</b>（当たって初値で売ったら100株でいくら得か）。上場したあとは本当の初値と利益に変わります。'],
+  ['#list-ipo .slot:first-child .leadrow','主幹事','そのIPOの株の<b>8〜9割を持つ</b>証券会社。主幹事の口座から申し込むと、ほかより<b>10倍くらい当たりやすい</b>。口座がなければ「開設する ›」から作れます。'],
   ['#list-ipo .slot:first-child .rk','評価 S〜D','人気の目安です。<b>S・A</b>かなり人気、<b>B</b>まあまあ、<b>C</b>少し上がるかも、<b>D</b>は買った値段より下がる心配あり。'],
   ['#list-ipo .slot:first-child .m3meta','👍 よさそう／✋ 見送り','<b>評価がDではなく、予想利益がプラス</b>なら「よさそう」。そうでなければ「見送りがよさそう」。2026年のIPOでは、これで公募割れが12件→4件に減りました。'],
   ['#list-ipo .slot:first-child .card','スワイプで移動','申し込んだら <b>→ 右にスワイプ</b>で「申込済み」へ。見送るなら <b>← 左にスワイプ</b>で一番下の「見送ったIPO」にしまえます。','nudge'],
