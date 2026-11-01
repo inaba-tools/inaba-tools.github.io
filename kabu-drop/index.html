@@ -247,7 +247,6 @@ button{font-family:inherit}
 .tour .tbtn #tnext{background:var(--green);color:#fff;padding:11px 22px;border-radius:13px;font-size:14px}
 .card.nudge{animation:nudge 1.6s cubic-bezier(.4,0,.4,1) infinite!important}
 @keyframes nudge{0%,100%{transform:none}35%,55%{transform:translateX(46%) rotate(3deg)}}
-.slot.nudging .under{opacity:1!important;background:var(--blue)!important;justify-content:flex-start}
 /* その場の説明 */
 .pop{position:fixed;z-index:60;left:16px;right:16px;max-width:428px;margin:0 auto;background:#1f2622;color:#fff;border-radius:16px;padding:13px 14px;font:700 13px "Noto Sans JP";line-height:1.65;box-shadow:0 12px 28px rgba(0,0,0,.3);opacity:0;transform:translateY(6px) scale(.97);transition:opacity .2s,transform .25s cubic-bezier(.2,1.4,.3,1);pointer-events:none}
 .pop.on{opacity:1;transform:none;pointer-events:auto}
@@ -512,6 +511,7 @@ html.dark .bk.no{border-color:#323a34}html.dark .bk .acts button,html.dark .bk.n
 .leadrow b{color:var(--ink)}
 .leadrow .ok{color:#1f7a55;font-weight:800}
 .leadrow a{margin-left:auto;font:800 12px "Noto Sans JP";color:#fff;background:var(--green);padding:6px 10px;border-radius:9px;text-decoration:none}
+.slot.nudging>.card{animation:none!important}
 /* splash */
 .splash{position:fixed;inset:0;background:linear-gradient(180deg,#8a8740,#55521f);z-index:100;display:grid;place-items:center;transition:opacity .5s .1s,visibility .5s .1s}
 .splash.off{opacity:0;visibility:hidden}
@@ -1415,18 +1415,28 @@ const TOURS={
   ['#list-yutai .slot:first-child .rt','かかる費用','クロスに確実にかかるお金です（<b>貸株料＋配当の税</b>）。優待の価値は期限や使い道で変わるので、この費用より得か自分で判断してね。'],
   ['.seg[data-b=yutai]','上の4つの箱','候補 → クロス中 → 届くの待ち → 終了 の順に、<b>右スワイプ</b>で進めます。'],
   ['#p-yutai .help','わからなくなったら','この <b>？</b> でいつでも見直せます。']]};
-let tour=null;
+let tour=null,nudgeT=null;
+// 説明ツアー：実際のスワイプと同じ色・文字で、→右 と ←左 を交互に見せる
+function stopNudge(){clearInterval(nudgeT);nudgeT=null;document.querySelectorAll('.slot.nudging').forEach(sl=>{sl.classList.remove('nudging');const c=sl.querySelector('.card');c.style.transition='transform .45s cubic-bezier(.2,1.5,.4,1)';c.style.transform='';const u=sl.querySelector('.under');if(u)u.style.opacity=0;setTimeout(()=>{c.style.transition=''},460)})}
+function startNudge(card){stopNudge();const sl=card.parentNode;const list=sl.closest('.list');if(!list)return;const mv=B[list.dataset.b].moves[sl.dataset.k]||{};const dirs=['R','L'].filter(d=>mv[d]);if(!dirs.length)return;
+  const u=sl.querySelector('.under');let i=0;sl.classList.add('nudging');
+  const step=()=>{const d=dirs[i%dirs.length];i++;const m=mv[d];const w=sl.offsetWidth;
+    u.className='under '+(d==='L'?'toL':'toR')+' ready';u.style.background=m[2];u.style.transition='opacity .2s';u.style.opacity=1;
+    u.innerHTML=d==='L'?`<div class="l"></div><div class="r">${ARROW.R} ${m[1]}</div>`:`<div class="l">${m[1]} ${ARROW.L}</div><div class="r"></div>`;
+    card.style.transition='transform .55s cubic-bezier(.4,0,.3,1)';card.style.transform=`translateX(${d==='R'?w*.42:-w*.42}px) rotate(${d==='R'?3:-3}deg)`;
+    setTimeout(()=>{if(!nudgeT)return;card.style.transform='';setTimeout(()=>{if(nudgeT)u.style.opacity=0},350)},1200)};
+  nudgeT=setInterval(step,2000);step()}
 function startTour(k){const steps=TOURS[k].filter(st=>{const el=document.querySelector(st[0]);return el&&el.offsetParent!==null});if(!steps.length)return;
   window.scrollTo(0,0);tour={k,steps,i:0};$('#tour').classList.add('on');tourShow()}
-function tourEnd(){if(!tour)return;try{localStorage.setItem('kd_tour_'+tour.k,'1')}catch(e){}document.querySelectorAll('.nudge').forEach(c=>c.classList.remove('nudge'));document.querySelectorAll('.nudging').forEach(c=>c.classList.remove('nudging'));
+function tourEnd(){if(!tour)return;try{localStorage.setItem('kd_tour_'+tour.k,'1')}catch(e){}stopNudge();
   $('#tour').classList.remove('on');tour=null}
-function tourShow(){const st=tour.steps[tour.i];const el=document.querySelector(st[0]);document.querySelectorAll('.nudge').forEach(c=>c.classList.remove('nudge'));document.querySelectorAll('.nudging').forEach(c=>c.classList.remove('nudging'));
+function tourShow(){const st=tour.steps[tour.i];const el=document.querySelector(st[0]);stopNudge();
   if(!el){tourNext();return}
   const tip=$('#tip');tip.classList.add('fade');
   const r0=el.getBoundingClientRect();if(r0.top<70||r0.bottom>innerHeight-260){window.scrollBy({top:r0.top-Math.min(140,innerHeight*.22),behavior:'smooth'})}
   setTimeout(()=>{if(!tour)return;const r=el.getBoundingClientRect();const pad=6;const sp=$('#spot');
     sp.style.left=(r.left-pad)+'px';sp.style.top=(r.top-pad)+'px';sp.style.width=(r.width+pad*2)+'px';sp.style.height=(r.height+pad*2)+'px';
-    if(st[3]==='nudge'){el.classList.add('nudge');el.parentNode.classList.add('nudging');const u=el.parentNode.querySelector('.under');if(u)u.innerHTML='<div class="l" style="opacity:1">次へ →</div><div class="r"></div>'}
+    if(st[3]==='nudge')startNudge(el);
     $('#tc').textContent=`${tour.i+1} / ${tour.steps.length}`;$('#tt').textContent=st[1];$('#tb').innerHTML=st[2];$('#tnext').textContent=tour.i===tour.steps.length-1?'わかった':'次へ';
     const th=tip.offsetHeight||170;const below=r.bottom+pad+14+th<innerHeight-10;tip.style.top=(below?r.bottom+pad+14:Math.max(12,r.top-pad-14-th))+'px';tip.classList.remove('fade')},380)}
 function tourNext(){if(!tour)return;if(tour.i>=tour.steps.length-1){tourEnd();return}tour.i++;tourShow()}
