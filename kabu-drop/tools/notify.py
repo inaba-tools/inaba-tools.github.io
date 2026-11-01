@@ -71,6 +71,12 @@ def pm(n):
     return ('+' if n >= 0 else '−') + yen(abs(n)) + '円'
 
 
+def base_hi(x):
+    v = [num(p) for p in str(x.get('data3') or '').replace('円', '').split('～')]
+    v = [a for a in v if a]
+    return max(v) if v else 0
+
+
 def clean(s):
     return str(s or '').replace('株式会社', '').replace('（株）', '').strip()
 
@@ -181,12 +187,15 @@ def build(rec, sent):
                 add('new:' + k, 'ipo_new', '新しいIPO：' + name,
                     '申込は%s〜%s。%s' % (md(bs), md(be), pred_txt or '値段はこれから決まります'), 'ipo')
         if SLOT == 'morning' and bs == TODAY and not st:
-            need = (price or 0) * unit
             add('open:%s:%s' % (k, TODAY), 'ipo_open', '今日からIPOの申込：' + name,
-                '締切は%s。%s%s' % (md(be), ('必要なお金 約%s円。' % yen(need)) if need else '', pred_txt), 'ipo')
+                '締切は%s。申込はお金いらず。%s' % (md(be), pred_txt), 'ipo')
         if SLOT == 'morning' and be == TODAY and not st and bs != TODAY:
             add('last:%s:%s' % (k, TODAY), 'ipo_last', '今日がIPOの申込締切：' + name,
                 'まだ申し込んでいなければ楽天証券で。%s' % pred_txt, 'ipo')
+        if SLOT == 'morning' and draw == TODAY and st == 'applied':
+            fund = (price or base_hi(x) or y.get('sotei') or 0) * unit
+            add('fund:%s:%s' % (k, TODAY), 'ipo_fund', '今日はIPOの抽選日：' + name,
+                ('18時までに約%s円（%d株）を楽天の口座に入れておこう。' % (yen(fund), unit) if fund else '18時までに「株数×公開価格」のお金を楽天の口座に入れておこう。') + '夕方に結果が出ます', 'ipo')
         if SLOT == 'evening' and draw == TODAY and st == 'applied':
             add('draw:%s:%s' % (k, TODAY), 'ipo_draw', 'IPOの抽選結果が出ています',
                 name + '。楽天証券で当たったか確認して、アプリで記録しよう', 'ipo')
@@ -253,7 +262,7 @@ def build(rec, sent):
     return out
 
 
-DEFAULT_ON = {'ipo_new', 'ipo_open', 'ipo_last', 'ipo_draw', 'ipo_buy', 'ipo_sell',
+DEFAULT_ON = {'ipo_new', 'ipo_open', 'ipo_fund', 'ipo_last', 'ipo_draw', 'ipo_buy', 'ipo_sell',
               'bun_new', 'bun_open', 'bun_result', 'yu_cross', 'yu_return', 'yu_warn'}
 PRICES = load('prices.json', {})
 RATES = {}
