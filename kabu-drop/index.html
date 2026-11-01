@@ -635,6 +635,7 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
 <details class="qa" id="qa-yoso"><summary>初値予想って何？</summary><div class="a">上場して<b>最初につく値段（初値）の予想</b>です。予想サイト（96ut.com）の数字を出しています。<br>「直前予想」＝上場日の少し前に出るプロの予想（いちばん当たりやすい）、「申込開始時の予想」＝申込が始まる時（ブックビルディング開始時）に出る予想、「みんなの予想」＝読者の投票の平均。<br>「100株で +〇円」は、公開価格で買って初値で売ったら、という目安です。あくまで予想なので外れることもあります。</div></details>
 <details class="qa" id="qa-rank"><summary>評価 S・A・B・C・D って？</summary><div class="a">予想サイトの管理人がつけた人気の目安です。<br><b>S・A</b>：かなり人気。大きく上がりそう<br><b>B</b>：まあまあ人気。上がりそう<br><b>C</b>：少し上がるかも<br><b>D</b>：公募割れ（買った値段より下がる）の心配あり<br>Dや「公募割れのおそれ」が出ているものは、申し込むか慎重に考えましょう。</div></details>
 <details class="qa" id="qa-mkt"><summary>「人気になりやすい市場」って？</summary><div class="a">上場する場所（市場）による傾向です。<br><b>グロース</b>：小さく成長中の会社が多く、株の数も少ないので人気になって上がりやすい<br><b>プライム</b>：大きい会社が多く、上がりにくめ<br><b>地方（名証・福証・札証）・PRO市場</b>：買う人が少なく、注意が必要<br><b>REIT（〜投資法人）</b>：不動産の投資信託。値上がりしにくい<br>あくまで傾向なので、初値予想とあわせて見てください。</div></details>
+<details class="qa" id="qa-bjudge"><summary>分売の「👍 よさそう」「✋ 見送り」って？</summary><div class="a">分売が<b>どの市場の株か</b>で決めている目安です。<br><b>👍 申し込んでよさそう</b>：東証（プライム・スタンダード・グロース）<br><b>✋ 見送りがよさそう</b>：地方市場（名証・福証・札証）<br>2026年に楽天で扱った分売（100株・始値で売った場合）では、東証は<b>26件中22件が得</b>（平均 約+3,000円、いちばんの損 −1,600円）、地方は<b>7件中2件だけ</b>（平均 −2,042円、いちばんの損 −14,300円）でした。<br>東証でも小さく損することはあります。見送るときは ← 左にスワイプ。</div></details>
 <details class="qa"><summary>公募割れって？</summary><div class="a">初値が公開価格より<b>下になってしまう</b>ことです。当たっても売ると損になります。初値予想が公開価格以下のときは、カードに「公募割れのおそれ」と赤で出ます。</div></details>
 <details class="qa"><summary>当選したら何をすればいい？</summary><div class="a">①<b>購入申込期間</b>に楽天証券で「購入」を押す（押さないと当選が無効になります）<br>②<b>上場日の朝</b>に「成行」で売る（初値で売れます）<br>③アプリで「売った」を押して、売った値段を入れると、もうけが記録されます。</div></details>
 <details class="qa" id="qa-rate"><summary>IPOの当選率はどれくらい？</summary><div class="a">公表はされていませんが、人気のIPOだとネット抽選は<b>0.01〜0.1％くらい（数千〜数万人に1人）</b>と言われます。ふつうの人気なら0.1〜数％、不人気なものはもっと当たりやすい（そのかわり公募割れも多い）です。<br>楽天1口座だけだと、<b>年に1回当たるかも微妙</b>。だから<b>証券口座を複数持つ</b>のが基本です。口座の数だけ抽選に参加できます（同じ会社に2つはNG）。</div></details>
@@ -945,9 +946,9 @@ function yosoBox(o){
 function bunbaiWindow(date){ // 申込受付：前営業日17:15〜当日8:20
   const prev=addBiz(date,-1);const n=nowJ();const t=Date.UTC(n.getUTCFullYear(),n.getUTCMonth(),n.getUTCDate(),n.getUTCHours(),n.getUTCMinutes());
   const s=prev.getTime()+(17*60+15)*6e4,e=date.getTime()+(8*60+20)*6e4;return{prev,before:t<s,open:t>=s&&t<=e,after:t>e}}
-const BUN={kind:'bunbai',cur:'can',last:{},
+const BUN={kind:'bunbai',cur:'can',last:{},skipLabel:'見送った分売',
   segs:{can:'申込できる',done:'申込済み',win:'当選',end:'終了'},
-  moves:{can:{L:['done','申込済みへ','#2b6fd6']},done:{L:['win','当選！','#d2453b'],R:['can','申込前に戻す','#9aa097']},win:{R:['done','申込済みに戻す','#9aa097']}},
+  moves:{can:{L:['done','申込済みへ','#2b6fd6'],R:['skip','見送る','#8a5a34']},skip:{L:['can','申込前に戻す','#2b6fd6']},done:{L:['win','当選！','#d2453b'],R:['can','申込前に戻す','#9aa097']},win:{R:['done','申込済みに戻す','#9aa097']}},
   all(){const t=todayJ();return (bunbai.items||[]).map(x=>this.classify(x)).filter(o=>o.r.st||o.k!=='end'||days(t,o.endD)<=10)},
   find(id){const x=(bunbai.items||[]).find(x=>x.id===id);return x?this.classify(x):null},
   classify(x){
@@ -958,23 +959,26 @@ const BUN={kind:'bunbai',cur:'can',last:{},
     if(r.st==='sold'||r.st==='lost')o.k='end';
     else if(r.st==='won')o.k='win';
     else if(r.st==='applied')o.k='done';
+    else if(r.st==='skip')o.k=(x.kind==='past'||t>endD||(o.w&&o.w.after))?'end':'skip';
     else if(x.kind==='past'||t>endD||(o.w&&o.w.after))o.k='end';
     else o.k='can';
     o.open=!!(o.w&&o.w.open);
     o.save=x.prev&&x.price?(x.prev-x.price)*o.unit:null;
+    o.judge=/^東証/.test(x.mkt||'')?'good':(x.mkt?'bad':null);
     o.pl=r.st==='sold'?(r.sell-(r.buy||o.price||0))*(r.sh||o.unit):0;
     return o},
   sort(g){const f=o=>(o.date||0);g.can.sort((a,b)=>(b.open-a.open)||(f(a)-f(b)));g.done.sort((a,b)=>f(a)-f(b));g.win.sort((a,b)=>f(a)-f(b));g.end.sort((a,b)=>f(b)-f(a))},
   lead(g){const open=g.can.filter(o=>o.open).length;return g.win.length?`当選が <span class="r">${g.win.length}件</span> あります`:open?`今 <span class="b">${open}件</span> 申し込めます`:g.can.length?`次の分売は <span class="b">${mdD(g.can[0].date)}</span>${g.can[0].decided?'':' ごろ'}`:'今は分売の予定がありません'},
   empty:{can:'今は分売の予定がありません。<br>決まると楽天証券に出て、ここに自動で並びます。',done:'申し込んだ分売はここに並びます',win:'当選したらここに並びます',end:'終わった分売はここに並びます'},
-  hint(g){return{can:g.can.some(o=>o.open)?'申し込んだら、カードを → 右にスワイプ':'',done:g.done.length?'→ 右で当選へ ／ ← 左 で申込前に戻す':'',win:g.win.length?'← 左 で申込済みに戻す':'',end:''}[this.cur]},
+  hint(g){return{can:g.can.length?'申し込んだら → 右 ／ 見送るなら ← 左にスワイプ':g.can.some(o=>o.open)?'申し込んだら、カードを → 右にスワイプ':'',done:g.done.length?'→ 右で当選へ ／ ← 左 で申込前に戻す':'',win:g.win.length?'← 左 で申込済みに戻す':'',end:''}[this.cur]},
   guard(o,to){if(o.k==='can'&&to==='done'&&!o.decided)return'まだ値段と日にちが決まっていません';if(o.k==='can'&&to==='done'&&o.w&&o.w.before)return'申込は前の日の17:15ごろからです';return null},
-  setFor:{can:null,done:{st:'applied'},win:{st:'won'}},
-  toastFor(to,o){return{done:o.name+'：申込済みに移動',win:'当選おめでとう！ '+o.name,can:o.name+'：申込前に戻しました'}[to]},
+  setFor:{can:null,done:{st:'applied'},win:{st:'won'},skip:{st:'skip'}},
+  toastFor(to,o){return{done:o.name+'：申込済みに移動',win:'当選おめでとう！ '+o.name,can:o.name+'：申込前に戻しました',skip:o.name+'：見送りました（一番下に入れました）'}[to]},
   act(a,o){if(a==='sold')openSell({kind:'bunbai',id:o.id,name:o.name,unit:o.unit,buy:o.price,sell:o.x.open,note:'始値'})},
   card(o,i){
     const x=o.x;let cls='',tag='',memo='',btns='';
-    if(o.k==='can'){
+    if(o.k==='skip'){tag='<span class="tag skipm">見送り中</span>';memo='見送った分売です。やっぱり申し込むなら → 右にスワイプ。';btns=`<button class="btn ghost" data-act="go:can">申込前に戻す</button>`}
+    else if(o.k==='can'){
       if(!o.decided){tag=`<span class="tag org">${mdD(o.date)}〜${mdD(o.endD)}のどれか</span>`;memo='日にちと値段は、実施の前の日の夕方に決まります。決まったらここに出ます。'}
       else if(o.open){cls='now';const today=days(o.date,todayJ())===0;tag=`<span class="tag blue pulse">受付中・${today?'今朝':'明日'}8:20まで</span>`;
         btns=`<a class="btn" href="${R_TOP}" target="_blank" rel="noopener">楽天証券で申し込む</a><button class="btn ghost" data-act="go:done">申し込んだ（→ 右スワイプでもOK）</button>`}
@@ -996,6 +1000,7 @@ const BUN={kind:'bunbai',cur:'can',last:{},
     }
     const disc=x.disc!=null?`${x.disc}%`:'—';
     return slot(o,i,cls,`<div class="hd"><div class="nm"><div class="t">${esc(o.name)}</div><div class="m">${x.code} ・ ${esc(x.mkt||'')}${x.credit?' ・ '+esc(x.credit):''}</div></div>${tag}</div>
+    ${o.k!=='end'&&o.judge?`<div class="chips" style="margin-top:8px">${o.judge==='good'?'<span class="tag good" data-tip="bjudge">👍 申し込んでよさそう</span>':'<span class="tag skipm" data-tip="bjudge">✋ 見送りがよさそう</span>'}</div>`:''}
     <div class="kv">
      <div><div class="k">分売の値段</div><div class="v">${o.price?yen(o.price)+'円':'前日夕方に決定'}</div></div>
      <div><div class="k">前の日より</div><div class="v">${o.save!=null?`<span style="color:#1f9d6b">${yen(o.save)}円安い</span><small>${o.unit}株</small>`:disc}</div></div>
@@ -1098,7 +1103,7 @@ function render(bk){
   $('#lead-'+bk).innerHTML=b.lead(g);
   const show=g[b.cur];
   const wasOpen=!!document.querySelector(`#list-${bk} .skipbox[open]`);
-  const skipHtml=b.cur==='can'&&g.skip.length?`<details class="skipbox" ${wasOpen?'open':''}><summary>見送ったIPO（${g.skip.length}件）</summary>${g.skip.map((o,i)=>b.card(o,i)).join('')}</details>`:'';
+  const skipHtml=b.cur==='can'&&g.skip.length?`<details class="skipbox" ${wasOpen?'open':''}><summary>${b.skipLabel||'見送ったIPO'}（${g.skip.length}件）</summary>${g.skip.map((o,i)=>b.card(o,i)).join('')}</details>`:'';
   $('#list-'+bk).innerHTML=(show.length?show.map((o,i)=>b.card(o,i)).join(''):`<div class="empty">${b.empty[b.cur]}</div>`)+skipHtml;
   $('#hint-'+bk).textContent=b.hint(g)||'';
   if(b.pastBox)b.pastBox();
@@ -1393,7 +1398,8 @@ function setSums(){const bs2=$('#bkSum');if(bs2&&brokers&&brokers.length)bs2.tex
   const r=$('#rateSum');if(r)r.textContent=`短期 ${SET.rateS}％・無期限 ${SET.rateL}％`}
 
 // ---- その場の説明（ⓘ） ----
-const TIPS={lead:['<b>主幹事（しゅかんじ）</b>：そのIPOのまとめ役の証券会社。株の<b>8〜9割</b>を持つので、主幹事の口座から申し込むと、ほかの会社より<b>10倍くらい当たりやすい</b>。主幹事はIPOごとに変わるので、よく主幹事になる会社の口座を持っておくとチャンスが増えます。','qa-lead'],
+const TIPS={bjudge:['分売の目安です。<b>👍 東証</b>の分売は買う人が多く、2026年は<b>26件中22件</b>が始値で売って得（平均 約+3,000円/100株）。<b>✋ 地方市場</b>（名証など）は買う人が少なく値段が下がりやすく、<b>7件中2件</b>しか得していません（平均 −2,042円）。件数が少ないので目安として見てね。','qa-bjudge'],
+ lead:['<b>主幹事（しゅかんじ）</b>：そのIPOのまとめ役の証券会社。株の<b>8〜9割</b>を持つので、主幹事の口座から申し込むと、ほかの会社より<b>10倍くらい当たりやすい</b>。主幹事はIPOごとに変わるので、よく主幹事になる会社の口座を持っておくとチャンスが増えます。','qa-lead'],
  accn:['IPOは<b>証券会社ごとに1回ずつ</b>抽選に参加できます。人気のIPOは数千人に1人しか当たらないので、口座が多いほどくじを引ける回数が増えます（同じ会社に2つはNG）。','qa-rate'],
  need:['クロスの間だけ口座に必要なお金です（<b>使ってなくなるお金ではありません</b>）。<br>①現物を買うお金（株価×株数）<br>②信用取引の保証金（楽天は最低30万円。持っている株でも代わりにできる）<br>次の日の現渡しで、現物は売りの返済にあてられて、お金は戻ります。実際に減るのは「かかる費用」だけ。','qa-money'],
  cost:['クロスに<b>確実にかかるお金</b>です。<br><b>貸株料</b>：売るために株を借りる借り賃（日数分）<br><b>配当の税</b>：配当をもらって同じ額を払うので、税金の分だけ損<br>手数料は楽天のゼロコースで0円。優待の価値は期限や使い道で変わるので、この費用より得か自分で判断してね。','qa-cost'],
@@ -1428,6 +1434,7 @@ const TOURS={
   ['#p-ipo .help','わからなくなったら','この <b>？</b> を押すと、IPOの紹介とこの説明をいつでも見直せます。くわしくは設定の「Q&A」へ。']],
  bunbai:[['.seg[data-b=bunbai]','上の4つの箱','分売を<b>状態ごと</b>に分けています。申込できる → 申込済み → 当選 → 終了 の順に進みます。'],
   ['#list-bunbai .empty','今は分売がない時','分売は、実施の<b>前の日の夕方</b>に楽天に出て、ここに自動で並びます。通知をオンにすると知らせます。'],
+  ['#list-bunbai .slot:first-child .chips','👍 よさそう／✋ 見送り','<b>東証</b>の分売は買う人が多く得しやすい（2026年は26件中22件が得）。<b>地方市場</b>（名証など）は損しやすい（7件中2件だけ得）。見送るなら <b>← 左にスワイプ</b>。'],
   ['#list-bunbai .slot:first-child .kv','値段と日にち','<b>前の日より〇円安い</b>＝前の日の終値より、いくら安く買えるか（申込単位の株数で）。実施日の朝から売れます。'],
   ['#list-bunbai .slot:first-child .card','スワイプで移動','申し込んだら <b>→ 右にスワイプ</b>。まちがえたら <b>← 左</b>で戻せます。','nudge'],
   ['#bb-past','これまでの実績','楽天で扱った分売で、当たって<b>始値で売っていたら100株でいくら</b>だったか。得した件数と平均がわかります。'],
