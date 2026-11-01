@@ -424,6 +424,13 @@ html.dark .pop{background:#2b322d}
 html.dark .plus{box-shadow:0 6px 14px rgba(0,0,0,.4)}
 html.dark .skipbox summary:before{background:#33261b}
 html.dark .sheet-bg{background:rgba(0,0,0,.55)}
+.cost{margin-top:12px;padding:12px 14px;border-radius:14px;background:#fbf0de;display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.cost .l{font:800 12px "Noto Sans JP";color:#a8661a}
+.cost .n{font:900 24px Inter;color:#b8650f}
+.cost.wait{background:#f6f5ef}.cost.wait .l{color:var(--sub)}
+html.dark .cost{background:#3a2c17}html.dark .cost .l{color:#e0a45a}html.dark .cost .n{color:#f0b25c}html.dark .cost.wait{background:#232925}
+.ritem .nt b.c{color:#b8650f;font-size:15px}html.dark .ritem .nt b.c{color:#f0b25c}
+.kv .k[data-tip]:after,.tag[data-tip]:after{content:" ⓘ";opacity:.7}
 /* splash */
 .splash{position:fixed;inset:0;background:linear-gradient(180deg,#8a8740,#55521f);z-index:100;display:grid;place-items:center;transition:opacity .5s .1s,visibility .5s .1s}
 .splash.off{opacity:0;visibility:hidden}
@@ -553,11 +560,11 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
 <div class="qag">🎁 優待</div>
 <details class="qa" id="qa-cross"><summary>優待クロスって？</summary><div class="a">同じ株を<b>「現物で買う」と「一般信用で売る」を同じ株数で同時に</b>やる方法です。株価が上がっても下がっても、買いの得と売りの損が打ち消しあうので損得はほぼゼロ。それでいて株主なので<b>優待はもらえます</b>。</div></details>
 <details class="qa"><summary>クロスのやり方は？</summary><div class="a">①<b>クロスの日（権利付最終日）</b>の朝、寄付き前に楽天で「現物買い（成行）」と「一般信用売り（成行）」を同じ株数で注文<br>②次の日（<b>権利落ち日</b>）に「<b>現渡し</b>」をして売りを返す → これで終わり<br>③数か月後に優待が届く<br>カードの「クロスする日」「現渡しの日」に日にちが出ています。</div></details>
-<details class="qa" id="qa-cost"><summary>かかるお金は？（貸株料・配当の税）</summary><div class="a"><b>貸株料</b>：売るために株を借りる借り賃。楽天の一般信用は「短期」が年3.9%、「無期限」が年1.1%で、借りた日数分だけかかります（土日や連休をはさむと増えます）。<br><b>配当の税</b>：配当をもらう一方で同じ額を払うので、差し引きで<b>配当にかかる税金（約20%）だけ</b>損します。<br><b>手数料</b>：楽天のゼロコースなら0円。<br>アプリの「差し引き」は、優待の値段からこれらを引いた金額です。</div></details>
+<details class="qa" id="qa-cost"><summary>かかるお金は？（貸株料・配当の税）</summary><div class="a"><b>貸株料</b>：売るために株を借りる借り賃。楽天の一般信用は「短期」が年3.9%、「無期限」が年1.1%で、借りた日数分だけかかります（土日や連休をはさむと増えます）。<br><b>配当の税</b>：配当をもらう一方で同じ額を払うので、差し引きで<b>配当にかかる税金（約20%）だけ</b>損します。<br><b>手数料</b>：楽天のゼロコースなら0円。<br>アプリでは、この<b>確実にかかる費用</b>だけを出しています（優待の価値は、期限や使えるお店しだいで人によって変わるため）。</div></details>
 <details class="qa"><summary>一般信用・制度信用・逆日歩って？</summary><div class="a">売りには「一般信用」と「制度信用」があります。<b>制度信用</b>だと、売りたい人が多いときに<b>逆日歩</b>という追加の借り賃が後から決まり、優待より高くつくことがあります。<b>一般信用</b>なら逆日歩はかからず、最初に費用がわかるので、このアプリは一般信用で計算しています。</div></details>
 <details class="qa"><summary>一般信用の在庫がないときは？</summary><div class="a">人気の優待は一般信用の「売り」の在庫がすぐなくなります。早めにクロスすると取りやすいですが、そのぶん貸株料が増えます。編集画面の「いつクロスする？」を変えると、日数込みの費用で計算し直せます。在庫がなければ見送りが安全です（制度信用は逆日歩が怖いのでおすすめしません）。</div></details>
 <details class="qa"><summary>「継続保有」の条件がある優待は？</summary><div class="a">「1年以上持っている人だけ」などの条件がある優待は、クロスでは<b>もらえない</b>か、少ない方の内容になります。おすすめ一覧は、条件なしでもらえる内容で載せています。</div></details>
-<details class="qa"><summary>おすすめ一覧の金額はどうやって出してるの？</summary><div class="a">各社が公表している優待の内容（2026年11月時点）をもとにした目安です。食事券など金額で書かれていないものは、だいたいの値段にしています。株価は3時間ごとに自動で更新して、貸株料と配当の税を引いた「差し引き」を出しています。追加したあとで値段は自由に直せます。</div></details>
+<details class="qa"><summary>おすすめ一覧の金額はどうやって出してるの？</summary><div class="a">各社が公表している優待の内容（2026年11月時点）をもとにした目安です。食事券など金額で書かれていないものは、だいたいの値段にしています。株価は3時間ごとに自動で更新して、貸株料と配当の税を合わせた「かかる費用」を出しています。追加したあとで値段は自由に直せます。</div></details>
 <div class="qag">⚙ アプリ</div>
 <details class="qa"><summary>データはどこから？いつ更新される？</summary><div class="a">IPOと分売の日程は楽天証券の公開ページ、初値予想は96ut.com、株価と配当はYahoo!ファイナンス、会社名は東証の一覧から、<b>3時間ごとに自動で</b>取り込んでいます。</div></details>
 <details class="qa"><summary>記録はどこに保存される？</summary><div class="a">申込・当選・優待の記録は、この端末と、Googleスプレッドシート「決算チェッカー」のログに保存されます。別の端末で開いても同じ記録が出ます。</div></details>
@@ -649,7 +656,7 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
  <h2>優待 ＝ 損得ゼロで優待だけ</h2>
  <ul><li><i>1</i><span>同じ株を<b>「買い」と「売り」で同時に</b>持つ（優待クロス）</span></li>
  <li><i>2</i><span>株価が動いても損得はほぼゼロ。<b>株主優待だけ</b>もらえる</span></li>
- <li><i>3</i><span>かかる費用を引いて<b>差し引きいくら得か</b>を円で計算</span></li></ul>
+ <li><i>3</i><span>クロスに<b>かかる費用</b>（貸株料・配当の税）を円で計算</span></li></ul>
 </section>
 <section class="sl">
  <div class="demo"><div class="dseg"><div>申込できる<b><span class="n0">1</span><span class="n1">0</span></b></div><div>申込済み<b><span class="m0">0</span><span class="n1">1</span></b></div></div>
@@ -913,7 +920,7 @@ function crossCost(r,px,cyc){
   const E=addBiz(cyc.L,-(r.early||0));const X=addBiz(cyc.L,1);const so=addBiz(E,2),sc=addBiz(X,2);const d=days(sc,so)+1;
   const lend=px?Math.ceil(px*sh*rate*d/365):null;
   const dv=r.div!=null&&r.div!==''?+r.div:divFor(r.code,cyc.m);const tax=dv?Math.round(dv*sh*0.20315):0;
-  const val=+((r.vals&&r.vals[cyc.m])||r.val)||0;return{E,X,d,lend,dv,tax,val,net:lend!=null?val-lend-tax:null,need:px?px*sh:null}}
+  const val=+((r.vals&&r.vals[cyc.m])||r.val)||0;return{E,X,d,lend,dv,tax,val,cost:lend!=null?lend+tax:null,net:lend!=null?val-lend-tax:null,need:px?px*sh:null}}
 const YU={kind:'yutai',cur:'can',last:{},
   segs:{can:'候補',done:'クロス中',win:'届くの待ち',end:'終了'},
   moves:{can:{L:['done','クロスした','#7d7a3a'],R:['out','候補から外す','#8a5a34']},done:{L:['win','現渡しした','#d98a1c'],R:['can','候補に戻す','#9aa097']},win:{L:['end','届いた！','#1f9d6b'],R:['done','クロス中に戻す','#9aa097']}},
@@ -925,12 +932,11 @@ const YU={kind:'yutai',cur:'can',last:{},
     const pr=prices[id];o.px=(pr&&pr.p)||r.px||null;o.pxT=pr&&pr.t;
     o.cyc=(st==='watch')?nextCycle(r):(r.last?{L:pd(r.last),R:addBiz(pd(r.last),2),m:pd(r.last).getUTCMonth()+1}:nextCycle(r));
     if(!o.cyc)o.cyc={L:todayJ(),R:todayJ(),m:1};
-    o.c=crossCost(r,o.px,o.cyc);o.pl=st==='got'?(r.gotNet!=null?r.gotNet:(o.c.net||0)):0;
+    o.c=crossCost(r,o.px,o.cyc);o.pl=0;o.got=st==='got';
     return o},
   sort(g){const f=o=>+o.cyc.L;g.can.sort((a,b)=>f(a)-f(b));g.done.sort((a,b)=>f(a)-f(b));g.win.sort((a,b)=>f(a)-f(b));g.end.sort((a,b)=>(b.r.at||0)-(a.r.at||0))},
-  lead(g){const t=todayJ();const td=g.can.filter(o=>days(o.c.E,t)<=0).length;const tot=g.can.reduce((a,o)=>a+(o.c.net>0?o.c.net:0),0);
-    return td?`今日クロスする優待が <span class="r">${td}件</span>`:g.can.length?`次のクロスは <span class="b">${mdD(g.can[0].c.E)}</span>${tot?` ・ 候補で <span class="b">${pm(tot)}</span>`:''}`:'下のおすすめから選んで追加しよう'},
-  empty:{can:'下の「おすすめの優待」をタップするか、右上の＋で追加しよう。<br>株価は自動で入って、差し引きいくら得かを計算します。',done:'クロスした優待はここに並びます',win:'現渡ししたら、届くまでここで待ちます',end:'届いた優待はここに並びます'},
+  lead(g){const t=todayJ();const td=g.can.filter(o=>days(o.c.E,t)<=0).length;    return td?`今日クロスする優待が <span class="r">${td}件</span>`:g.can.length?`次のクロスは <span class="b">${mdD(g.can[0].c.E)}</span>（${g.can.length}件）`:'下のおすすめから選んで追加しよう'},
+  empty:{can:'下の「おすすめの優待」をタップするか、右上の＋で追加しよう。<br>株価は自動で入って、かかる費用を計算します。',done:'クロスした優待はここに並びます',win:'現渡ししたら、届くまでここで待ちます',end:'届いた優待はここに並びます'},
   hint(g){return{can:g.can.length?'クロスしたら ← 左 ／ 候補から外すなら → 右にスワイプ':'',done:g.done.length?'現渡ししたら ← 左 ／ 右 → で候補に戻す':'',win:g.win.length?'届いたら ← 左 ／ 右 → で戻す':'',end:''}[this.cur]},
   guard(o,to){return null},
   setFor:{can:{st:'watch'},done:{st:'cross'},win:{st:'wait'},end:{st:'got'},out:null},
@@ -939,24 +945,23 @@ const YU={kind:'yutai',cur:'can',last:{},
   act(a,o){if(a==='edit')openYutai(o.id);else if(a==='again'){flyOut('yutai',o.id,'R',()=>{setRec('yutai',o.id,{st:'watch',last:null,gotNet:null});renderAll();toast(o.name+'：また候補に入れました')},'can','#2b6fd6')}},
   card(o,i){
     const r=o.r,c=o.c,t=todayJ();let cls='',tag='',memo='',btns='';
-    if(o.k==='can'){const d=days(c.E,t);if(d<=0){cls='now';tag='<span class="tag blue pulse">今日クロス</span>'}else tag=`<span class="tag ${d<=7?'blue':'grey'}">クロスまで${d}日</span>`;
-      memo=`<b>${mdD(c.E)}（${wdD(c.E)}）</b>に楽天で「現物買い」と「一般信用売り（${r.plan==='l'?'無期限':'短期'}）」を ${yen(r.sh||100)}株ずつ。次の日に現渡し。`;
+    if(o.k==='can'){const d=days(c.E,t);if(d<=0){cls='now';tag='<span class="tag blue pulse" data-tip="cross">今日クロス</span>'}else tag=`<span class="tag ${d<=7?'blue':'grey'}" data-tip="cross">クロスまで${d}日</span>`;
+      memo=`<b>${mdD(c.E)}（${wdD(c.E)}）</b>に楽天で「現物買い」と「一般信用売り（${r.plan==='l'?'無期限':'短期'}）」を ${yen(r.sh||100)}株ずつ。次の日に現渡し。${c.val?`<br>優待の目安 ${yen(c.val)}円相当（期限や使えるお店も確認しよう）`:''}`;
       btns=`<a class="btn ghost" href="${R_TOP}" target="_blank" rel="noopener">楽天証券を開く</a>`}
     else if(o.k==='done'){cls='cross';const d=days(c.X,t);tag=`<span class="tag ${d<=0?'red pulse':'green'}">${d>0?'現渡しまで'+d+'日':'今日 現渡し'}</span>`;
       memo=`<b>${mdD(c.X)}（${wdD(c.X)}）</b>に楽天で「現渡し」をして売りを返す。これで終わり。`;
       btns=`<button class="btn" data-act="go:win">現渡しした（← 左スワイプでもOK）</button>`}
     else if(o.k==='win'){cls='wait';tag='<span class="tag org">届くの待ち</span>';memo='権利確定から2〜3か月くらいで届くことが多いです。届いたら ← 左にスワイプ。';btns=`<button class="btn" data-act="go:end">届いた！</button>`}
-    else{tag=`<span class="tag green">${r.gotNet!=null?pm(r.gotNet):'ゲット'}</span>`;memo=r.gotAt?`${md(r.gotAt)} に受け取り`:'';btns=`<div class="row2"><button class="btn" data-act="again">来年もやる</button><button class="btn ghost" data-act="edit">編集・削除</button></div>`}
-    const net=c.net;
-    const big=net==null?`<div class="big"><span class="l">株価を取り込み中（3時間以内に自動で入ります）</span></div>`
-      :`<div class="big ${net<0?'neg':''}"><span class="l">差し引き</span><span class="n">${pm(net)}</span></div>
-      <div class="calc">優待 ${yen(c.val)}円相当 − 貸株料 ${yen(c.lend)}円（${c.d}日分）${c.tax?` − 配当の税 ${yen(c.tax)}円`:''}</div>`;
+    else{tag=`<span class="tag green">ゲット</span>`;memo=r.gotAt?`${md(r.gotAt)} に受け取り`:'';btns=`<div class="row2"><button class="btn" data-act="again">来年もやる</button><button class="btn ghost" data-act="edit">編集・削除</button></div>`}
+    const big=c.cost==null?`<div class="cost wait"><span class="l">株価を取り込み中（3時間以内に自動で入ります）</span></div>`
+      :`<div class="cost" data-tip="cost"><span class="l">かかる費用 ⓘ</span><span class="n">約${yen(c.cost)}円</span></div>
+      <div class="calc">貸株料 ${yen(c.lend)}円（${c.d}日分）${c.tax?` ＋ 配当の税 ${yen(c.tax)}円`:''} ・ 手数料 0円</div>`;
     return slot(o,i,cls,`<div class="hd"><div class="nm"><div class="t">${esc(o.name)}</div><div class="m">${esc(o.id)} ・ ${(r.mons||[]).join('・')}月 ・ ${yen(r.sh||100)}株</div></div>${tag}</div>
     ${r.item?`<div class="desc" style="color:var(--ink);font-weight:700;font-size:13px">${esc(r.item)}</div>`:''}
     ${big}
     <div class="kv">
-     <div><div class="k">クロスする日</div><div class="v">${mdD(c.E)}<small>${wdD(c.E)}</small></div></div>
-     <div><div class="k">現渡しの日</div><div class="v">${mdD(c.X)}<small>${wdD(c.X)}</small></div></div>
+     <div><div class="k" data-tip="cross">クロスする日</div><div class="v">${mdD(c.E)}<small>${wdD(c.E)}</small></div></div>
+     <div><div class="k" data-tip="genwata">現渡しの日</div><div class="v">${mdD(c.X)}<small>${wdD(c.X)}</small></div></div>
      <div><div class="k">株価</div><div class="v">${o.px?yen(o.px)+'円':'—'}</div></div>
      <div><div class="k">買うのに必要なお金</div><div class="v">${c.need?'約'+yen(c.need)+'円':'—'}</div></div>
     </div>
@@ -983,8 +988,8 @@ function render(bk){
   if(b.pastBox)b.pastBox();
   return all}
 function renderAll(){const a=render('ipo'),c=render('bunbai'),d=render('yutai');if(window.renderRec)renderRec();if(window.setSums)setSums();
-  const sum=x=>x.reduce((s,o)=>s+(o.pl||0),0);const tot=[sum(a),sum(c),sum(d)];
-  $('#sumbox').innerHTML=['IPO','分売','優待'].map((n,i)=>`<div>${n}<b class="${tot[i]>0?'up':''}">${pm(tot[i])}</b></div>`).join('')}
+  const sum=x=>x.reduce((s,o)=>s+(o.pl||0),0);const tot=[sum(a),sum(c)];const got=d.filter(o=>o.got).length;
+  $('#sumbox').innerHTML=['IPO','分売'].map((n,i)=>`<div>${n}<b class="${tot[i]>0?'up':''}">${pm(tot[i])}</b></div>`).join('')+`<div>優待<b>${got}件</b></div>`}
 
 function toast(t){$('#toastT').textContent=t;const el=$('#toast');el.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('on'),2000)}
 
@@ -1059,10 +1064,10 @@ async function openYutai(id,pre){
     $('#yPxWrap').style.display=c.length===4&&!(prices[c]&&prices[c].p)?'':'none';
     const r={...st,code:c,val:num($('#yVal').value),div:$('#yDiv').value===''?null:num($('#yDiv').value)};const px=(prices[c]&&prices[c].p)||num($('#yPx').value);
     const cyc=r.mons&&r.mons.length?nextCycle(r):null;
-    if(!cyc||!r.val){$('#yRes').innerHTML='';return}
+    if(!cyc){$('#yRes').innerHTML='';return}
     const cc=crossCost(r,px,cyc);
-    $('#yRes').innerHTML=cc.net==null?`<div class="calc" style="margin-top:12px">クロスの日：${mdD(cc.E)}（${wdD(cc.E)}）。株価が入ると差し引きを計算します。</div>`
-      :`<div class="big ${cc.net<0?'neg':''}"><span class="l">差し引き</span><span class="n">${pm(cc.net)}</span></div><div class="calc">優待 ${yen(cc.val)}円 − 貸株料 ${yen(cc.lend)}円（${cc.d}日分）${cc.tax?` − 配当の税 ${yen(cc.tax)}円`:''} ・ クロスの日 ${mdD(cc.E)}（${wdD(cc.E)}）</div>`};
+    $('#yRes').innerHTML=cc.cost==null?`<div class="calc" style="margin-top:12px">クロスの日：${mdD(cc.E)}（${wdD(cc.E)}）。株価が入るとかかる費用を計算します。</div>`
+      :`<div class="cost"><span class="l">かかる費用</span><span class="n">約${yen(cc.cost)}円</span></div><div class="calc">貸株料 ${yen(cc.lend)}円（${cc.d}日分）${cc.tax?` ＋ 配当の税 ${yen(cc.tax)}円`:''} ・ クロスの日 ${mdD(cc.E)}（${wdD(cc.E)}）</div>`};
   ['#yCode','#yVal','#yDiv','#yPx','#yItem'].forEach(s=>$(s).oninput=upd);upd();
   $('#yOk').onclick=()=>{const c=code();const nm=N[c];
     if(!/^\d{3}[0-9A-Z]$/.test(c)){toast('銘柄コードを入れてね');return}
@@ -1115,7 +1120,7 @@ function back(d){d.card.style.transition='transform .45s cubic-bezier(.2,1.5,.4,
 const VAPID='BB-VNadIELVCIZ58O4WvglYbtSIJm5NgUe-djLQozp8LYwZGHAgbqoQYx4tUAFAvVYCHPuLFSQDv_MgNWrcdhWg';
 const NTF=[['IPO',[['ipo_new','新しいIPOが出たとき','申込期間と初値予想をお知らせ'],['ipo_open','申込が始まる日の朝','初値予想と予想利益つき'],['ipo_fund','抽選日の朝（お金の準備）','申し込んだIPOだけ。18時までに必要な金額'],['ipo_last','申込締切の日の朝','まだ申し込んでいないときだけ'],['ipo_draw','抽選結果が出た日の夕方','申し込んだIPOだけ'],['ipo_buy','「購入」締切の日の朝','当選したIPOだけ（押し忘れ防止）'],['ipo_sell','上場日（売る日）の朝','当選したIPOだけ']]],
  ['分売',[['bun_new','新しい分売の予定が出たとき','実施日をお知らせ'],['bun_open','申込受付が始まった夕方・締切前の朝','値段と、前の日よりいくら安いか'],['bun_result','結果が出た日の朝','申し込んだ分売だけ']]],
- ['優待',[['yu_cross','クロスの日（前の日の夜と当日の朝）','差し引きいくら得かつき'],['yu_return','現渡しの日の朝','クロス中の優待だけ'],['yu_warn','損になりそうなとき','株価が上がって差し引きがマイナスになったら']]]];
+ ['優待',[['yu_cross','クロスの日（前の日の夜と当日の朝）','かかる費用つき'],['yu_return','現渡しの日の朝','クロス中の優待だけ'],['yu_warn','費用が優待の目安をこえそうなとき','株価が上がって費用が増えたら']]]];
 SET.ntf=SET.ntf||{};
 const devId=(()=>{try{let d=localStorage.getItem('kd_dev');if(!d){d='d'+Math.random().toString(36).slice(2,12)+Date.now().toString(36);localStorage.setItem('kd_dev',d)}return d}catch(e){return'dx'}})();
 const standalone=()=>window.navigator.standalone===true||matchMedia('(display-mode: standalone)').matches;
@@ -1143,7 +1148,7 @@ async function ntfRender(){
   box.className='nbox'+(on?'':' off');
   box.innerHTML=NTF.map(([g,list])=>`<div class="ngrp">${g}</div>`+list.map(([k,t,d])=>`<div class="nrow"><div>${t}<small>${d}</small></div><button class="sw ${SET.ntf[k]===false?'':'on'}" data-n="${k}" aria-label="${t}"></button></div>`).join('')).join('');
   const m=$('#nMaster');if(m)m.onclick=()=>on?disablePush():enablePush();
-  const t=$('#nTest');if(t)t.onclick=async()=>{const r=swReg||await navigator.serviceWorker.ready;r.showNotification('KABU DROP（テスト）',{body:'今日は優待クロスの日：〇〇　差し引き +1,304円',icon:'icon-192.png',tag:'kd-test'})};
+  const t=$('#nTest');if(t)t.onclick=async()=>{const r=swReg||await navigator.serviceWorker.ready;r.showNotification('KABU DROP（テスト）',{body:'今日は優待クロスの日：〇〇　かかる費用 約1,696円',icon:'icon-192.png',tag:'kd-test'})};
   const f=$('#nOff');if(f)f.onclick=disablePush;if(window.setSums)setSums()}
 $('#nBox').addEventListener('click',async e=>{const b=e.target.closest('[data-n]');if(!b)return;const k=b.dataset.n;const v=!(SET.ntf[k]!==false);SET.ntf[k]=v;saveSet();b.classList.toggle('on',v);setSums();const s=await curSub();if(s)pushSync(s)});
 
@@ -1169,10 +1174,10 @@ $('#introPush').onclick=async()=>{const ok=await enablePush();if(ok)introClose()
 // ---- おすすめの優待 ----
 let recList=[],recMon='all',recMore=false;
 function recCalc(it){const r={...it,plan:'s',early:0,day:0};const cyc=nextCycle(r);if(!cyc)return null;const px=prices[it.code]&&prices[it.code].p;return{it,cyc,c:crossCost(r,px,cyc)}}
-function recRows(list,limit){return list.slice(0,limit).map((x,i)=>{const added=!!REC.yutai[x.it.code];const n=x.c.net;
+function recRows(list,limit){return list.slice(0,limit).map((x,i)=>{const added=!!REC.yutai[x.it.code];const n=x.c.cost;
   return`<button class="ritem" data-rc="${x.it.code}" style="animation-delay:${Math.min(i,8)*50}ms"><span class="em">${x.it.emo||'🎁'}</span><span class="tx"><b>${esc(x.it.name)}</b><span>${esc(x.it.item)}</span><span>次のクロス ${mdD(x.c.E)}（${wdD(x.c.E)}）・${x.it.sh}株</span></span>
-  <span class="nt">${added?'<span class="added">追加済み ✓</span>':n==null?'<span>株価待ち</span>':`<span>差し引き</span><b class="${n<0?'dn':''}">${pm(n)}</b>`}</span></button>`}).join('')}
-function recSorted(){return recList.map(recCalc).filter(Boolean).filter(x=>recMon==='all'||x.cyc.m===recMon).sort((a,b)=>(a.c.E-b.c.E)||((b.c.net||0)-(a.c.net||0)))}
+  <span class="nt">${added?'<span class="added">追加済み ✓</span>':n==null?'<span>株価待ち</span>':`<span>費用</span><b class="c">約${yen(n)}円</b>`}</span></button>`}).join('')}
+function recSorted(){return recList.map(recCalc).filter(Boolean).filter(x=>recMon==='all'||x.cyc.m===recMon).sort((a,b)=>(a.c.E-b.c.E)||((a.c.cost||0)-(b.c.cost||0)))}
 function renderRec(){const el=$('#yRec');if(!el)return;if(YU.cur!=='can'||!recList.length){el.innerHTML='';return}
   const all=recList.map(recCalc).filter(Boolean);const mons=[...new Set(all.sort((a,b)=>a.c.E-b.c.E).map(x=>x.cyc.m))];
   const L=recSorted();
@@ -1187,7 +1192,7 @@ function pickRec(code,btn){if(REC.yutai[code]){closeSheet();setTimeout(()=>openY
   setTimeout(()=>{setRec('yutai',code,{st:'watch',code,name:it.name||nm,item:it.item,val:it.val,vals:it.vals||null,sh:it.sh,mons:it.mons,day:0,plan:'s',early:0,div:null,px:null});
     YU.cur='can';segOn('yutai','can');closeSheet();renderAll();toast(it.name+' を候補に追加しました（タップで編集）')},420)}
 function openPicker(){const sh=$('#sheet');const L=recList.map(recCalc).filter(Boolean).sort((a,b)=>a.c.E-b.c.E);
-  sh.innerHTML=`<h3>優待をえらぶ</h3><p>タップするだけで候補に追加されます。右の金額は費用を引いた差し引きの目安です。</p>
+  sh.innerHTML=`<h3>優待をえらぶ</h3><p>タップするだけで候補に追加されます。右の金額は、クロスにかかる費用（貸株料＋配当の税）です。</p>
   <input id="pkQ" class="f" placeholder="会社名で探す（例 マクドナルド）" style="font:700 16px 'Noto Sans JP';padding:11px 12px">
   <div id="pkList" style="margin-top:10px">${recRows(L,99)}</div>
   <button class="btn" id="pkCode">リストにない銘柄をコードで追加</button><button class="btn ghost" id="pkNo">やめる</button>`;
@@ -1223,11 +1228,13 @@ function setSums(){const n=$('#ntfSum');if(n)n.textContent=SET.pushOn&&'Notifica
   const r=$('#rateSum');if(r)r.textContent=`短期 ${SET.rateS}％・無期限 ${SET.rateL}％`}
 
 // ---- その場の説明（ⓘ） ----
-const TIPS={judge:['<b>👍 よさそう</b>＝評価がDではなく、予想利益がプラス。<br><b>✋ 見送り</b>＝評価がD、または予想利益が0円以下。<br>2026年のIPOでこのルールを使うと、公募割れが12件→4件に減りました（それでも0にはなりません）。','qa-judge'],
+const TIPS={cost:['クロスに<b>確実にかかるお金</b>です。<br><b>貸株料</b>：売るために株を借りる借り賃（日数分）<br><b>配当の税</b>：配当をもらって同じ額を払うので、税金の分だけ損<br>手数料は楽天のゼロコースで0円。優待の価値は期限や使い道で変わるので、この費用より得か自分で判断してね。','qa-cost'],
+ genwata:['<b>現渡し（げんわたし）</b>：クロスの次の日に、持っている「現物」の株を、借りて売った分の返済にあてる手続き。楽天では「信用取引 → 返済 → 現渡」から。これで買いと売りが両方なくなって、クロスは終わりです。','qa-cross'],
+ judge:['<b>👍 よさそう</b>＝評価がDではなく、予想利益がプラス。<br><b>✋ 見送り</b>＝評価がD、または予想利益が0円以下。<br>2026年のIPOでこのルールを使うと、公募割れが12件→4件に減りました（それでも0にはなりません）。','qa-judge'],
  kokai:['公開価格（買う値段）は、人気のIPOならほとんど<b>仮条件の一番高い値段</b>で決まります。仮条件が出る前は、会社が出す<b>想定価格</b>を目安にしています。本決まりは抽選日。','qa-kokai'],
  first:['上場して<b>最初についた値段</b>です。公開価格で買って、この値段で売れていたらいくらだったかがわかります。','qa-yoso'],
  gain:['（初値 − 公開価格）× 株数 です。<b>当たって、上場日の朝に初値で売ったら</b>これだけ得する、という目安。予想が外れることもあります。','qa-yoso'],
- cross:['<b>優待クロス</b>：同じ株を「現物で買う」と「一般信用で売る」を同じ株数で同時にやる方法。株価が動いても損得はほぼゼロで、<b>優待だけ</b>もらえます。<br><b>次のクロス</b>＝その注文を出す日（権利付最終日）。次の日に「現渡し」で終わりです。','qa-cross'],mkt:['上場する市場による傾向です。<b>グロース</b>は小さく成長中の会社が多く人気になりやすい。<b>プライム</b>は大きい会社で上がりにくめ。地方市場・REITは注意。','qa-mkt'],
+ cross:['<b>クロスする日（権利付最終日）</b>：この日に注文を出すと株主になれる最後の日。<br><b>優待クロス</b>：同じ株を「現物で買う」と「一般信用で売る」を同じ株数で同時にやる方法。株価が動いても損得はほぼゼロで、<b>優待だけ</b>もらえます。<br><b>次のクロス</b>＝その注文を出す日（権利付最終日）。次の日に「現渡し」で終わりです。','qa-cross'],mkt:['上場する市場による傾向です。<b>グロース</b>は小さく成長中の会社が多く人気になりやすい。<b>プライム</b>は大きい会社で上がりにくめ。地方市場・REITは注意。','qa-mkt'],
  rank:['予想サイトの人気の目安。<b>S・A</b>かなり人気／<b>B</b>まあまあ／<b>C</b>少し上がるかも／<b>D</b>公募割れの心配あり。','qa-rank'],
  yoso:['上場して最初につく値段（初値）の予想。<b>公開価格で買って初値で売ると</b>いくら得かの目安です。予想なので外れることもあります。','qa-yoso'],
  price:['値段は2段階。<b>①仮条件</b>＝仮の値段の幅（申込の少し前に決定）→ <b>②申込</b> → <b>③公開価格</b>＝本決まり（抽選の日に決定）。お金は<b>抽選日の18時まで</b>に 株数×公開価格 を口座に入れればOK。','qa-price']};
@@ -1256,10 +1263,10 @@ const TOURS={
   ['#list-bunbai .slot:first-child .card','スワイプで移動','申し込んだら <b>← 左にスワイプ</b>。まちがえたら <b>→ 右</b>で戻せます。','nudge'],
   ['#bb-past','これまでの実績','楽天で扱った分売で、当たって<b>始値で売っていたら100株でいくら</b>だったか。得した件数と平均がわかります。'],
   ['#p-bunbai .help','わからなくなったら','この <b>？</b> でいつでも見直せます。']],
- yutai:[['#yRec','おすすめの優待','人気の優待を、<b>次のクロスが近い順</b>に並べています。右の金額は、費用を引いた<b>差し引きいくら得か</b>の目安。タップすると追加できます。'],
+ yutai:[['#yRec','おすすめの優待','人気の優待を、<b>次のクロスが近い順</b>に並べています。右の金額は、クロスに<b>かかる費用</b>（貸株料＋配当の税）。タップすると追加できます。'],
   ['#yRec .mchips','月でしぼる','権利の月でしぼりこめます。'],
   ['#yAdd','自分で探して追加','＋からおすすめを探したり、<b>銘柄コード</b>で好きな優待を追加できます。'],
-  ['#list-yutai .slot:first-child .big','差し引き','優待の値段から、<b>貸株料（株の借り賃）と配当の税</b>を引いた金額。プラスなら得です。'],
+  ['#list-yutai .slot:first-child .cost','かかる費用','クロスに確実にかかるお金です（<b>貸株料＋配当の税</b>）。優待の価値は期限や使い道で変わるので、この費用より得か自分で判断してね。'],
   ['#list-yutai .slot:first-child .kv','クロスの日と現渡しの日','<b>クロスする日</b>に「現物買い」と「一般信用売り」を同時に。次の日の<b>現渡し</b>で終わりです。'],
   ['.seg[data-b=yutai]','上の4つの箱','候補 → クロス中 → 届くの待ち → 終了 の順に、<b>左スワイプ</b>で進めます。'],
   ['#p-yutai .help','わからなくなったら','この <b>？</b> でいつでも見直せます。']]};
