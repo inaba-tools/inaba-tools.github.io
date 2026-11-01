@@ -431,6 +431,31 @@ html.dark .sheet-bg{background:rgba(0,0,0,.55)}
 html.dark .cost{background:#3a2c17}html.dark .cost .l{color:#e0a45a}html.dark .cost .n{color:#f0b25c}html.dark .cost.wait{background:#232925}
 .ritem .nt b.c{color:#b8650f;font-size:15px}html.dark .ritem .nt b.c{color:#f0b25c}
 .kv .k[data-tip]:after,.tag[data-tip]:after{content:" ⓘ";opacity:.7}
+/* 予算 */
+.bud{display:flex;align-items:center;gap:10px;margin:0 2px 10px;padding:10px 12px;border-radius:14px;background:#fff;box-shadow:0 1px 0 var(--line);border:0;width:calc(100% - 4px);text-align:left;font-family:inherit}
+.bud .ic{width:30px;height:30px;border-radius:9px;background:#e3f1ec;display:grid;place-items:center;font-size:15px;flex:none}
+.bud span{flex:1;font:800 13px "Noto Sans JP";color:var(--ink)}
+.bud small{display:block;font:700 11px "Noto Sans JP";color:var(--sub);margin-top:1px}
+.bud i{font-style:normal;font:700 18px Inter;color:#c3c0b4}
+html.dark .bud{background:var(--card)}html.dark .bud .ic{background:#173327}
+.hidden-note{display:block;width:100%;border:0;background:none;text-align:center;font:800 12px "Noto Sans JP";color:var(--sub);padding:10px}
+.tag.over{background:#fbe5e2;color:var(--red)}html.dark .tag.over{background:#3d1f1c;color:#ff8b80}
+.flowm{margin:12px 0 4px}
+.flowm .st{display:flex;gap:12px;position:relative;padding-bottom:16px}
+.flowm .st:not(:last-child):before{content:"";position:absolute;left:15px;top:32px;bottom:2px;width:2px;background:var(--line)}
+.flowm .no{width:32px;height:32px;border-radius:50%;flex:none;display:grid;place-items:center;font:900 13px Inter;color:#fff}
+.flowm .st b{display:block;font:900 14px "Noto Sans JP";color:var(--ink)}
+.flowm .st p{margin:2px 0 0!important;font:700 12.5px "Noto Sans JP"!important;color:#4b524c!important;line-height:1.65!important}
+.flowm .amt{display:inline-block;margin-top:5px;padding:3px 9px;border-radius:8px;font:900 12.5px Inter;background:#f6f5ef;color:var(--ink)}
+.flowm .amt.out{background:#fbe5e2;color:var(--red)}.flowm .amt.in{background:#e3f1ec;color:#1f7a55}
+html.dark .flowm .st p{color:#c3c9c2!important}html.dark .flowm .amt{background:#232925}html.dark .flowm .amt.out{background:#3d1f1c;color:#ff8b80}html.dark .flowm .amt.in{background:#173327;color:#6fd3a5}
+.bpick{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.bpick button{border:0;background:#f1efe7;border-radius:12px;padding:11px 4px;font:900 14px "Noto Sans JP";color:#4b524c;transition:transform .2s cubic-bezier(.2,1.6,.3,1),background .2s}
+.bpick button small{display:block;font:700 10px "Noto Sans JP";opacity:.8;margin-top:1px}
+.bpick button.on{background:var(--green);color:#fff;transform:scale(1.04)}
+html.dark .bpick button:not(.on){background:#232925;color:#c3c9c2}
+.notebox{margin-top:10px;padding:11px 12px;border-radius:12px;background:#fbf6e6;font:700 12.5px "Noto Sans JP";color:#6b5a2a;line-height:1.7}
+html.dark .notebox{background:#2c2510;color:#e0c77a}
 /* splash */
 .splash{position:fixed;inset:0;background:linear-gradient(180deg,#8a8740,#55521f);z-index:100;display:grid;place-items:center;transition:opacity .5s .1s,visibility .5s .1s}
 .splash.off{opacity:0;visibility:hidden}
@@ -527,6 +552,7 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
 <button class="mi" id="tourAgain"><span class="ico" style="background:#7d7a3a">👆</span><span>画面の説明をもう一度見る<small>各タブを開いたときの説明</small></span><i>›</i></button>
 </div>
 <div class="menu">
+<button class="mi" id="budMenu"><span class="ico" style="background:#1f9d6b">💴</span><span>優待の予算とお金の流れ<small id="budSum">上限なし</small></span><i>›</i></button>
 <button class="mi" data-sub="thm"><span class="ico" style="background:#5b5f9e">◐</span><span>デザイン<small id="thmSum">端末に合わせる</small></span><i>›</i></button>
 <button class="mi" data-sub="acct"><span class="ico" style="background:#9aa097">🏦</span><span>口座と手数料<small>楽天証券・ゼロコース</small></span><i>›</i></button>
 <button class="mi" data-sub="rate"><span class="ico" style="background:#9aa097">％</span><span>一般信用の貸株料<small id="rateSum">短期 3.9％・無期限 1.1％</small></span><i>›</i></button>
@@ -560,6 +586,7 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
 <div class="qag">🎁 優待</div>
 <details class="qa" id="qa-cross"><summary>優待クロスって？</summary><div class="a">同じ株を<b>「現物で買う」と「一般信用で売る」を同じ株数で同時に</b>やる方法です。株価が上がっても下がっても、買いの得と売りの損が打ち消しあうので損得はほぼゼロ。それでいて株主なので<b>優待はもらえます</b>。</div></details>
 <details class="qa"><summary>クロスのやり方は？</summary><div class="a">①<b>クロスの日（権利付最終日）</b>の朝、寄付き前に楽天で「現物買い（成行）」と「一般信用売り（成行）」を同じ株数で注文<br>②次の日（<b>権利落ち日</b>）に「<b>現渡し</b>」をして売りを返す → これで終わり<br>③数か月後に優待が届く<br>カードの「クロスする日」「現渡しの日」に日にちが出ています。</div></details>
+<details class="qa" id="qa-money"><summary>クロスにはいくらお金が必要？いつ戻る？</summary><div class="a"><b>クロスのあいだだけ</b>、次のお金が口座に必要です。<br>①<b>現物を買うお金</b>：株価×株数（例：株価1,155円×100株＝115,500円）<br>②<b>信用取引の保証金</b>：楽天は最低30万円。<b>今持っている株を代わりにできる</b>ので、株を持っていれば追加のお金はいらないことが多いです。<br><b>流れ</b>：クロスの日に現物を買う（お金が株に変わる）→ 次の日に現渡し（株で借りた株を返す）→ <b>現渡しの2営業日後にお金が戻る</b>。実際に減るのは「かかる費用」だけです。<br>戻るまでの数日間はそのお金をほかに使えないので、優待タブの「予算」で、1回に使っていい金額を決めておくと安心です。</div></details>
 <details class="qa" id="qa-cost"><summary>かかるお金は？（貸株料・配当の税）</summary><div class="a"><b>貸株料</b>：売るために株を借りる借り賃。楽天の一般信用は「短期」が年3.9%、「無期限」が年1.1%で、借りた日数分だけかかります（土日や連休をはさむと増えます）。<br><b>配当の税</b>：配当をもらう一方で同じ額を払うので、差し引きで<b>配当にかかる税金（約20%）だけ</b>損します。<br><b>手数料</b>：楽天のゼロコースなら0円。<br>アプリでは、この<b>確実にかかる費用</b>だけを出しています（優待の価値は、期限や使えるお店しだいで人によって変わるため）。</div></details>
 <details class="qa"><summary>一般信用・制度信用・逆日歩って？</summary><div class="a">売りには「一般信用」と「制度信用」があります。<b>制度信用</b>だと、売りたい人が多いときに<b>逆日歩</b>という追加の借り賃が後から決まり、優待より高くつくことがあります。<b>一般信用</b>なら逆日歩はかからず、最初に費用がわかるので、このアプリは一般信用で計算しています。</div></details>
 <details class="qa"><summary>一般信用の在庫がないときは？</summary><div class="a">人気の優待は一般信用の「売り」の在庫がすぐなくなります。早めにクロスすると取りやすいですが、そのぶん貸株料が増えます。編集画面の「いつクロスする？」を変えると、日数込みの費用で計算し直せます。在庫がなければ見送りが安全です（制度信用は逆日歩が怖いのでおすすめしません）。</div></details>
@@ -963,7 +990,7 @@ const YU={kind:'yutai',cur:'can',last:{},
      <div><div class="k" data-tip="cross">クロスする日</div><div class="v">${mdD(c.E)}<small>${wdD(c.E)}</small></div></div>
      <div><div class="k" data-tip="genwata">現渡しの日</div><div class="v">${mdD(c.X)}<small>${wdD(c.X)}</small></div></div>
      <div><div class="k">株価</div><div class="v">${o.px?yen(o.px)+'円':'—'}</div></div>
-     <div><div class="k" data-tip="need">一時的に必要なお金</div><div class="v">${c.need?'約'+yen(c.need)+'円':'—'}<small>戻る</small></div></div>
+     <div><div class="k" data-tip="need">一時的に必要なお金${SET.budget&&c.need>SET.budget?' <span class="tag over">予算オーバー</span>':''}</div><div class="v">${c.need?'約'+yen(c.need)+'円':'—'}<small>戻る</small></div></div>
     </div>
     ${bar(memo,o.k==='done'&&days(c.X,t)<=0?'red':'')}${btns}
     ${o.k!=='end'?`<div class="mini"><button data-act="edit">編集</button><a href="https://finance.yahoo.co.jp/quote/${encodeURIComponent(o.id)}.T/incentive" target="_blank" rel="noopener">優待の中身を見る</a></div>`:''}`)}
@@ -1171,28 +1198,53 @@ $('#introPush').onclick=async()=>{const ok=await enablePush();if(ok)introClose()
   r.addEventListener('pointerup',e=>{if(x0==null||introSingle)return;const dx=e.clientX-x0,dy=e.clientY-y0;x0=null;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy))introGo(si+(dx<0?1:-1))});})();
 
 
+
+// ---- 優待の予算 ----
+const BUDGETS=[[100000,'10万円'],[200000,'20万円'],[300000,'30万円'],[500000,'50万円'],[1000000,'100万円'],[0,'上限なし']];
+function budgetTxt(){return SET.budget?`${yen(SET.budget/10000)}万円まで`:'上限なし'}
+function budgetExample(){const L=recList.map(it=>({it,need:(prices[it.code]&&prices[it.code].p||0)*it.sh})).filter(x=>x.need>0&&(!SET.budget||x.need<=SET.budget)).sort((a,b)=>a.need-b.need);
+  const x=L[Math.floor(L.length/2)]||L[0];if(!x)return null;const cyc=nextCycle({...x.it,day:0});const c=crossCost({...x.it,plan:'s',early:0},prices[x.it.code].p,cyc);return{x,c}}
+function budgetHTML(){const ex=budgetExample();const nm=ex?esc(ex.x.it.name):'例';const need=ex?ex.x.need:115500;const cost=ex&&ex.c.cost||600;
+  return`<p>優待クロスでは、<b>クロスのあいだだけ</b>口座にお金が必要です。<b>使ってなくなるお金ではなく、数日後に戻ってきます。</b>実際に減るのは「かかる費用」だけです。</p>
+  <div class="flowm">
+   <div class="st"><span class="no" style="background:var(--blue)">1</span><div><b>クロスの日（例：${nm}）</b><p>株を100株「現物で買う」。同時に、同じ株を「借りて売る（一般信用売り）」。</p><span class="amt out">口座から −${yen(need)}円（株に変わる）</span></div></div>
+   <div class="st"><span class="no" style="background:var(--olive)">2</span><div><b>次の日：現渡し</b><p>買った株を、借りた株の返済にあてる。これで手元の株も借りた株もなくなる。株主の権利は、クロスの日に株を持っていた時点で取れています。</p></div></div>
+   <div class="st"><span class="no" style="background:#1f9d6b">3</span><div><b>現渡しの2営業日後：お金が戻る</b><p>売った代金が入って、お金が元に戻ります。</p><span class="amt in">口座に ＋${yen(need)}円</span> <span class="amt">費用 約${yen(cost)}円だけ減る</span></div></div>
+   <div class="st"><span class="no" style="background:var(--orange)">🎁</span><div><b>2〜3か月後：優待が届く</b><p>家に優待券などが届きます。</p></div></div>
+  </div>
+  <div class="notebox">⚠ もうひとつ、楽天の信用取引には<b>「保証金」が最低30万円</b>必要です。これは口座に置いておくだけのお金で、<b>今持っている株を代わりにする</b>こともできます（すでに株を持っていれば、追加のお金はいらないことが多い）。<br>⚠ お金が戻るまでの数日間は、そのお金はほかに使えません。</div>
+  <h3 style="margin:16px 0 4px">1回のクロスに使っていい金額</h3><p>ここで決めた金額より多く必要な優待は、おすすめに出さないようにします（あとで変えられます）。</p>
+  <div class="bpick">${BUDGETS.map(([v,l])=>`<button data-b="${v}" class="${(SET.budget||0)===v?'on':''}">${l}<small>${v?recList.filter(it=>(prices[it.code]&&prices[it.code].p||0)*it.sh<=v).length+'件':recList.length+'件'}</small></button>`).join('')}</div>`}
+function openBudget(){const sh=$('#sheet');sh.innerHTML=`<h3>優待の予算とお金の流れ</h3>${budgetHTML()}<button class="btn" id="bdOk">決定</button>`;openSheet();
+  sh.querySelector('.bpick').onclick=e=>{const b=e.target.closest('[data-b]');if(!b)return;SET.budget=+b.dataset.b;saveSet();sh.querySelectorAll('.bpick button').forEach(x=>x.classList.toggle('on',x===b))};
+  $('#bdOk').onclick=()=>{closeSheet();renderAll();toast('予算：'+budgetTxt())}}
+
 // ---- おすすめの優待 ----
 let recList=[],recMon='all',recMore=false;
 function recCalc(it){const r={...it,plan:'s',early:0,day:0};const cyc=nextCycle(r);if(!cyc)return null;const px=prices[it.code]&&prices[it.code].p;return{it,cyc,c:crossCost(r,px,cyc)}}
 function recRows(list,limit){return list.slice(0,limit).map((x,i)=>{const added=!!REC.yutai[x.it.code];const n=x.c.cost;
-  return`<button class="ritem" data-rc="${x.it.code}" style="animation-delay:${Math.min(i,8)*50}ms"><span class="em">${x.it.emo||'🎁'}</span><span class="tx"><b>${esc(x.it.name)}</b><span>${esc(x.it.item)}</span><span>次のクロス ${mdD(x.c.E)}（${wdD(x.c.E)}）・${x.it.sh}株</span></span>
+  return`<button class="ritem" data-rc="${x.it.code}" style="animation-delay:${Math.min(i,8)*50}ms"><span class="em">${x.it.emo||'🎁'}</span><span class="tx"><b>${esc(x.it.name)}</b><span>${esc(x.it.item)}</span><span>次のクロス ${mdD(x.c.E)}（${wdD(x.c.E)}）・必要 約${x.c.need?yen(Math.round(x.c.need/1000)/10)+'万円':'—'}${recOver(x)?'（予算オーバー）':''}</span></span>
   <span class="nt">${added?'<span class="added">追加済み ✓</span>':n==null?'<span>株価待ち</span>':`<span>費用</span><b class="c">約${yen(n)}円</b>`}</span></button>`}).join('')}
-function recSorted(){return recList.map(recCalc).filter(Boolean).filter(x=>recMon==='all'||x.cyc.m===recMon).sort((a,b)=>(a.c.E-b.c.E)||((a.c.cost||0)-(b.c.cost||0)))}
+let recShowOver=false;
+function recOver(x){return !!(SET.budget&&x.c.need&&x.c.need>SET.budget)}
+function recSorted(){return recList.map(recCalc).filter(Boolean).filter(x=>recMon==='all'||x.cyc.m===recMon).filter(x=>recShowOver||!recOver(x)).sort((a,b)=>(a.c.E-b.c.E)||((a.c.cost||0)-(b.c.cost||0)))}
 function renderRec(){const el=$('#yRec');if(!el)return;if(YU.cur!=='can'||!recList.length){el.innerHTML='';return}
   const all=recList.map(recCalc).filter(Boolean);const mons=[...new Set(all.sort((a,b)=>a.c.E-b.c.E).map(x=>x.cyc.m))];
-  const L=recSorted();
-  el.innerHTML=`<h3><span class="lbl">おすすめの優待</span><small data-tip="cross">次のクロスが近い順</small></h3><p style="margin:-4px 2px 8px;font:700 11.5px 'Noto Sans JP';color:var(--sub)">タップするだけで候補に追加されます</p><div class="mchips"><button data-m="all" class="${recMon==='all'?'on':''}">すべて</button>${mons.map(m=>`<button data-m="${m}" class="${recMon===m?'on':''}">${m}月</button>`).join('')}</div>
-  ${recRows(L,recMore?99:6)}${L.length>6&&!recMore?`<button class="more" id="recMore">もっと見る（全${L.length}件）</button>`:''}`}
+  const L=recSorted();const hid=recShowOver?0:recList.map(recCalc).filter(Boolean).filter(x=>(recMon==='all'||x.cyc.m===recMon)&&recOver(x)).length;
+  el.innerHTML=`<button class="bud" id="budBtn"><span class="ic">💴</span><span>予算：${budgetTxt()}<small>${SET.budget?'これより多くお金が必要な優待は隠しています':'タップして、1回に使っていい金額を決めよう'}</small></span><i>›</i></button><h3><span class="lbl">おすすめの優待</span><small data-tip="cross">次のクロスが近い順</small></h3><p style="margin:-4px 2px 8px;font:700 11.5px 'Noto Sans JP';color:var(--sub)">タップするだけで候補に追加されます</p><div class="mchips"><button data-m="all" class="${recMon==='all'?'on':''}">すべて</button>${mons.map(m=>`<button data-m="${m}" class="${recMon===m?'on':''}">${m}月</button>`).join('')}</div>
+  ${recRows(L,recMore?99:6)}${L.length>6&&!recMore?`<button class="more" id="recMore">もっと見る（全${L.length}件）</button>`:''}${hid?`<button class="hidden-note" id="recOver">予算をこえる${hid}件を隠しています（見る）</button>`:''}${recShowOver&&SET.budget?`<button class="hidden-note" id="recOver">予算をこえるものを隠す</button>`:''}`}
 $('#yRec').addEventListener('click',e=>{const m=e.target.closest('[data-m]');if(m){recMon=m.dataset.m==='all'?'all':+m.dataset.m;recMore=false;renderRec();return}
   if(e.target.closest('#recMore')){recMore=true;renderRec();return}
+  if(e.target.closest('#budBtn')){openBudget();return}
+  if(e.target.closest('#recOver')){recShowOver=!recShowOver;renderRec();return}
   const b=e.target.closest('[data-rc]');if(b)pickRec(b.dataset.rc,b)});
 function pickRec(code,btn){if(REC.yutai[code]){closeSheet();setTimeout(()=>openYutai(code),200);return}const it=recList.find(x=>x.code===code);if(!it)return;
   const nm=names&&names[code]?clean(names[code][0]):it.name;
   if(btn){btn.classList.add('adding');const e=btn.querySelector('.nt');if(e)e.innerHTML='<span class="added">追加しました ✓</span>'}
   setTimeout(()=>{setRec('yutai',code,{st:'watch',code,name:it.name||nm,item:it.item,val:it.val,vals:it.vals||null,sh:it.sh,mons:it.mons,day:0,plan:'s',early:0,div:null,px:null});
     YU.cur='can';segOn('yutai','can');closeSheet();renderAll();toast(it.name+' を候補に追加しました（タップで編集）')},420)}
-function openPicker(){const sh=$('#sheet');const L=recList.map(recCalc).filter(Boolean).sort((a,b)=>a.c.E-b.c.E);
-  sh.innerHTML=`<h3>優待をえらぶ</h3><p>タップするだけで候補に追加されます。右の金額は、クロスにかかる費用（貸株料＋配当の税）です。</p>
+function openPicker(){const sh=$('#sheet');const L=recList.map(recCalc).filter(Boolean).filter(x=>!recOver(x)).sort((a,b)=>a.c.E-b.c.E);
+  sh.innerHTML=`<h3>優待をえらぶ</h3><p>タップするだけで候補に追加されます。右の金額は、クロスにかかる費用（貸株料＋配当の税）。予算：${budgetTxt()}</p>
   <input id="pkQ" class="f" placeholder="会社名で探す（例 マクドナルド）" style="font:700 16px 'Noto Sans JP';padding:11px 12px">
   <div id="pkList" style="margin-top:10px">${recRows(L,99)}</div>
   <button class="btn" id="pkCode">リストにない銘柄をコードで追加</button><button class="btn ghost" id="pkNo">やめる</button>`;
@@ -1214,6 +1266,7 @@ applyTheme();
 function openSub(k){const el=$('#sub-'+k);if(!el)return;el.scrollTop=0;el.style.transform='';el.classList.add('on');$('.app').classList.add('pushed');$('#subshade').classList.add('on');return el}
 function closeSubs(){document.querySelectorAll('.subpage.on').forEach(x=>{x.style.transform='';x.classList.remove('on')});$('.app').classList.remove('pushed');$('.app').style.transform='';$('.app').style.opacity='';$('#subshade').classList.remove('on');$('#subshade').style.opacity=''}
 document.querySelectorAll('.mi[data-sub]').forEach(b=>b.onclick=()=>openSub(b.dataset.sub));
+$('#budMenu').onclick=()=>openBudget();
 document.querySelectorAll('.subpage .back').forEach(b=>b.onclick=closeSubs);
 document.querySelectorAll('.subpage').forEach(sp=>{let x0=null,y0=0,dx=0,on=false,t0=0;const app=$('.app'),sh=$('#subshade');
   sp.addEventListener('touchstart',e=>{const t=e.touches[0];if(t.clientX<44){x0=t.clientX;y0=t.clientY;dx=0;on=false;t0=Date.now()}else x0=null},{passive:true});
@@ -1224,11 +1277,11 @@ document.querySelectorAll('.subpage').forEach(sp=>{let x0=null,y0=0,dx=0,on=fals
     const v=dx/Math.max(1,Date.now()-t0);if(dx>innerWidth*.33||v>.5){sp.style.transform=`translateX(100%)`;setTimeout(closeSubs,10)}
     else{sp.style.transform='';app.style.transform='';app.style.opacity='';sh.style.opacity=''}})});
 function openQA(id){openSub('qa');const el=$('#'+id);if(!el)return;el.open=true;el.classList.add('hl');setTimeout(()=>el.scrollIntoView({block:'center',behavior:'smooth'}),380);setTimeout(()=>el.classList.remove('hl'),2600)}
-function setSums(){const n=$('#ntfSum');if(n)n.textContent=SET.pushOn&&'Notification' in window&&Notification.permission==='granted'?'オン・'+NTF.reduce((a,[g,l])=>a+l.filter(([k])=>SET.ntf[k]!==false).length,0)+'種類':'オフ';
+function setSums(){const bs=$('#budSum');if(bs)bs.textContent=budgetTxt();const n=$('#ntfSum');if(n)n.textContent=SET.pushOn&&'Notification' in window&&Notification.permission==='granted'?'オン・'+NTF.reduce((a,[g,l])=>a+l.filter(([k])=>SET.ntf[k]!==false).length,0)+'種類':'オフ';
   const r=$('#rateSum');if(r)r.textContent=`短期 ${SET.rateS}％・無期限 ${SET.rateL}％`}
 
 // ---- その場の説明（ⓘ） ----
-const TIPS={need:['クロスの間だけ口座に必要なお金です（<b>使ってなくなるお金ではありません</b>）。<br>①現物を買うお金（株価×株数）<br>②信用取引の保証金（楽天は最低30万円。持っている株でも代わりにできる）<br>次の日の現渡しで、現物は売りの返済にあてられて、お金は戻ります。実際に減るのは「かかる費用」だけ。','qa-cost'],
+const TIPS={need:['クロスの間だけ口座に必要なお金です（<b>使ってなくなるお金ではありません</b>）。<br>①現物を買うお金（株価×株数）<br>②信用取引の保証金（楽天は最低30万円。持っている株でも代わりにできる）<br>次の日の現渡しで、現物は売りの返済にあてられて、お金は戻ります。実際に減るのは「かかる費用」だけ。','qa-money'],
  cost:['クロスに<b>確実にかかるお金</b>です。<br><b>貸株料</b>：売るために株を借りる借り賃（日数分）<br><b>配当の税</b>：配当をもらって同じ額を払うので、税金の分だけ損<br>手数料は楽天のゼロコースで0円。優待の価値は期限や使い道で変わるので、この費用より得か自分で判断してね。','qa-cost'],
  genwata:['<b>現渡し（げんわたし）</b>：クロスの次の日に、持っている「現物」の株を、借りて売った分の返済にあてる手続き。楽天では「信用取引 → 返済 → 現渡」から。これで買いと売りが両方なくなって、クロスは終わりです。','qa-cross'],
  judge:['<b>👍 よさそう</b>＝評価がDではなく、予想利益がプラス。<br><b>✋ 見送り</b>＝評価がD、または予想利益が0円以下。<br>2026年のIPOでこのルールを使うと、公募割れが12件→4件に減りました（それでも0にはなりません）。','qa-judge'],
@@ -1266,6 +1319,7 @@ const TOURS={
   ['#p-bunbai .help','わからなくなったら','この <b>？</b> でいつでも見直せます。']],
  yutai:[['#yRec','おすすめの優待','人気の優待を、<b>次のクロスが近い順</b>に並べています。右の金額は、クロスに<b>かかる費用</b>（貸株料＋配当の税）。タップすると追加できます。'],
   ['#yRec .mchips','月でしぼる','権利の月でしぼりこめます。'],
+  ['#budBtn','予算','クロスのあいだ<b>一時的に必要なお金</b>の上限を決められます。決めた金額より多く必要な優待は、おすすめに出なくなります。お金の流れの説明もここから見られます。'],
   ['#yAdd','自分で探して追加','＋からおすすめを探したり、<b>銘柄コード</b>で好きな優待を追加できます。'],
   ['#list-yutai .slot:first-child .cost','かかる費用','クロスに確実にかかるお金です（<b>貸株料＋配当の税</b>）。優待の価値は期限や使い道で変わるので、この費用より得か自分で判断してね。'],
   ['#list-yutai .slot:first-child .kv','クロスの日と現渡しの日','<b>クロスする日</b>に「現物買い」と「一般信用売り」を同時に。次の日の<b>現渡し</b>で終わりです。'],
