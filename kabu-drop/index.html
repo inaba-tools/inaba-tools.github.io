@@ -486,6 +486,32 @@ html.dark .yc .rt b{color:#f0b25c}
 html.dark .mflow>span{background:var(--card)}
 .intro .sm{font-size:12.5px!important;margin-top:8px!important}
 .intro .sm a{color:var(--green);font-weight:900;text-decoration:none}
+/* 証券口座 */
+.bk{display:flex;gap:12px;align-items:flex-start;background:var(--card);border-radius:18px;padding:14px;margin:0 16px 10px;box-shadow:0 1px 0 rgba(0,0,0,.03),0 8px 20px rgba(40,44,30,.05);animation:rise .45s cubic-bezier(.2,1,.3,1) both}
+.bk.no{background:transparent;box-shadow:none;border:2px dashed var(--line)}
+.bk .lg{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;color:#fff;font:900 17px "Noto Sans JP";flex:none;box-shadow:0 4px 10px rgba(0,0,0,.15)}
+.bk.no .lg{filter:grayscale(.55);opacity:.75}
+.bk .tx{flex:1;min-width:0}
+.bk .tx b{display:flex;align-items:center;gap:6px;font:900 15px "Noto Sans JP";color:var(--ink)}
+.bk .tx p{margin:3px 0 0;font:700 12px "Noto Sans JP";color:var(--sub);line-height:1.6}
+.bk .st{display:inline-block;font:800 10.5px "Noto Sans JP";padding:3px 8px;border-radius:7px;background:#e3f1ec;color:#1f7a55}
+.bk.no .st{background:#f1efe7;color:var(--sub)}
+.bk .ld{display:inline-block;margin-top:5px;font:800 10.5px "Noto Sans JP";color:var(--olive);background:#f3f0de;padding:2px 7px;border-radius:6px}
+.bk .msg{margin-top:8px;font:800 12.5px "Noto Sans JP";color:#8a5a34}
+.bk .acts{display:flex;gap:8px;margin-top:10px}
+.bk .acts a,.bk .acts button{flex:1;border:0;border-radius:12px;padding:10px 6px;font:800 12.5px "Noto Sans JP";text-align:center;text-decoration:none}
+.bk .acts a{background:var(--green);color:#fff;box-shadow:0 6px 14px rgba(47,111,99,.25)}
+.bk .acts button{background:#f1efe7;color:#4b524c}
+.bk .acts button.small{flex:none;padding:10px 12px}
+html.dark .bk.no{border-color:#323a34}html.dark .bk .acts button,html.dark .bk.no .st{background:#232925;color:#c3c9c2}html.dark .bk .ld{background:#2c2a18}
+.bkhead{margin:4px 16px 12px;padding:14px;border-radius:18px;background:linear-gradient(135deg,#2f6f63,#4f8a5b);color:#fff}
+.bkhead b{display:block;font:900 22px Inter}
+.bkhead span{font:700 12px "Noto Sans JP";opacity:.9;line-height:1.6;display:block;margin-top:2px}
+.bkgrp{margin:14px 20px 8px;font:900 13px "Noto Sans JP";color:var(--olive)}
+.leadrow{display:flex;align-items:center;gap:8px;margin-top:8px;font:700 12px "Noto Sans JP";color:var(--sub)}
+.leadrow b{color:var(--ink)}
+.leadrow .ok{color:#1f7a55;font-weight:800}
+.leadrow a{margin-left:auto;font:800 12px "Noto Sans JP";color:#fff;background:var(--green);padding:6px 10px;border-radius:9px;text-decoration:none}
 /* splash */
 .splash{position:fixed;inset:0;background:linear-gradient(180deg,#8a8740,#55521f);z-index:100;display:grid;place-items:center;transition:opacity .5s .1s,visibility .5s .1s}
 .splash.off{opacity:0;visibility:hidden}
@@ -584,7 +610,7 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
 <div class="menu">
 <button class="mi" id="budMenu"><span class="ico" style="background:#1f9d6b">💴</span><span>優待の予算とお金の流れ<small id="budSum">上限なし</small></span><i>›</i></button>
 <button class="mi" data-sub="thm"><span class="ico" style="background:#5b5f9e">◐</span><span>デザイン<small id="thmSum">端末に合わせる</small></span><i>›</i></button>
-<button class="mi" data-sub="acct"><span class="ico" style="background:#9aa097">🏦</span><span>口座と手数料<small>楽天証券・ゼロコース</small></span><i>›</i></button>
+<button class="mi" data-sub="acct"><span class="ico" style="background:#9aa097">🏦</span><span>証券口座<small id="bkSum">楽天証券</small></span><i>›</i></button>
 <button class="mi" data-sub="rate"><span class="ico" style="background:#9aa097">％</span><span>一般信用の貸株料<small id="rateSum">短期 3.9％・無期限 1.1％</small></span><i>›</i></button>
 <button class="mi" data-sub="data"><span class="ico" style="background:#9aa097">⟳</span><span>データについて<small>どこから・いつ更新</small></span><i>›</i></button>
 </div>
@@ -609,6 +635,7 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
 <details class="qa" id="qa-mkt"><summary>「人気になりやすい市場」って？</summary><div class="a">上場する場所（市場）による傾向です。<br><b>グロース</b>：小さく成長中の会社が多く、株の数も少ないので人気になって上がりやすい<br><b>プライム</b>：大きい会社が多く、上がりにくめ<br><b>地方（名証・福証・札証）・PRO市場</b>：買う人が少なく、注意が必要<br><b>REIT（〜投資法人）</b>：不動産の投資信託。値上がりしにくい<br>あくまで傾向なので、初値予想とあわせて見てください。</div></details>
 <details class="qa"><summary>公募割れって？</summary><div class="a">初値が公開価格より<b>下になってしまう</b>ことです。当たっても売ると損になります。初値予想が公開価格以下のときは、カードに「公募割れのおそれ」と赤で出ます。</div></details>
 <details class="qa"><summary>当選したら何をすればいい？</summary><div class="a">①<b>購入申込期間</b>に楽天証券で「購入」を押す（押さないと当選が無効になります）<br>②<b>上場日の朝</b>に「成行」で売る（初値で売れます）<br>③アプリで「売った」を押して、売った値段を入れると、もうけが記録されます。</div></details>
+<details class="qa" id="qa-acc"><summary>証券口座を増やすデメリットは？</summary><div class="a">大きなデメリットはありませんが、気をつけることはあります。<br>・<b>管理が増える</b>：ログインIDやパスワードが増える。パスワード管理アプリでまとめると安心<br>・<b>乗っ取りに注意</b>：証券口座をねらった不正ログインが増えているので、<b>二段階認証は必ずオン</b>に<br>・<b>お金が分かれる</b>：申込の時点でお金が必要な会社だと、口座ごとにお金を入れておく必要がある<br>・<b>NISAは1社だけ</b>：NISA口座は同じ年に1つの会社でしか使えない。新しい会社ではNISAを申し込まず、ふつうの「特定口座（源泉徴収あり）」にすれば、今のNISAはそのまま<br>・<b>メールやお知らせが増える</b>：いらないものは設定で止められる<br>口座を作るのも持っておくのも、主なネット証券・大手はお金がかかりません。</div></details>
 <div class="qag">🛍 分売</div>
 <details class="qa" id="qa-bunbai"><summary>立会外分売（たちあいがいぶんばい）って？</summary><div class="a">すでに上場している株を、大株主などが<b>前の日の終値より少し安く</b>まとめて売り出す日があります。申し込んで当たると安い値段で買えて、<b>当日の朝9時からすぐ売れます</b>。例：前の日2,000円の株が1,940円 → 100株で6,000円安く買える。</div></details>
 <details class="qa"><summary>いつ申し込むの？結果は？</summary><div class="a">申込は<b>実施日の前の営業日の夕方（17:15ごろ）〜当日の朝8:20</b>。楽天は「国内株式 → 注文 → 立会外分売」から。結果は当日の朝にわかります。値段と日にちは、実施の前の日の夕方に決まります。</div></details>
@@ -633,8 +660,9 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
 <button data-t="dark"><div class="pv d"><i></i><i></i><i></i></div>ダーク</button>
 <button data-t="auto"><div class="pv a"><i></i><i></i><i></i></div>端末に合わせる<span class="ok">iPhoneの設定どおり</span></button>
 </div></div></div></div>
-<div class="subpage" id="sub-acct"><div class="in"><div class="subtop"><button class="back"><b>‹</b>設定</button><h2>口座と手数料</h2></div>
-<div class="box"><h3>使っている口座</h3><p>楽天証券（1口座）</p><p>手数料は<b>ゼロコース（0円）</b>で計算しています。</p><p style="color:var(--sub)">口座を増やすと、同じIPOでくじを引ける回数が増えます。SBI・松井などはあとで追加できるようにします。</p></div></div></div>
+<div class="subpage" id="sub-acct"><div class="in"><div class="subtop"><button class="back"><b>‹</b>設定</button><h2>証券口座</h2></div>
+<div id="bkList"></div>
+<div class="box"><h3>手数料</h3><p>楽天証券は<b>ゼロコース（0円）</b>で計算しています。</p><p style="color:var(--sub)">IPOは同じ会社に口座を2つ作ることはできませんが、<b>別の証券会社なら、その数だけ抽選に参加</b>できます。</p></div></div></div>
 <div class="subpage" id="sub-rate"><div class="in"><div class="subtop"><button class="back"><b>‹</b>設定</button><h2>一般信用の貸株料</h2></div>
 <div class="box"><p>楽天証券の手数料ページから<b>3時間ごとに自動で</b>読み取っています。楽天が料率を変えたら、アプリの計算にも自動で反映されます。</p>
 <div class="stat3" style="grid-template-columns:1fr 1fr"><div>短期（14日）<b id="rateSv">—</b></div><div>無期限<b id="rateLv">—</b></div></div>
@@ -858,7 +886,7 @@ const IPO={kind:'ipo',cur:'can',last:{},
     const priceTxt=o.price?`${yen(o.price)}円`:(x.data3&&x.data3!=='-'?esc(x.data3):'—');
     const yoso='';
     return slot(o,i,cls,`<div class="hd"><div class="nm"><div class="t">${esc(o.name)}</div><div class="m">${x.code} ・ <span data-tip="mkt" style="text-decoration:underline dotted">${esc(o.mkt)}</span></div></div>${tag}</div>
-    ${yosoBox(o)}
+    ${yosoBox(o)}${leadRow(o)}
     <div class="kv">
      <div><div class="k">申込期間</div><div class="v">${md(x.data4)} 〜 ${md(x.data6)}${x.data7&&x.data7!=='0:00'?`<small>${x.data7}まで</small>`:''}</div></div>
      <div><div class="k">購入申込（当選したら）</div><div class="v">${md(x.data11)} 〜 ${md(x.data13)}</div></div>
@@ -1259,6 +1287,26 @@ function openBudget(){const sh=$('#sheet');sh.innerHTML=`<h3>優待の予算と�
   sh.querySelector('.bpick').onclick=e=>{const b=e.target.closest('[data-b]');if(!b)return;SET.budget=+b.dataset.b;saveSet();sh.querySelectorAll('.bpick button').forEach(x=>x.classList.toggle('on',x===b))};
   $('#bdOk').onclick=()=>{closeSheet();renderAll();toast('予算：'+budgetTxt())}}
 
+
+// ---- 証券口座 ----
+var brokers=[];
+SET.acc=SET.acc||{rakuten:true};
+function bkUrl(b){return b.aff||b.url}
+function hasAcc(id){return !!(SET.acc||{})[id]}
+function brokerByLead(slug){return brokers.find(b=>(b.lead||[]).includes(slug))}
+function renderBrokers(){const el=$('#bkList');if(!el)return;const own=brokers.filter(b=>hasAcc(b.id)),no=brokers.filter(b=>!hasAcc(b.id));
+  const card=(b,i)=>`<div class="bk ${hasAcc(b.id)?'':'no'}" style="animation-delay:${i*40}ms"><span class="lg" style="background:${b.color}">${b.short}</span><div class="tx">
+    <b>${b.name} <span class="st">${hasAcc(b.id)?'開設済み ✓':'まだ'}</span></b><p>${b.feat}</p>${b.lead2026?`<span class="ld">2026年 主幹事 ${b.lead2026}回</span>`:''}
+    ${hasAcc(b.id)?`<div class="acts"><button class="small" data-unacc="${b.id}">開設していない</button></div>`
+      :`<div class="msg">${b.name}はまだ開設していません</div><div class="acts"><a href="${bkUrl(b)}" target="_blank" rel="noopener sponsored">口座を開設する ›</a><button class="small" data-acc="${b.id}">開設した</button></div>`}</div></div>`;
+  el.innerHTML=`<div class="bkhead"><b>${own.length}社</b><span>持っている証券口座。口座が多いほど、同じIPOでくじを引ける回数が増えます。</span></div>
+  <div class="bkgrp">持っている口座</div>${own.map(card).join('')||'<p class="hint">まだありません</p>'}
+  <div class="bkgrp">まだ開設していない口座</div>${no.map((b,i)=>card(b,i+own.length)).join('')}`}
+$('#bkList').addEventListener('click',e=>{const a=e.target.closest('[data-acc]'),u=e.target.closest('[data-unacc]');if(!a&&!u)return;
+  const id=(a||u).dataset[a?'acc':'unacc'];SET.acc[id]=!!a;saveSet();renderBrokers();renderAll();toast(a?'開設済みにしました':'まだ開設していないにしました')});
+function leadRow(o){const y=yosoData[o.id]||{};const b=y.lead&&brokerByLead(y.lead);if(!b||o.k==='end')return'';
+  return`<div class="leadrow">主幹事：<b>${b.name}</b>${hasAcc(b.id)?'<span class="ok">口座あり ✓</span>':`<span>口座なし</span><a href="${bkUrl(b)}" target="_blank" rel="noopener sponsored">開設する ›</a>`}</div>`}
+
 // ---- おすすめの優待 ----
 let recList=[],recMon='all',recMore=false;
 function recCalc(it){const r={...it,plan:'s',early:0,day:0};const cyc=nextCycle(r);if(!cyc)return null;const px=prices[it.code]&&prices[it.code].p;return{it,cyc,c:crossCost(r,px,cyc)}}
@@ -1317,7 +1365,7 @@ document.querySelectorAll('.subpage').forEach(sp=>{let x0=null,y0=0,dx=0,on=fals
     const v=dx/Math.max(1,Date.now()-t0);if(dx>innerWidth*.33||v>.5){sp.style.transform=`translateX(100%)`;setTimeout(closeSubs,10)}
     else{sp.style.transform='';app.style.transform='';app.style.opacity='';sh.style.opacity=''}})});
 function openQA(id){openSub('qa');const el=$('#'+id);if(!el)return;el.open=true;el.classList.add('hl');setTimeout(()=>el.scrollIntoView({block:'center',behavior:'smooth'}),380);setTimeout(()=>el.classList.remove('hl'),2600)}
-function setSums(){const bs=$('#budSum');if(bs)bs.textContent=budgetTxt();const n=$('#ntfSum');if(n)n.textContent=SET.pushOn&&'Notification' in window&&Notification.permission==='granted'?'オン・'+NTF.reduce((a,[g,l])=>a+l.filter(([k])=>SET.ntf[k]!==false).length,0)+'種類':'オフ';
+function setSums(){const bs2=$('#bkSum');if(bs2&&brokers&&brokers.length)bs2.textContent=brokers.filter(b=>hasAcc(b.id)).map(b=>b.name.replace(/証券|證券/,'')).join('・')+`（${brokers.filter(b=>hasAcc(b.id)).length}社）`;const bs=$('#budSum');if(bs)bs.textContent=budgetTxt();const n=$('#ntfSum');if(n)n.textContent=SET.pushOn&&'Notification' in window&&Notification.permission==='granted'?'オン・'+NTF.reduce((a,[g,l])=>a+l.filter(([k])=>SET.ntf[k]!==false).length,0)+'種類':'オフ';
   const r=$('#rateSum');if(r)r.textContent=`短期 ${SET.rateS}％・無期限 ${SET.rateL}％`}
 
 // ---- その場の説明（ⓘ） ----
@@ -1389,7 +1437,7 @@ $('#tourAgain').onclick=()=>{['ipo','bunbai','yutai'].forEach(k=>{try{localStora
 async function getJSON(u,def){try{const r=await fetch(u+'?'+Date.now());if(!r.ok)return def;return await r.json()}catch(e){return def}}
 async function load(){
   [ipos,bunbai,prices,yosoData]=await Promise.all([getJSON('data/ipo.json',[]),getJSON('data/bunbai.json',{items:[],past:[]}),getJSON('data/prices.json',{}),getJSON('data/yoso.json',{})]);{const rt=await getJSON('data/rates.json',null);if(rt&&rt.s!=null){SET.rateS=rt.s;SET.rateL=rt.l;saveSet()}
-  $('#rateSv').textContent=`年${SET.rateS}％`;$('#rateLv').textContent=`年${SET.rateL}％`;if(rt&&rt.at)$('#rateAt').textContent=`最後に確認した日：${md(rt.at)}（楽天証券）`}recList=((await getJSON('data/yutai_list.json',{items:[]})).items)||[];
+  $('#rateSv').textContent=`年${SET.rateS}％`;$('#rateLv').textContent=`年${SET.rateL}％`;if(rt&&rt.at)$('#rateAt').textContent=`最後に確認した日：${md(rt.at)}（楽天証券）`}recList=((await getJSON('data/yutai_list.json',{items:[]})).items)||[];brokers=((await getJSON('data/brokers.json',{items:[]})).items)||[];renderBrokers();
   try{const u=(await (await fetch('data/updated.txt?'+Date.now())).text()).trim();const d=new Date(u);if(!isNaN(d))document.querySelectorAll('.upd').forEach(el=>el.innerHTML=`楽天証券<br>${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')} 更新`)}catch(e){}
   renderAll();loadRemote();
   const ip=IPO.all(),bb=BUN.all(),yu=YU.all();const t=todayJ();
