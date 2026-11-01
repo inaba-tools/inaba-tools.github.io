@@ -263,9 +263,7 @@ def main():
     global RATES
     key = os.environ.get('VAPID_PRIVATE', '').strip()
     rec = state()
-    for m in rec['push'].values():
-        if m.get('rates'):
-            RATES = m['rates']
+    RATES = load('rates.json', {'s': 3.9, 'l': 1.1})
     sent = load('sent.json', {})
     msgs = build(rec, sent)
     subs = {d: m for d, m in rec['push'].items() if m.get('sub') and m.get('st') == 'on'}
