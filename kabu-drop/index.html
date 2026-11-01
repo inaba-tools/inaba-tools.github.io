@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>KABU DROP</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="KABU DROP">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f3f1ea">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800;900&family=Noto+Sans+JP:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3f1ea;--card:#fff;--ink:#1d2320;--sub:#7a7f78;--line:#e4e1d6;--green:#2f6f63;--olive:#7d7a3a;--blue:#2b6fd6;--orange:#d98a1c;--red:#d2453b;--grey:#9aa097;--gold:#d9a514}
+*{box-sizing:border-box;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans JP",system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+button{font-family:inherit}
+.app{max-width:460px;margin:0 auto;min-height:100vh;padding-bottom:110px}
+.page{display:none}.page.on{display:block;animation:pagein .35s ease both}
+.top{padding:calc(env(safe-area-inset-top) + 22px) 18px 4px;display:flex;align-items:center;gap:10px}
+.top img{width:34px;height:34px;border-radius:9px;box-shadow:0 3px 8px rgba(60,58,20,.25)}
+.top h1{margin:0;font-size:22px;font-weight:900;letter-spacing:-.01em}
+.top .sub{margin-left:auto;font-size:11px;color:var(--sub);font-weight:700;text-align:right}
+.lead{font-size:20px;font-weight:900;padding:14px 18px 2px;letter-spacing:-.01em;line-height:1.35}
+.lead .b{color:var(--blue)}.lead .r{color:var(--red)}
+.seg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:12px 16px 4px}
+.seg button{border:0;background:#fff;border-radius:14px;padding:10px 4px 9px;font:700 11px "Noto Sans JP";color:var(--sub);box-shadow:0 1px 0 var(--line);transition:transform .25s cubic-bezier(.2,1.4,.3,1),background .25s,color .25s}
+.seg button b{display:block;font:900 20px Inter;color:var(--ink);margin-top:2px;transition:color .25s}
+.seg button.on{background:var(--blue);color:#fff;transform:translateY(-2px);box-shadow:0 8px 18px rgba(43,111,214,.3)}
+.seg button.on b{color:#fff}
+.seg button[data-k=win].on{background:var(--red);box-shadow:0 8px 18px rgba(210,69,59,.3)}
+.seg button[data-k=end].on{background:#6d726b;box-shadow:0 8px 18px rgba(0,0,0,.18)}
+.seg button.bump b{animation:bump .5s cubic-bezier(.2,1.6,.3,1)}
+.list{padding:10px 16px}
+.card{position:relative;background:var(--card);border-radius:20px;padding:16px;margin-bottom:12px;box-shadow:0 1px 0 rgba(0,0,0,.03),0 10px 26px rgba(40,44,30,.06);animation:rise .5s cubic-bezier(.2,1,.3,1) both;transition:transform .35s cubic-bezier(.2,1.1,.3,1),opacity .35s}
+.card.now{box-shadow:0 0 0 2px var(--blue),0 12px 28px rgba(43,111,214,.18)}
+.card.win{box-shadow:0 0 0 2px var(--red),0 12px 28px rgba(210,69,59,.22)}
+.card.gone{transform:translateX(-115%);opacity:0}
+.card .swipe{position:absolute;inset:0;border-radius:20px;background:linear-gradient(90deg,transparent 40%,rgba(43,111,214,.1));opacity:0;pointer-events:none;transition:opacity .2s}
+.hd{display:flex;align-items:flex-start;gap:12px}
+.hd .nm{flex:1;min-width:0}
+.hd .t{font-size:17px;font-weight:800;line-height:1.3}
+.hd .m{font-size:12px;color:var(--sub);margin-top:3px;font-weight:600}
+.tag{font-size:11px;font-weight:800;padding:5px 9px;border-radius:9px;white-space:nowrap}
+.tag.blue{background:#e6eefb;color:var(--blue)}.tag.org{background:#fbf0de;color:var(--orange)}.tag.red{background:#fbe5e2;color:var(--red)}.tag.grey{background:#eeeee9;color:var(--grey)}.tag.green{background:#e3f1ec;color:var(--green)}
+.tag.pulse{animation:pulse 1.4s ease-in-out infinite}
+.kv{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;margin-top:14px}
+.kv .k{font-size:11px;color:var(--sub);font-weight:700}
+.kv .v{font-size:15px;font-weight:800;margin-top:2px}
+.kv .v small{font-size:11px;color:var(--sub);font-weight:700;margin-left:3px}
+.kv .v.red{color:var(--red)}
+.desc{font-size:12px;color:var(--sub);line-height:1.55;margin-top:10px}
+.bar{margin-top:12px;display:flex;align-items:flex-start;gap:8px;font-size:12.5px;font-weight:700;color:#4b524c;line-height:1.5;background:#f6f5ef;border-radius:12px;padding:10px 12px}
+.bar .dot{width:8px;height:8px;border-radius:50%;background:var(--olive);flex:none;margin-top:5px}
+.bar.red .dot{background:var(--red);animation:blink 1s infinite}
+.bar b{color:var(--ink)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.btn{display:block;width:100%;margin-top:12px;padding:14px;border-radius:14px;border:0;background:var(--green);color:#fff;font:800 15px "Noto Sans JP";text-align:center;text-decoration:none;transition:transform .15s}
+.btn:active{transform:scale(.97)}
+.btn.red{background:var(--red)}.btn.ghost{background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.row2 .btn{margin-top:8px;font-size:13px;padding:12px}
+.hint{font-size:11.5px;color:var(--grey);text-align:center;margin:4px 16px 8px;font-weight:700;line-height:1.5}
+.empty{text-align:center;padding:40px 20px;color:var(--sub);font-weight:700;font-size:14px;line-height:1.7}
+.tabs{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:min(460px,100%);background:rgba(255,255,255,.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);display:flex;padding:8px 6px calc(10px + env(safe-area-inset-bottom));z-index:9}
+.tab{flex:1;text-align:center;font:700 10.5px "Noto Sans JP";color:#a3a89f;background:none;border:0;padding:0;transition:color .2s}
+.tab svg{width:24px;height:24px;display:block;margin:0 auto 3px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:transform .3s cubic-bezier(.2,1.6,.3,1)}
+.tab.on{color:var(--ink)}.tab.on svg{transform:translateY(-2px) scale(1.08)}
+.toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 10px);transform:translate(-50%,-160%);background:#fff;border-radius:16px;padding:11px 14px;box-shadow:0 10px 26px rgba(0,0,0,.14);font:700 13px "Noto Sans JP";transition:transform .5s cubic-bezier(.2,1.3,.3,1);width:min(380px,92%);z-index:30;display:flex;gap:10px;align-items:center}
+.toast img{width:26px;height:26px;border-radius:7px}
+.toast.on{transform:translate(-50%,0)}
+.sheet-bg{position:fixed;inset:0;background:rgba(20,24,20,.35);opacity:0;pointer-events:none;transition:opacity .25s;z-index:40}
+.sheet-bg.on{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:50%;bottom:0;width:min(460px,100%);transform:translate(-50%,105%);background:#fff;border-radius:24px 24px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom));z-index:41;transition:transform .4s cubic-bezier(.2,1.1,.3,1)}
+.sheet.on{transform:translate(-50%,0)}
+.sheet h3{margin:4px 0 4px;font-size:18px}
+.sheet p{margin:0 0 10px;color:var(--sub);font-size:13px;line-height:1.6;font-weight:600}
+.sheet input{width:100%;display:block;font:800 22px Inter;padding:12px 14px;border-radius:14px;border:1.5px solid var(--line);margin-top:6px}
+.sheet .res{font:900 26px Inter;margin:12px 0 0;text-align:center}
+.box{background:#fff;border-radius:18px;padding:16px;margin:10px 16px;box-shadow:0 1px 0 rgba(0,0,0,.03),0 10px 26px rgba(40,44,30,.06)}
+.box h3{margin:0 0 8px;font-size:16px}
+.box p,.box li{font-size:13px;line-height:1.7;color:#4b524c;font-weight:600}
+.box ol{padding-left:20px;margin:6px 0}
+.sum{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:6px 16px}
+.sum div{background:#fff;border-radius:14px;padding:10px;text-align:center;font:700 11px "Noto Sans JP";color:var(--sub)}
+.sum b{display:block;font:900 17px Inter;color:var(--ink);margin-top:2px}
+.sum b.up{color:#1f9d6b}.sum b.dn{color:var(--red)}
+/* splash */
+.splash{position:fixed;inset:0;background:linear-gradient(180deg,#8a8740,#55521f);z-index:100;display:grid;place-items:center;transition:opacity .5s .1s,visibility .5s .1s}
+.splash.off{opacity:0;visibility:hidden}
+.splash .wrap{text-align:center}
+.splash svg{width:150px;height:150px;overflow:visible}
+.splash .name{margin-top:16px;color:#fff;font:900 24px Inter;letter-spacing:.08em;opacity:0;animation:fadeup .5s 1.6s both}
+.sp-drop{animation:drop .7s .25s cubic-bezier(.5,0,.8,.4) both}
+.sp-gold{transform:translateY(-100px);animation:gold 1s .9s cubic-bezier(.3,.8,.3,1) both}
+.sp-ring{transform-origin:100px 82px;opacity:0;animation:ring .6s .92s ease-out both}
+@keyframes drop{0%{transform:translateY(-120px);opacity:0}20%{opacity:1}100%{transform:translateY(0)}}
+@keyframes gold{to{transform:translateY(0)}}
+@keyframes ring{0%{opacity:.9;transform:scale(.2)}100%{opacity:0;transform:scale(1.6)}}
+@keyframes fadeup{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes pagein{from{opacity:0}to{opacity:1}}
+@keyframes blink{50%{opacity:.25}}
+@keyframes pulse{50%{transform:scale(1.06)}}
+@keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.4)}100%{transform:scale(1)}}
+</style>
+</head>
+<body>
+<div class="splash" id="splash"><div class="wrap">
+<svg viewBox="0 0 200 200">
+<defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe56b"/><stop offset="1" stop-color="#c98d0c"/></linearGradient>
+<linearGradient id="sd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff4a0"/><stop offset="1" stop-color="#e2a412"/></linearGradient>
+<linearGradient id="sw" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#ebe5d6"/></linearGradient>
+<clipPath id="sb"><path d="M100 80c30 0 50 20 50 46 0 26-22 42-50 42s-50-16-50-42c0-26 20-46 50-46z"/></clipPath></defs>
+<g transform="translate(100,84)"><path d="M0 0c-14-14-30-14-36-6 10 2 22 6 36 6z" fill="#6cc055"/><path d="M0 0c14-14 30-14 36-6-10 2-22 6-36 6z" fill="#5fae4a"/><path d="M0 0c-4-18 2-30 10-34 2 12-2 24-10 34z" fill="#82d066"/></g>
+<path d="M100 80c30 0 50 20 50 46 0 26-22 42-50 42s-50-16-50-42c0-26 20-46 50-46z" fill="url(#sw)"/>
+<g clip-path="url(#sb)"><g class="sp-gold"><path d="M30 20h140v96c-10 0-14 14-24 14s-12-20-22-20-10 26-22 26-12-18-22-18-12 10-50 10z" fill="url(#sg)"/></g></g>
+<path d="M100 168c0 8-2 13-4 17" stroke="#e2b53c" stroke-width="4" stroke-linecap="round" fill="none"/>
+<circle class="sp-ring" cx="100" cy="82" r="30" fill="none" stroke="#fff3a8" stroke-width="3"/>
+<g class="sp-drop"><path d="M100 20c0 0-13 17-13 26a13 13 0 0 0 26 0c0-9-13-26-13-26z" fill="url(#sd)"/><ellipse cx="95" cy="42" rx="3" ry="5" fill="#fff" opacity=".8"/></g>
+</svg>
+<div class="name">KABU DROP</div></div></div>
+
+<div class="app">
+<!-- IPO -->
+<section class="page on" id="p-ipo">
+<div class="top"><img src="icon-192.png" alt=""><h1>IPO</h1><div class="sub" id="upd">楽天証券</div></div>
+<div class="lead" id="lead">読み込み中…</div>
+<div class="seg" id="seg">
+<button class="on" data-k="can">申込できる<b id="n-can">-</b></button>
+<button data-k="done">申込済み<b id="n-done">-</b></button>
+<button data-k="win">当選<b id="n-win">-</b></button>
+<button data-k="end">終了<b id="n-end">-</b></button>
+</div>
+<div class="list" id="list"></div>
+<p class="hint" id="hint"></p>
+</section>
+
+<!-- 分売 -->
+<section class="page" id="p-bunbai">
+<div class="top"><img src="icon-192.png" alt=""><h1>分売</h1></div>
+<div class="box"><h3>立会外分売（たちあいがいぶんばい）</h3>
+<p>すでに上場している株を、会社や大株主が<b>市場より少し安く</b>まとめて売る日があります。抽選に当たると、安い値段で買えて、次の日から普通に売れます。</p>
+<p>例：1株1,000円の株が970円で買える → 100株なら<b>3,000円お得</b>。ただし買った後に株価が下がると、その分お得が減ります。</p></div>
+<div class="box"><h3>準備中</h3><p>分売の一覧は次に作ります。IPOと同じように「申込できる・申込済み・当選・終了」で管理できるようにします。</p></div>
+</section>
+
+<!-- 優待 -->
+<section class="page" id="p-yutai">
+<div class="top"><img src="icon-192.png" alt=""><h1>優待</h1></div>
+<div class="box"><h3>優待クロス</h3>
+<p>同じ株を「買い」と「売り（一般信用）」で同時に持つと、株価が動いても損得がほぼゼロのまま、<b>株主優待だけ</b>もらえます。</p>
+<p>費用は手数料と貸株料（借り賃）で、<b>最初に金額がわかります</b>。「一般信用」で売れば、怖い逆日歩はかかりません。</p></div>
+<div class="box"><h3>準備中</h3><p>候補の銘柄を「もらえる優待の値段」「かかる費用」「差し引きいくら得か」で並べる画面を、分売のあとに作ります。</p></div>
+</section>
+
+<!-- 設定 -->
+<section class="page" id="p-set">
+<div class="top"><img src="icon-192.png" alt=""><h1>設定</h1></div>
+<div class="sum" id="sumbox"></div>
+<div class="box"><h3>使っている口座</h3><p>楽天証券（1口座）</p><p style="color:var(--sub)">口座を増やすと、同じIPOでくじを引ける回数が増えます。SBI・松井などはあとで追加できるようにします。</p></div>
+<div class="box"><h3>IPOの流れ</h3><ol>
+<li><b>申込期間</b>に楽天証券で申し込む（ブックビルディング）。申込に必要なお金が口座に入っている必要あり</li>
+<li><b>抽選日</b>の夕方に当落がわかる</li>
+<li>当選したら<b>購入申込期間</b>中に「購入」を押す（押さないと権利がなくなる）</li>
+<li><b>上場日</b>の朝に売る（初値で売るのが基本）</li>
+<li>落選したら、お金はそのまま使える</li></ol></div>
+<div class="box"><h3>データについて</h3><p id="dinfo">IPOの日程は楽天証券の公開データを3時間ごとに自動で取り込んでいます。申込・当選の記録はスプレッドシートに保存されます。</p></div>
+</section>
+</div>
+
+<nav class="tabs" id="tabs">
+<button class="tab on" data-p="ipo"><svg viewBox="0 0 24 24"><path d="M12 3c0 0-5 6-5 9.5a5 5 0 0 0 10 0C17 9 12 3 12 3z"/></svg>IPO</button>
+<button class="tab" data-p="bunbai"><svg viewBox="0 0 24 24"><path d="M20 7H4l1 12h14z"/><path d="M8 7V5a4 4 0 0 1 8 0v2"/></svg>分売</button>
+<button class="tab" data-p="yutai"><svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M12 8v13M3 12h18M12 8c-2-4-6-4-6-1s4 1 6 1zm0 0c2-4 6-4 6-1s-4 1-6 1z"/></svg>優待</button>
+<button class="tab" data-p="set"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2-1.2L14 3h-4l-.5 2.6a7 7 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6A7 7 0 0 0 5 12a7 7 0 0 0 .1 1.2l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 2 1.2L10 21h4l.5-2.6a7 7 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.1-.4.1-.8.1-1.2z"/></svg>設定</button>
+</nav>
+
+<div class="toast" id="toast"><img src="icon-192.png" alt=""><span id="toastT"></span></div>
+<div class="sheet-bg" id="sbg"></div>
+<div class="sheet" id="sheet"></div>
+
+<script>
+const API='https://script.google.com/macros/s/AKfycbxp2NJyQCnSduboXEaXFN0kndza6-0-zqrJN_0W9tLhBymhxRO8mLlT-dcZgI5lcvLr0A/exec';
+const RAKUTEN='https://www.rakuten-sec.co.jp/web/domestic/ipo/';
+const $=s=>document.querySelector(s);
+const yen=n=>Math.round(n).toLocaleString('ja-JP');
+let ipos=[],rec={},cur='can';
+
+// ---- 日付（日本時間） ----
+const todayJ=()=>{const d=new Date(Date.now()+9*3600e3);return new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate()))};
+const pd=s=>{const m=String(s||'').match(/(\d{4})\/(\d{1,2})\/(\d{1,2})/);return m?new Date(Date.UTC(+m[1],m[2]-1,+m[3])):null};
+const md=s=>{const d=pd(s);return d?`${d.getUTCMonth()+1}/${d.getUTCDate()}`:'—'};
+const wd=s=>{const d=pd(s);return d?'日月火水木金土'[d.getUTCDay()]:''};
+const days=(a,b)=>Math.round((a-b)/864e5);
+const num=s=>{const v=parseFloat(String(s||'').replace(/[^\d.]/g,''));return isNaN(v)?null:v};
+const hi=s=>{const p=String(s||'').split(/[～~]/).map(num).filter(v=>v!=null);return p.length?Math.max(...p):null};
+const clean=s=>String(s||'').replace(/株式会社|（株）|\(株\)/g,'').trim();
+
+// ---- 記録（端末 + スプレッドシート） ----
+try{rec=JSON.parse(localStorage.getItem('kd_rec')||'{}')}catch(e){rec={}}
+const saveLocal=()=>{try{localStorage.setItem('kd_rec',JSON.stringify(rec))}catch(e){}};
+async function sync(code){try{await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'log',kind:'ipo',code,xp:0,memo:rec[code]||{st:'clear'}})})}catch(e){}}
+async function loadRemote(){try{const r=await fetch(API+'?action=state');const j=await r.json();const logs=(j.state&&j.state.logs||[]).filter(l=>l.kind==='ipo');
+  if(!logs.length)return;const m={};logs.forEach(l=>{let v=l.memo;if(typeof v==='string'){try{v=JSON.parse(v)}catch(e){v=null}}if(v)m[l.code]=v.st==='clear'?null:v});
+  Object.keys(m).forEach(k=>{if(m[k])rec[k]=m[k];else delete rec[k]});saveLocal();render()}catch(e){}}
+function setRec(code,v){if(v)rec[code]={...(rec[code]||{}),...v,at:Date.now()};else delete rec[code];saveLocal();sync(code)}
+
+// ---- 分類 ----
+function classify(x){
+  const t=todayJ(),bs=pd(x.data4),be=pd(x.data6),draw=pd(x.data15),ls=pd(x.data18),bs2=pd(x.data11),be2=pd(x.data13);
+  const r=rec[x.code]||{};
+  const o={x,r,bs,be,draw,ls,bs2,be2,name:clean(x.data1),mkt:x.data19||'',unit:num(x.data8)||100};
+  o.price=num(x.data10);o.hiP=hi(x.data3);o.need=(o.price||o.hiP)?(o.price||o.hiP)*o.unit:null;
+  if(r.st==='sold'||r.st==='lost')o.k='end';
+  else if(r.st==='won')o.k='win';
+  else if(r.st==='applied')o.k=(ls&&t>ls)?'end':'done';
+  else if(be&&t>be)o.k='end';
+  else o.k='can';
+  o.open=bs&&be&&t>=bs&&t<=be;o.soon=bs&&t<bs;o.left=be?days(be,t):null;o.until=bs?days(bs,t):null;
+  // 人気の目安（過去の傾向）
+  const m=o.mkt;o.hint=/グロース/.test(m)?['green','人気になりやすい市場']:/プライム/.test(m)?['grey','大きめの会社が多い']:/名証|福証|札証|PRO/.test(m)?['org','地方・PRO市場は注意']:['grey','ふつう'];
+  if(/投資法人/.test(x.data1))o.hint=['org','REIT（値上がりしにくい）'];
+  return o}
+
+// ---- 表示 ----
+function card(o,i){
+  const x=o.x;let cls='',tag='',memo='',btns='';
+  if(o.k==='can'){
+    if(o.open){cls='now';tag=`<span class="tag blue ${o.left<=1?'pulse':''}">${o.left===0?'今日まで':'あと'+o.left+'日'}</span>`;
+      btns=`<a class="btn" href="${RAKUTEN}" target="_blank" rel="noopener">楽天証券で申し込む</a><button class="btn ghost" data-act="applied" data-c="${x.code}">申し込んだ（左スワイプでもOK）</button>`;}
+    else{tag=`<span class="tag org">${o.until===1?'明日から':md(x.data4)+'から'}</span>`;}
+    memo=o.need?`申込に必要なお金 <b>約${yen(o.need)}円</b>（${o.unit}株）。ハズレたら全額そのまま。`:'値段はまだ決まっていません。';
+  }else if(o.k==='done'){
+    const dd=o.draw?days(o.draw,todayJ()):null;tag=`<span class="tag blue">${dd>0?'抽選まで'+dd+'日':dd===0?'今日抽選':'結果を確認'}</span>`;
+    memo=dd<=0?`<b>${md(x.data15)}の夕方</b>に当落が出ています。楽天証券で確認して、下のボタンで記録しよう。`:`抽選は <b>${md(x.data15)}（${wd(x.data15)}）</b>。結果が出たら記録しよう。`;
+    btns=`<div class="row2"><button class="btn red" data-act="won" data-c="${x.code}">当選した！</button><button class="btn ghost" data-act="lost" data-c="${x.code}">落選</button></div>`;
+  }else if(o.k==='win'){
+    cls='win';const to=o.ls?days(o.ls,todayJ()):null;tag=`<span class="tag red ${to<=1?'pulse':''}">${to>0?'売る日まで'+to+'日':to===0?'今日が売る日':'売った？'}</span>`;
+    memo=`当選おめでとう。<b>${md(x.data11)}〜${md(x.data13)}</b>に楽天で「購入」を押す（押さないと無効）。<b>${md(x.data18)}（${wd(x.data18)}）の朝</b>に売るのが基本。`;
+    btns=`<a class="btn ghost" href="${RAKUTEN}" target="_blank" rel="noopener">楽天証券を開く</a><button class="btn red" data-act="sold" data-c="${x.code}">売った（いくらで？）</button>`;
+  }else{
+    const r=o.r;if(r.st==='sold'){const bp=r.buy||o.price||0;const p=(r.sell-bp)*o.unit;tag=`<span class="tag ${p>=0?'green':'red'}">${p>=0?'+':''}${yen(p)}円</span>`;memo=`${yen(bp)}円で買って、${yen(r.sell)}円で売った（${o.unit}株）`}
+    else if(r.st==='lost'){tag='<span class="tag grey">落選</span>';memo='次のIPOでまた申し込もう'}
+    else{tag='<span class="tag grey">終了</span>'}
+    btns=r.st?`<button class="btn ghost" data-act="undo" data-c="${x.code}">記録を取り消す</button>`:'';
+  }
+  const priceTxt=o.price?`${yen(o.price)}円`:(x.data3&&x.data3!=='-'?x.data3:'—');
+  return `<div class="card ${cls}" data-code="${x.code}" style="animation-delay:${Math.min(i,6)*70}ms"><div class="swipe"></div>
+  <div class="hd"><div class="nm"><div class="t">${o.name}</div><div class="m">${x.code} ・ ${o.mkt}</div></div>${tag}</div>
+  <div class="kv">
+   <div><div class="k">申込期間</div><div class="v">${md(x.data4)} 〜 ${md(x.data6)}${x.data7&&x.data7!=='0:00'?`<small>${x.data7}まで</small>`:''}</div></div>
+   <div><div class="k">${o.price?'公開価格':'値段（仮）'}</div><div class="v">${priceTxt}</div></div>
+   <div><div class="k">抽選日</div><div class="v">${md(x.data15)}<small>${wd(x.data15)}</small></div></div>
+   <div><div class="k">上場日（売る日）</div><div class="v ${o.k==='win'?'red':''}">${md(x.data18)}<small>${wd(x.data18)}</small></div></div>
+  </div>
+  ${o.k!=='end'?`<div class="chips"><span class="tag ${o.hint[0]}">${o.hint[1]}</span></div>`:''}
+  ${x.data22&&o.k==='can'?`<div class="desc">${x.data22}</div>`:''}
+  ${memo?`<div class="bar ${o.k==='win'?'red':''}"><span class="dot"></span><span>${memo}</span></div>`:''}
+  ${btns}</div>`}
+
+let lastCounts={};
+function render(){
+  const all=ipos.map(classify);
+  const g={can:[],done:[],win:[],end:[]};all.forEach(o=>g[o.k].push(o));
+  g.can.sort((a,b)=>(b.open-a.open)||((a.bs||0)-(b.bs||0)));
+  g.done.sort((a,b)=>(a.draw||0)-(b.draw||0));g.win.sort((a,b)=>(a.ls||0)-(b.ls||0));
+  g.end.sort((a,b)=>(b.ls||0)-(a.ls||0));
+  Object.keys(g).forEach(k=>{const el=$('#n-'+k);const v=g[k].length;if(lastCounts[k]!==undefined&&lastCounts[k]!==v){const b=el.parentNode;b.classList.remove('bump');void b.offsetWidth;b.classList.add('bump')}el.textContent=v;lastCounts[k]=v});
+  const open=g.can.filter(o=>o.open).length;
+  $('#lead').innerHTML=g.win.length?`当選が <span class="r">${g.win.length}件</span> あります`:open?`今日は <span class="b">${open}件</span> 申し込めます`:g.can.length?`次の申込は <span class="b">${md(g.can[0].x.data4)}</span> から`:'今は申し込めるIPOがありません';
+  const show=g[cur];
+  $('#list').innerHTML=show.length?show.map(card).join(''):`<div class="empty">${{can:'今は申し込めるIPOがありません',done:'申し込んだIPOはここに並びます',win:'当選したらここに並びます',end:'終わったIPOはここに並びます'}[cur]}</div>`;
+  $('#hint').textContent=cur==='can'&&g.can.some(o=>o.open)?'申し込んだら、カードを左にスワイプ':'';
+  // 成績
+  const sold=all.filter(o=>o.r.st==='sold');const pl=sold.reduce((a,o)=>a+(o.r.sell-(o.r.buy||o.price||0))*o.unit,0);
+  const applied=all.filter(o=>o.r.st).length,won=all.filter(o=>['won','sold'].includes(o.r.st)).length;
+  $('#sumbox').innerHTML=`<div>申し込んだ<b>${applied}</b></div><div>当選<b>${won}</b></div><div>もうけ<b class="${pl>0?'up':pl<0?'dn':''}">${pl>=0?'+':''}${yen(pl)}円</b></div>`;
+}
+
+function toast(t){$('#toastT').textContent=t;const el=$('#toast');el.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('on'),2000)}
+
+function animateOut(code,fn){const c=document.querySelector(`.card[data-code="${code}"]`);if(c){c.classList.add('gone');setTimeout(fn,330)}else fn()}
+
+function act(a,code){
+  const o=ipos.find(x=>x.code===code);if(!o)return;const name=clean(o.data1);
+  if(a==='applied'){animateOut(code,()=>{setRec(code,{st:'applied'});render();toast(name+'：申込済みに移動')})}
+  else if(a==='won'){animateOut(code,()=>{setRec(code,{st:'won'});render();toast('当選おめでとう！ '+name)})}
+  else if(a==='lost'){animateOut(code,()=>{setRec(code,{st:'lost'});render();toast(name+'：落選を記録')})}
+  else if(a==='undo'){animateOut(code,()=>{setRec(code,null);render();toast('記録を取り消しました')})}
+  else if(a==='sold')openSell(o);
+}
+function openSell(x){const o=classify(x);const sh=$('#sheet');
+  sh.innerHTML=`<h3>${o.name} をいくらで売った？</h3><p>1株の値段を入れてね（${o.unit}株）。${o.price?`買った値段は ${yen(o.price)}円。`:''}</p>${o.price?'':`<input id="buyIn" inputmode="numeric" placeholder="買った値段（公開価格）">`}<input id="sellIn" inputmode="numeric" placeholder="売った値段 例 1200"><div class="res" id="sellRes">—</div><button class="btn red" id="sellOk">記録する</button><button class="btn ghost" id="sellNo">やめる</button>`;
+  $('#sbg').classList.add('on');sh.classList.add('on');
+  const inp=$('#sellIn'),bin=$('#buyIn');const buy=()=>o.price||(bin?num(bin.value):null);(bin||inp).focus();
+  const upd=()=>{const v=num(inp.value),b=buy();const p=v!=null&&b!=null?(v-b)*o.unit:null;$('#sellRes').textContent=p==null?'—':(p>=0?'+':'')+yen(p)+'円';$('#sellRes').style.color=p>0?'#1f9d6b':p<0?'#d2453b':''};
+  inp.oninput=upd;if(bin)bin.oninput=upd;
+  $('#sellOk').onclick=()=>{const v=num(inp.value),b=buy();if(v==null||b==null)return;closeSheet();animateOut(x.code,()=>{setRec(x.code,{st:'sold',sell:v,buy:b});render();const p=(v-b)*o.unit;toast(`${p>=0?'+':''}${yen(p)}円 を記録しました`)})};
+  $('#sellNo').onclick=closeSheet}
+function closeSheet(){$('#sbg').classList.remove('on');$('#sheet').classList.remove('on')}
+$('#sbg').onclick=closeSheet;
+
+$('#list').addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(b)act(b.dataset.act,b.dataset.c)});
+$('#seg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;cur=b.dataset.k;document.querySelectorAll('#seg button').forEach(x=>x.classList.toggle('on',x===b));render()});
+$('#tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(!b)return;document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.page').forEach(p=>p.classList.toggle('on',p.id==='p-'+b.dataset.p));window.scrollTo(0,0)});
+
+// 左スワイプで申込済み
+let sx=0,sy=0,sc=null;
+$('#list').addEventListener('touchstart',e=>{sc=e.target.closest('.card');sx=e.touches[0].clientX;sy=e.touches[0].clientY},{passive:true});
+$('#list').addEventListener('touchmove',e=>{if(!sc)return;const dx=e.touches[0].clientX-sx,dy=e.touches[0].clientY-sy;if(Math.abs(dy)>Math.abs(dx)){return}if(dx<0){sc.style.transform=`translateX(${dx*.6}px)`;sc.querySelector('.swipe').style.opacity=Math.min(1,-dx/120)}},{passive:true});
+$('#list').addEventListener('touchend',e=>{if(!sc)return;const c=sc;sc=null;const dx=e.changedTouches[0].clientX-sx;c.style.transform='';c.querySelector('.swipe').style.opacity=0;
+  if(dx<-90&&cur==='can'){const o=ipos.find(x=>x.code===c.dataset.code);if(o&&classify(o).open)act('applied',o.code)}});
+
+async function load(){
+  try{const r=await fetch('data/ipo.json?'+Date.now());ipos=await r.json()}catch(e){ipos=[]}
+  try{const u=(await (await fetch('data/updated.txt?'+Date.now())).text()).trim();const d=new Date(u);if(!isNaN(d))$('#upd').innerHTML=`楽天証券<br>${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')} 更新`}catch(e){}
+  render();loadRemote();
+  const g=ipos.map(classify);const urgent=g.find(o=>o.k==='can'&&o.open&&o.left<=1)||g.find(o=>o.k==='win');
+  if(urgent)setTimeout(()=>toast(urgent.k==='win'?`${urgent.name}：売る日をチェック`:`${urgent.name}：申込の締切が近いよ`),2300);
+}
+setTimeout(()=>$('#splash').classList.add('off'),2100);
+load();
+</script>
+</body>
+</html>
