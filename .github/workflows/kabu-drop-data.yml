@@ -21,8 +21,12 @@ jobs:
           cp /tmp/po.json kabu-drop/data/po.json
       - name: Fetch 分売 / 株価 / 会社名
         run: |
-          pip install -q openpyxl
+          pip install -q openpyxl pywebpush
           python3 kabu-drop/tools/fetch.py
+      - name: 通知を送る
+        env:
+          VAPID_PRIVATE: ${{ secrets.VAPID_PRIVATE }}
+        run: python3 kabu-drop/tools/notify.py || true
       - name: Commit if changed
         run: |
           git config user.name "kabu-drop-bot"

@@ -263,7 +263,46 @@ def fetch_prices(codes):
     save('prices.json', out)
 
 
+# ---------- IPOの初値予想（96ut.com の予想一覧） ----------
+def fetch_yoso():
+    old = load('yoso.json', {})
+    try:
+        page = get('https://96ut.com/ipo/yoso.php').decode('utf-8', 'ignore')
+    except Exception as e:
+        print('yoso error', e, file=sys.stderr)
+        return
+    out = {}
+    for tr in re.findall(r'<tr[^>]*>(.*?)</tr>', page, flags=re.S):
+        tds = re.findall(r'<td[^>]*>(.*?)</td>', tr, flags=re.S)
+        if len(tds) < 8:
+            continue
+        m = re.search(r'\[\s*(?:<a[^>]*>)?\s*(\d{3}[0-9A-Z])', tds[2])
+        if not m:
+            continue
+        code = m.group(1)
+        pro = text(tds[4])
+        rank = re.findall(r'([SABCD])\s*\((\d+)\)', re.sub(r'<[^>]+>', '', tds[5]))
+        rd = re.search(r'([\d,]+)\s*\((\d+)件\)', re.sub(r'<[^>]+>', '', tds[5]))
+        it = {
+            'bb': number(pro[0]) if len(pro) > 0 and number(pro[0]) else None,
+            'last': number(pro[1]) if len(pro) > 1 and number(pro[1]) else None,
+            'rank': rank[-1][0] if rank else None,
+            'reader': number(rd.group(1)) if rd else None,
+            'n': int(rd.group(2)) if rd else 0,
+            'first': number(' '.join(text(tds[7]))),
+        }
+        if any(v for k, v in it.items() if k != 'n'):
+            out[code] = it
+    if out:
+        # 古い予想も残す（上場後の答え合わせ用）。120件まで
+        merged = dict(old)
+        merged.update(out)
+        keys = list(merged)[-120:]
+        save('yoso.json', {k: merged[k] for k in keys})
+
+
 def main():
+    fetch_yoso()
     try:
         found, past = fetch_bunbai()
         items = merge_bunbai(found, past)
