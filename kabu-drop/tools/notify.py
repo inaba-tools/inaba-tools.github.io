@@ -151,7 +151,7 @@ def cross(r, px, L, m, rates):
                 dv = amt
     tax = round(dv * sh * 0.20315) if dv else 0
     val = r.get('val') or 0
-    return E, X, (val - lend - tax) if lend is not None else None
+    return E, X, (lend + tax) if lend is not None else None, val
 
 
 # ---------- 通知の中身をつくる ----------
@@ -239,18 +239,18 @@ def build(rec, sent):
             if not cyc:
                 continue
             L, m = cyc
-            E, X, net = cross(dict(r, code=code), px, L, m, RATES)
+            E, X, cost, val = cross(dict(r, code=code), px, L, m, RATES)
             k = 'yu:%s:%s' % (code, L)
-            net_txt = ('差し引き %s。' % pm(net)) if net is not None else ''
+            net_txt = ('かかる費用 約%s円。' % yen(cost)) if cost is not None else ''
             if SLOT == 'evening' and add_biz(E, -1) == TODAY:
                 add('eve:' + k, 'yu_cross', '明日は優待クロスの日：' + name,
                     '%s一般信用の在庫を楽天証券で確認しておこう' % net_txt, 'yutai')
             if SLOT == 'morning' and E == TODAY:
                 add('day:' + k, 'yu_cross', '今日は優待クロスの日：' + name,
                     '%s現物買いと一般信用売りを%s株ずつ' % (net_txt, yen(r.get('sh') or 100)), 'yutai')
-            if net is not None and net < 0 and 0 <= (E - TODAY).days <= 14:
-                add('warn:' + k, 'yu_warn', '優待クロスが損になりそう：' + name,
-                    '株価が上がって費用が増え、差し引き %s。やめるか、日にちを見直そう' % pm(net), 'yutai')
+            if cost is not None and val and cost >= val and 0 <= (E - TODAY).days <= 14:
+                add('warn:' + k, 'yu_warn', '優待クロスの費用が高くなっています：' + name,
+                    '株価が上がって、かかる費用（約%s円）が優待の目安（%s円）をこえそう。やめるか、日にちを見直そう' % (yen(cost), yen(val)), 'yutai')
         elif st == 'cross' and r.get('last'):
             L = pd(r['last'])
             X = add_biz(L, 1)
