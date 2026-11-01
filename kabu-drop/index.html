@@ -357,6 +357,73 @@ button{font-family:inherit}
 .skipbox .card .m3:after{display:none}
 .slot,.slot .card{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .m3meta .tag{font-size:11.5px;padding:5px 10px;animation:pop .6s .2s cubic-bezier(.2,1.6,.3,1) both}
+/* 評価の色の枠 */
+.m3{--a:#f3f2ec;--b:#eae8df;--t:#2a302c;--s:#7a7f78;background:linear-gradient(135deg,var(--a),var(--b))!important}
+.m3.r-S{--a:#fdf5d6;--b:#f6e09a;--t:#5c4305;--s:#a0802a}
+.m3.r-A{--a:#fdecea;--b:#f8d4cf;--t:#8f2a22;--s:#b4625a}
+.m3.r-B{--a:#eaf1fc;--b:#d3e2f8;--t:#1d4f9c;--s:#5b7fb8}
+.m3.r-C{--a:#e7f5ed;--b:#cfeadb;--t:#176b49;--s:#4f8f73}
+.m3.r-D{--a:#f5ece3;--b:#e9d9c8;--t:#6b4424;--s:#9a7656}
+.m3 .c .k,.m3 .c .s{color:var(--s)!important}
+.m3 .c .v,.m3 .c .v small{color:var(--t)!important}
+.m3 .c.g .v{color:#1f9d6b!important}.m3 .c.g.dn .v{color:var(--red)!important}
+.m3 .c .h{color:var(--t)!important;background:rgba(255,255,255,.62)!important}
+.m3 .op{color:var(--s)!important;opacity:.7}
+.m3meta{color:var(--sub)!important}
+/* デザイン設定 */
+.thm{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.thm button{border:0;background:var(--card);border-radius:16px;padding:10px 8px 12px;font:800 13px "Noto Sans JP";color:var(--ink);box-shadow:0 0 0 1.5px var(--line);transition:transform .2s cubic-bezier(.2,1.6,.3,1),box-shadow .2s}
+.thm button.on{box-shadow:0 0 0 2.5px var(--green),0 8px 18px rgba(47,111,99,.2);transform:translateY(-2px)}
+.thm .pv{height:86px;border-radius:11px;margin-bottom:8px;overflow:hidden;position:relative;border:1px solid rgba(0,0,0,.06)}
+.thm .pv i{position:absolute;left:10%;right:10%;height:14px;border-radius:5px}
+.thm .pv.l{background:#f3f1ea}.thm .pv.l i{background:#fff}
+.thm .pv.d{background:#121513}.thm .pv.d i{background:#232925}
+.thm .pv.a{background:linear-gradient(105deg,#f3f1ea 50%,#121513 50%)}.thm .pv.a i{background:linear-gradient(105deg,#fff 50%,#232925 50%)}
+.thm .pv i:nth-child(1){top:12px;height:10px;right:45%}.thm .pv i:nth-child(2){top:30px;height:22px}.thm .pv i:nth-child(3){top:58px;height:18px}
+.thm .ok{display:block;font:700 10.5px "Noto Sans JP";color:var(--sub);margin-top:2px}
+/* ダークモード */
+html.dark{--bg:#111412;--card:#1b201d;--ink:#eceee8;--sub:#99a29a;--line:#2b322d;--grey:#7d857e;color-scheme:dark}
+html.dark body{background:var(--bg)}
+html.dark .card,html.dark .box,html.dark .menu,html.dark .mi,html.dark .qa,html.dark .ritem,html.dark .sheet,html.dark .toast,html.dark .tour .tip,html.dark .help,html.dark .seg button:not(.on),html.dark .mchips button:not(.on),html.dark .thm button{background:var(--card);color:var(--ink)}
+html.dark .card{box-shadow:0 0 0 1px #262c28,0 10px 26px rgba(0,0,0,.35)}
+html.dark .card.now{box-shadow:0 0 0 2px var(--blue),0 12px 28px rgba(43,111,214,.25)}
+html.dark .card.win{box-shadow:0 0 0 2px var(--red),0 12px 28px rgba(210,69,59,.25)}
+html.dark .hd .t,html.dark .kv .v,html.dark .seg button b,html.dark h3,html.dark .lead,html.dark .top h1,html.dark .tour h4,html.dark .ritem .tx b,html.dark .mi span:nth-child(2),html.dark .qa summary,html.dark .stat3 b,html.dark .sheet h3,html.dark .pastrow,html.dark .nrow div,html.dark .intro h2{color:var(--ink)}
+html.dark .seg button.on b{color:#fff}
+html.dark .bar,html.dark .flow,html.dark .mini a,html.dark .mini button,html.dark .stat3 div,html.dark .sum div,html.dark .nstate:not(.ok),html.dark .pick button:not(.on),html.dark .ritem .em,html.dark .m3.none,html.dark .yoso.none{background:#232925;color:var(--sub)}
+html.dark .bar,html.dark .box p,html.dark .box li,html.dark .qa .a,html.dark .tour p,html.dark .intro p,html.dark .intro li{color:#c3c9c2}
+html.dark .bar b,html.dark .box p b,html.dark .qa .a b,html.dark .tour p b,html.dark .intro li b{color:var(--ink)}
+html.dark .pick button.on{background:var(--green);color:#fff}
+html.dark .tabs{background:rgba(22,26,23,.92);border-top-color:#262c28}
+html.dark .tab{color:#6f776f}html.dark .tab.on{color:var(--ink)}
+html.dark .subtop{background:rgba(17,20,18,.9)}
+html.dark .sheet input,html.dark .setrow input{background:#232925;color:var(--ink);border-color:#323a34}
+html.dark .btn.ghost{background:#232925;color:var(--ink);box-shadow:inset 0 0 0 1.5px #323a34}
+html.dark .mi{border-top-color:#262c28}html.dark .mi:active{background:#232925}
+html.dark .pastrow,html.dark .nrow{border-top-color:#262c28}
+html.dark .flow .st:before{background:#1b201d;border-color:#454d47}
+html.dark .flow .ln{background:#454d47}
+html.dark .tag.grey{background:#2a302c;color:#a3aaa3}
+html.dark .tag.blue{background:#1d2a40;color:#7fb0ff}html.dark .tag.org{background:#3a2c17;color:#f0b25c}
+html.dark .tag.red{background:#3d1f1c;color:#ff8b80}html.dark .tag.green,html.dark .tag.good{background:#173327;color:#6fd3a5}
+html.dark .tag.skipm{background:#33261b;color:#d7a77c}
+html.dark .big{background:#173327}html.dark .big.neg{background:#3d1f1c}
+html.dark .intro{background:var(--bg)}html.dark .intro .art circle:first-child{opacity:.25}
+html.dark .demo .dseg div,html.dark .demo .dfront{background:#232925}
+html.dark .m3{--a:#262b27;--b:#202521;--t:#eceee8;--s:#9aa39b}
+html.dark .m3.r-S{--a:#3a3015;--b:#2c2510;--t:#ffd970;--s:#c9a94a}
+html.dark .m3.r-A{--a:#3d1f1c;--b:#2e1816;--t:#ff9d93;--s:#c8706a}
+html.dark .m3.r-B{--a:#1b2a42;--b:#152034;--t:#8dbbff;--s:#6b8fc4}
+html.dark .m3.r-C{--a:#17332a;--b:#11271f;--t:#79ddb0;--s:#5fa486}
+html.dark .m3.r-D{--a:#33261b;--b:#271d15;--t:#e3b58d;--s:#a8835f}
+html.dark .m3 .c .h{background:rgba(0,0,0,.28)!important}
+.m3 .c.g .h{background:none!important}
+html.dark .m3 .c.g .v{color:#4fd69a!important}
+html.dark .empty,html.dark .hint{color:var(--sub)}
+html.dark .pop{background:#2b322d}
+html.dark .plus{box-shadow:0 6px 14px rgba(0,0,0,.4)}
+html.dark .skipbox summary:before{background:#33261b}
+html.dark .sheet-bg{background:rgba(0,0,0,.55)}
 /* splash */
 .splash{position:fixed;inset:0;background:linear-gradient(180deg,#8a8740,#55521f);z-index:100;display:grid;place-items:center;transition:opacity .5s .1s,visibility .5s .1s}
 .splash.off{opacity:0;visibility:hidden}
@@ -378,6 +445,8 @@ button{font-family:inherit}
 </style>
 </head>
 <body>
+<script>(function(){var t='auto';try{t=(JSON.parse(localStorage.getItem('kd_set')||'{}').theme)||'auto'}catch(e){}
+var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches);if(d)document.documentElement.classList.add('dark')})()</script>
 <div class="splash" id="splash"><div class="wrap">
 <svg viewBox="0 0 200 200">
 <defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe56b"/><stop offset="1" stop-color="#c98d0c"/></linearGradient>
@@ -451,6 +520,7 @@ button{font-family:inherit}
 <button class="mi" id="tourAgain"><span class="ico" style="background:#7d7a3a">👆</span><span>画面の説明をもう一度見る<small>各タブを開いたときの説明</small></span><i>›</i></button>
 </div>
 <div class="menu">
+<button class="mi" data-sub="thm"><span class="ico" style="background:#5b5f9e">◐</span><span>デザイン<small id="thmSum">端末に合わせる</small></span><i>›</i></button>
 <button class="mi" data-sub="acct"><span class="ico" style="background:#9aa097">🏦</span><span>口座と手数料<small>楽天証券・ゼロコース</small></span><i>›</i></button>
 <button class="mi" data-sub="rate"><span class="ico" style="background:#9aa097">％</span><span>一般信用の貸株料<small id="rateSum">短期 3.9％・無期限 1.1％</small></span><i>›</i></button>
 <button class="mi" data-sub="data"><span class="ico" style="background:#9aa097">⟳</span><span>データについて<small>どこから・いつ更新</small></span><i>›</i></button>
@@ -493,6 +563,12 @@ button{font-family:inherit}
 <details class="qa"><summary>記録はどこに保存される？</summary><div class="a">申込・当選・優待の記録は、この端末と、Googleスプレッドシート「決算チェッカー」のログに保存されます。別の端末で開いても同じ記録が出ます。</div></details>
 <details class="qa"><summary>通知が届かないときは？</summary><div class="a">①iPhoneはSafariで「ホーム画面に追加」したアプリから開く必要があります ②設定 → 通知 でオンになっているか確認 ③iPhoneの設定 → 通知 → KABU DROP が許可されているか確認。通知は朝・夕方などに1日数回まとめて送るので、少し遅れることがあります。</div></details>
 </div></div>
+<div class="subpage" id="sub-thm"><div class="in"><div class="subtop"><button class="back"><b>‹</b>設定</button><h2>デザイン</h2></div>
+<div class="box"><h3>画面の明るさ</h3><div class="thm" id="thm">
+<button data-t="light"><div class="pv l"><i></i><i></i><i></i></div>ライト</button>
+<button data-t="dark"><div class="pv d"><i></i><i></i><i></i></div>ダーク</button>
+<button data-t="auto"><div class="pv a"><i></i><i></i><i></i></div>端末に合わせる<span class="ok">iPhoneの設定どおり</span></button>
+</div></div></div></div>
 <div class="subpage" id="sub-acct"><div class="in"><div class="subtop"><button class="back"><b>‹</b>設定</button><h2>口座と手数料</h2></div>
 <div class="box"><h3>使っている口座</h3><p>楽天証券（1口座）</p><p>手数料は<b>ゼロコース（0円）</b>で計算しています。</p><p style="color:var(--sub)">口座を増やすと、同じIPOでくじを引ける回数が増えます。SBI・松井などはあとで追加できるようにします。</p></div></div></div>
 <div class="subpage" id="sub-rate"><div class="in"><div class="subtop"><button class="back"><b>‹</b>設定</button><h2>一般信用の貸株料</h2></div>
@@ -749,7 +825,7 @@ function yosoBox(o){
   const c3=`<div class="c g ${gain!=null&&gain<0?'dn':''}" data-tip="gain"><div class="k">${first?'利益':'予想利益'}（${u}株）</div><div class="v">${gain!=null?pm(gain):'—'}</div><div class="s">${gain!=null?(first?'初値で売った場合':'初値で売ったら'):'値段が決まると出ます'}</div>${gain!=null?'<div class="h">&nbsp;</div>':''}</div>`;
   const meta=[y.rank&&!first?`<span class="rk ${y.rank}" data-tip="rank">評価 ${y.rank}</span>`:'',gain!=null&&gain<=0&&!first?'<span class="warn">公募割れのおそれ</span>':'',!first&&pro&&y.reader?`みんなの予想 ${yen(y.reader)}円（${y.n}人）`:'',p?'出典 96ut.com':''].filter(Boolean).join('<span>・</span>');
   const jt=o.k!=='end'&&!first?judgeTag(o):'';
-  return`<div class="m3">${c1}<span class="op">→</span>${c2}<span class="op">＝</span>${c3}</div>${meta||jt?`<div class="m3meta">${jt}${meta}</div>`:''}`}
+  return`<div class="m3 ${y.rank?'r-'+y.rank:''}">${c1}<span class="op">→</span>${c2}<span class="op">＝</span>${c3}</div>${meta||jt?`<div class="m3meta">${jt}${meta}</div>`:''}`}
 
 /* ============ 分売 ============ */
 function bunbaiWindow(date){ // 申込受付：前営業日17:15〜当日8:20
@@ -840,7 +916,7 @@ function crossCost(r,px,cyc){
   const val=+((r.vals&&r.vals[cyc.m])||r.val)||0;return{E,X,d,lend,dv,tax,val,net:lend!=null?val-lend-tax:null,need:px?px*sh:null}}
 const YU={kind:'yutai',cur:'can',last:{},
   segs:{can:'候補',done:'クロス中',win:'届くの待ち',end:'終了'},
-  moves:{can:{L:['done','クロスした','#7d7a3a']},done:{L:['win','現渡しした','#d98a1c'],R:['can','候補に戻す','#9aa097']},win:{L:['end','届いた！','#1f9d6b'],R:['done','クロス中に戻す','#9aa097']}},
+  moves:{can:{L:['done','クロスした','#7d7a3a'],R:['out','候補から外す','#8a5a34']},done:{L:['win','現渡しした','#d98a1c'],R:['can','候補に戻す','#9aa097']},win:{L:['end','届いた！','#1f9d6b'],R:['done','クロス中に戻す','#9aa097']}},
   all(){return Object.keys(REC.yutai).map(id=>this.classify(id)).filter(Boolean)},
   find(id){return this.classify(id)},
   classify(id){
@@ -855,11 +931,11 @@ const YU={kind:'yutai',cur:'can',last:{},
   lead(g){const t=todayJ();const td=g.can.filter(o=>days(o.c.E,t)<=0).length;const tot=g.can.reduce((a,o)=>a+(o.c.net>0?o.c.net:0),0);
     return td?`今日クロスする優待が <span class="r">${td}件</span>`:g.can.length?`次のクロスは <span class="b">${mdD(g.can[0].c.E)}</span>${tot?` ・ 候補で <span class="b">${pm(tot)}</span>`:''}`:'下のおすすめから選んで追加しよう'},
   empty:{can:'下の「おすすめの優待」をタップするか、右上の＋で追加しよう。<br>株価は自動で入って、差し引きいくら得かを計算します。',done:'クロスした優待はここに並びます',win:'現渡ししたら、届くまでここで待ちます',end:'届いた優待はここに並びます'},
-  hint(g){return{can:g.can.length?'クロスしたら ← 左にスワイプ ／ タップで編集':'',done:g.done.length?'現渡ししたら ← 左 ／ 右 → で候補に戻す':'',win:g.win.length?'届いたら ← 左 ／ 右 → で戻す':'',end:''}[this.cur]},
+  hint(g){return{can:g.can.length?'クロスしたら ← 左 ／ 候補から外すなら → 右にスワイプ':'',done:g.done.length?'現渡ししたら ← 左 ／ 右 → で候補に戻す':'',win:g.win.length?'届いたら ← 左 ／ 右 → で戻す':'',end:''}[this.cur]},
   guard(o,to){return null},
-  setFor:{can:{st:'watch'},done:{st:'cross'},win:{st:'wait'},end:{st:'got'}},
+  setFor:{can:{st:'watch'},done:{st:'cross'},win:{st:'wait'},end:{st:'got'},out:null},
   beforeMove(o,to){if(to==='done')return{last:iso(o.cyc.L)};if(to==='end')return{gotNet:o.c.net,gotAt:iso(todayJ())};if(to==='can')return{last:null};return{}},
-  toastFor(to,o){return{done:o.name+'：クロス中に移動',win:o.name+'：届くのを待とう',end:'優待ゲット！ '+o.name,can:o.name+'：候補に戻しました'}[to]},
+  toastFor(to,o){return{out:o.name+'：候補から外しました（おすすめに戻りました）',done:o.name+'：クロス中に移動',win:o.name+'：届くのを待とう',end:'優待ゲット！ '+o.name,can:o.name+'：候補に戻しました'}[to]},
   act(a,o){if(a==='edit')openYutai(o.id);else if(a==='again'){flyOut('yutai',o.id,'R',()=>{setRec('yutai',o.id,{st:'watch',last:null,gotNet:null});renderAll();toast(o.name+'：また候補に入れました')},'can','#2b6fd6')}},
   card(o,i){
     const r=o.r,c=o.c,t=todayJ();let cls='',tag='',memo='',btns='';
@@ -1119,6 +1195,15 @@ function openPicker(){const sh=$('#sheet');const L=recList.map(recCalc).filter(B
   $('#pkQ').oninput=()=>{const q=$('#pkQ').value.trim();$('#pkList').innerHTML=recRows(L.filter(x=>!q||x.it.name.includes(q)||x.it.item.includes(q)||x.it.code.includes(q)),99)||'<p>見つかりません。下のボタンからコードで追加できます。</p>'};
   $('#pkList').onclick=e=>{const b=e.target.closest('[data-rc]');if(b)pickRec(b.dataset.rc,b)};
   $('#pkCode').onclick=()=>{closeSheet();setTimeout(()=>openYutai(null),200)};$('#pkNo').onclick=closeSheet}
+
+// ---- デザイン（ライト／ダーク） ----
+const mqDark=matchMedia('(prefers-color-scheme: dark)');
+function applyTheme(){const t=SET.theme||'auto';const d=t==='dark'||(t==='auto'&&mqDark.matches);document.documentElement.classList.toggle('dark',d);
+  const m=document.querySelector('meta[name=theme-color]');if(m)m.content=d?'#111412':'#f3f1ea';
+  document.querySelectorAll('#thm button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));const s=$('#thmSum');if(s)s.textContent={light:'ライト',dark:'ダーク',auto:'端末に合わせる'}[t]}
+mqDark.addEventListener&&mqDark.addEventListener('change',applyTheme);
+$('#thm').onclick=e=>{const b=e.target.closest('[data-t]');if(!b)return;SET.theme=b.dataset.t;saveSet();applyTheme();toast({light:'ライトにしました',dark:'ダークにしました',auto:'端末の設定に合わせます'}[SET.theme])};
+applyTheme();
 
 // ---- 設定のサブ画面 ----
 function openSub(k){const el=$('#sub-'+k);if(!el)return;el.scrollTop=0;el.style.transform='';el.classList.add('on');$('.app').classList.add('pushed');$('#subshade').classList.add('on');return el}
