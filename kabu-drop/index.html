@@ -344,6 +344,8 @@ button{font-family:inherit}
 .subshade.on{opacity:1}
 .app.pushed{transform:translateX(-22%);opacity:.6}
 .app{transition:transform .38s cubic-bezier(.2,1,.3,1),opacity .38s}
+.m3 .c .h{font:800 10px "Noto Sans JP";color:#7a5a06;margin-top:3px;padding:2px 6px;border-radius:6px;background:rgba(255,255,255,.6);display:inline-block;white-space:nowrap}
+.m3 .c.g .h{background:none}
 /* splash */
 .splash{position:fixed;inset:0;background:linear-gradient(180deg,#8a8740,#55521f);z-index:100;display:grid;place-items:center;transition:opacity .5s .1s,visibility .5s .1s}
 .splash.off{opacity:0;visibility:hidden}
@@ -455,6 +457,7 @@ button{font-family:inherit}
 <details class="qa" id="qa-price"><summary>値段はいつ決まるの？（仮条件・公開価格）</summary><div class="a">値段は2段階で決まります。<br><b>①仮条件</b>：仮の値段の幅（例：550〜570円）。申込が始まる少し前に決まります。<br><b>②申込（ブックビルディング）</b>：この期間に楽天で申し込みます。<br><b>③公開価格</b>：本決まりの値段。抽選の日に決まり、ほとんどは仮条件の一番高い値段になります。<br>カードの「①②③」の丸で、今どこまで決まったかがわかります。</div></details>
 <details class="qa" id="qa-need"><summary>お金はいつ必要？</summary><div class="a">楽天証券の国内IPOは、<b>申込（抽選への参加）の時点ではお金はいりません</b>。<br><b>抽選日（公開価格が決まる日）の18時まで</b>に、<b>株数 × 公開価格</b>（ふつう100株）のお金が口座に入っていれば抽選の対象になります。例：公開価格 570円なら 570円×100株＝<b>57,000円</b>。<br>ハズレたら、お金はそのまま使えます。</div></details>
 <details class="qa" id="qa-skip"><summary>当選しても買わなくていいの？</summary><div class="a">いいです。楽天証券では、当選しても<b>購入申込期間に「購入」を押さなければ、買わなかった扱い</b>になります（自分から「辞退」もできます）。楽天の案内には、辞退したときのペナルティ（次から当たりにくくなる等）は書かれていません。<br>ただし証券会社によっては、辞退すると次の抽選で不利になるところもあるので、口座を増やすときは確認しましょう。初値予想が公開価格より低い（公募割れのおそれ）ときは、あえて買わないのも作戦です。</div></details>
+<details class="qa" id="qa-zettai"><summary>当選しても買わなくていいなら、絶対得する？</summary><div class="a">絶対ではありません。「買うか決める日（購入申込期間）」は<b>上場日より前</b>なので、本当の初値を見てから決めることはできません。決める時に使えるのは<b>初値予想だけ</b>です。<br>2026年のIPO 35件のうち<b>12件が公募割れ</b>（初値が公開価格より下）でした。中には予想がプラスだったのに外れたものもあり、例：公開価格 4,040円・予想 5,180円 → 初値 3,760円（<b>100株で−28,000円</b>）。<br>それでも全体の真ん中は<b>100株で+14,000円</b>くらいで、平均すると得の方が多いです。「評価が低い・公募割れのおそれ」が出ているものは買わない、を守ると損しにくくなります。</div></details>
 <details class="qa" id="qa-kokai"><summary>公開価格は予想できるの？</summary><div class="a">かなり予想できます。<br>①上場が決まった時に<b>想定価格</b>（会社が出す目安）が出ます<br>②申込の少し前に<b>仮条件</b>（例：550〜570円）が決まります<br>③人気のIPOは、ほとんどの場合<b>仮条件の一番高い値段</b>で公開価格が決まります<br>そのためアプリでは、公開価格が決まるまでは「仮条件の上限」、仮条件もまだなら「想定価格」を目安として出し、予想利益もその値段で計算しています。</div></details>
 <details class="qa" id="qa-yoso"><summary>初値予想って何？</summary><div class="a">上場して<b>最初につく値段（初値）の予想</b>です。予想サイト（96ut.com）の数字を出しています。<br>「直前予想」＝上場直前のプロの予想（いちばん当たりやすい）、「仮条件前の予想」＝少し早い段階の予想、「みんなの予想」＝読者の投票の平均。<br>「100株で +〇円」は、公開価格で買って初値で売ったら、という目安です。あくまで予想なので外れることもあります。</div></details>
 <details class="qa" id="qa-rank"><summary>評価 S・A・B・C・D って？</summary><div class="a">予想サイトの管理人がつけた人気の目安です。<br><b>S・A</b>：かなり人気。大きく上がりそう<br><b>B</b>：まあまあ人気。上がりそう<br><b>C</b>：少し上がるかも<br><b>D</b>：公募割れ（買った値段より下がる）の心配あり<br>Dや「公募割れのおそれ」が出ているものは、申し込むか慎重に考えましょう。</div></details>
@@ -720,10 +723,10 @@ function yosoBox(o){
   const first=y.first;const pro=y.last||y.bb;const p=first||pro||y.reader;
   const kind=first?'確定':y.last?'直前予想':y.bb?'仮条件前の予想':y.reader?'みんなの予想':'';
   if(o.k==='end'&&!p)return'';
-  const c1=`<div class="c" data-tip="kokai"><div class="k">${o.price?'公開価格':'公開価格（予想）'} ⓘ</div><div class="v">${base?yen(base):'—'}<small>円</small></div><div class="s">${o.price?'本決まり':o.hiP?'仮条件の上限で予想':base?'想定価格で予想':md(x.data9)+'に決定'}</div></div>`;
-  const c2=`<div class="c" data-tip="${first?'first':'yoso'}"><div class="k">${first?'初値':'初値予想'} ⓘ</div><div class="v">${p?yen(p):'—'}<small>${p?'円':''}</small></div><div class="s">${p?kind:'まだ出ていません'}</div></div>`;
+  const c1=`<div class="c" data-tip="kokai"><div class="k">${o.price?'公開価格':'公開価格（予想）'} ⓘ</div><div class="v">${base?yen(base):'—'}<small>円</small></div><div class="s">${o.price?'本決まり':o.hiP?'仮条件の上限で予想':base?'想定価格で予想':md(x.data9)+'に決定'}</div>${base?`<div class="h">${u}株 ${yen(base*u)}円</div>`:''}</div>`;
+  const c2=`<div class="c" data-tip="${first?'first':'yoso'}"><div class="k">${first?'初値':'初値予想'} ⓘ</div><div class="v">${p?yen(p):'—'}<small>${p?'円':''}</small></div><div class="s">${p?kind:'まだ出ていません'}</div>${p?`<div class="h">${u}株 ${yen(p*u)}円</div>`:''}</div>`;
   const gain=p&&base?(p-base)*u:null;
-  const c3=`<div class="c g ${gain!=null&&gain<0?'dn':''}" data-tip="gain"><div class="k">${first?'利益':'予想利益'}（${u}株）</div><div class="v">${gain!=null?pm(gain):'—'}</div><div class="s">${gain!=null?(first?'初値で売った場合':'初値で売ったら'):'値段が決まると出ます'}</div></div>`;
+  const c3=`<div class="c g ${gain!=null&&gain<0?'dn':''}" data-tip="gain"><div class="k">${first?'利益':'予想利益'}（${u}株）</div><div class="v">${gain!=null?pm(gain):'—'}</div><div class="s">${gain!=null?(first?'初値で売った場合':'初値で売ったら'):'値段が決まると出ます'}</div>${gain!=null?'<div class="h">&nbsp;</div>':''}</div>`;
   const meta=[y.rank&&!first?`<span class="rk ${y.rank}" data-tip="rank">評価 ${y.rank}</span>`:'',gain!=null&&gain<=0&&!first?'<span class="warn">公募割れのおそれ</span>':'',!first&&pro&&y.reader?`みんなの予想 ${yen(y.reader)}円（${y.n}人）`:'',p?'出典 96ut.com':''].filter(Boolean).join('<span>・</span>');
   return`<div class="m3">${c1}<span class="op">→</span>${c2}<span class="op">＝</span>${c3}</div>${meta?`<div class="m3meta">${meta}</div>`:''}`}
 
