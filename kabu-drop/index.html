@@ -630,6 +630,7 @@ html.dark .apl.pre{background:#1f2622;border-color:#2f3732}html.dark .apl.pre .h
 @keyframes blink{50%{opacity:.25}}
 @keyframes pulse{50%{transform:scale(1.06)}}
 @keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.4)}100%{transform:scale(1)}}
+.co summary{list-style:none;cursor:pointer}.co summary::-webkit-details-marker{display:none}.co .cq{font:700 11px "Noto Sans JP";color:var(--blue)}.co .cb{margin-top:6px;font:600 12.5px/1.6 "Noto Sans JP";color:var(--sub)}.co .cb a{display:inline-block;margin-top:4px;color:var(--blue);font-weight:800}
 </style>
 </head>
 <body>
@@ -998,7 +999,7 @@ const IPO={kind:'ipo',cur:'can',last:{},
     }
     const priceTxt=o.price?`${yen(o.price)}円`:(x.data3&&x.data3!=='-'?esc(x.data3):'—');
     const yoso='';
-    return slot(o,i,cls,`<div class="hd"><div class="nm"><div class="t">${esc(o.name)}</div><div class="m">${x.code} ・ <span data-tip="mkt" style="text-decoration:underline dotted">${esc(o.mkt)}</span></div></div>${tag}</div>
+    return slot(o,i,cls,`<div class="hd"><div class="nm"><details class="co" onclick="event.stopPropagation()"><summary class="t">${esc(o.name)} <span class="cq">会社の説明 ›</span></summary><div class="cb">${esc(x.data22||'説明はまだありません')}${x.com?` <a href="${esc(x.com)}" target="_blank" rel="noopener">公式サイト ›</a>`:''}</div></details><div class="m">${x.code} ・ <span data-tip="mkt" style="text-decoration:underline dotted">${esc(o.mkt)}</span></div></div>${tag}</div>
     ${yosoBox(o)}
     <div class="kv">
      <div><div class="k">申込期間</div><div class="v">${md(x.data4)} 〜 ${md(x.data6)}${x.data7&&x.data7!=='0:00'?`<small>${x.data7}まで</small>`:''}</div></div>
