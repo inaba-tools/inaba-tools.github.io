@@ -417,7 +417,7 @@ html.dark .m3.r-B{--a:#1b2a42;--b:#152034;--t:#8dbbff;--s:#6b8fc4}
 html.dark .m3.r-C{--a:#17332a;--b:#11271f;--t:#79ddb0;--s:#5fa486}
 html.dark .m3.r-D{--a:#33261b;--b:#271d15;--t:#e3b58d;--s:#a8835f}
 html.dark .m3 .c .h{background:rgba(0,0,0,.28)!important}
-.m3 .c.g .h{background:none!important}
+.m3 .c.g .h{display:none!important}
 html.dark .m3 .c.g .v{color:#4fd69a!important}
 html.dark .empty,html.dark .hint{color:var(--sub)}
 html.dark .pop{background:#2b322d}
@@ -456,6 +456,36 @@ html.dark .flowm .st p{color:#c3c9c2!important}html.dark .flowm .amt{background:
 html.dark .bpick button:not(.on){background:#232925;color:#c3c9c2}
 .notebox{margin-top:10px;padding:11px 12px;border-radius:12px;background:#fbf6e6;font:700 12.5px "Noto Sans JP";color:#6b5a2a;line-height:1.7}
 html.dark .notebox{background:#2c2510;color:#e0c77a}
+/* 優待のカード（小さく→タップで大きく） */
+.yc{padding:12px 12px}
+.yc .yh2{display:flex;align-items:center;gap:11px}
+.yc .em{width:42px;height:42px;border-radius:13px;background:#f3f1ea;display:grid;place-items:center;font-size:22px;flex:none}
+html.dark .yc .em{background:#232925}
+.yc .tx{flex:1;min-width:0}
+.yc .tx b{display:block;font:800 15px "Noto Sans JP";color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.yc .tx span{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font:700 11.5px "Noto Sans JP";color:var(--sub);margin-top:3px}
+.yc .tx .tag{font-size:10.5px;padding:3px 7px}
+.yc .rt{text-align:right;flex:none}
+.yc .rt .k{font:800 10.5px "Noto Sans JP";color:var(--sub)}
+.yc .rt b{display:block;font:900 16px Inter;color:#b8650f}
+html.dark .yc .rt b{color:#f0b25c}
+.yc .rt small{display:block;font:700 10px "Noto Sans JP";color:var(--sub);margin-top:2px;white-space:nowrap}
+.yc .chev{font:700 18px Inter;color:#c3c0b4;transition:transform .35s cubic-bezier(.2,1,.3,1);margin-left:2px}
+.yc.open .chev{transform:rotate(90deg)}
+.ydet{display:grid;grid-template-rows:0fr;transition:grid-template-rows .4s cubic-bezier(.2,1,.3,1)}
+.yc.open .ydet{grid-template-rows:1fr}
+.ydet>div{overflow:hidden;min-height:0}
+.ydet>div>:first-child{margin-top:12px}
+.yc .ydet>div{opacity:0;transition:opacity .25s}.yc.open .ydet>div{opacity:1;transition:opacity .35s .1s}
+.ritem .nt small{display:block;font:700 10px "Noto Sans JP";color:var(--sub);margin-top:2px;white-space:nowrap}
+.mflow{display:flex;align-items:stretch;gap:4px;margin:12px auto 0;max-width:340px}
+.mflow>span{flex:1;background:#fff;border-radius:12px;padding:8px 4px;font:700 10.5px "Noto Sans JP";color:var(--sub);line-height:1.4}
+.mflow>span b{display:block;font:900 13px Inter;color:var(--ink);margin:2px 0}
+.mflow>span b.o{color:var(--red)}.mflow>span b.i{color:#1f9d6b}
+.mflow>i{align-self:center;font-style:normal;color:#c3c0b4;font-weight:900}
+html.dark .mflow>span{background:var(--card)}
+.intro .sm{font-size:12.5px!important;margin-top:8px!important}
+.intro .sm a{color:var(--green);font-weight:900;text-decoration:none}
 /* splash */
 .splash{position:fixed;inset:0;background:linear-gradient(180deg,#8a8740,#55521f);z-index:100;display:grid;place-items:center;transition:opacity .5s .1s,visibility .5s .1s}
 .splash.off{opacity:0;visibility:hidden}
@@ -526,7 +556,7 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
 
 <!-- 優待 -->
 <section class="page" id="p-yutai">
-<div class="top"><img src="icon-192.png" alt=""><h1>優待</h1><button class="help" data-tour="yutai" aria-label="説明">?</button><button class="plus" id="yAdd" aria-label="優待を追加">+</button></div>
+<div class="top"><img src="icon-192.png" alt=""><h1>優待</h1><button class="help" data-tour="yutai" aria-label="説明">?</button></div>
 <div class="lead" id="lead-yutai">読み込み中…</div>
 <div class="seg" data-b="yutai">
 <button class="on" data-k="can">候補<b>-</b></button>
@@ -574,7 +604,7 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
 <details class="qa" id="qa-judge"><summary>「👍 よさそう」「✋ 見送り」って？</summary><div class="a">カードに出る買うかどうかの目安です。<br><b>👍 申し込んでよさそう／買ってよさそう</b>：評価がDではなく、予想利益がプラス<br><b>✋ 見送りがよさそう</b>：評価がD、または予想利益が0円以下<br>2026年のIPO 35件で試すと、全部買うと公募割れ12件（損の合計−131,400円）でしたが、このルールなら<b>25件中4件（−70,100円）</b>に減り、もうけの合計は<b>+887,700円</b>（100株ずつ・全部当選した場合）でした。<br>見送るときは、カードを <b>→ 右にスワイプ</b>すると一番下の「見送ったIPO」に入ります。</div></details>
 <details class="qa" id="qa-zettai"><summary>当選しても買わなくていいなら、絶対得する？</summary><div class="a">絶対ではありません。「買うか決める日（購入申込期間）」は<b>上場日より前</b>なので、本当の初値を見てから決めることはできません。決める時に使えるのは<b>初値予想だけ</b>です。<br>2026年のIPO 35件のうち<b>12件が公募割れ</b>（初値が公開価格より下）でした。中には予想がプラスだったのに外れたものもあり、例：公開価格 4,040円・予想 5,180円 → 初値 3,760円（<b>100株で−28,000円</b>）。<br>それでも全体の真ん中は<b>100株で+14,000円</b>くらいで、平均すると得の方が多いです。「評価が低い・公募割れのおそれ」が出ているものは買わない、を守ると損しにくくなります。</div></details>
 <details class="qa" id="qa-kokai"><summary>公開価格は予想できるの？</summary><div class="a">かなり予想できます。<br>①上場が決まった時に<b>想定価格</b>（会社が出す目安）が出ます<br>②申込の少し前に<b>仮条件</b>（例：550〜570円）が決まります<br>③人気のIPOは、ほとんどの場合<b>仮条件の一番高い値段</b>で公開価格が決まります<br>そのためアプリでは、公開価格が決まるまでは「仮条件の上限」、仮条件もまだなら「想定価格」を目安として出し、予想利益もその値段で計算しています。</div></details>
-<details class="qa" id="qa-yoso"><summary>初値予想って何？</summary><div class="a">上場して<b>最初につく値段（初値）の予想</b>です。予想サイト（96ut.com）の数字を出しています。<br>「直前予想」＝上場直前のプロの予想（いちばん当たりやすい）、「仮条件前の予想」＝少し早い段階の予想、「みんなの予想」＝読者の投票の平均。<br>「100株で +〇円」は、公開価格で買って初値で売ったら、という目安です。あくまで予想なので外れることもあります。</div></details>
+<details class="qa" id="qa-yoso"><summary>初値予想って何？</summary><div class="a">上場して<b>最初につく値段（初値）の予想</b>です。予想サイト（96ut.com）の数字を出しています。<br>「直前予想」＝上場日の少し前に出るプロの予想（いちばん当たりやすい）、「申込開始時の予想」＝申込が始まる時（ブックビルディング開始時）に出る予想、「みんなの予想」＝読者の投票の平均。<br>「100株で +〇円」は、公開価格で買って初値で売ったら、という目安です。あくまで予想なので外れることもあります。</div></details>
 <details class="qa" id="qa-rank"><summary>評価 S・A・B・C・D って？</summary><div class="a">予想サイトの管理人がつけた人気の目安です。<br><b>S・A</b>：かなり人気。大きく上がりそう<br><b>B</b>：まあまあ人気。上がりそう<br><b>C</b>：少し上がるかも<br><b>D</b>：公募割れ（買った値段より下がる）の心配あり<br>Dや「公募割れのおそれ」が出ているものは、申し込むか慎重に考えましょう。</div></details>
 <details class="qa" id="qa-mkt"><summary>「人気になりやすい市場」って？</summary><div class="a">上場する場所（市場）による傾向です。<br><b>グロース</b>：小さく成長中の会社が多く、株の数も少ないので人気になって上がりやすい<br><b>プライム</b>：大きい会社が多く、上がりにくめ<br><b>地方（名証・福証・札証）・PRO市場</b>：買う人が少なく、注意が必要<br><b>REIT（〜投資法人）</b>：不動産の投資信託。値上がりしにくい<br>あくまで傾向なので、初値予想とあわせて見てください。</div></details>
 <details class="qa"><summary>公募割れって？</summary><div class="a">初値が公開価格より<b>下になってしまう</b>ことです。当たっても売ると損になります。初値予想が公開価格以下のときは、カードに「公募割れのおそれ」と赤で出ます。</div></details>
@@ -684,6 +714,8 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
  <ul><li><i>1</i><span>同じ株を<b>「買い」と「売り」で同時に</b>持つ（優待クロス）</span></li>
  <li><i>2</i><span>株価が動いても損得はほぼゼロ。<b>株主優待だけ</b>もらえる</span></li>
  <li><i>3</i><span>クロスに<b>かかる費用</b>（貸株料・配当の税）を円で計算</span></li></ul>
+ <div class="mflow"><span>①クロスの日<b class="o">−12万円</b>株を買う</span><i>›</i><span>②次の日<b>現渡し</b>株を返す</span><i>›</i><span>③2営業日後<b class="i">＋12万円</b>お金が戻る</span></div>
+ <p class="sm">お金は一時的に必要なだけ。減るのは<b>費用（数百〜千円台）だけ</b>です。<br><a href="#" id="introBudget">予算とお金の流れをくわしく ›</a></p>
 </section>
 <section class="sl">
  <div class="demo"><div class="dseg"><div>申込できる<b><span class="n0">1</span><span class="n1">0</span></b></div><div>申込済み<b><span class="m0">0</span><span class="n1">1</span></b></div></div>
@@ -851,12 +883,13 @@ function judgeTag(o){const j=judge(o);if(!j)return'';const w=o.k==='win';
 function yosoBox(o){
   const x=o.x,y=yosoData[o.id]||{};const base=o.price||o.hiP||y.sotei;const u=o.unit;
   const first=y.first;const pro=y.last||y.bb;const p=first||pro||y.reader;
-  const kind=first?'確定':y.last?'直前予想':y.bb?'仮条件前の予想':y.reader?'みんなの予想':'';
+  const kind=first?'確定':y.last?'直前予想':y.bb?'申込開始時の予想':y.reader?'みんなの予想':'';
+  const ex=first?'':`<br><br>📅 <b>この会社の予想が出る時期</b><br>・申込開始時の予想：${md(x.data4)}ごろ（${y.bb?'出ています '+yen(y.bb)+'円':'まだ'}）<br>・直前予想：上場日 ${md(x.data18)} の少し前（${y.last?'出ています '+yen(y.last)+'円':'まだ'}）<br>・みんなの予想：上場が決まってからずっと（${y.reader?yen(y.reader)+'円・'+y.n+'人':'まだ'}）`;
   if(o.k==='end'&&!p)return'';
   const c1=`<div class="c" data-tip="kokai"><div class="k">${o.price?'公開価格':'公開価格（予想）'} ⓘ</div><div class="v">${base?yen(base):'—'}<small>円</small></div><div class="s">${o.price?'本決まり':o.hiP?'仮条件の上限で予想':base?'想定価格で予想':md(x.data9)+'に決定'}</div>${base?`<div class="h">${u}株 ${yen(base*u)}円</div>`:''}</div>`;
-  const c2=`<div class="c" data-tip="${first?'first':'yoso'}"><div class="k">${first?'初値':'初値予想'} ⓘ</div><div class="v">${p?yen(p):'—'}<small>${p?'円':''}</small></div><div class="s">${p?kind:'まだ出ていません'}</div>${p?`<div class="h">${u}株 ${yen(p*u)}円</div>`:''}</div>`;
+  const c2=`<div class="c" data-tip="${first?'first':'yoso'}" data-ex="${esc(ex)}"><div class="k">${first?'初値':'初値予想'} ⓘ</div><div class="v">${p?yen(p):'—'}<small>${p?'円':''}</small></div><div class="s">${p?kind:'まだ出ていません'}</div>${p?`<div class="h">${u}株 ${yen(p*u)}円</div>`:''}</div>`;
   const gain=p&&base?(p-base)*u:null;
-  const c3=`<div class="c g ${gain!=null&&gain<0?'dn':''}" data-tip="gain"><div class="k">${first?'利益':'予想利益'}（${u}株）</div><div class="v">${gain!=null?pm(gain):'—'}</div><div class="s">${gain!=null?(first?'初値で売った場合':'初値で売ったら'):'値段が決まると出ます'}</div>${gain!=null?'<div class="h">&nbsp;</div>':''}</div>`;
+  const c3=`<div class="c g ${gain!=null&&gain<0?'dn':''}" data-tip="gain"><div class="k">${first?'利益':'予想利益'}（${u}株）</div><div class="v">${gain!=null?pm(gain):'—'}</div><div class="s">${gain!=null?(first?'初値で売った場合':'初値で売ったら'):'値段が決まると出ます'}</div></div>`;
   const meta=[y.rank&&!first?`<span class="rk ${y.rank}" data-tip="rank">評価 ${y.rank}</span>`:'',gain!=null&&gain<=0&&!first?'<span class="warn">公募割れのおそれ</span>':'',!first&&pro&&y.reader?`みんなの予想 ${yen(y.reader)}円（${y.n}人）`:'',p?'出典 96ut.com':''].filter(Boolean).join('<span>・</span>');
   const jt=o.k!=='end'&&!first?judgeTag(o):'';
   return`<div class="m3 ${y.rank?'r-'+y.rank:''}">${c1}<span class="op">→</span>${c2}<span class="op">＝</span>${c3}</div>${meta||jt?`<div class="m3meta">${jt}${meta}</div>`:''}`}
@@ -948,6 +981,7 @@ function crossCost(r,px,cyc){
   const lend=px?Math.ceil(px*sh*rate*d/365):null;
   const dv=r.div!=null&&r.div!==''?+r.div:divFor(r.code,cyc.m);const tax=dv?Math.round(dv*sh*0.20315):0;
   const val=+((r.vals&&r.vals[cyc.m])||r.val)||0;return{E,X,d,lend,dv,tax,val,cost:lend!=null?lend+tax:null,net:lend!=null?val-lend-tax:null,need:px?px*sh:null}}
+const YOPEN=new Set();
 const YU={kind:'yutai',cur:'can',last:{},
   segs:{can:'候補',done:'クロス中',win:'届くの待ち',end:'終了'},
   moves:{can:{L:['done','クロスした','#7d7a3a'],R:['out','候補から外す','#8a5a34']},done:{L:['win','現渡しした','#d98a1c'],R:['can','候補に戻す','#9aa097']},win:{L:['end','届いた！','#1f9d6b'],R:['done','クロス中に戻す','#9aa097']}},
@@ -963,37 +997,42 @@ const YU={kind:'yutai',cur:'can',last:{},
     return o},
   sort(g){const f=o=>+o.cyc.L;g.can.sort((a,b)=>f(a)-f(b));g.done.sort((a,b)=>f(a)-f(b));g.win.sort((a,b)=>f(a)-f(b));g.end.sort((a,b)=>(b.r.at||0)-(a.r.at||0))},
   lead(g){const t=todayJ();const td=g.can.filter(o=>days(o.c.E,t)<=0).length;    return td?`今日クロスする優待が <span class="r">${td}件</span>`:g.can.length?`次のクロスは <span class="b">${mdD(g.can[0].c.E)}</span>（${g.can.length}件）`:'下のおすすめから選んで追加しよう'},
-  empty:{can:'下の「おすすめの優待」をタップするか、右上の＋で追加しよう。<br>株価は自動で入って、かかる費用を計算します。',done:'クロスした優待はここに並びます',win:'現渡ししたら、届くまでここで待ちます',end:'届いた優待はここに並びます'},
-  hint(g){return{can:g.can.length?'クロスしたら ← 左 ／ 候補から外すなら → 右にスワイプ':'',done:g.done.length?'現渡ししたら ← 左 ／ 右 → で候補に戻す':'',win:g.win.length?'届いたら ← 左 ／ 右 → で戻す':'',end:''}[this.cur]},
+  empty:{can:'下の「おすすめの優待」をタップして追加しよう。<br>株価は自動で入って、かかる費用を計算します。',done:'クロスした優待はここに並びます',win:'現渡ししたら、届くまでここで待ちます',end:'届いた優待はここに並びます'},
+  hint(g){return{can:g.can.length?'タップで詳しく ／ クロスしたら ← 左 ／ 外すなら → 右':'',done:g.done.length?'現渡ししたら ← 左 ／ 右 → で候補に戻す':'',win:g.win.length?'届いたら ← 左 ／ 右 → で戻す':'',end:''}[this.cur]},
   guard(o,to){if(o.k==='can'&&to==='done'&&days(o.c.E,todayJ())>0)return`まだクロスの日（${mdD(o.c.E)}）より前です`;return null},
   setFor:{can:{st:'watch'},done:{st:'cross'},win:{st:'wait'},end:{st:'got'},out:null},
   beforeMove(o,to){if(to==='done')return{last:iso(o.cyc.L)};if(to==='end')return{gotNet:o.c.net,gotAt:iso(todayJ())};if(to==='can')return{last:null};return{}},
   toastFor(to,o){return{out:o.name+'：候補から外しました（おすすめに戻りました）',done:o.name+'：クロス中に移動',win:o.name+'：届くのを待とう',end:'優待ゲット！ '+o.name,can:o.name+'：候補に戻しました'}[to]},
-  act(a,o){if(a==='edit')openYutai(o.id);else if(a==='again'){flyOut('yutai',o.id,'R',()=>{setRec('yutai',o.id,{st:'watch',last:null,gotNet:null});renderAll();toast(o.name+'：また候補に入れました')},'can','#2b6fd6')}},
+  act(a,o){if(a==='del'){if(!confirm(o.name+' を削除しますか？'))return;flyOut('yutai',o.id,'R',()=>{setRec('yutai',o.id,null);renderAll();toast('削除しました')});return}if(a==='edit')openYutai(o.id);else if(a==='again'){flyOut('yutai',o.id,'R',()=>{setRec('yutai',o.id,{st:'watch',last:null,gotNet:null});renderAll();toast(o.name+'：また候補に入れました')},'can','#2b6fd6')}},
   card(o,i){
-    const r=o.r,c=o.c,t=todayJ();let cls='',tag='',memo='',btns='';
+    const r=o.r,c=o.c,t=todayJ();let cls='',tag='',memo='',btns='';const rl=recList.find(x=>x.code===o.id);const emo=(rl&&rl.emo)||'🎁';
+    let sub='';
     if(o.k==='can'){const d=days(c.E,t);if(d<=0){cls='now';tag='<span class="tag blue pulse" data-tip="cross">今日クロス</span>'}else tag=`<span class="tag ${d<=7?'blue':'grey'}" data-tip="cross">クロスまで${d}日</span>`;
+      sub=`クロス ${mdD(c.E)}（${wdD(c.E)}）`;
       memo=`<b>${mdD(c.E)}（${wdD(c.E)}）</b>に楽天で「現物買い」と「一般信用売り（${r.plan==='l'?'無期限':'短期'}）」を ${yen(r.sh||100)}株ずつ。次の日に現渡し。${c.val?`<br>優待の目安 ${yen(c.val)}円相当（期限や使えるお店も確認しよう）`:''}`;
       btns=`<a class="btn ghost" href="${R_TOP}" target="_blank" rel="noopener">楽天証券を開く</a>`}
-    else if(o.k==='done'){cls='cross';const d=days(c.X,t);tag=`<span class="tag ${d<=0?'red pulse':'green'}">${d>0?'現渡しまで'+d+'日':'今日 現渡し'}</span>`;
+    else if(o.k==='done'){cls='cross';const d=days(c.X,t);tag=`<span class="tag ${d<=0?'red pulse':'green'}" data-tip="genwata">${d>0?'現渡しまで'+d+'日':'今日 現渡し'}</span>`;sub=`現渡し ${mdD(c.X)}（${wdD(c.X)}）`;
       memo=`<b>${mdD(c.X)}（${wdD(c.X)}）</b>に楽天で「現渡し」をして売りを返す。これで終わり。`;
       btns=`<button class="btn" data-act="go:win">現渡しした（← 左スワイプでもOK）</button>`}
-    else if(o.k==='win'){cls='wait';tag='<span class="tag org">届くの待ち</span>';memo='権利確定から2〜3か月くらいで届くことが多いです。届いたら ← 左にスワイプ。';btns=`<button class="btn" data-act="go:end">届いた！</button>`}
-    else{tag=`<span class="tag green">ゲット</span>`;memo=r.gotAt?`${md(r.gotAt)} に受け取り`:'';btns=`<div class="row2"><button class="btn" data-act="again">来年もやる</button><button class="btn ghost" data-act="edit">編集・削除</button></div>`}
+    else if(o.k==='win'){cls='wait';tag='<span class="tag org">届くの待ち</span>';sub='2〜3か月で届くことが多い';memo='権利確定から2〜3か月くらいで届くことが多いです。届いたら ← 左にスワイプ。';btns=`<button class="btn" data-act="go:end">届いた！</button>`}
+    else{tag=`<span class="tag green">ゲット</span>`;sub=r.gotAt?`${md(r.gotAt)} に受け取り`:'';btns=`<div class="row2"><button class="btn" data-act="again">来年もやる</button><button class="btn ghost" data-act="del" style="color:var(--red)">削除</button></div>`}
+    const over=SET.budget&&c.need>SET.budget;
+    const head=`<div class="yh2"><span class="em">${emo}</span><span class="tx"><b>${esc(o.name)}</b><span>${tag}${sub}</span></span>
+      <span class="rt"><span class="k">費用</span><b>${c.cost==null?'—':'約'+yen(c.cost)+'円'}</b>${c.need?`<small>一時的に${(c.need/10000).toFixed(1).replace('.0','')}万円${over?'（予算オーバー）':''}</small>`:''}</span><span class="chev">›</span></div>`;
     const big=c.cost==null?`<div class="cost wait"><span class="l">株価を取り込み中（3時間以内に自動で入ります）</span></div>`
       :`<div class="cost" data-tip="cost"><span class="l">かかる費用 ⓘ</span><span class="n">約${yen(c.cost)}円</span></div>
       <div class="calc">貸株料 ${yen(c.lend)}円（${c.d}日分）${c.tax?` ＋ 配当の税 ${yen(c.tax)}円`:''} ・ 手数料 0円</div>`;
-    return slot(o,i,cls,`<div class="hd"><div class="nm"><div class="t">${esc(o.name)}</div><div class="m">${esc(o.id)} ・ ${(r.mons||[]).join('・')}月 ・ ${yen(r.sh||100)}株</div></div>${tag}</div>
-    ${r.item?`<div class="desc" style="color:var(--ink);font-weight:700;font-size:13px">${esc(r.item)}</div>`:''}
+    const det=`${r.item?`<div class="desc" style="color:var(--ink);font-weight:700;font-size:13px">🎁 ${esc(r.item)}</div>`:''}
     ${big}
     <div class="kv">
      <div><div class="k" data-tip="cross">クロスする日</div><div class="v">${mdD(c.E)}<small>${wdD(c.E)}</small></div></div>
      <div><div class="k" data-tip="genwata">現渡しの日</div><div class="v">${mdD(c.X)}<small>${wdD(c.X)}</small></div></div>
      <div><div class="k">株価</div><div class="v">${o.px?yen(o.px)+'円':'—'}</div></div>
-     <div><div class="k" data-tip="need">一時的に必要なお金${SET.budget&&c.need>SET.budget?' <span class="tag over">予算オーバー</span>':''}</div><div class="v">${c.need?'約'+yen(c.need)+'円':'—'}<small>戻る</small></div></div>
+     <div><div class="k" data-tip="need">一時的に必要なお金${over?' <span class="tag over">予算オーバー</span>':''}</div><div class="v">${c.need?'約'+yen(c.need)+'円':'—'}<small>戻る</small></div></div>
     </div>
     ${bar(memo,o.k==='done'&&days(c.X,t)<=0?'red':'')}${btns}
-    ${o.k!=='end'?`<div class="mini"><button data-act="edit">編集</button><a href="https://finance.yahoo.co.jp/quote/${encodeURIComponent(o.id)}.T/incentive" target="_blank" rel="noopener">優待の中身を見る</a></div>`:''}`)}
+    <div class="mini"><a href="https://finance.yahoo.co.jp/quote/${encodeURIComponent(o.id)}.T/incentive" target="_blank" rel="noopener">優待の中身を見る（Yahoo!ファイナンス）</a></div>`;
+    return slot(o,i,cls+' yc'+(YOPEN.has(o.id)?' open':''),`${head}<div class="ydet"><div>${det}</div></div>`)}
 };
 
 const B={ipo:IPO,bunbai:BUN,yutai:YU};
@@ -1109,13 +1148,13 @@ async function openYutai(id,pre){
 function openSheet(){$('#sheet').scrollTop=0;$('#sbg').classList.add('on');$('#sheet').classList.add('on')}
 function closeSheet(){$('#sbg').classList.remove('on');$('#sheet').classList.remove('on');document.activeElement&&document.activeElement.blur&&document.activeElement.blur()}
 $('#sbg').onclick=closeSheet;
-$('#yAdd').onclick=()=>openPicker();
+
 
 // ---- タップ ----
 function segOn(bk,k){document.querySelectorAll(`.seg[data-b="${bk}"] button`).forEach(x=>x.classList.toggle('on',x.dataset.k===k))}
 document.querySelectorAll('.list').forEach(list=>list.addEventListener('click',e=>{const bk=list.dataset.b;const b=e.target.closest('[data-act]');const sl=e.target.closest('.slot');
   if(b&&sl){act(bk,b.dataset.act,sl.dataset.id);return}
-  if(bk==='yutai'&&sl&&!e.target.closest('a')&&!list.dataset.dragged)openYutai(sl.dataset.id)}));
+  if(bk==='yutai'&&sl&&!e.target.closest('a,button,[data-tip]')&&!list.dataset.dragged){const id=sl.dataset.id;const card=sl.querySelector('.card');if(YOPEN.has(id))YOPEN.delete(id);else YOPEN.add(id);card.classList.toggle('open',YOPEN.has(id))}}));
 document.querySelectorAll('.seg').forEach(seg=>seg.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const bk=seg.dataset.b;B[bk].cur=b.dataset.k;segOn(bk,b.dataset.k);render(bk)}));
 $('#tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(!b)return;document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.page').forEach(p=>p.classList.toggle('on',p.id==='p-'+b.dataset.p));window.scrollTo(0,0);closeSubs();try{localStorage.setItem('kd_tab',b.dataset.p)}catch(_){}if(window.maybeTour)setTimeout(()=>maybeTour(b.dataset.p),50)});
 
@@ -1193,6 +1232,7 @@ function introOne(k){const idx={ipo:1,bunbai:2,yutai:3}[k];introSingle=k;$('#int
 function introClose(){$('#intro').classList.remove('on');try{localStorage.setItem('kd_intro','1')}catch(e){}const cur=document.querySelector('.tab.on');if(cur)setTimeout(()=>maybeTour(cur.dataset.p),400)}
 $('#introNext').onclick=()=>{if(introSingle){const k=introSingle;introSingle=null;$('#intro').classList.remove('on','single');setTimeout(()=>startTour(k),450);return}si===SL.length-1?introClose():introGo(si+1)};
 $('#introSkip').onclick=()=>{if(introSingle){introSingle=null;$('#intro').classList.remove('on','single');return}introClose()};$('#introAgain').onclick=introOpen;
+$('#introBudget').onclick=e=>{e.preventDefault();introSingle=null;$('#intro').classList.remove('on','single');try{localStorage.setItem('kd_intro','1')}catch(_){}setTimeout(()=>openBudget(),380)};
 $('#introPush').onclick=async()=>{const ok=await enablePush();if(ok)introClose();else if(!pushOK())toast('あとで設定タブからオンにできます')};
 (()=>{let x0=null,y0=0;const r=$('#rail');r.addEventListener('pointerdown',e=>{x0=e.clientX;y0=e.clientY});
   r.addEventListener('pointerup',e=>{if(x0==null||introSingle)return;const dx=e.clientX-x0,dy=e.clientY-y0;x0=null;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy))introGo(si+(dx<0?1:-1))});})();
@@ -1223,8 +1263,8 @@ function openBudget(){const sh=$('#sheet');sh.innerHTML=`<h3>優待の予算と�
 let recList=[],recMon='all',recMore=false;
 function recCalc(it){const r={...it,plan:'s',early:0,day:0};const cyc=nextCycle(r);if(!cyc)return null;const px=prices[it.code]&&prices[it.code].p;return{it,cyc,c:crossCost(r,px,cyc)}}
 function recRows(list,limit){return list.slice(0,limit).map((x,i)=>{const added=!!REC.yutai[x.it.code];const n=x.c.cost;
-  return`<button class="ritem" data-rc="${x.it.code}" style="animation-delay:${Math.min(i,8)*50}ms"><span class="em">${x.it.emo||'🎁'}</span><span class="tx"><b>${esc(x.it.name)}</b><span>${esc(x.it.item)}</span><span>次のクロス ${mdD(x.c.E)}（${wdD(x.c.E)}）・必要 約${x.c.need?yen(Math.round(x.c.need/1000)/10)+'万円':'—'}${recOver(x)?'（予算オーバー）':''}</span></span>
-  <span class="nt">${added?'<span class="added">追加済み ✓</span>':n==null?'<span>株価待ち</span>':`<span>費用</span><b class="c">約${yen(n)}円</b>`}</span></button>`}).join('')}
+  return`<button class="ritem" data-rc="${x.it.code}" style="animation-delay:${Math.min(i,8)*50}ms"><span class="em">${x.it.emo||'🎁'}</span><span class="tx"><b>${esc(x.it.name)}</b><span>${esc(x.it.item)}</span><span>次のクロス ${mdD(x.c.E)}（${wdD(x.c.E)}）・${x.it.sh}株</span></span>
+  <span class="nt">${added?'<span class="added">追加済み ✓</span>':n==null?'<span>株価待ち</span>':`<span>費用</span><b class="c">約${yen(n)}円</b>${x.c.need?`<small>一時的に${(x.c.need/10000).toFixed(1).replace('.0','')}万円${recOver(x)?'・予算外':''}</small>`:''}`}</span></button>`}).join('')}
 let recShowOver=false;
 function recOver(x){return !!(SET.budget&&x.c.need&&x.c.need>SET.budget)}
 function recSorted(){return recList.map(recCalc).filter(Boolean).filter(x=>recMon==='all'||x.cyc.m===recMon).filter(x=>recShowOver||!recOver(x)).sort((a,b)=>(a.c.E-b.c.E)||((a.c.cost||0)-(b.c.cost||0)))}
@@ -1292,7 +1332,7 @@ const TIPS={need:['クロスの間だけ口座に必要なお金です（<b>使�
  rank:['予想サイトの人気の目安。<b>S・A</b>かなり人気／<b>B</b>まあまあ／<b>C</b>少し上がるかも／<b>D</b>公募割れの心配あり。','qa-rank'],
  yoso:['上場して最初につく値段（初値）の予想。<b>公開価格で買って初値で売ると</b>いくら得かの目安です。予想なので外れることもあります。','qa-yoso'],
  price:['値段は2段階。<b>①仮条件</b>＝仮の値段の幅（申込の少し前に決定）→ <b>②申込</b> → <b>③公開価格</b>＝本決まり（抽選の日に決定）。お金は<b>抽選日の18時まで</b>に 株数×公開価格 を口座に入れればOK。','qa-price']};
-function showTip(el,k){const t=TIPS[k];if(!t)return;const p=$('#pop');p.innerHTML=`${t[0]}<br><a href="#" data-qa="${t[1]}">くわしくはQ&amp;A ›</a>`;
+function showTip(el,k){const t=TIPS[k];if(!t)return;const p=$('#pop');p.innerHTML=`${t[0]}${el.dataset.ex||''}<br><a href="#" data-qa="${t[1]}">くわしくはQ&amp;A ›</a>`;
   const r=el.getBoundingClientRect();const below=r.bottom+170<innerHeight;p.style.top=(below?r.bottom+8:Math.max(10,r.top-8-150))+'px';p.classList.add('on');
   if(!below)requestAnimationFrame(()=>{p.style.top=Math.max(10,r.top-8-p.offsetHeight)+'px'});clearTimeout(showTip.t);showTip.t=setTimeout(()=>p.classList.remove('on'),6000)}
 document.addEventListener('click',e=>{const q=e.target.closest('[data-qa]');if(q){e.preventDefault();$('#pop').classList.remove('on');goTab('set');openQA(q.dataset.qa);return}
@@ -1320,9 +1360,8 @@ const TOURS={
  yutai:[['#yRec','おすすめの優待','人気の優待を、<b>次のクロスが近い順</b>に並べています。右の金額は、クロスに<b>かかる費用</b>（貸株料＋配当の税）。タップすると追加できます。'],
   ['#yRec .mchips','月でしぼる','権利の月でしぼりこめます。'],
   ['#budBtn','予算','クロスのあいだ<b>一時的に必要なお金</b>の上限を決められます。決めた金額より多く必要な優待は、おすすめに出なくなります。お金の流れの説明もここから見られます。'],
-  ['#yAdd','自分で探して追加','＋からおすすめを探したり、<b>銘柄コード</b>で好きな優待を追加できます。'],
-  ['#list-yutai .slot:first-child .cost','かかる費用','クロスに確実にかかるお金です（<b>貸株料＋配当の税</b>）。優待の価値は期限や使い道で変わるので、この費用より得か自分で判断してね。'],
-  ['#list-yutai .slot:first-child .kv','クロスの日と現渡しの日','<b>クロスする日</b>に「現物買い」と「一般信用売り」を同時に。次の日の<b>現渡し</b>で終わりです。'],
+  ['#list-yutai .slot:first-child .card','タップで詳しく','候補のカードは<b>タップすると大きく</b>なって、費用の内わけ・クロスの日・一時的に必要なお金が見られます。もう一度タップで小さく戻ります。'],
+  ['#list-yutai .slot:first-child .rt','かかる費用','クロスに確実にかかるお金です（<b>貸株料＋配当の税</b>）。優待の価値は期限や使い道で変わるので、この費用より得か自分で判断してね。'],
   ['.seg[data-b=yutai]','上の4つの箱','候補 → クロス中 → 届くの待ち → 終了 の順に、<b>左スワイプ</b>で進めます。'],
   ['#p-yutai .help','わからなくなったら','この <b>？</b> でいつでも見直せます。']]};
 let tour=null;
