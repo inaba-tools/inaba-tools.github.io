@@ -1,0 +1,30 @@
+name: kabu-drop data
+on:
+  schedule:
+    - cron: '17 */3 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch IPO / PO lists
+        run: |
+          set -e
+          UA="Mozilla/5.0"
+          curl -sfL -A "$UA" https://www.rakuten-sec.co.jp/web/domestic/ipo/json/ipo_lead_json.json -o /tmp/ipo.json
+          curl -sfL -A "$UA" https://www.rakuten-sec.co.jp/web/domestic/ipo/json/po_lead_json.json -o /tmp/po.json
+          python3 -c "import json;json.load(open('/tmp/ipo.json'));json.load(open('/tmp/po.json'))"
+          cp /tmp/ipo.json kabu-drop/data/ipo.json
+          cp /tmp/po.json kabu-drop/data/po.json
+          date -u +%Y-%m-%dT%H:%M:%SZ > kabu-drop/data/updated.txt
+      - name: Commit if changed
+        run: |
+          git config user.name "kabu-drop-bot"
+          git config user.email "noreply@anthropic.com"
+          git add kabu-drop/data
+          git diff --cached --quiet -- kabu-drop/data/ipo.json kabu-drop/data/po.json && exit 0
+          git commit -m "kabu-drop: データ更新"
+          git push
