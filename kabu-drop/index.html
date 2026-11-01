@@ -1031,7 +1031,7 @@ const YU={kind:'yutai',cur:'can',last:{},
   setFor:{can:{st:'watch'},done:{st:'cross'},win:{st:'wait'},end:{st:'got'},out:null},
   beforeMove(o,to){if(to==='done')return{last:iso(o.cyc.L)};if(to==='end')return{gotNet:o.c.net,gotAt:iso(todayJ())};if(to==='can')return{last:null};return{}},
   toastFor(to,o){return{out:o.name+'：候補から外しました（おすすめに戻りました）',done:o.name+'：クロス中に移動',win:o.name+'：届くのを待とう',end:'優待ゲット！ '+o.name,can:o.name+'：候補に戻しました'}[to]},
-  act(a,o){if(a==='del'){if(!confirm(o.name+' を削除しますか？'))return;flyOut('yutai',o.id,'R',()=>{setRec('yutai',o.id,null);renderAll();toast('削除しました')});return}if(a==='edit')openYutai(o.id);else if(a==='again'){flyOut('yutai',o.id,'R',()=>{setRec('yutai',o.id,{st:'watch',last:null,gotNet:null});renderAll();toast(o.name+'：また候補に入れました')},'can','#2b6fd6')}},
+  act(a,o){if(a==='del'){if(!confirm(o.name+' を削除しますか？'))return;flyOut('yutai',o.id,BACK,()=>{setRec('yutai',o.id,null);renderAll();toast('削除しました')});return}if(a==='edit')openYutai(o.id);else if(a==='again'){flyOut('yutai',o.id,BACK,()=>{setRec('yutai',o.id,{st:'watch',last:null,gotNet:null});renderAll();toast(o.name+'：また候補に入れました')},'can','#2b6fd6')}},
   card(o,i){
     const r=o.r,c=o.c,t=todayJ();let cls='',tag='',memo='',btns='';const rl=recList.find(x=>x.code===o.id);const emo=(rl&&rl.emo)||'🎁';
     let sub='';
@@ -1064,6 +1064,9 @@ const YU={kind:'yutai',cur:'can',last:{},
 };
 
 const B={ipo:IPO,bunbai:BUN,yutai:YU};
+// カードのスワイプの向き：→ 右＝次へ、← 左＝戻す（逆にした）
+const FWD='R',BACK='L';
+Object.values(B).forEach(b=>Object.values(b.moves).forEach(m=>{const l=m.L,r=m.R;delete m.L;delete m.R;if(l)m.R=l;if(r)m.L=r}));
 const COLOR={can:'#9aa097',done:'#2b6fd6',win:'#d2453b',end:'#6d726b'};
 
 // ---- 共通の表示 ----
@@ -1106,9 +1109,9 @@ function move(bk,id,to,dir){
   flyOut(bk,id,dir,()=>{setRec(b.kind,id,set);renderAll();toast(b.toastFor(to,o))},to,color)}
 function act(bk,a,id){
   const b=B[bk];const o=b.find(id);if(!o)return;
-  if(a.startsWith('go:')){const to=a.slice(3);const e=o.k==='skip'?null:b.guard(o,to);if(e){toast(e);return}move(bk,id,to,'L')}
-  else if(a==='lost')flyOut(bk,id,'R',()=>{setRec(b.kind,id,{st:'lost'});renderAll();toast(o.name+'：落選を記録')},'end','#6d726b');
-  else if(a==='undo')flyOut(bk,id,'R',()=>{setRec(b.kind,id,null);renderAll();toast('記録を取り消しました')});
+  if(a.startsWith('go:')){const to=a.slice(3);const e=o.k==='skip'?null:b.guard(o,to);if(e){toast(e);return}move(bk,id,to,FWD)}
+  else if(a==='lost')flyOut(bk,id,BACK,()=>{setRec(b.kind,id,{st:'lost'});renderAll();toast(o.name+'：落選を記録')},'end','#6d726b');
+  else if(a==='undo')flyOut(bk,id,BACK,()=>{setRec(b.kind,id,null);renderAll();toast('記録を取り消しました')});
   else b.act(a,o)}
 
 // 売った値段の入力（IPO・分売）
@@ -1123,7 +1126,7 @@ function openSell(p){const sh=$('#sheet');
   const upd=()=>{const pl=calc();$('#sellRes').textContent=pl==null?'—':pm(pl);$('#sellRes').style.color=pl>0?'#1f9d6b':pl<0?'#d2453b':''};
   [inp,bin,sin].forEach(e=>e&&(e.oninput=upd));upd();
   $('#sellOk').onclick=()=>{const v=num(inp.value),b=buy(),s=num(sin.value)||p.unit;if(v==null||b==null)return;closeSheet();
-    flyOut(p.kind,p.id,'L',()=>{setRec(p.kind,p.id,{st:'sold',sell:v,buy:b,sh:s});renderAll();toast(`${pm((v-b)*s)} を記録しました`)},'end','#1f9d6b')};
+    flyOut(p.kind,p.id,FWD,()=>{setRec(p.kind,p.id,{st:'sold',sell:v,buy:b,sh:s});renderAll();toast(`${pm((v-b)*s)} を記録しました`)},'end','#1f9d6b')};
   $('#sellNo').onclick=closeSheet}
 
 // 優待の追加・編集
@@ -1170,7 +1173,7 @@ async function openYutai(id,pre){
     const v={st:r0.st||'watch',code:c,vals:r0.code===c?r0.vals||null:null,name:clean(nm?nm[0]:(r0.name||c)),item:$('#yItem').value.trim(),val:num($('#yVal').value),sh:st.sh||100,mons:st.mons,day:st.day||0,plan:st.plan||'s',early:st.early||0,
       div:$('#yDiv').value===''?null:num($('#yDiv').value),px:num($('#yPx').value)};
     closeSheet();setRec('yutai',c,v);if(!id){YU.cur='can';segOn('yutai','can')}renderAll();toast(id?'保存しました':v.name+' を候補に追加しました')};
-  if(id)$('#yDel').onclick=()=>{if(!confirm('この優待を削除しますか？'))return;closeSheet();flyOut('yutai',id,'R',()=>{setRec('yutai',id,null);renderAll();toast('削除しました')})};
+  if(id)$('#yDel').onclick=()=>{if(!confirm('この優待を削除しますか？'))return;closeSheet();flyOut('yutai',id,BACK,()=>{setRec('yutai',id,null);renderAll();toast('削除しました')})};
   $('#yNo').onclick=closeSheet;
   if(!id)setTimeout(()=>$('#yCode').focus(),350)}
 function openSheet(){$('#sheet').scrollTop=0;$('#sbg').classList.add('on');$('#sheet').classList.add('on')}
@@ -1203,7 +1206,7 @@ document.querySelectorAll('.list').forEach(list=>{
 function endDrag(){if(!drag)return;const d=drag;drag=null;if(!d.on)return;d.slot.classList.remove('drag');setTimeout(()=>delete d.list.dataset.dragged,60);
   const w=d.slot.offsetWidth,dir=d.dx<0?'L':'R',m=d.mv[dir],v=Math.abs(d.dx)/Math.max(1,Date.now()-d.t);const id=d.slot.dataset.id;
   if(m&&(Math.abs(d.dx)>w*.33||(v>.6&&Math.abs(d.dx)>60))){
-    const b=B[d.bk];const o=b.find(id);const err=o&&dir==='L'&&o.k!=='skip'?b.guard(o,m[0]):null;
+    const b=B[d.bk];const o=b.find(id);const err=o&&dir===FWD&&o.k!=='skip'?b.guard(o,m[0]):null;
     if(err){back(d);d.card.classList.add('shake');setTimeout(()=>d.card.classList.remove('shake'),400);toast(err);return}
     move(d.bk,id,m[0],dir)}
   else back(d)}
