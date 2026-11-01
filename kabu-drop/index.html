@@ -134,17 +134,17 @@ button{font-family:inherit}
 @keyframes n1{0%,60%{transform:translateY(20px);opacity:0}68%,92%{transform:none;opacity:1}100%{transform:translateY(20px);opacity:0}}
 .demo .m0{animation:n1 4s infinite reverse}
 .demo .dcard{position:absolute;left:0;right:0;top:62px;height:118px}
-.demo .dund{position:absolute;inset:0;border-radius:18px;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:flex-end;padding-right:18px;font:900 13px "Noto Sans JP";animation:und 4s infinite}
+.demo .dund{position:absolute;inset:0;border-radius:18px;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:flex-start;padding-left:18px;font:900 13px "Noto Sans JP";animation:und 4s infinite}
 .demo .dfront{position:absolute;inset:0;background:#fff;border-radius:18px;box-shadow:0 10px 24px rgba(40,44,30,.1);padding:14px;text-align:left;animation:dc 4s cubic-bezier(.4,0,.4,1) infinite}
 .demo .dfront .l1{width:60%;height:12px;border-radius:6px;background:#2a302c}
 .demo .dfront .l2{width:38%;height:8px;border-radius:6px;background:#d6d3c6;margin-top:8px}
 .demo .dfront .l3{display:flex;gap:8px;margin-top:16px}.demo .dfront .l3 i{flex:1;height:30px;border-radius:9px;background:#f3f1ea}
-.demo .finger{position:absolute;width:38px;height:38px;border-radius:50%;background:rgba(43,111,214,.25);border:3px solid rgba(43,111,214,.8);top:110px;left:70%;animation:fg 4s cubic-bezier(.4,0,.4,1) infinite}
-.demo .ball{position:absolute;width:14px;height:14px;border-radius:50%;background:var(--blue);top:118px;left:46%;opacity:0;animation:ball 4s infinite}
-@keyframes dc{0%,15%{transform:none;opacity:1}50%{transform:translateX(-58%) rotate(-3deg);opacity:1}60%{transform:translateX(-130%) rotate(-6deg);opacity:0}61%,85%{transform:translateY(16px);opacity:0}100%{transform:none;opacity:1}}
+.demo .finger{position:absolute;width:38px;height:38px;border-radius:50%;background:rgba(43,111,214,.25);border:3px solid rgba(43,111,214,.8);top:110px;left:12%;animation:fg 4s cubic-bezier(.4,0,.4,1) infinite}
+.demo .ball{position:absolute;width:14px;height:14px;border-radius:50%;background:var(--blue);top:118px;left:62%;opacity:0;animation:ball 4s infinite}
+@keyframes dc{0%,15%{transform:none;opacity:1}50%{transform:translateX(58%) rotate(3deg);opacity:1}60%{transform:translateX(130%) rotate(6deg);opacity:0}61%,85%{transform:translateY(16px);opacity:0}100%{transform:none;opacity:1}}
 @keyframes und{0%,15%{opacity:0}35%,58%{opacity:1}62%,100%{opacity:0}}
-@keyframes fg{0%{transform:scale(1.2);opacity:0}10%{transform:none;opacity:1}15%{transform:none}50%{transform:translateX(-140px)}58%{transform:translateX(-140px);opacity:1}66%,100%{transform:translateX(-140px);opacity:0}}
-@keyframes ball{0%,58%{opacity:0;transform:none}60%{opacity:1;transform:none}70%{opacity:1;transform:translate(70px,-104px) scale(.6)}72%,100%{opacity:0;transform:translate(70px,-104px) scale(.6)}}
+@keyframes fg{0%{transform:scale(1.2);opacity:0}10%{transform:none;opacity:1}15%{transform:none}50%{transform:translateX(140px)}58%{transform:translateX(140px);opacity:1}66%,100%{transform:translateX(140px);opacity:0}}
+@keyframes ball{0%,58%{opacity:0;transform:none}60%{opacity:1;transform:none}70%{opacity:1;transform:translate(20px,-104px) scale(.6)}72%,100%{opacity:0;transform:translate(20px,-104px) scale(.6)}}
 
 .hd{display:flex;align-items:flex-start;gap:12px}
 .hd .nm{flex:1;min-width:0}
@@ -246,8 +246,8 @@ button{font-family:inherit}
 .tour .tbtn button{border:0;background:none;font:800 13px "Noto Sans JP";color:var(--sub);padding:10px 6px}
 .tour .tbtn #tnext{background:var(--green);color:#fff;padding:11px 22px;border-radius:13px;font-size:14px}
 .card.nudge{animation:nudge 1.6s cubic-bezier(.4,0,.4,1) infinite!important}
-@keyframes nudge{0%,100%{transform:none}35%,55%{transform:translateX(-46%) rotate(-3deg)}}
-.slot.nudging .under{opacity:1!important;background:var(--blue)!important;justify-content:flex-end}
+@keyframes nudge{0%,100%{transform:none}35%,55%{transform:translateX(46%) rotate(3deg)}}
+.slot.nudging .under{opacity:1!important;background:var(--blue)!important;justify-content:flex-start}
 /* その場の説明 */
 .pop{position:fixed;z-index:60;left:16px;right:16px;max-width:428px;margin:0 auto;background:#1f2622;color:#fff;border-radius:16px;padding:13px 14px;font:700 13px "Noto Sans JP";line-height:1.65;box-shadow:0 12px 28px rgba(0,0,0,.3);opacity:0;transform:translateY(6px) scale(.97);transition:opacity .2s,transform .25s cubic-bezier(.2,1.4,.3,1);pointer-events:none}
 .pop.on{opacity:1;transform:none;pointer-events:auto}
@@ -627,7 +627,7 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
 <details class="qa" id="qa-price"><summary>値段はいつ決まるの？（仮条件・公開価格）</summary><div class="a">値段は2段階で決まります。<br><b>①仮条件</b>：仮の値段の幅（例：550〜570円）。申込が始まる少し前に決まります。<br><b>②申込（ブックビルディング）</b>：この期間に楽天で申し込みます。<br><b>③公開価格</b>：本決まりの値段。抽選の日に決まり、ほとんどは仮条件の一番高い値段になります。<br>カードの「①②③」の丸で、今どこまで決まったかがわかります。</div></details>
 <details class="qa" id="qa-need"><summary>お金はいつ必要？</summary><div class="a">楽天証券の国内IPOは、<b>申込（抽選への参加）の時点ではお金はいりません</b>。<br><b>抽選日（公開価格が決まる日）の18時まで</b>に、<b>株数 × 公開価格</b>（ふつう100株）のお金が口座に入っていれば抽選の対象になります。例：公開価格 570円なら 570円×100株＝<b>57,000円</b>。<br>ハズレたら、お金はそのまま使えます。</div></details>
 <details class="qa" id="qa-skip"><summary>当選しても買わなくていいの？</summary><div class="a">いいです。楽天証券では、当選しても<b>購入申込期間に「購入」を押さなければ、買わなかった扱い</b>になります（自分から「辞退」もできます）。楽天の案内には、辞退したときのペナルティ（次から当たりにくくなる等）は書かれていません。<br>ただし証券会社によっては、辞退すると次の抽選で不利になるところもあるので、口座を増やすときは確認しましょう。初値予想が公開価格より低い（公募割れのおそれ）ときは、あえて買わないのも作戦です。</div></details>
-<details class="qa" id="qa-judge"><summary>「👍 よさそう」「✋ 見送り」って？</summary><div class="a">カードに出る買うかどうかの目安です。<br><b>👍 申し込んでよさそう／買ってよさそう</b>：評価がDではなく、予想利益がプラス<br><b>✋ 見送りがよさそう</b>：評価がD、または予想利益が0円以下<br>2026年のIPO 35件で試すと、全部買うと公募割れ12件（損の合計−131,400円）でしたが、このルールなら<b>25件中4件（−70,100円）</b>に減り、もうけの合計は<b>+887,700円</b>（100株ずつ・全部当選した場合）でした。<br>見送るときは、カードを <b>→ 右にスワイプ</b>すると一番下の「見送ったIPO」に入ります。</div></details>
+<details class="qa" id="qa-judge"><summary>「👍 よさそう」「✋ 見送り」って？</summary><div class="a">カードに出る買うかどうかの目安です。<br><b>👍 申し込んでよさそう／買ってよさそう</b>：評価がDではなく、予想利益がプラス<br><b>✋ 見送りがよさそう</b>：評価がD、または予想利益が0円以下<br>2026年のIPO 35件で試すと、全部買うと公募割れ12件（損の合計−131,400円）でしたが、このルールなら<b>25件中4件（−70,100円）</b>に減り、もうけの合計は<b>+887,700円</b>（100株ずつ・全部当選した場合）でした。<br>見送るときは、カードを <b>← 左にスワイプ</b>すると一番下の「見送ったIPO」に入ります。</div></details>
 <details class="qa" id="qa-zettai"><summary>当選しても買わなくていいなら、絶対得する？</summary><div class="a">絶対ではありません。「買うか決める日（購入申込期間）」は<b>上場日より前</b>なので、本当の初値を見てから決めることはできません。決める時に使えるのは<b>初値予想だけ</b>です。<br>2026年のIPO 35件のうち<b>12件が公募割れ</b>（初値が公開価格より下）でした。中には予想がプラスだったのに外れたものもあり、例：公開価格 4,040円・予想 5,180円 → 初値 3,760円（<b>100株で−28,000円</b>）。<br>それでも全体の真ん中は<b>100株で+14,000円</b>くらいで、平均すると得の方が多いです。「評価が低い・公募割れのおそれ」が出ているものは買わない、を守ると損しにくくなります。</div></details>
 <details class="qa" id="qa-kokai"><summary>公開価格は予想できるの？</summary><div class="a">かなり予想できます。<br>①上場が決まった時に<b>想定価格</b>（会社が出す目安）が出ます<br>②申込の少し前に<b>仮条件</b>（例：550〜570円）が決まります<br>③人気のIPOは、ほとんどの場合<b>仮条件の一番高い値段</b>で公開価格が決まります<br>そのためアプリでは、公開価格が決まるまでは「仮条件の上限」、仮条件もまだなら「想定価格」を目安として出し、予想利益もその値段で計算しています。</div></details>
 <details class="qa" id="qa-yoso"><summary>初値予想って何？</summary><div class="a">上場して<b>最初につく値段（初値）の予想</b>です。予想サイト（96ut.com）の数字を出しています。<br>「直前予想」＝上場日の少し前に出るプロの予想（いちばん当たりやすい）、「申込開始時の予想」＝申込が始まる時（ブックビルディング開始時）に出る予想、「みんなの予想」＝読者の投票の平均。<br>「100株で +〇円」は、公開価格で買って初値で売ったら、という目安です。あくまで予想なので外れることもあります。</div></details>
@@ -747,12 +747,12 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
 </section>
 <section class="sl">
  <div class="demo"><div class="dseg"><div>申込できる<b><span class="n0">1</span><span class="n1">0</span></b></div><div>申込済み<b><span class="m0">0</span><span class="n1">1</span></b></div></div>
- <div class="dcard"><div class="dund">申込済みへ →</div><div class="dfront"><div class="l1"></div><div class="l2"></div><div class="l3"><i></i><i></i></div></div></div>
+ <div class="dcard"><div class="dund">→ 申込済みへ</div><div class="dfront"><div class="l1"></div><div class="l2"></div><div class="l3"><i></i><i></i></div></div></div>
  <div class="ball"></div><div class="finger"></div></div>
  <div class="pill">👆 操作のしかた</div>
- <h2>左にスワイプで次へ進む</h2>
- <ul><li><i>←</i><span>カードを<b>左にスワイプ</b>すると「申込済み」「当選」と次へ進む</span></li>
- <li><i>→</i><span><b>右にスワイプ</b>で1つ前に戻す。カードのボタンを押してもOK</span></li>
+ <h2>右にスワイプで次へ進む</h2>
+ <ul><li><i>→</i><span>カードを<b>右にスワイプ</b>すると「申込済み」「当選」と次へ進む</span></li>
+ <li><i>←</i><span><b>左にスワイプ</b>で1つ前に戻す。カードのボタンを押してもOK</span></li>
  <li><i>▦</i><span>上の<b>4つのボタン</b>で「申込できる・申込済み・当選・終了」を切りかえ</span></li></ul>
 </section>
 <section class="sl">
@@ -854,17 +854,17 @@ const IPO={kind:'ipo',cur:'can',last:{},
   sort(g){g.can.sort((a,b)=>(b.open-a.open)||((a.bs||0)-(b.bs||0)));g.done.sort((a,b)=>(a.draw||0)-(b.draw||0));g.win.sort((a,b)=>(a.ls||0)-(b.ls||0));g.end.sort((a,b)=>(b.ls||0)-(a.ls||0))},
   lead(g){const open=g.can.filter(o=>o.open).length;return g.win.length?`当選が <span class="r">${g.win.length}件</span> あります`:open?`今日は <span class="b">${open}件</span> 申し込めます`:g.can.length?`次の申込は <span class="b">${md(g.can[0].x.data4)}</span> から`:'今は申し込めるIPOがありません'},
   empty:{can:'今は申し込めるIPOがありません',done:'申し込んだIPOはここに並びます',win:'当選したらここに並びます',end:'終わったIPOはここに並びます'},
-  hint(g){return{can:g.can.length?'申し込んだら ← 左 ／ 見送るなら → 右にスワイプ':'',done:g.done.length?'← 左で当選へ ／ 右 → で申込前に戻す':'',win:g.win.length?'右 → で申込済みに戻す':'',end:''}[this.cur]},
+  hint(g){return{can:g.can.length?'申し込んだら → 右 ／ 見送るなら ← 左にスワイプ':'',done:g.done.length?'→ 右で当選へ ／ ← 左 で申込前に戻す':'',win:g.win.length?'← 左 で申込済みに戻す':'',end:''}[this.cur]},
   guard(o,to){if(o.k==='can'&&to==='done'&&!o.open)return'まだ申込期間前です';return null},
   setFor:{can:null,done:{st:'applied'},win:{st:'won'},skip:{st:'skip'}},
   toastFor(to,o){return{done:o.name+'：申込済みに移動',win:'当選おめでとう！ '+o.name,can:o.name+'：申込前に戻しました',skip:o.name+'：見送りました（一番下に入れました）'}[to]},
   act(a,o){if(a==='sold')openSell({kind:'ipo',id:o.id,name:o.name,unit:o.unit,buy:o.price,note:'初値'})},
   card(o,i){
     const x=o.x;let cls='',tag='',memo='',btns='';
-    if(o.k==='skip'){tag='<span class="tag skipm">見送り中</span>';memo='見送ったIPOです。やっぱり申し込むなら ← 左にスワイプ。';btns=`<button class="btn ghost" data-act="go:can">申込前に戻す</button>`}
+    if(o.k==='skip'){tag='<span class="tag skipm">見送り中</span>';memo='見送ったIPOです。やっぱり申し込むなら → 右にスワイプ。';btns=`<button class="btn ghost" data-act="go:can">申込前に戻す</button>`}
     else if(o.k==='can'){
       if(o.open){cls='now';tag=`<span class="tag blue ${o.left<=1?'pulse':''}">${o.left===0?'今日まで':'あと'+o.left+'日'}</span>`;
-        btns=`<a class="btn" href="${RAKUTEN}" target="_blank" rel="noopener">楽天証券で申し込む</a><button class="btn ghost" data-act="go:done">申し込んだ（← 左スワイプでもOK）</button>`;}
+        btns=`<a class="btn" href="${RAKUTEN}" target="_blank" rel="noopener">楽天証券で申し込む</a><button class="btn ghost" data-act="go:done">申し込んだ（→ 右スワイプでもOK）</button>`;}
       else{tag=`<span class="tag org">${o.until===1?'明日から':md(x.data4)+'から'}</span>`;}
       memo=o.need?`申込のときはお金いらず。<b>抽選日 ${md(x.data15)} の18時まで</b>に <b>約${yen(o.need)}円</b>（${o.unit}株）を楽天の口座に。ハズレたらそのまま使えます。`:`値段は <b>${md(x.data2)}</b> に仮の幅（仮条件）、<b>${md(x.data9)}</b> に本決まり（公開価格）になります。`;
     }else if(o.k==='done'){
@@ -948,7 +948,7 @@ const BUN={kind:'bunbai',cur:'can',last:{},
   sort(g){const f=o=>(o.date||0);g.can.sort((a,b)=>(b.open-a.open)||(f(a)-f(b)));g.done.sort((a,b)=>f(a)-f(b));g.win.sort((a,b)=>f(a)-f(b));g.end.sort((a,b)=>f(b)-f(a))},
   lead(g){const open=g.can.filter(o=>o.open).length;return g.win.length?`当選が <span class="r">${g.win.length}件</span> あります`:open?`今 <span class="b">${open}件</span> 申し込めます`:g.can.length?`次の分売は <span class="b">${mdD(g.can[0].date)}</span>${g.can[0].decided?'':' ごろ'}`:'今は分売の予定がありません'},
   empty:{can:'今は分売の予定がありません。<br>決まると楽天証券に出て、ここに自動で並びます。',done:'申し込んだ分売はここに並びます',win:'当選したらここに並びます',end:'終わった分売はここに並びます'},
-  hint(g){return{can:g.can.some(o=>o.open)?'申し込んだら、カードを ← 左にスワイプ':'',done:g.done.length?'← 左で当選へ ／ 右 → で申込前に戻す':'',win:g.win.length?'右 → で申込済みに戻す':'',end:''}[this.cur]},
+  hint(g){return{can:g.can.some(o=>o.open)?'申し込んだら、カードを → 右にスワイプ':'',done:g.done.length?'→ 右で当選へ ／ ← 左 で申込前に戻す':'',win:g.win.length?'← 左 で申込済みに戻す':'',end:''}[this.cur]},
   guard(o,to){if(o.k==='can'&&to==='done'&&!o.decided)return'まだ値段と日にちが決まっていません';if(o.k==='can'&&to==='done'&&o.w&&o.w.before)return'申込は前の日の17:15ごろからです';return null},
   setFor:{can:null,done:{st:'applied'},win:{st:'won'}},
   toastFor(to,o){return{done:o.name+'：申込済みに移動',win:'当選おめでとう！ '+o.name,can:o.name+'：申込前に戻しました'}[to]},
@@ -958,8 +958,8 @@ const BUN={kind:'bunbai',cur:'can',last:{},
     if(o.k==='can'){
       if(!o.decided){tag=`<span class="tag org">${mdD(o.date)}〜${mdD(o.endD)}のどれか</span>`;memo='日にちと値段は、実施の前の日の夕方に決まります。決まったらここに出ます。'}
       else if(o.open){cls='now';const today=days(o.date,todayJ())===0;tag=`<span class="tag blue pulse">受付中・${today?'今朝':'明日'}8:20まで</span>`;
-        btns=`<a class="btn" href="${R_TOP}" target="_blank" rel="noopener">楽天証券で申し込む</a><button class="btn ghost" data-act="go:done">申し込んだ（← 左スワイプでもOK）</button>`}
-      else{const d0=days(o.w.prev,todayJ());tag=`<span class="tag org">${d0===0?'今日17:15から':mdD(o.w.prev)+' 17:15から'}</span>`;btns=`<button class="btn ghost" data-act="go:done">申し込んだ（← 左スワイプでもOK）</button>`}
+        btns=`<a class="btn" href="${R_TOP}" target="_blank" rel="noopener">楽天証券で申し込む</a><button class="btn ghost" data-act="go:done">申し込んだ（→ 右スワイプでもOK）</button>`}
+      else{const d0=days(o.w.prev,todayJ());tag=`<span class="tag org">${d0===0?'今日17:15から':mdD(o.w.prev)+' 17:15から'}</span>`;btns=`<button class="btn ghost" data-act="go:done">申し込んだ（→ 右スワイプでもOK）</button>`}
       if(o.decided&&o.price)memo=`申込に必要なお金 <b>約${yen(o.price*o.unit)}円</b>（${o.unit}株）。ハズレたら全額そのまま。楽天は「国内株式 → 注文 → 立会外分売」から。`;
     }else if(o.k==='done'){
       const d=days(o.date,todayJ());tag=`<span class="tag blue">${d>0?'結果まで'+d+'日':'結果を確認'}</span>`;
@@ -1026,7 +1026,7 @@ const YU={kind:'yutai',cur:'can',last:{},
   sort(g){const f=o=>+o.cyc.L;g.can.sort((a,b)=>f(a)-f(b));g.done.sort((a,b)=>f(a)-f(b));g.win.sort((a,b)=>f(a)-f(b));g.end.sort((a,b)=>(b.r.at||0)-(a.r.at||0))},
   lead(g){const t=todayJ();const td=g.can.filter(o=>days(o.c.E,t)<=0).length;    return td?`今日クロスする優待が <span class="r">${td}件</span>`:g.can.length?`次のクロスは <span class="b">${mdD(g.can[0].c.E)}</span>（${g.can.length}件）`:'下のおすすめから選んで追加しよう'},
   empty:{can:'下の「おすすめの優待」をタップして追加しよう。<br>株価は自動で入って、かかる費用を計算します。',done:'クロスした優待はここに並びます',win:'現渡ししたら、届くまでここで待ちます',end:'届いた優待はここに並びます'},
-  hint(g){return{can:g.can.length?'タップで詳しく ／ クロスしたら ← 左 ／ 外すなら → 右':'',done:g.done.length?'現渡ししたら ← 左 ／ 右 → で候補に戻す':'',win:g.win.length?'届いたら ← 左 ／ 右 → で戻す':'',end:''}[this.cur]},
+  hint(g){return{can:g.can.length?'タップで詳しく ／ クロスしたら → 右 ／ 外すなら ← 左':'',done:g.done.length?'現渡ししたら → 右 ／ ← 左 で候補に戻す':'',win:g.win.length?'届いたら → 右 ／ ← 左 で戻す':'',end:''}[this.cur]},
   guard(o,to){if(o.k==='can'&&to==='done'&&days(o.c.E,todayJ())>0)return`まだクロスの日（${mdD(o.c.E)}）より前です`;return null},
   setFor:{can:{st:'watch'},done:{st:'cross'},win:{st:'wait'},end:{st:'got'},out:null},
   beforeMove(o,to){if(to==='done')return{last:iso(o.cyc.L)};if(to==='end')return{gotNet:o.c.net,gotAt:iso(todayJ())};if(to==='can')return{last:null};return{}},
@@ -1041,8 +1041,8 @@ const YU={kind:'yutai',cur:'can',last:{},
       btns=`<a class="btn ghost" href="${R_TOP}" target="_blank" rel="noopener">楽天証券を開く</a>`}
     else if(o.k==='done'){cls='cross';const d=days(c.X,t);tag=`<span class="tag ${d<=0?'red pulse':'green'}" data-tip="genwata">${d>0?'現渡しまで'+d+'日':'今日 現渡し'}</span>`;sub=`現渡し ${mdD(c.X)}（${wdD(c.X)}）`;
       memo=`<b>${mdD(c.X)}（${wdD(c.X)}）</b>に楽天で「現渡し」をして売りを返す。これで終わり。`;
-      btns=`<button class="btn" data-act="go:win">現渡しした（← 左スワイプでもOK）</button>`}
-    else if(o.k==='win'){cls='wait';tag='<span class="tag org">届くの待ち</span>';sub='2〜3か月で届くことが多い';memo='権利確定から2〜3か月くらいで届くことが多いです。届いたら ← 左にスワイプ。';btns=`<button class="btn" data-act="go:end">届いた！</button>`}
+      btns=`<button class="btn" data-act="go:win">現渡しした（→ 右スワイプでもOK）</button>`}
+    else if(o.k==='win'){cls='wait';tag='<span class="tag org">届くの待ち</span>';sub='2〜3か月で届くことが多い';memo='権利確定から2〜3か月くらいで届くことが多いです。届いたら → 右にスワイプ。';btns=`<button class="btn" data-act="go:end">届いた！</button>`}
     else{tag=`<span class="tag green">ゲット</span>`;sub=r.gotAt?`${md(r.gotAt)} に受け取り`:'';btns=`<div class="row2"><button class="btn" data-act="again">来年もやる</button><button class="btn ghost" data-act="del" style="color:var(--red)">削除</button></div>`}
     const over=SET.budget&&c.need>SET.budget;
     const head=`<div class="yh2"><span class="em">${emo}</span><span class="tx"><b>${esc(o.name)}</b><span>${tag}${sub}</span></span>
@@ -1064,7 +1064,7 @@ const YU={kind:'yutai',cur:'can',last:{},
 };
 
 const B={ipo:IPO,bunbai:BUN,yutai:YU};
-// カードのスワイプの向き：→ 右＝次へ、← 左＝戻す（逆にした）
+// カードのスワイプの向き：← 左＝次へ、→ 右＝戻す（逆にした）
 const FWD='R',BACK='L';
 Object.values(B).forEach(b=>Object.values(b.moves).forEach(m=>{const l=m.L,r=m.R;delete m.L;delete m.R;if(l)m.R=l;if(r)m.L=r}));
 const COLOR={can:'#9aa097',done:'#2b6fd6',win:'#d2453b',end:'#6d726b'};
@@ -1400,12 +1400,12 @@ const TOURS={
   ['#list-ipo .slot:first-child .m3','公開価格 → 初値予想 ＝ 予想利益','<b>公開価格</b>（買う値段）、<b>初値予想</b>（上場して最初につきそうな値段）、<b>予想利益</b>（当たって初値で売ったら100株でいくら得か）。上場したあとは本当の初値と利益に変わります。'],
   ['#list-ipo .slot:first-child .rk','評価 S〜D','人気の目安です。<b>S・A</b>かなり人気、<b>B</b>まあまあ、<b>C</b>少し上がるかも、<b>D</b>は買った値段より下がる心配あり。'],
   ['#list-ipo .slot:first-child .m3meta','👍 よさそう／✋ 見送り','<b>評価がDではなく、予想利益がプラス</b>なら「よさそう」。そうでなければ「見送りがよさそう」。2026年のIPOでは、これで公募割れが12件→4件に減りました。'],
-  ['#list-ipo .slot:first-child .card','スワイプで移動','申し込んだら <b>← 左にスワイプ</b>で「申込済み」へ。見送るなら <b>→ 右にスワイプ</b>で一番下の「見送ったIPO」にしまえます。','nudge'],
+  ['#list-ipo .slot:first-child .card','スワイプで移動','申し込んだら <b>→ 右にスワイプ</b>で「申込済み」へ。見送るなら <b>← 左にスワイプ</b>で一番下の「見送ったIPO」にしまえます。','nudge'],
   ['#p-ipo .help','わからなくなったら','この <b>？</b> を押すと、IPOの紹介とこの説明をいつでも見直せます。くわしくは設定の「Q&A」へ。']],
  bunbai:[['.seg[data-b=bunbai]','上の4つの箱','分売を<b>状態ごと</b>に分けています。申込できる → 申込済み → 当選 → 終了 の順に進みます。'],
   ['#list-bunbai .empty','今は分売がない時','分売は、実施の<b>前の日の夕方</b>に楽天に出て、ここに自動で並びます。通知をオンにすると知らせます。'],
   ['#list-bunbai .slot:first-child .kv','値段と日にち','<b>前の日より〇円安い</b>＝前の日の終値より、いくら安く買えるか（申込単位の株数で）。実施日の朝から売れます。'],
-  ['#list-bunbai .slot:first-child .card','スワイプで移動','申し込んだら <b>← 左にスワイプ</b>。まちがえたら <b>→ 右</b>で戻せます。','nudge'],
+  ['#list-bunbai .slot:first-child .card','スワイプで移動','申し込んだら <b>→ 右にスワイプ</b>。まちがえたら <b>← 左</b>で戻せます。','nudge'],
   ['#bb-past','これまでの実績','楽天で扱った分売で、当たって<b>始値で売っていたら100株でいくら</b>だったか。得した件数と平均がわかります。'],
   ['#p-bunbai .help','わからなくなったら','この <b>？</b> でいつでも見直せます。']],
  yutai:[['#yRec','おすすめの優待','人気の優待を、<b>次のクロスが近い順</b>に並べています。右の金額は、クロスに<b>かかる費用</b>（貸株料＋配当の税）。タップすると追加できます。'],
@@ -1413,7 +1413,7 @@ const TOURS={
   ['#budBtn','予算','クロスのあいだ<b>一時的に必要なお金</b>の上限を決められます。決めた金額より多く必要な優待は、おすすめに出なくなります。お金の流れの説明もここから見られます。'],
   ['#list-yutai .slot:first-child .card','タップで詳しく','候補のカードは<b>タップすると大きく</b>なって、費用の内わけ・クロスの日・一時的に必要なお金が見られます。もう一度タップで小さく戻ります。'],
   ['#list-yutai .slot:first-child .rt','かかる費用','クロスに確実にかかるお金です（<b>貸株料＋配当の税</b>）。優待の価値は期限や使い道で変わるので、この費用より得か自分で判断してね。'],
-  ['.seg[data-b=yutai]','上の4つの箱','候補 → クロス中 → 届くの待ち → 終了 の順に、<b>左スワイプ</b>で進めます。'],
+  ['.seg[data-b=yutai]','上の4つの箱','候補 → クロス中 → 届くの待ち → 終了 の順に、<b>右スワイプ</b>で進めます。'],
   ['#p-yutai .help','わからなくなったら','この <b>？</b> でいつでも見直せます。']]};
 let tour=null;
 function startTour(k){const steps=TOURS[k].filter(st=>{const el=document.querySelector(st[0]);return el&&el.offsetParent!==null});if(!steps.length)return;
@@ -1426,7 +1426,7 @@ function tourShow(){const st=tour.steps[tour.i];const el=document.querySelector(
   const r0=el.getBoundingClientRect();if(r0.top<70||r0.bottom>innerHeight-260){window.scrollBy({top:r0.top-Math.min(140,innerHeight*.22),behavior:'smooth'})}
   setTimeout(()=>{if(!tour)return;const r=el.getBoundingClientRect();const pad=6;const sp=$('#spot');
     sp.style.left=(r.left-pad)+'px';sp.style.top=(r.top-pad)+'px';sp.style.width=(r.width+pad*2)+'px';sp.style.height=(r.height+pad*2)+'px';
-    if(st[3]==='nudge'){el.classList.add('nudge');el.parentNode.classList.add('nudging');const u=el.parentNode.querySelector('.under');if(u)u.innerHTML='<div class="l"></div><div class="r" style="opacity:1">→ 次へ</div>'}
+    if(st[3]==='nudge'){el.classList.add('nudge');el.parentNode.classList.add('nudging');const u=el.parentNode.querySelector('.under');if(u)u.innerHTML='<div class="l" style="opacity:1">次へ →</div><div class="r"></div>'}
     $('#tc').textContent=`${tour.i+1} / ${tour.steps.length}`;$('#tt').textContent=st[1];$('#tb').innerHTML=st[2];$('#tnext').textContent=tour.i===tour.steps.length-1?'わかった':'次へ';
     const th=tip.offsetHeight||170;const below=r.bottom+pad+14+th<innerHeight-10;tip.style.top=(below?r.bottom+pad+14:Math.max(12,r.top-pad-14-th))+'px';tip.classList.remove('fade')},380)}
 function tourNext(){if(!tour)return;if(tour.i>=tour.steps.length-1){tourEnd();return}tour.i++;tourShow()}
