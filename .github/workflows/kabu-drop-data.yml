@@ -19,12 +19,17 @@ jobs:
           python3 -c "import json;json.load(open('/tmp/ipo.json'));json.load(open('/tmp/po.json'))"
           cp /tmp/ipo.json kabu-drop/data/ipo.json
           cp /tmp/po.json kabu-drop/data/po.json
-          date -u +%Y-%m-%dT%H:%M:%SZ > kabu-drop/data/updated.txt
+      - name: Fetch 分売 / 株価 / 会社名
+        run: |
+          pip install -q openpyxl
+          python3 kabu-drop/tools/fetch.py
       - name: Commit if changed
         run: |
           git config user.name "kabu-drop-bot"
           git config user.email "noreply@anthropic.com"
           git add kabu-drop/data
-          git diff --cached --quiet -- kabu-drop/data/ipo.json kabu-drop/data/po.json && exit 0
+          git diff --cached --quiet && exit 0
+          date -u +%Y-%m-%dT%H:%M:%SZ > kabu-drop/data/updated.txt
+          git add kabu-drop/data
           git commit -m "kabu-drop: データ更新"
           git push
