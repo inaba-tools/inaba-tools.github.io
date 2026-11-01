@@ -38,8 +38,23 @@ button{font-family:inherit}
 .card{position:relative;background:var(--card);border-radius:20px;padding:16px;margin-bottom:12px;box-shadow:0 1px 0 rgba(0,0,0,.03),0 10px 26px rgba(40,44,30,.06);animation:rise .5s cubic-bezier(.2,1,.3,1) both;transition:transform .35s cubic-bezier(.2,1.1,.3,1),opacity .35s}
 .card.now{box-shadow:0 0 0 2px var(--blue),0 12px 28px rgba(43,111,214,.18)}
 .card.win{box-shadow:0 0 0 2px var(--red),0 12px 28px rgba(210,69,59,.22)}
-.card.gone{transform:translateX(-115%);opacity:0}
-.card .swipe{position:absolute;inset:0;border-radius:20px;background:linear-gradient(90deg,transparent 40%,rgba(43,111,214,.1));opacity:0;pointer-events:none;transition:opacity .2s}
+.card.gone{opacity:0}
+.list.noanim .card{animation:none}
+.slot{position:relative;margin-bottom:12px;touch-action:pan-y;transition:height .32s cubic-bezier(.3,.8,.3,1),margin .32s}
+.slot.collapse{margin-bottom:0}
+.slot>.card{margin-bottom:0;will-change:transform}
+.slot.drag>.card{transition:none!important;animation:none!important}
+.under{position:absolute;inset:0;border-radius:20px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font:900 15px "Noto Sans JP";color:#fff;opacity:0;transition:opacity .15s}
+.under .l,.under .r{display:flex;align-items:center;gap:8px;opacity:.35;transform:scale(.9);transition:opacity .15s,transform .2s cubic-bezier(.2,1.6,.3,1)}
+.under.ready .l,.under.ready .r{opacity:1;transform:scale(1.08)}
+.under svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.under.toL{justify-content:flex-end}.under.toR{justify-content:flex-start}
+.under.toL .l,.under.toR .r{display:none}
+.flyer{position:fixed;z-index:50;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;pointer-events:none;box-shadow:0 4px 12px rgba(0,0,0,.25);transition:transform .55s cubic-bezier(.5,-.3,.6,1),opacity .2s .5s}
+.card.shake{animation:shake .4s}
+@keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.yoso{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding:10px 12px;border-radius:12px;background:#fbf6e6;text-decoration:none;color:#7a5a06;font:800 13px "Noto Sans JP"}
+.yoso span{font-weight:700;color:#a0894a;font-size:11.5px}
 .hd{display:flex;align-items:flex-start;gap:12px}
 .hd .nm{flex:1;min-width:0}
 .hd .t{font-size:17px;font-weight:800;line-height:1.3}
@@ -231,7 +246,7 @@ function card(o,i){
   const x=o.x;let cls='',tag='',memo='',btns='';
   if(o.k==='can'){
     if(o.open){cls='now';tag=`<span class="tag blue ${o.left<=1?'pulse':''}">${o.left===0?'今日まで':'あと'+o.left+'日'}</span>`;
-      btns=`<a class="btn" href="${RAKUTEN}" target="_blank" rel="noopener">楽天証券で申し込む</a><button class="btn ghost" data-act="applied" data-c="${x.code}">申し込んだ（左スワイプでもOK）</button>`;}
+      btns=`<a class="btn" href="${RAKUTEN}" target="_blank" rel="noopener">楽天証券で申し込む</a><button class="btn ghost" data-act="applied" data-c="${x.code}">申し込んだ（← 左スワイプでもOK）</button>`;}
     else{tag=`<span class="tag org">${o.until===1?'明日から':md(x.data4)+'から'}</span>`;}
     memo=o.need?`申込に必要なお金 <b>約${yen(o.need)}円</b>（${o.unit}株）。ハズレたら全額そのまま。`:'値段はまだ決まっていません。';
   }else if(o.k==='done'){
@@ -249,7 +264,8 @@ function card(o,i){
     btns=r.st?`<button class="btn ghost" data-act="undo" data-c="${x.code}">記録を取り消す</button>`:'';
   }
   const priceTxt=o.price?`${yen(o.price)}円`:(x.data3&&x.data3!=='-'?x.data3:'—');
-  return `<div class="card ${cls}" data-code="${x.code}" style="animation-delay:${Math.min(i,6)*70}ms"><div class="swipe"></div>
+  const yoso=o.k!=='end'?`<a class="yoso" href="https://www.google.com/search?q=${encodeURIComponent(o.name+' IPO 初値予想')}" target="_blank" rel="noopener">初値予想を見る<span>専門サイトの予想 ›</span></a>`:'';
+  return `<div class="slot" data-code="${x.code}" data-k="${o.k}"><div class="under"></div><div class="card ${cls}" style="animation-delay:${Math.min(i,6)*70}ms">
   <div class="hd"><div class="nm"><div class="t">${o.name}</div><div class="m">${x.code} ・ ${o.mkt}</div></div>${tag}</div>
   <div class="kv">
    <div><div class="k">申込期間</div><div class="v">${md(x.data4)} 〜 ${md(x.data6)}${x.data7&&x.data7!=='0:00'?`<small>${x.data7}まで</small>`:''}</div></div>
@@ -259,8 +275,9 @@ function card(o,i){
   </div>
   ${o.k!=='end'?`<div class="chips"><span class="tag ${o.hint[0]}">${o.hint[1]}</span></div>`:''}
   ${x.data22&&o.k==='can'?`<div class="desc">${x.data22}</div>`:''}
+  ${yoso}
   ${memo?`<div class="bar ${o.k==='win'?'red':''}"><span class="dot"></span><span>${memo}</span></div>`:''}
-  ${btns}</div>`}
+  ${btns}</div></div>`}
 
 let lastCounts={};
 function render(){
@@ -274,7 +291,7 @@ function render(){
   $('#lead').innerHTML=g.win.length?`当選が <span class="r">${g.win.length}件</span> あります`:open?`今日は <span class="b">${open}件</span> 申し込めます`:g.can.length?`次の申込は <span class="b">${md(g.can[0].x.data4)}</span> から`:'今は申し込めるIPOがありません';
   const show=g[cur];
   $('#list').innerHTML=show.length?show.map(card).join(''):`<div class="empty">${{can:'今は申し込めるIPOがありません',done:'申し込んだIPOはここに並びます',win:'当選したらここに並びます',end:'終わったIPOはここに並びます'}[cur]}</div>`;
-  $('#hint').textContent=cur==='can'&&g.can.some(o=>o.open)?'申し込んだら、カードを左にスワイプ':'';
+  $('#hint').textContent={can:g.can.some(o=>o.open)?'申し込んだら、カードを ← 左にスワイプ':'',done:g.done.length?'← 左で当選へ ／ 右 → で申込前に戻す':'',win:g.win.length?'右 → で申込済みに戻す':'',end:''}[cur];
   // 成績
   const sold=all.filter(o=>o.r.st==='sold');const pl=sold.reduce((a,o)=>a+(o.r.sell-(o.r.buy||o.price||0))*o.unit,0);
   const applied=all.filter(o=>o.r.st).length,won=all.filter(o=>['won','sold'].includes(o.r.st)).length;
@@ -283,14 +300,29 @@ function render(){
 
 function toast(t){$('#toastT').textContent=t;const el=$('#toast');el.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('on'),2000)}
 
-function animateOut(code,fn){const c=document.querySelector(`.card[data-code="${code}"]`);if(c){c.classList.add('gone');setTimeout(fn,330)}else fn()}
-
+// ---- 移動（スワイプ・ボタン共通） ----
+const MOVES={can:{L:['done','申込済みへ','#2b6fd6']},done:{L:['win','当選！','#d2453b'],R:['can','申込前に戻す','#9aa097']},win:{R:['done','申込済みに戻す','#9aa097']}};
+const ARROW={L:'<svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',R:'<svg viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>'};
+function slotOf(code){return document.querySelector(`.slot[data-code="${code}"]`)}
+function flyTo(slot,k,color){const btn=document.querySelector(`#seg button[data-k="${k}"]`);if(!slot||!btn)return;const a=slot.getBoundingClientRect(),b=btn.getBoundingClientRect();
+  const f=document.createElement('div');f.className='flyer';f.style.background=color;f.style.left=(a.left+a.width/2)+'px';f.style.top=(a.top+Math.min(a.height/2,120))+'px';document.body.appendChild(f);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{f.style.transform=`translate(${b.left+b.width/2-(a.left+a.width/2)}px,${b.top+b.height/2-(a.top+Math.min(a.height/2,120))}px) scale(.6)`;f.style.opacity='0'}));
+  setTimeout(()=>{f.remove();btn.classList.remove('bump');void btn.offsetWidth;btn.classList.add('bump')},560)}
+function flyOut(code,dir,fn,k,color){const slot=slotOf(code);if(!slot){fn();return}const card=slot.querySelector('.card');
+  const w=slot.offsetWidth;card.style.transition='transform .28s cubic-bezier(.4,0,.6,1),opacity .28s';card.style.transform=`translateX(${dir==='L'?-w*1.15:w*1.15}px) rotate(${dir==='L'?-4:4}deg)`;card.style.opacity='0';
+  if(k)flyTo(slot,k,color);
+  setTimeout(()=>{slot.style.height=slot.offsetHeight+'px';slot.querySelector('.under').style.opacity=0;requestAnimationFrame(()=>{slot.style.height='0px';slot.classList.add('collapse')});
+    setTimeout(()=>{$('#list').classList.add('noanim');fn();setTimeout(()=>$('#list').classList.remove('noanim'),50)},320)},260)}
+function move(code,to,dir){
+  const o=ipos.find(x=>x.code===code);if(!o)return;const name=clean(o.data1);const color={done:'#2b6fd6',win:'#d2453b',can:'#9aa097',end:'#6d726b'}[to];
+  const set={can:null,done:{st:'applied'},win:{st:'won'}}[to];
+  flyOut(code,dir,()=>{setRec(code,set);render();toast({done:name+'：申込済みに移動',win:'当選おめでとう！ '+name,can:name+'：申込前に戻しました'}[to])},to,color)}
 function act(a,code){
   const o=ipos.find(x=>x.code===code);if(!o)return;const name=clean(o.data1);
-  if(a==='applied'){animateOut(code,()=>{setRec(code,{st:'applied'});render();toast(name+'：申込済みに移動')})}
-  else if(a==='won'){animateOut(code,()=>{setRec(code,{st:'won'});render();toast('当選おめでとう！ '+name)})}
-  else if(a==='lost'){animateOut(code,()=>{setRec(code,{st:'lost'});render();toast(name+'：落選を記録')})}
-  else if(a==='undo'){animateOut(code,()=>{setRec(code,null);render();toast('記録を取り消しました')})}
+  if(a==='applied')move(code,'done','L');
+  else if(a==='won')move(code,'win','L');
+  else if(a==='lost')flyOut(code,'R',()=>{setRec(code,{st:'lost'});render();toast(name+'：落選を記録')},'end','#6d726b');
+  else if(a==='undo')flyOut(code,'R',()=>{setRec(code,null);render();toast('記録を取り消しました')});
   else if(a==='sold')openSell(o);
 }
 function openSell(x){const o=classify(x);const sh=$('#sheet');
@@ -299,7 +331,7 @@ function openSell(x){const o=classify(x);const sh=$('#sheet');
   const inp=$('#sellIn'),bin=$('#buyIn');const buy=()=>o.price||(bin?num(bin.value):null);(bin||inp).focus();
   const upd=()=>{const v=num(inp.value),b=buy();const p=v!=null&&b!=null?(v-b)*o.unit:null;$('#sellRes').textContent=p==null?'—':(p>=0?'+':'')+yen(p)+'円';$('#sellRes').style.color=p>0?'#1f9d6b':p<0?'#d2453b':''};
   inp.oninput=upd;if(bin)bin.oninput=upd;
-  $('#sellOk').onclick=()=>{const v=num(inp.value),b=buy();if(v==null||b==null)return;closeSheet();animateOut(x.code,()=>{setRec(x.code,{st:'sold',sell:v,buy:b});render();const p=(v-b)*o.unit;toast(`${p>=0?'+':''}${yen(p)}円 を記録しました`)})};
+  $('#sellOk').onclick=()=>{const v=num(inp.value),b=buy();if(v==null||b==null)return;closeSheet();flyOut(x.code,'L',()=>{setRec(x.code,{st:'sold',sell:v,buy:b});render();const p=(v-b)*o.unit;toast(`${p>=0?'+':''}${yen(p)}円 を記録しました`)},'end','#1f9d6b')};
   $('#sellNo').onclick=closeSheet}
 function closeSheet(){$('#sbg').classList.remove('on');$('#sheet').classList.remove('on')}
 $('#sbg').onclick=closeSheet;
@@ -308,12 +340,27 @@ $('#list').addEventListener('click',e=>{const b=e.target.closest('[data-act]');i
 $('#seg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;cur=b.dataset.k;document.querySelectorAll('#seg button').forEach(x=>x.classList.toggle('on',x===b));render()});
 $('#tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(!b)return;document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.page').forEach(p=>p.classList.toggle('on',p.id==='p-'+b.dataset.p));window.scrollTo(0,0)});
 
-// 左スワイプで申込済み
-let sx=0,sy=0,sc=null;
-$('#list').addEventListener('touchstart',e=>{sc=e.target.closest('.card');sx=e.touches[0].clientX;sy=e.touches[0].clientY},{passive:true});
-$('#list').addEventListener('touchmove',e=>{if(!sc)return;const dx=e.touches[0].clientX-sx,dy=e.touches[0].clientY-sy;if(Math.abs(dy)>Math.abs(dx)){return}if(dx<0){sc.style.transform=`translateX(${dx*.6}px)`;sc.querySelector('.swipe').style.opacity=Math.min(1,-dx/120)}},{passive:true});
-$('#list').addEventListener('touchend',e=>{if(!sc)return;const c=sc;sc=null;const dx=e.changedTouches[0].clientX-sx;c.style.transform='';c.querySelector('.swipe').style.opacity=0;
-  if(dx<-90&&cur==='can'){const o=ipos.find(x=>x.code===c.dataset.code);if(o&&classify(o).open)act('applied',o.code)}});
+// スワイプ：左＝次へ（申込済み・当選）、右＝戻す
+let drag=null;
+$('#list').addEventListener('pointerdown',e=>{const slot=e.target.closest('.slot');if(!slot||e.target.closest('a,button,input'))return;
+  const mv=MOVES[slot.dataset.k];if(!mv)return;drag={slot,card:slot.querySelector('.card'),under:slot.querySelector('.under'),mv,x:e.clientX,y:e.clientY,dx:0,on:false,id:e.pointerId,t:Date.now()}});
+$('#list').addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;
+  if(!drag.on){if(Math.abs(dx)<10)return;if(Math.abs(dy)>Math.abs(dx)){drag=null;return}drag.on=true;drag.slot.classList.add('drag');try{drag.slot.setPointerCapture(e.pointerId)}catch(_){}}
+  const dir=dx<0?'L':'R';const m=drag.mv[dir];const w=drag.slot.offsetWidth;let d=m?dx:dx*.18;
+  drag.dx=dx;drag.card.style.transform=`translateX(${d}px) rotate(${d/w*3}deg)`;
+  const u=drag.under;if(m){u.className='under '+(dir==='L'?'toL':'toR')+(Math.abs(dx)>w*.33?' ready':'');u.style.background=m[2];u.style.opacity=Math.min(1,Math.abs(dx)/60);
+    u.innerHTML=dir==='L'?`<div class="l"></div><div class="r">${ARROW.R} ${m[1]}</div>`:`<div class="l">${m[1]} ${ARROW.L}</div><div class="r"></div>`}else u.style.opacity=0});
+function endDrag(e){if(!drag)return;const d=drag;drag=null;if(!d.on)return;d.slot.classList.remove('drag');
+  const w=d.slot.offsetWidth,dir=d.dx<0?'L':'R',m=d.mv[dir],v=Math.abs(d.dx)/Math.max(1,Date.now()-d.t);
+  const code=d.slot.dataset.code;
+  if(m&&(Math.abs(d.dx)>w*.33||(v>.6&&Math.abs(d.dx)>60))){
+    if(d.slot.dataset.k==='can'&&m[0]==='done'){const o=ipos.find(x=>x.code===code);if(o&&!classify(o).open){back(d);d.card.classList.add('shake');setTimeout(()=>d.card.classList.remove('shake'),400);toast('まだ申込期間前です');return}}
+    move(code,m[0],dir)}
+  else back(d)}
+function back(d){d.card.style.transition='transform .45s cubic-bezier(.2,1.5,.4,1)';d.card.style.transform='';d.under.style.opacity=0;setTimeout(()=>{d.card.style.transition=''},460)}
+$('#list').addEventListener('pointerup',endDrag);$('#list').addEventListener('pointercancel',endDrag);
+// 長押しの文字選択などを防ぐ
+$('#list').addEventListener('dragstart',e=>e.preventDefault());
 
 async function load(){
   try{const r=await fetch('data/ipo.json?'+Date.now());ipos=await r.json()}catch(e){ipos=[]}
