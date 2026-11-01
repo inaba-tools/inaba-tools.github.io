@@ -314,6 +314,7 @@ def main():
     if codes is None:
         codes = set(load('prices.json', {}).keys())
     codes |= {x['code'] for x in items if x.get('kind') != 'past'}
+    codes |= {x['code'] for x in load('yutai_list.json', {}).get('items', [])}
     fetch_prices(codes)
 
 
