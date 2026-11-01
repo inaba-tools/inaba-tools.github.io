@@ -628,6 +628,7 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
 </div>
 <div class="menu">
 <button class="mi" id="introAgain"><span class="ico" style="background:#2f6f63">▶</span><span>アプリの紹介を見る<small>IPO・分売・優待のちがい</small></span><i>›</i></button>
+<button class="mi" id="testMenu"><span class="ico" style="background:#d98a1c">🧪</span><span>IPOの練習用カード<small>何でも試せるカードを表示する</small></span><span class="sw" id="testSw"></span></button>
 <button class="mi" id="tourAgain"><span class="ico" style="background:#7d7a3a">👆</span><span>画面の説明をもう一度見る<small>各タブを開いたときの説明</small></span><i>›</i></button>
 </div>
 <div class="menu">
@@ -858,7 +859,7 @@ const REC={};
 KINDS.forEach(k=>{try{REC[k]=JSON.parse(localStorage.getItem(LSK[k])||'{}')}catch(e){REC[k]={}}});
 const saveLocal=k=>{try{localStorage.setItem(LSK[k],JSON.stringify(REC[k]))}catch(e){}};
 async function sync(kind,id){try{await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'log',kind,code:id,xp:0,memo:REC[kind][id]||{st:'clear'}})})}catch(e){}}
-function setRec(kind,id,v){if(v)REC[kind][id]={...(REC[kind][id]||{}),...v,at:Date.now()};else delete REC[kind][id];saveLocal(kind);sync(kind,id)}
+function setRec(kind,id,v){if(v)REC[kind][id]={...(REC[kind][id]||{}),...v,at:Date.now()};else delete REC[kind][id];saveLocal(kind);if(id!=='TEST')sync(kind,id)}
 async function loadRemote(){try{const r=await fetch(API+'?action=state');const j=await r.json();const logs=(j.state&&j.state.logs)||[];
   KINDS.forEach(kind=>{const L=logs.filter(l=>l.kind===kind);if(!L.length)return;const m={};
     L.forEach(l=>{let v=l.memo;if(typeof v==='string'){try{v=JSON.parse(v)}catch(e){v=null}}if(v)m[String(l.code)]=v.st==='clear'?null:v});
@@ -890,7 +891,7 @@ const IPO={kind:'ipo',cur:'can',last:{},
     o.open=bs&&be&&t>=bs&&t<=be;o.left=be?days(be,t):null;o.until=bs?days(bs,t):null;
     const m=o.mkt;o.hint=/グロース/.test(m)?['green','人気になりやすい市場']:/プライム/.test(m)?['grey','大きめの会社が多い']:/名証|福証|札証|PRO/.test(m)?['org','地方・PRO市場は注意']:['grey','ふつう'];
     if(/投資法人/.test(x.data1))o.hint=['org','REIT（値上がりしにくい）'];
-    o.pl=r.st==='sold'?(r.sell-(r.buy||o.price||0))*(r.sh||o.unit):0;
+    o.pl=r.st==='sold'&&x.code!=='TEST'?(r.sell-(r.buy||o.price||0))*(r.sh||o.unit):0;
     return o},
   sort(g){g.can.sort((a,b)=>(b.open-a.open)||((a.bs||0)-(b.bs||0)));g.done.sort((a,b)=>(a.draw||0)-(b.draw||0));g.win.sort((a,b)=>(a.ls||0)-(b.ls||0));g.end.sort((a,b)=>(b.ls||0)-(a.ls||0))},
   lead(g){const open=g.can.filter(o=>o.open).length;return g.win.length?`当選が <span class="r">${g.win.length}件</span> あります`:open?`今日は <span class="b">${open}件</span> 申し込めます`:g.can.length?`次の申込は <span class="b">${md(g.can[0].x.data4)}</span> から`:'今は申し込めるIPOがありません'},
@@ -900,7 +901,7 @@ const IPO={kind:'ipo',cur:'can',last:{},
   setFor:{can:null,done:{st:'applied'},win:{st:'won'},skip:{st:'skip'}},
   toastFor(to,o){return{done:o.name+'：申込済みに移動',win:'当選おめでとう！ '+o.name,can:o.name+'：申込前に戻しました',skip:o.name+'：見送りました（一番下に入れました）'}[to]},
   beforeMove(o,to){if(to==='done'){const acc={...((o.r&&o.r.acc)||{})};ownAccs(o).forEach(a=>acc[a.b.id]=true);return{acc}}if(to==='can')return{};return{}},
-  act(a,o){if(a.startsWith('ac:')){toggleAcc(o,a.slice(3));return}if(a==='sold')openSell({kind:'ipo',id:o.id,name:o.name,unit:o.unit,buy:o.price,note:'初値'})},
+  act(a,o){if(a==='treset'){setRec('ipo','TEST',null);IPO.cur='can';segOn('ipo','can');renderAll();toast('練習用カードを最初に戻しました');return}if(a.startsWith('ac:')){toggleAcc(o,a.slice(3));return}if(a==='sold')openSell({kind:'ipo',id:o.id,name:o.name,unit:o.unit,buy:o.price,note:'初値'})},
   card(o,i){
     const x=o.x;let cls='',tag='',memo='',btns='';
     if(o.k==='skip'){tag='<span class="tag skipm">見送り中</span>';memo='見送ったIPOです。やっぱり申し込むなら → 右にスワイプ。';btns=`<button class="btn ghost" data-act="go:can">申込前に戻す</button>`}
@@ -926,6 +927,7 @@ const IPO={kind:'ipo',cur:'can',last:{},
       else{tag='<span class="tag grey">終了</span>'}
       btns=r.st?`<button class="btn ghost" data-act="undo">記録を取り消す</button>`:'';
     }
+    if(o.id==='TEST'){tag=`<span class="tag org">練習用</span>`+tag;btns+=`<button class="btn ghost" data-act="treset" style="margin-top:8px;font-size:13px;color:var(--sub)">練習を最初からやり直す</button>`}
     const priceTxt=o.price?`${yen(o.price)}円`:(x.data3&&x.data3!=='-'?esc(x.data3):'—');
     const yoso='';
     return slot(o,i,cls,`<div class="hd"><div class="nm"><div class="t">${esc(o.name)}</div><div class="m">${x.code} ・ <span data-tip="mkt" style="text-decoration:underline dotted">${esc(o.mkt)}</span></div></div>${tag}</div>
@@ -1374,6 +1376,13 @@ function toggleAcc(o,id){const acc={...((o.r&&o.r.acc)||{})};acc[id]=!acc[id];co
   if(all){move('ipo',o.id,'done',FWD);setTimeout(()=>{setRec('ipo',o.id,{acc});renderAll()},700);return}
   setRec('ipo',o.id,{acc});const list=$('#list-ipo');list.classList.add('noanim');renderAll();setTimeout(()=>list.classList.remove('noanim'),50);toast(acc[id]?'申込済みにチェックしました':'チェックを外しました')}
 
+
+// ---- 練習用のIPOカード ----
+function testIPO(){const t=todayJ();const f=n=>{const d=new Date(t.getTime()+n*864e5);return`${d.getUTCFullYear()}/${String(d.getUTCMonth()+1).padStart(2,'0')}/${String(d.getUTCDate()).padStart(2,'0')}`};
+  return{code:'TEST',data1:'れんしゅう株式会社（練習用）',data2:f(-2),data3:'950～1,000円',data4:f(-1),data5:'0:00',data6:f(3),data7:'10:50',data8:'100',data9:f(4),data10:'-',data11:f(5),data13:f(8),data15:f(4),data18:f(11),data19:'東証グロース',data22:'操作の練習用カードです。スワイプ・申込チェック・当選・売った記録まで、何をしても本物の記録やスプレッドシートには残りません。'}}
+function addTest(){ipos=ipos.filter(x=>x.code!=='TEST');if(SET.testCard!==false)ipos.unshift(testIPO());
+  yosoData.TEST={rank:'B',bb:1500,reader:1620,n:12,sotei:900,lead:'sbi'}}
+
 // ---- おすすめの優待 ----
 let recList=[],recMon='all',recMore=false;
 function recCalc(it){const r={...it,plan:'s',early:0,day:0};const cyc=nextCycle(r);if(!cyc)return null;const px=prices[it.code]&&prices[it.code].p;return{it,cyc,c:crossCost(r,px,cyc)}}
@@ -1422,6 +1431,9 @@ function openSub(k){const el=$('#sub-'+k);if(!el)return;el.scrollTop=0;el.style.
 function closeSubs(){document.querySelectorAll('.subpage.on').forEach(x=>{x.style.transform='';x.classList.remove('on')});$('.app').classList.remove('pushed');$('.app').style.transform='';$('.app').style.opacity='';$('#subshade').classList.remove('on');$('#subshade').style.opacity=''}
 document.querySelectorAll('.mi[data-sub]').forEach(b=>b.onclick=()=>openSub(b.dataset.sub));
 $('#budMenu').onclick=()=>openBudget();
+function testSwRender(){$('#testSw').classList.toggle('on',SET.testCard!==false)}
+$('#testMenu').onclick=()=>{SET.testCard=SET.testCard===false;saveSet();if(SET.testCard===false)setRec('ipo','TEST',null);addTest();testSwRender();renderAll();toast(SET.testCard!==false?'練習用カードを表示しました（IPOタブ）':'練習用カードを消しました')};
+testSwRender();
 document.querySelectorAll('.subpage .back').forEach(b=>b.onclick=closeSubs);
 document.querySelectorAll('.subpage').forEach(sp=>{let x0=null,y0=0,dx=0,on=false,t0=0;const app=$('.app'),sh=$('#subshade');
   sp.addEventListener('touchstart',e=>{const t=e.touches[0];if(t.clientX<44){x0=t.clientX;y0=t.clientY;dx=0;on=false;t0=Date.now()}else x0=null},{passive:true});
@@ -1519,7 +1531,7 @@ $('#tourAgain').onclick=()=>{['ipo','bunbai','yutai'].forEach(k=>{try{localStora
 async function getJSON(u,def){try{const r=await fetch(u+'?'+Date.now());if(!r.ok)return def;return await r.json()}catch(e){return def}}
 async function load(){
   [ipos,bunbai,prices,yosoData]=await Promise.all([getJSON('data/ipo.json',[]),getJSON('data/bunbai.json',{items:[],past:[]}),getJSON('data/prices.json',{}),getJSON('data/yoso.json',{})]);{const rt=await getJSON('data/rates.json',null);if(rt&&rt.s!=null){SET.rateS=rt.s;SET.rateL=rt.l;saveSet()}
-  $('#rateSv').textContent=`年${SET.rateS}％`;$('#rateLv').textContent=`年${SET.rateL}％`;if(rt&&rt.at)$('#rateAt').textContent=`最後に確認した日：${md(rt.at)}（楽天証券）`}recList=((await getJSON('data/yutai_list.json',{items:[]})).items)||[];brokers=((await getJSON('data/brokers.json',{items:[]})).items)||[];renderBrokers();
+  $('#rateSv').textContent=`年${SET.rateS}％`;$('#rateLv').textContent=`年${SET.rateL}％`;if(rt&&rt.at)$('#rateAt').textContent=`最後に確認した日：${md(rt.at)}（楽天証券）`}addTest();recList=((await getJSON('data/yutai_list.json',{items:[]})).items)||[];brokers=((await getJSON('data/brokers.json',{items:[]})).items)||[];renderBrokers();
   try{const u=(await (await fetch('data/updated.txt?'+Date.now())).text()).trim();const d=new Date(u);if(!isNaN(d))document.querySelectorAll('.upd').forEach(el=>el.innerHTML=`楽天証券<br>${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')} 更新`)}catch(e){}
   renderAll();loadRemote();
   const ip=IPO.all(),bb=BUN.all(),yu=YU.all();const t=todayJ();
