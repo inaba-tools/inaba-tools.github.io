@@ -1,4 +1,4 @@
-"""メルカリのApple製品の出品を巡回し、画像からシリアル番号を読み取ってスプレッドシートに追加する"""
+"""メルカリ・Yahoo!フリマのApple製品の出品を巡回し、画像からシリアル番号を読み取ってスプレッドシートに追加する"""
 import json
 import os
 import time
@@ -67,6 +67,64 @@ def big(url):
     return url.replace("/c!/w=240/thumb/photos/", "/item/detail/orig/photos/").split("?")[0]
 
 
+YAHOO_API = "https://paypayfleamarket.yahoo.co.jp/api"
+YAHOO_HEADERS = {"User-Agent": UA, "Accept": "application/json", "Referer": "https://paypayfleamarket.yahoo.co.jp/"}
+
+
+def yahoo_search(q, exclude):
+    """Yahoo!フリマを新着順で検索（画面を開かずに読める）"""
+    query = q + "".join(f" -{w}" for w in exclude.split())
+    for params in ({"sort": "openTime", "order": "desc"}, {}):   # 新着順が使えなければふつうの順
+        try:
+            r = requests.get(f"{YAHOO_API}/v1/search", headers=YAHOO_HEADERS, timeout=30,
+                             params={"query": query, "results": 100, "itemStatus": "open", **params})
+            r.raise_for_status()
+            return [{"url": f"https://paypayfleamarket.yahoo.co.jp/item/{it['id']}", "title": it.get("title", ""),
+                     "price": it.get("price"), "site": "Yahoo!フリマ"} for it in r.json().get("items", [])]
+        except (requests.RequestException, ValueError, KeyError):
+            continue
+    return []
+
+
+def yahoo_detail(url):
+    item_id = url.rstrip("/").split("/item/")[-1]
+    r = requests.get(f"{YAHOO_API}/item/v2/items/{item_id}", headers=YAHOO_HEADERS, timeout=30)
+    if r.status_code != 200:
+        return None
+    j = r.json()
+    return {"title": j.get("title", ""), "sold": j.get("status") != "OPEN", "description": j.get("description", ""),
+            "images": [i.get("url") for i in j.get("images", []) if i.get("url")][:20]}
+
+
+def mercari_detail(page, url):
+    page.goto(url, wait_until="domcontentloaded", timeout=45000)
+    page.wait_for_selector('[data-testid^="image-"] img', timeout=20000)
+    page.wait_for_timeout(800)
+    d = page.evaluate(DETAIL_JS)
+    d["images"] = [big(u) for u in d.get("images", [])]
+    return d
+
+
+def find_serial(d):
+    """説明欄→写真の順にシリアルを探す。(シリアル, 点数, 画像URL) か None"""
+    best = None
+    for s, sc in read_serials_text(d.get("description", "")):
+        best = (s, sc, "")
+        break
+    if not best or best[1] < 2:
+        for img_url in d.get("images", []):
+            try:
+                b = requests.get(img_url, headers={"User-Agent": UA}, timeout=30).content
+            except requests.RequestException:
+                continue
+            found = read_serials(b)
+            if found and (not best or found[0][1] > best[1]):
+                best = (found[0][0], found[0][1], img_url)
+            if best and best[1] >= 2:
+                break
+    return best
+
+
 def main():
     start = time.time()
     seen = set(json.loads(CACHE.read_text())) if CACHE.exists() else set()
@@ -78,61 +136,52 @@ def main():
     with sync_playwright() as p:
         browser = p.chromium.launch()
         page = browser.new_page(user_agent=UA, locale="ja-JP")
-        items = {}
+        merc, yah = {}, {}
         for q in queries:
             try:
                 page.goto(search_url(q, exclude), wait_until="domcontentloaded", timeout=45000)
                 page.wait_for_selector('a[href*="/item/m"]', timeout=25000)
                 for it in page.evaluate(SEARCH_JS):
-                    items.setdefault(it["url"], it)
+                    it["site"] = "メルカリ"
+                    merc.setdefault(it["url"], it)
             except Exception as e:
-                print("検索できず", q, repr(e)[:100])
+                print("メルカリ検索できず", q, repr(e)[:100])
+            for it in yahoo_search(q, exclude):
+                yah.setdefault(it["url"], it)
             time.sleep(2)
-        new = [it for it in items.values() if it["url"] not in seen]
-        print(f"新しい出品 {len(new)} 件（全部で {len(items)} 件）")
+        new_m = [it for it in merc.values() if it["url"] not in seen]
+        new_y = [it for it in yah.values() if it["url"] not in seen]
+        print(f"新しい出品 メルカリ {len(new_m)} 件・Yahoo!フリマ {len(new_y)} 件")
+        # 両方に時間が回るよう、交互に確認する
+        order = [x for pair in zip(new_m, new_y) for x in pair] + new_m[len(new_y):] + new_y[len(new_m):]
         rows = []
-        for it in new:
+        for it in order:
             if time.time() - start > TIME_LIMIT:
                 print("時間切れ。残りは次の回に")
                 break
             url = it["url"]
             try:
-                page.goto(url, wait_until="domcontentloaded", timeout=45000)
-                page.wait_for_selector('[data-testid^="image-"] img', timeout=20000)
-                page.wait_for_timeout(800)
-                d = page.evaluate(DETAIL_JS)
+                d = yahoo_detail(url) if it["site"] == "Yahoo!フリマ" else mercari_detail(page, url)
             except Exception as e:
                 print("開けず", url, repr(e)[:80])
+                continue
+            if not d:
                 continue
             seen.add(url)
             checked += 1
             if d.get("sold"):
                 continue
-            best = None   # (シリアル, 点数, 画像URL)
-            for s, sc in read_serials_text(d.get("description", "")):
-                best = (s, sc, "")
-                break
-            if not best or best[1] < 2:
-                for img_url in d.get("images", []):
-                    try:
-                        b = requests.get(big(img_url), headers={"User-Agent": UA}, timeout=30).content
-                    except requests.RequestException:
-                        continue
-                    found = read_serials(b)
-                    if found and (not best or found[0][1] > best[1]):
-                        best = (found[0][0], found[0][1], big(img_url))
-                    if best and best[1] >= 2:
-                        break
+            best = find_serial(d)
             if best:
-                rows.append({"title": d.get("title") or it["title"], "price": it.get("price"), "site": "メルカリ",
-                             "url": url, "image": best[2] or (big(d["images"][0]) if d.get("images") else ""),
+                rows.append({"title": d.get("title") or it["title"], "price": it.get("price"), "site": it["site"],
+                             "url": url, "image": best[2] or (d["images"][0] if d.get("images") else ""),
                              "serial": best[0], "sure": "高" if best[1] >= 2 else "低"})
                 print("シリアル発見", best[0], url)
             if len(rows) >= 20:
                 sheet("append", rows=rows)
                 added += len(rows)
                 rows = []
-            time.sleep(1.5)
+            time.sleep(1.5 if it["site"] == "メルカリ" else 0.5)
         if rows:
             sheet("append", rows=rows)
             added += len(rows)
