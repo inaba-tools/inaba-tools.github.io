@@ -1,14 +1,21 @@
-# ドル円 仮想トレードの自動記録（GitHub Actions から毎日 0:30 JST に実行）
-#  - 値段：Yahoo の無料1分足（JPY=X）
-#  - 型A：9時以降に前日の高値を抜けたら買い・安値を抜けたら売り。損切り50銭、24時に決済
-#  - 型B：五十日（5・10・15・20・25日・月末。休みなら前の営業日）の10時に売り、11時に買い戻し
+# ドル円 仮想トレードの自動記録（GitHub Actions から毎日実行）
+#  - 値段：Dukascopy の無料1分足（USDJPY・BID）
 #  - 1万通貨・手数料0.3銭（＝30円）込み。お金は使わない仮想
 #  - 結果は kiroku.csv に1日ずつ足していく（スプレッドシートの「記録」タブが読み込む）
-#  - まだ書いていない日を全部うめるので、1日動かなくても次の回で追いつく（Yahooの1分足は約30日前まで）
+#  - まだ書いていない日を全部うめるので、止まった日があっても次の回で追いつく
+#
+#  型（2024/11〜2026/10 の2年分で試して選んだもの）
+#   A  ブレイク        : 9時以降に前日の高値を抜けたら買い・安値を抜けたら売り。損切り50銭、24時に決済
+#   A2 15時ブレイク    : Aを15時から始める。損切り80銭、24時に決済
+#   B  仲値後の売り    : 五十日の10:00に売り、11:00に買い戻し
+#   B2 9:55売り        : 五十日の9:55に売り、11:00に買い戻し
+#   C  仲値前の買い    : 五十日の8:00に買い、9:55に売る
+#  五十日＝5・10・15・20・25日・月末（休みなら前の営業日）
 import csv
 import datetime as dt
-import json
+import lzma
 import os
+import struct
 import time
 import urllib.request
 
@@ -17,50 +24,54 @@ import holidays
 HERE = os.path.dirname(os.path.abspath(__file__))
 CSV = os.path.join(HERE, 'kiroku.csv')
 JST = dt.timezone(dt.timedelta(hours=9))
-UNITS = 10000          # 1万通貨
-FEE = 0.003 * UNITS    # 0.3銭 → 30円
-STOP = 0.50            # 損切り50銭
-LOOKBACK = 25          # さかのぼる日数（Yahoo 1分足の上限内）
+UTC = dt.timezone.utc
+UNITS = 10000
+FEE = 0.003 * UNITS
+START_DAY = dt.date(2026, 10, 1)   # 記録を始めた日
 HEADER = ['日付', '型', '売り買い', '前日高値/安値', '入った時刻・値段', '決済時刻・値段', '決済の理由', '損益（1万通貨）']
-A, B = 'A ブレイク', 'B 仲値後の売り'
-JP_HOL = holidays.Japan(years=range(2025, 2031))
+JP_HOL = holidays.Japan(years=range(2024, 2032))
+
+_cache = {}
 
 
-def fetch(start, end):
-    """start〜end(JST datetime) の1分足を {datetime: (o,h,l,c)} で返す"""
-    bars = {}
-    t = start
-    while t < end:
-        t2 = min(t + dt.timedelta(days=7), end)
-        url = ('https://query1.finance.yahoo.com/v8/finance/chart/JPY=X?interval=1m'
-               '&period1=%d&period2=%d' % (t.timestamp(), t2.timestamp()))
-        for i in range(3):
-            try:
-                req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-                with urllib.request.urlopen(req, timeout=60) as r:
-                    j = json.load(r)
+def utc_day(d):
+    """UTCの1日分の1分足 → [(JST datetime, o,h,l,c)]。まだ出ていなければ None"""
+    if d in _cache:
+        return _cache[d]
+    url = 'https://datafeed.dukascopy.com/datafeed/USDJPY/%d/%02d/%02d/BID_candles_min_1.bi5' % (d.year, d.month - 1, d.day)
+    raw = None
+    for i in range(5):
+        try:
+            req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+            with urllib.request.urlopen(req, timeout=60) as r:
+                raw = r.read()
+            break
+        except urllib.error.HTTPError as e:
+            if e.code == 404:
                 break
-            except Exception as e:
-                print('retry', e)
-                time.sleep(5)
-        else:
-            raise SystemExit('Yahooから取れませんでした')
-        res = (j.get('chart', {}).get('result') or [None])[0]
-        if res and res.get('timestamp'):
-            q = res['indicators']['quote'][0]
-            for k, ts in enumerate(res['timestamp']):
-                o, h, l, c = q['open'][k], q['high'][k], q['low'][k], q['close'][k]
-                if None in (o, h, l, c):
-                    continue
-                bars[dt.datetime.fromtimestamp(ts, JST)] = (o, h, l, c)
-        t = t2
-    return bars
+            time.sleep(10 * (i + 1))
+        except Exception:
+            time.sleep(10 * (i + 1))
+    out = None
+    if raw:
+        b = lzma.decompress(raw)
+        base = dt.datetime(d.year, d.month, d.day, tzinfo=UTC)
+        out = []
+        for k in range(0, len(b), 24):
+            t, o, c, l, h, v = struct.unpack('>5if', b[k:k + 24])
+            if v > 0:
+                out.append(((base + dt.timedelta(seconds=t)).astimezone(JST), o / 1e3, h / 1e3, l / 1e3, c / 1e3))
+    _cache[d] = out
+    time.sleep(0.5)
+    return out
 
 
-def day_bars(bars, d, h0=0, h1=24):
-    s = dt.datetime(d.year, d.month, d.day, tzinfo=JST) + dt.timedelta(hours=h0)
-    e = dt.datetime(d.year, d.month, d.day, tzinfo=JST) + dt.timedelta(hours=h1)
-    return [(t, bars[t]) for t in sorted(bars) if s <= t < e]
+def jst_day(d):
+    """JSTの1日分（前日15:00UTC〜当日15:00UTC）。途中が欠けていたら None"""
+    a, b = utc_day(d - dt.timedelta(days=1)), utc_day(d)
+    if a is None or b is None:
+        return None
+    return [x for x in a + b if x[0].date() == d]
 
 
 def hm(t):
@@ -70,21 +81,18 @@ def hm(t):
 def is_bizday(d):
     if d.weekday() >= 5 or d in JP_HOL:
         return False
-    if (d.month, d.day) in ((12, 31), (1, 1), (1, 2), (1, 3)):
-        return False
-    return True
+    return (d.month, d.day) not in ((12, 31), (1, 1), (1, 2), (1, 3))
 
 
-def gotobi_days(year, month):
-    """その月の五十日（休みなら前の営業日にずらす）"""
-    last = (dt.date(year + (month == 12), month % 12 + 1, 1) - dt.timedelta(days=1)).day
-    out = set()
+def is_gotobi(d):
+    last = ((d.replace(day=28) + dt.timedelta(days=4)).replace(day=1) - dt.timedelta(days=1)).day
     for n in (5, 10, 15, 20, 25, last):
-        d = dt.date(year, month, n)
-        while not is_bizday(d):
-            d -= dt.timedelta(days=1)
-        out.add(d)
-    return out
+        x = d.replace(day=n)
+        while not is_bizday(x):
+            x -= dt.timedelta(days=1)
+        if x == d:
+            return True
+    return False
 
 
 def prev_weekday(d):
@@ -94,88 +102,96 @@ def prev_weekday(d):
     return p
 
 
-def type_a(bars, d):
-    pb = day_bars(bars, prev_weekday(d))
-    tb = day_bars(bars, d, 9, 24)
-    if len(pb) < 300 or len(tb) < 300:
-        return None  # データが足りない日はとばす
-    H = max(b[1] for _, b in pb)
-    L = min(b[2] for _, b in pb)
+def row(d, typ, side, level, et, ep, xt, xp, why):
+    diff = (xp - ep) if side == '買い' else (ep - xp)
+    return [d.isoformat(), typ, side, level, '%s %.3f' % (hm(et), ep), '%s %.3f' % (hm(xt), xp), why, round(diff * UNITS - FEE)]
+
+
+def breakout(d, today, prev, typ, start, stop):
+    tb = [x for x in today if x[0].hour >= start]
+    if len(prev) < 300 or len(tb) < 60:
+        return None
+    H = max(x[2] for x in prev)
+    L = min(x[3] for x in prev)
     level = '%.3f / %.3f' % (H, L)
-    side = entry = None
-    for i, (t, (o, h, l, c)) in enumerate(tb):
+    side = None
+    for t, o, h, l, c in tb:
         if side is None:
             up, dn = h > H, l < L
-            if up and dn:  # 同じ1分で両方抜けた → 始値に近いほうを先とみなす
+            if up and dn:
                 up = (H - o) <= (o - L)
                 dn = not up
             if up:
-                side, entry, et = '買い', max(H, o), t
+                side, e, et = '買い', max(H, o), t
             elif dn:
-                side, entry, et = '売り', min(L, o), t
+                side, e, et = '売り', min(L, o), t
             continue
-        # 損切りチェック（入った次の1分から）
-        if side == '買い' and l <= entry - STOP:
-            ex = min(entry - STOP, o)
-            return row(d, A, side, level, et, entry, t, ex, '損切り（50銭）')
-        if side == '売り' and h >= entry + STOP:
-            ex = max(entry + STOP, o)
-            return row(d, A, side, level, et, entry, t, ex, '損切り（50銭）')
+        if side == '買い' and l <= e - stop:
+            return row(d, typ, side, level, et, e, t, min(e - stop, o), '損切り（%d銭）' % round(stop * 100))
+        if side == '売り' and h >= e + stop:
+            return row(d, typ, side, level, et, e, t, max(e + stop, o), '損切り（%d銭）' % round(stop * 100))
     if side is None:
-        return [d.isoformat(), A, 'なし', level, '', '', 'ブレイクなし', 0]
-    t, b = tb[-1]
-    return row(d, A, side, level, et, entry, t, b[3], '24時に決済')
+        return [d.isoformat(), typ, 'なし', level, '', '', 'ブレイクなし', 0]
+    t, o, h, l, c = tb[-1]
+    return row(d, typ, side, level, et, e, t, c, '24時に決済')
 
 
-def type_b(bars, d):
-    if d not in gotobi_days(d.year, d.month):
+def at(today, h, m):
+    for x in today:
+        if (x[0].hour, x[0].minute) >= (h, m):
+            return x
+    return None
+
+
+def timed(d, today, typ, side, eh, em, xh, xm, why):
+    e, x = at(today, eh, em), at(today, xh, xm)
+    if not e or not x or e[0].hour != eh or x[0].hour != xh:
         return None
-    tb = day_bars(bars, d, 10, 12)
-    e = [(t, b) for t, b in tb if t.hour == 10]
-    x = [(t, b) for t, b in tb if t.hour == 11]
-    if not e or not x:
-        return None
-    (et, eb), (xt, xb) = e[0], x[0]
-    return row(d, B, '売り', '-', et, eb[0], xt, xb[0], '11時に買い戻し')
+    return row(d, typ, side, '-', e[0], e[1], x[0], x[1], why)
 
 
-def row(d, typ, side, level, et, ep, xt, xp, why):
-    diff = (xp - ep) if side == '買い' else (ep - xp)
-    pnl = round(diff * UNITS - FEE)
-    return [d.isoformat(), typ, side, level, '%s %.3f' % (hm(et), ep), '%s %.3f' % (hm(xt), xp), why, pnl]
+def judge(d):
+    today = jst_day(d)
+    prev = jst_day(prev_weekday(d))
+    if today is None or prev is None:
+        return None  # データがまだ出ていない → 次の回で
+    out = [
+        breakout(d, today, prev, 'A ブレイク', 9, 0.50),
+        breakout(d, today, prev, 'A2 15時ブレイク', 15, 0.80),
+    ]
+    if is_gotobi(d):
+        out += [
+            timed(d, today, 'B 仲値後の売り', '売り', 10, 0, 11, 0, '11時に買い戻し'),
+            timed(d, today, 'B2 9:55売り', '売り', 9, 55, 11, 0, '11時に買い戻し'),
+            timed(d, today, 'C 仲値前の買い', '買い', 8, 0, 9, 55, '9:55に売り'),
+        ]
+    return [r for r in out if r]
 
 
 def main():
     rows = []
     if os.path.exists(CSV):
         with open(CSV, encoding='utf-8') as f:
-            rows = list(csv.reader(f))[1:]
-    done = {(r[0], r[1]) for r in rows}
+            rows = [r for r in list(csv.reader(f))[1:] if r]
+    done = {r[0] for r in rows}
 
     now = dt.datetime.now(JST)
-    last_day = (now - dt.timedelta(hours=0, minutes=5)).date() - dt.timedelta(days=1)  # 確定済みの最後の日
-    first_day = now.date() - dt.timedelta(days=LOOKBACK)
-    start = dt.datetime(first_day.year, first_day.month, first_day.day, tzinfo=JST) - dt.timedelta(days=4)
-    end = dt.datetime(last_day.year, last_day.month, last_day.day, tzinfo=JST) + dt.timedelta(days=1)
-    start = max(start, now - dt.timedelta(days=29))  # Yahooは30日前より古い1分足をくれない
-    bars = fetch(start, min(end, now))
-    print('1分足', len(bars), '本')
-
-    d = first_day
+    d = START_DAY
     added = 0
-    while d <= last_day:
-        if d.weekday() < 5:
-            for typ, fn in ((A, type_a), (B, type_b)):
-                if (d.isoformat(), typ) in done:
-                    continue
-                r = fn(bars, d)
-                if r:
-                    rows.append(r)
-                    added += 1
-                    print(r)
+    while d < now.date():
+        if d.weekday() < 5 and d.isoformat() not in done:
+            r = judge(d)
+            if r is None:
+                print(d, 'まだデータなし')
+            else:
+                rows += r
+                added += len(r)
+                for x in r:
+                    print(x)
         d += dt.timedelta(days=1)
 
-    rows.sort(key=lambda r: (r[0], r[1]))
+    order = ['A ブレイク', 'A2 15時ブレイク', 'B 仲値後の売り', 'B2 9:55売り', 'C 仲値前の買い']
+    rows.sort(key=lambda r: (r[0], order.index(r[1]) if r[1] in order else 9))
     with open(CSV, 'w', encoding='utf-8', newline='') as f:
         w = csv.writer(f)
         w.writerow(HEADER)
