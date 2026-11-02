@@ -791,6 +791,61 @@ details.bkd>summary .cv{margin-left:auto;width:18px;height:18px;display:grid;pla
 details.bkd>summary .cv:before{content:"";width:7px;height:7px;border-right:2.3px solid currentColor;border-bottom:2.3px solid currentColor;transform:translateY(-2px) rotate(45deg)}
 details.bkd[open]>summary .cv{transform:rotate(180deg)}
 details.bkd .bkin{animation:apin .4s cubic-bezier(.2,.9,.25,1)}
+
+/* 文節で改行：BudouXが入れた区切りだけで折り返す */
+body{word-break:keep-all;overflow-wrap:anywhere;line-break:strict}
+.lead,.seg button,.tag{word-break:keep-all}
+
+.intro .prev{border:0;background:none;font:800 13px "Noto Sans JP";color:var(--sub);padding:12px 6px;white-space:nowrap;flex:none;visibility:hidden}
+.intro .dots{flex:1}
+
+/* ---- たたんだカード（大きい評価・予想利益） ---- */
+.cs2{display:flex;align-items:stretch;gap:12px;flex-wrap:nowrap}
+.rkbig{flex:none;width:60px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 0}
+.rkbig small{font:800 10px "Noto Sans JP";opacity:.9;line-height:1}
+.rkbig b{font:900 30px/1.05 Inter;margin-top:2px}
+.rkbig.none{background:#eeeee9;color:#9aa097}
+html.dark .rkbig.none{background:#2a302c;color:#7d847c}
+.csr{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:6px}
+.pf2 small{display:block;font:800 11px "Noto Sans JP";color:var(--sub)}
+.pf2 b{display:block;font:900 26px/1.1 Inter;color:#1f9d6b;letter-spacing:-.01em}
+.pf2 b.dn{color:var(--red)}.pf2 b.na{font:800 15px "Noto Sans JP";color:var(--sub)}
+html.dark .pf2 b{color:#5fe0a8}html.dark .pf2 b.dn{color:#ff8b80}
+.cs2 .jt .tag{font-size:11.5px;padding:5px 10px;display:inline-block}
+.bigd{flex:none;text-align:right;line-height:1}
+.bigd b{display:block;font:900 24px Inter;color:var(--c-plan)}
+.bigd small{display:block;margin-top:3px;font:800 10.5px "Noto Sans JP";color:var(--sub)}
+html.dark .bigd b{color:#b9a6ff}
+.tco{display:inline}
+.tco .coi{display:inline-block;vertical-align:3px;margin-left:6px}
+
+/* ---- おすすめの申込（読みやすく） ---- */
+details.apl>summary .osb{font:900 11px "Noto Sans JP";color:#fff;background:#d8322a;padding:4px 9px;border-radius:8px;margin:0}
+details.apl>summary .st{font-size:14.5px}
+.apin .why{font:700 13px/1.75 "Noto Sans JP";color:var(--ink)}
+html.dark .apin .why{color:#dfe5df}
+.apin .money{display:flex;gap:12px;align-items:center}
+.apin .money>div{flex:1}
+.apin .money small{display:block;font:700 11px/1.5 "Noto Sans JP";opacity:.85}
+.apin .money>div:first-child{flex:none}
+.apin .money>div:first-child b{display:block;font:900 20px Inter}
+.apin .money .ms{border-left:1.5px solid rgba(160,122,16,.25);padding-left:12px}
+.apin .money .ms b{display:block;font:900 13.5px "Noto Sans JP";color:#1f7a55}
+html.dark .apin .money .ms b{color:#5fe0a8}
+.ap2 .t1{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.ap2 .t1 .l1{margin-left:auto;font:900 13px "Noto Sans JP";color:var(--ink)}
+.ap2 .l3{font:800 12px "Noto Sans JP";color:#2b6fd6;margin-top:3px}
+html.dark .ap2 .l3{color:#7fb0ff}
+.ap2 .l2{display:flex;flex-direction:column;gap:2px;margin-top:4px}
+.ap2 .kv2{font:700 11.5px "Noto Sans JP";color:var(--sub)}
+.ap2 .kv2 i{font-style:normal;display:inline-block;min-width:44px;margin-right:6px;padding:1px 6px;border-radius:6px;background:#eeeee9;color:#6d726b;font-size:10.5px;text-align:center}
+html.dark .ap2 .kv2 i{background:#2a302c;color:#a3aaa3}
+.bk .kv2 i{font-style:normal;display:inline-block;min-width:44px;margin-right:6px;padding:1px 6px;border-radius:6px;background:#eeeee9;color:#6d726b;font-size:10.5px;text-align:center}
+html.dark .bk .kv2 i{background:#2a302c;color:#a3aaa3}
+.bk .fund{line-height:1.9}
+.apin .money{flex-direction:column;align-items:stretch;gap:8px}
+.apin .money>div:first-child{display:flex;align-items:baseline;justify-content:space-between}
+.apin .money .ms{border-left:0;padding-left:0;border-top:1.5px solid rgba(160,122,16,.22);padding-top:8px}
 </style>
 </head>
 <body>
@@ -1039,7 +1094,7 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
  <button class="btn" id="introPush" style="max-width:300px;margin:16px auto 0">通知をオンにする</button>
 </section>
 </div>
-<div class="foot"><div class="dots" id="dots"></div><button class="skip" id="introSkip">スキップ</button><button class="next" id="introNext">次へ</button></div>
+<div class="foot"><button class="prev" id="introPrev" aria-label="戻る">‹ 戻る</button><div class="dots" id="dots"></div><button class="skip" id="introSkip">スキップ</button><button class="next" id="introNext">次へ</button></div>
 </div>
 <div class="tour" id="tour"><div class="spot" id="spot"></div><div class="tip" id="tip"><div class="tc" id="tc"></div><h4 id="tt"></h4><p id="tb"></p><div class="tbtn"><button id="tskip">閉じる</button><button id="tnext">次へ</button></div></div></div>
 <div class="pop" id="pop"></div>
@@ -1048,6 +1103,7 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
 <div class="sheet-bg" id="sbg"></div>
 <div class="sheet" id="sheet"></div>
 
+<script src="budoux.js"></script>
 <script>
 const API='https://script.google.com/macros/s/AKfycbxp2NJyQCnSduboXEaXFN0kndza6-0-zqrJN_0W9tLhBymhxRO8mLlT-dcZgI5lcvLr0A/exec';
 const RAKUTEN='https://www.rakuten-sec.co.jp/web/domestic/ipo/';
@@ -1130,7 +1186,7 @@ const IPO={kind:'ipo',cur:'can',last:{},
   sort(g){g.can.sort((a,b)=>(a.be||0)-(b.be||0));g.plan.sort((a,b)=>(a.bs||0)-(b.bs||0));g.done.sort((a,b)=>(a.draw||0)-(b.draw||0));g.win.sort((a,b)=>(a.ls||0)-(b.ls||0));g.end.sort((a,b)=>(b.ls||0)-(a.ls||0))},
   lead(g){const open=g.can.length;return g.win.length?`当選が <span class="r">${g.win.length}件</span> あります`:open?`今日は <span class="g">${open}件</span> 申し込めます`:g.plan.length?`次の申込は <span class="p">${md(g.plan[0].x.data4)}</span> から（予定 ${g.plan.length}件）`:'今は申し込めるIPOがありません'},
   empty:{can:'今は申し込めるIPOがありません。<br>これから申込が始まるIPOは、右はしの「予定」にあります。',done:'申し込んだIPOはここに並びます',win:'当選したらここに並びます',end:'終わったIPOはここに並びます',plan:'これから申込が始まるIPOはここに並びます。<br>新しいIPOが決まると、自動で入ります。'},
-  hint(g){return{plan:g.plan.length?'申込が始まると「申込できる」に移ります ／ 見送るなら ← 左にスワイプ':'',can:g.can.length?'申し込んだら → 右 ／ 見送るなら ← 左にスワイプ':'',done:g.done.length?'→ 右で当選へ ／ ← 左 で申込前に戻す':'',win:g.win.length?'← 左 で申込済みに戻す':'',end:''}[this.cur]},
+  hint(g){return{plan:g.plan.length?'申込が始まると「申込できる」へ移動。見送る時は、左にスワイプ':'',can:g.can.length?'申し込んだら → 右 ／ 見送るなら ← 左にスワイプ':'',done:g.done.length?'→ 右で当選へ ／ ← 左 で申込前に戻す':'',win:g.win.length?'← 左 で申込済みに戻す':'',end:''}[this.cur]},
   guard(o,to){if(o.k==='can'&&to==='done'&&!o.open)return'まだ申込期間前です';return null},
   setFor:{can:null,plan:null,done:{st:'applied'},win:{st:'won'},skip:{st:'skip'}},
   toastFor(to,o){return{done:o.name+'：申込済みに移動',win:'当選おめでとう！ '+o.name,can:o.name+'：'+(o.k==='skip'?'見送りをやめました':'申込前に戻しました'),skip:o.name+'：見送りました（一番下に入れました）'}[to]},
@@ -1142,7 +1198,7 @@ const IPO={kind:'ipo',cur:'can',last:{},
     else if(o.k==='can'||o.k==='plan'){
       if(o.open){cls='now';tag=`<span class="tag green ${o.left<=1?'pulse':''}">${o.left===0?'今日まで':'あと'+o.left+'日'}</span>`;
         btns=applyBox(o);memo=`申込は <b>${md(x.data6)}（${wd(x.data6)}）</b>まで。抽選は ${md(x.data15)}。`}
-      else{tag=`<span class="tag purple">${o.until===1?'明日から':md(x.data4)+'から'}</span>`;btns=applyBox(o,true);
+      else{tag=`<span class="bigd"><b>${md(x.data4)}</b><small>から申込</small></span>`;btns=applyBox(o,true);
         memo=`申込は <b>${md(x.data4)}（${wd(x.data4)}）</b>から。値段は ${md(x.data2)} に仮の幅（仮条件）、${md(x.data9)} に本決まり（公開価格）。`}
     }else if(o.k==='done'){
       const dd=o.draw?days(o.draw,todayJ()):null;tag=`<span class="tag blue">${dd>0?'抽選まで'+dd+'日':dd===0?'今日抽選':'結果を確認'}</span>`;
@@ -1163,7 +1219,7 @@ const IPO={kind:'ipo',cur:'can',last:{},
     }
     const priceTxt=o.price?`${yen(o.price)}円`:(x.data3&&x.data3!=='-'?esc(x.data3):'—');
     const yoso='';
-    return slot(o,i,cls,`<div class="hd"><div class="nm"><div class="t tco" data-co="${esc(o.id)}">${esc(o.name)}<i class="coi">i</i></div><div class="m">${x.code} ・ <span data-tip="mkt" style="text-decoration:underline dotted">${esc(o.mkt)}</span></div></div>${tag}</div>${ipoSum(o)}`,`${yosoBox(o)}
+    return slot(o,i,cls,`<div class="hd"><div class="nm"><div class="t tco" data-co="${esc(o.id)}">${esc(o.name.slice(0,-1))}<span style="white-space:nowrap">${esc(o.name.slice(-1))}<i class="coi">i</i></span></div><div class="m">${x.code} ・ <span data-tip="mkt" style="text-decoration:underline dotted">${esc(o.mkt)}</span></div></div>${tag}</div>${ipoSum(o)}`,`${yosoBox(o)}
     <div class="kv">
      <div><div class="k">申込期間</div><div class="v">${md(x.data4)} 〜 ${md(x.data6)}${x.data7&&x.data7!=='0:00'?`<small>${x.data7}まで</small>`:''}</div></div>
      <div><div class="k">購入申込（当選したら）</div><div class="v">${md(x.data11)} 〜 ${md(x.data13)}</div></div>
@@ -1176,11 +1232,10 @@ const IPO={kind:'ipo',cur:'can',last:{},
 };
 
 function ipoSum(o){const x=o.x,y=yosoData[o.id]||{};const base=o.price||o.hiP||y.sotei;const p=y.first||y.last||y.bb||y.reader;const g=p&&base?(p-base)*o.unit:null;
-  const dt={can:`締切 ${md(x.data6)}`,plan:`申込 ${md(x.data4)}〜`,done:`抽選 ${md(x.data15)}`,win:`売る日 ${md(x.data18)}`,end:`上場 ${md(x.data18)}`,skip:`申込 ${md(x.data4)}〜`}[o.k]||'';
-  const pf=g!=null&&o.k!=='end'?`<span class="pf">${y.first?'利益':'予想利益'}<b class="${g<0?'dn':''}">${pm(g)}</b></span>`:'';
+  const rk=y.rank&&!y.first?`<div class="rkbig rk ${y.rank}" data-tip="rank"><small>評価</small><b>${y.rank}</b></div>`:`<div class="rkbig none"><small>評価</small><b>—</b></div>`;
+  const pf=g!=null?`<div class="pf2"><small>${y.first?'利益（100株）':'予想利益（100株）'}</small><b class="${g<0?'dn':''}">${pm(g)}</b></div>`:`<div class="pf2"><small>予想利益</small><b class="na">予想待ち</b></div>`;
   const jt=o.k==='can'||o.k==='plan'?judgeTag(o):'';
-  const rk=y.rank&&!y.first?`<span class="rk ${y.rank}">評価 ${y.rank}</span>`:'';
-  return`<div class="cs">${rk}${pf}${jt}<span class="dt">${dt}</span></div>`}
+  return`<div class="cs cs2">${rk}<div class="csr">${pf}${jt?`<div class="jt">${jt}</div>`:''}</div></div>`}
 function bunSum(o){const x=o.x;const dt=o.k==='end'?`${mdD(o.date)}`:`実施 ${mdD(o.date)}${o.decided?'':' ごろ'}`;
   const pf=o.save!=null&&o.k!=='end'?`<span class="pf">前の日より<b>${yen(o.save)}円</b>安い</span>`:'';
   const jt=o.k!=='end'&&o.judge?(o.judge==='good'?'<span class="tag good">👍 良さそう</span>':'<span class="tag skipm">✋ 見送り</span>'):'';
@@ -1244,7 +1299,7 @@ const BUN={kind:'bunbai',cur:'can',last:{},skipLabel:'見送った分売',
   sort(g){const f=o=>(o.date||0);g.can.sort((a,b)=>f(a)-f(b));g.plan.sort((a,b)=>f(a)-f(b));g.done.sort((a,b)=>f(a)-f(b));g.win.sort((a,b)=>f(a)-f(b));g.end.sort((a,b)=>f(b)-f(a))},
   lead(g){const open=g.can.length;return g.win.length?`当選が <span class="r">${g.win.length}件</span> あります`:open?`今 <span class="g">${open}件</span> 申し込めます`:g.plan.length?`次の分売は <span class="p">${mdD(g.plan[0].date)}</span>${g.plan[0].decided?'':' ごろ'}（予定 ${g.plan.length}件）`:'今は分売の予定がありません'},
   empty:{can:'今は申し込める分売がありません。<br>決まっている分売は、右はしの「予定」にあります。',done:'申し込んだ分売はここに並びます',win:'当選したらここに並びます',end:'終わった分売はここに並びます',plan:'今は分売の予定がありません。<br>決まると楽天証券に出て、ここに自動で並びます。'},
-  hint(g){return{plan:g.plan.length?'申込が始まると「申込できる」に移ります ／ 見送るなら ← 左にスワイプ':'',can:g.can.length?'申し込んだら → 右 ／ 見送るなら ← 左にスワイプ':'',done:g.done.length?'→ 右で当選へ ／ ← 左 で申込前に戻す':'',win:g.win.length?'← 左 で申込済みに戻す':'',end:''}[this.cur]},
+  hint(g){return{plan:g.plan.length?'申込が始まると「申込できる」へ移動。見送る時は、左にスワイプ':'',can:g.can.length?'申し込んだら → 右 ／ 見送るなら ← 左にスワイプ':'',done:g.done.length?'→ 右で当選へ ／ ← 左 で申込前に戻す':'',win:g.win.length?'← 左 で申込済みに戻す':'',end:''}[this.cur]},
   guard(o,to){if(o.k==='can'&&to==='done'&&!o.decided)return'まだ値段と日にちが決まっていません';if(o.k==='can'&&to==='done'&&o.w&&o.w.before)return'申込は前の日の17:15ごろからです';return null},
   setFor:{can:null,plan:null,done:{st:'applied'},win:{st:'won'},skip:{st:'skip'}},
   toastFor(to,o){return{done:o.name+'：申込済みに移動',win:'当選おめでとう！ '+o.name,can:o.name+'：'+(o.k==='skip'?'見送りをやめました':'申込前に戻しました'),skip:o.name+'：見送りました（一番下に入れました）'}[to]},
@@ -1447,7 +1502,7 @@ ntfRender();
 // ---- 初めての説明 ----
 let si=0;const SL=[...document.querySelectorAll('#rail .sl')];
 $('#dots').innerHTML=SL.map(()=>'<i></i>').join('');
-function introGo(i){si=Math.max(0,Math.min(SL.length-1,i));$('#rail').style.transform=`translateX(${-si*100}%)`;SL.forEach((s,j)=>s.classList.toggle('on',j===si));
+function introGo(i){setTimeout(()=>window.introBtns&&introBtns(),0);si=Math.max(0,Math.min(SL.length-1,i));$('#rail').style.transform=`translateX(${-si*100}%)`;SL.forEach((s,j)=>s.classList.toggle('on',j===si));
   document.querySelectorAll('#dots i').forEach((d,j)=>d.classList.toggle('on',j===si));$('#introNext').textContent=si===SL.length-1?'始める':'次へ';$('#introSkip').style.visibility=si===SL.length-1?'hidden':'visible'}
 let introSingle=null;
 function introOpen(){introSingle=null;$('#intro').classList.remove('single');introGo(0);$('#intro').classList.add('on')}
@@ -1457,8 +1512,17 @@ function introClose(){$('#intro').classList.remove('on');try{localStorage.setIte
 $('#introNext').onclick=()=>{if(introSingle==='ipo'&&si<4){introGo(si+1);$('#introNext').textContent=si===4?'画面の説明を見る':'次へ';$('#introSkip').textContent='閉じる';$('#introSkip').style.visibility='visible';return}if(introSingle){const k=introSingle;introSingle=null;$('#intro').classList.remove('on','single');setTimeout(()=>startTour(k),450);return}si===SL.length-1?introClose():introGo(si+1)};
 $('#introSkip').onclick=()=>{if(introSingle){introSingle=null;$('#intro').classList.remove('on','single');return}introClose()};$('#introAgain').onclick=introOpen;
 $('#introPush').onclick=async()=>{const ok=await enablePush();if(ok)introClose();else if(!pushOK())toast('後で設定タブからオンにできます')};
-(()=>{let x0=null,y0=0;const r=$('#rail');r.addEventListener('pointerdown',e=>{x0=e.clientX;y0=e.clientY});
-  r.addEventListener('pointerup',e=>{if(x0==null||introSingle)return;const dx=e.clientX-x0,dy=e.clientY-y0;x0=null;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy))introGo(si+(dx<0?1:-1))});})();
+function introRange(){return introSingle==='ipo'?[1,4]:introSingle==='bunbai'?[5,5]:[0,SL.length-1]}
+function introStep(d){const [a,b]=introRange();const n=si+d;if(n<a||n>b){if(d>0)$('#introNext').click();return}introGo(n);introBtns()}
+function introBtns(){const [a,b]=introRange();$('#introPrev').style.visibility=si>a?'visible':'hidden';
+  if(introSingle){$('#introNext').textContent=si>=b?'画面の説明を見る':'次へ';$('#introSkip').textContent='閉じる';$('#introSkip').style.visibility='visible'}}
+$('#introPrev').onclick=()=>introStep(-1);
+(()=>{const el=$('#intro');let x0=null,y0=0;
+  const st=(x,y)=>{x0=x;y0=y},en=(x,y)=>{if(x0==null)return;const dx=x-x0,dy=y-y0;x0=null;if(Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy)*1.2)introStep(dx<0?1:-1)};
+  el.addEventListener('touchstart',e=>{if(e.target.closest('button'))return;const t=e.touches[0];st(t.clientX,t.clientY)},{passive:true});
+  el.addEventListener('touchend',e=>{const t=e.changedTouches[0];en(t.clientX,t.clientY)},{passive:true});
+  el.addEventListener('mousedown',e=>{if(e.target.closest('button'))return;st(e.clientX,e.clientY)});
+  el.addEventListener('mouseup',e=>en(e.clientX,e.clientY));})();
 
 
 
@@ -1477,7 +1541,7 @@ function sbiPts(){let n=+SET.sbiBase||0;const at=+SET.sbiAt||0;Object.values(REC
 function renderBrokers(){const el=$('#bkList');if(!el)return;const Q=undecided(),U=brokers.filter(b=>isUse(b.id)),N=brokers.filter(b=>SET.use2[b.id]===false);
   const sbi=brokers.find(b=>b.id==='sbi')||{color:'#0a3d91',short:'S'};
   const osu=b=>b.rec?'<span class="osu">おすすめ</span>':'';
-  const info=b=>`<p>${b.feat}</p><div class="fund">💴 ${b.fundS||b.fund||'—'}　↩ ${b.back||''}</div>`;
+  const info=b=>`<p>${b.feat}</p><div class="fund"><span class="kv2"><i>入金</i>${b.fundS||'—'}</span><br><span class="kv2"><i>落選時</i>${b.back||'—'}</span></div>`;
   const ask=(b,i)=>`<div class="bk ask ${b.rec?'ho':''}" style="animation-delay:${i*40}ms">${osu(b)}<span class="lg" style="background:${b.color}">${b.short}</span><div class="tx"><b>${b.name}</b>${info(b)}<div class="two"><button class="y" data-use="${b.id}">使う</button><button class="n" data-unuse="${b.id}">使わない</button></div></div></div>`;
   const card=(b,i)=>{const own=hasAcc(b.id);return`<div class="bk ${own?'':'no'} ${b.rec?'ho':''}" style="animation-delay:${i*40}ms">${osu(b)}<span class="lg" style="background:${b.color}">${b.short}</span><div class="tx">
     <b>${b.name} <span class="st">${own?'口座あり ✓':'口座まだ'}</span></b>${info(b)}
@@ -1509,28 +1573,30 @@ function ownAccs(o){return (brokers||[]).filter(b=>isUse(b.id)&&hasAcc(b.id)).ma
 function recMode(o){const y=yosoData[o.id]||{};const j=judge(o);if(!j)return'wait';if(j==='good'&&(!y.rank||'SAB'.includes(y.rank)))return'all';return'sbi'}
 function needAccs(o){const A=ownAccs(o);if(recMode(o)!=='sbi')return A;const s=A.filter(a=>a.b.id==='sbi');return s.length?s:A}
 function basePrice(o){const y=yosoData[o.id]||{};return o.price||o.hiP||y.sotei||null}
-function recRow(o,b,mode){const p=basePrice(o),u=o.unit||100;const money=p?man(p*u):'';const y=yosoData[o.id]||{};const l2=`💴 ${b.fundS||b.fund||'—'}　↩ ${b.back||''}`;
+function recRow(o,b,mode){const p=basePrice(o),u=o.unit||100;const money=p?man(p*u):'—';const y=yosoData[o.id]||{};
+  const l2=`<span class="kv2"><i>入金</i>${b.fundS||'—'}</span><span class="kv2"><i>落選時</i>${b.back||'—'}</span>`;
   if(b.id==='sbi'){const pts=sbiPts();const use=(y.rank==='S'||y.rank==='A')&&judge(o)==='good'&&pts>=300;
-    return{skip:false,l1:`${u}株 ・ ${money||'—'} ・ ${use?`<b style="color:#2b6fd6">ポイントを使うならここ</b> 今${pts}P`:'ポイントは使わずに貯める'}`,l2,money:p?p*u:0}}
-  if(mode==='sbi')return{skip:true,l1:'今回は見送りでOK',l2:'SBIだけで十分です',money:0};
-  return{skip:false,l1:`${u}株 ・ ${money||'—'}`,l2,money:p?p*u:0}}
-function recSum(o,A,mode){const hasS=A.some(a=>a.b.id==='sbi');const nm=A.length<=3?A.map(a=>bshort(a.b)).join('・'):A.length+'社';
-  if(mode==='wait')return[`${nm}で100株の予定`,'初値予想が出たら、申し込むかどうかが決まります。'];
-  const y=yosoData[o.id]||{};const why=(y.rank?`評価${y.rank}。`:'');
-  if(mode==='sbi')return hasS?['SBIだけ100株',`${why}${judge(o)==='bad'?'予想利益が小さいかマイナス':'人気が高くない'}ので、他の会社は見送り。SBIはポイントを貯めるために申し込みます。当たっても、公募割れしそうなら買わなくて良いです。`]:['今回は見送りでOK',`${why}${judge(o)==='bad'?'予想利益が小さいかマイナス':'人気が高くない'}ので、申し込まなくて大丈夫です。`];
-  return[`${nm}で100株${A.length>1?'ずつ':''}`,`${why}予想利益がプラスなので、くじを${A.length}回引きます。${hasS?'SBIはポイント用です。':''}`]}
+    return{skip:false,l1:`${u}株 ${money}`,l3:use?`🅿 ポイントを使うならこのIPO（今${pts}P）`:'🅿 ポイントは使わずに貯める',l2,money:p?p*u:0}}
+  if(mode==='sbi')return{skip:true,l1:'今回は申し込まない',l2:'',money:0};
+  return{skip:false,l1:`${u}株 ${money}`,l2,money:p?p*u:0}}
+function recSum(o,A,mode){const hasS=A.some(a=>a.b.id==='sbi');const nm=A.length<=3?A.map(a=>bshort(a.b)).join('・'):`${A.length}社すべて`;
+  const y=yosoData[o.id]||{};const rk=y.rank?`評価${y.rank}`:'評価なし';
+  if(mode==='wait')return[`${nm}で100株の予定`,'初値予想が出たら、申し込むかどうかを判断します。'];
+  const low=judge(o)==='bad'?'利益が出にくい予想':'人気は低め';
+  if(mode==='sbi')return hasS?['SBIだけ100株',`${rk}で、${low}です。<br>SBIだけ、ポイントを貯める目的で申し込みます。<br>当選しても、公募割れしそうなら購入しなくて大丈夫です。`]:['今回は申し込まない',`${rk}で、${low}です。<br>今回は申し込まなくて大丈夫です。`];
+  return[`${nm}で100株${A.length>1?'ずつ':''}`,`${rk}で、利益が出そうな予想です。<br>${A.length}社で申し込むと、抽選に${A.length}回参加できます。${hasS?'<br>SBIは、外れてもポイントが貯まります。':''}`]}
 const APPLY_URL={rakuten:RAKUTEN};
 function applyBox(o,pre){const A=ownAccs(o);const acc=(o.r&&o.r.acc)||{};const mode=recMode(o);const need=needAccs(o);const n=need.filter(a=>acc[a.b.id]).length;
   if(!A.length){const q=undecided().length;return`<div class="apl pre"><div class="h">おすすめの申込</div><div class="f">${q?`証券会社がまだ選ばれていません。<b>設定 → 証券口座</b>で、使う会社を選んでね。`:'使う証券会社で「口座あり」がまだありません。<b>設定 → 証券口座</b>で選んでね。'}</div></div>`}
   const [st,why]=recSum(o,A,mode);const rows=A.map(({b})=>({b,rc:recRow(o,b,mode)}));const tot=rows.reduce((a,x)=>a+x.rc.money,0);
   const open=APLOPEN.has(o.id);
   const row=({b,rc})=>{const on=!!acc[b.id];return`<div class="ap2 ${on?'on':''} ${rc.skip&&!on?'sk':''}">${pre?`<span class="ck"><span class="lg" style="background:${b.color}">${b.short}</span></span>`:`<button class="ck" data-act="ac:${b.id}" aria-label="${b.name}の申込チェック"><span class="lg" style="background:${b.color}">${b.short}</span><i>✓</i></button>`}
-    <div class="tx"><b>${bshort(b)}</b>${b.id==='sbi'?'<span class="ptg">ポイント用</span>':''}<div class="l1">${on?'申込済み ✓':rc.l1}</div>${on||rc.skip?'':`<div class="l2">${rc.l2}</div>`}</div>${pre||on||rc.skip?'':`<a class="go" href="${APPLY_URL[b.id]||b.aff||b.url}" target="_blank" rel="noopener">申し込む</a>`}</div>`};
-  return`<details class="apl ${pre?'pre':''}" data-oid="${esc(o.id)}" ${open?'open':''}><summary><span class="h">おすすめ</span><span class="st">${st}</span>${pre?'':`<span class="ct ${n?'':'zero'}">${n}/${need.length}</span>`}<i class="cv"></i></summary>
+    <div class="tx"><div class="t1"><b>${bshort(b)}</b>${b.id==='sbi'?'<span class="ptg">ポイント用</span>':''}<span class="l1">${on?'申込済み ✓':rc.l1}</span></div>${on||rc.skip?'':`${rc.l3?`<div class="l3">${rc.l3}</div>`:''}<div class="l2">${rc.l2}</div>`}</div>${pre||on||rc.skip?'':`<a class="go" href="${APPLY_URL[b.id]||b.aff||b.url}" target="_blank" rel="noopener">申し込む</a>`}</div>`};
+  return`<details class="apl ${pre?'pre':''}" data-oid="${esc(o.id)}" ${open?'open':''}><summary><span class="h osb">おすすめ</span><span class="st">${st}</span>${pre?'':`<span class="ct ${n?'':'zero'}">${n}/${need.length}</span>`}<i class="cv"></i></summary>
   <div class="apin"><p class="why">${why}</p>
-  ${tot?`<div class="money"><span>必要なお金<br><b>${man(tot)}</b></span><span>外れても、お金は口座から出ていきません <a href="#" data-qa="qa-back">詳しく ›</a></span></div>`:''}
+  ${tot?`<div class="money"><div><small>必要なお金</small><b>${man(tot)}</b></div><div class="ms"><b>落選の場合、支払いは不要</b><small>お金は口座に残ります <a href="#" data-qa="qa-back">詳しく ›</a></small></div></div>`:''}
   ${rows.map(row).join('')}
-  <div class="f">${pre?`申込は <b>${md(o.x.data4)}</b> から。口座を作るなら今のうち。開設には数日〜1週間くらい掛かることがあります。`:'申し込んだら<b>アイコンをタップ</b>してチェック。おすすめの会社を全部チェックすると「申込済み」に移ります。条件は変わることがあるので、各社の画面でも確認してね。'}</div></div></details>`}
+  <div class="f">${pre?`申込は<b>${md(o.x.data4)}</b>から。<br>口座の開設には数日〜1週間ほど掛かります。`:'申し込んだら、会社のアイコンをタップしてチェック。<br>全部チェックすると「申込済み」に移ります。'}</div></div></details>`}
 function wonLinks(o){const acc=(o.r&&o.r.acc)||{};const L=ownAccs(o).filter(a=>acc[a.b.id]);const T=L.length?L:ownAccs(o).slice(0,1);
   return T.length?`<div class="apo" style="margin-top:10px"><div class="t">申し込んだ会社で、当たったか・購入の手続きを確認しよう</div><div class="ch">${T.map(({b})=>`<a href="${APPLY_URL[b.id]||bkUrl(b)}" target="_blank" rel="noopener"><span class="lg" style="background:${b.color}">${b.short}</span>${bshort(b)}を開く</a>`).join('')}</div></div>`:''}
 function toggleAcc(o,id){const acc={...((o.r&&o.r.acc)||{})};acc[id]=!acc[id];const need=needAccs(o);const all=need.length&&need.every(a=>acc[a.b.id]);
@@ -1550,6 +1616,13 @@ function openCo(id){const o=IPO.find(id);if(!o)return;const x=o.x,y=yosoData[id]
   <div class="ab"><b class="h">日程</b><ul><li>申込：${md(x.data4)}〜${md(x.data6)}</li><li>抽選：${md(x.data15)}</li><li>上場（売る日）：${md(x.data18)}</li></ul></div>
   ${x.com?`<a class="btn" href="${esc(x.com)}" target="_blank" rel="noopener">公式サイトを見る</a>`:''}<button class="btn ghost" id="coOk">閉じる</button>`;
   openSheet();$('#coOk').onclick=closeSheet}
+
+// ---- 改行の位置（BudouXで文節の区切りに目印を入れる） ----
+const JP=/[぀-ヿ㐀-鿿]/;
+function phrase(root){if(!window.BX||!root)return;const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>{const p=n.parentNode;if(!p||/^(SCRIPT|STYLE|TEXTAREA|INPUT|svg|text|tspan)$/i.test(p.nodeName)||p.closest('svg'))return NodeFilter.FILTER_REJECT;return JP.test(n.data)&&!n.data.includes('​')?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_SKIP}});
+  const L=[];while(w.nextNode())L.push(w.currentNode);L.forEach(n=>{const t=window.BX.parse(n.data).join('​');if(t!==n.data)n.data=t})}
+let phT=null;const phObs=new MutationObserver(()=>{if(phT)return;phT=requestAnimationFrame(()=>{phT=null;phrase(document.body)})});
+phrase(document.body);phObs.observe(document.body,{childList:true,subtree:true,characterData:false});
 
 // ---- このアプリの意味って？ ----
 function openAbout(){const sh=$('#sheet');sh.innerHTML=`<h3>このアプリの意味って？</h3>
