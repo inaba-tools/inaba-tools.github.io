@@ -881,6 +881,42 @@ html.dark .pastd .ref{background:#3a3115;color:#ffd970}
 .copyfab.done{background:#2b6fd6;transform:scale(1.08)}
 .copyfab.done .lk{display:none}.copyfab.done .ok{display:block}
 #p-set{padding-bottom:150px}
+
+/* ---- FXタブ ---- */
+.fxhero{background:linear-gradient(135deg,#1f2b25,#2f4a3d);color:#fff;border-radius:22px;padding:18px;margin:10px 16px;box-shadow:0 12px 28px rgba(20,40,30,.25);position:relative;overflow:hidden}
+.fxhero:after{content:"";position:absolute;right:-30px;top:-30px;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.14),transparent 70%)}
+.fxhero small{font:800 12px "Noto Sans JP";opacity:.75}
+.fxhero .fxbig{font:900 34px Inter;letter-spacing:-.02em;margin:2px 0 4px;animation:fxpop .6s cubic-bezier(.2,1.5,.3,1)}
+.fxhero .fxbig.dn{color:#ff9a90}.fxhero .fxbig.up{color:#7ee3b1}
+.fxhero .meta{font:700 12px "Noto Sans JP";opacity:.85;line-height:1.6}
+@keyframes fxpop{from{transform:scale(.7);opacity:0}to{transform:none;opacity:1}}
+.fxchart svg{width:100%;height:auto;display:block}
+.fxchart .ln{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:var(--len);stroke-dashoffset:var(--len);animation:fxdraw 1.2s ease forwards;transition:opacity .25s,stroke-width .25s}
+.fxchart.pick .ln{opacity:.15}.fxchart.pick .ln.on{opacity:1;stroke-width:3.4}
+@keyframes fxdraw{to{stroke-dashoffset:0}}
+.fxleg{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.fxleg button{border:1px solid var(--line);background:var(--card);border-radius:20px;padding:5px 10px;font:800 11.5px "Noto Sans JP";color:var(--ink);display:flex;align-items:center;gap:5px}
+.fxleg button i{width:9px;height:9px;border-radius:50%;display:block}
+.fxleg button.on{border-color:var(--ink)}
+.fxt{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+.fxt:first-of-type{border-top:0}
+.fxt .dot{width:10px;height:38px;border-radius:5px}
+.fxt .nm{font:900 14px "Noto Sans JP";color:var(--ink)}
+.fxt .ds{font:600 11.5px "Noto Sans JP";color:var(--sub);line-height:1.5;margin-top:2px}
+.fxt .st{font:700 11px "Noto Sans JP";color:var(--sub);margin-top:4px}
+.fxt .pf{text-align:right}.fxt .pf b{font:900 17px Inter;display:block}.fxt .pf small{font:700 10.5px "Noto Sans JP";color:var(--sub)}
+.fxt .pf b.up,.fxr .p.up{color:#1f9d6b}.fxt .pf b.dn,.fxr .p.dn{color:var(--red)}
+.fxt .best{display:inline-block;background:#fff1c9;color:#8a6400;border-radius:6px;padding:1px 6px;font:900 10px "Noto Sans JP";margin-left:6px;vertical-align:2px}
+.fxr{display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line);animation:apin .35s ease both}
+.fxr:first-of-type{border-top:0}
+.fxr .d{font:800 12px Inter;color:var(--sub);text-align:center;line-height:1.2}.fxr .d small{display:block;font:700 10px "Noto Sans JP"}
+.fxr .tx b{font:800 13px "Noto Sans JP";color:var(--ink)}.fxr .tx span{display:block;font:600 11px "Noto Sans JP";color:var(--sub);margin-top:2px}
+.fxr .p{font:900 15px Inter}
+.fxr .tx span.fxside{display:inline-block;margin-top:0;border-radius:6px;padding:0 6px;font:900 10.5px "Noto Sans JP";margin-right:4px;vertical-align:1px}
+.fxside.n{background:#eceae2;color:#7a7f78}.fxside.b{background:#e3f1ec;color:#1f7a55}.fxside.s{background:#fbe6e3;color:#b23a30}
+.fxmore{width:100%;border:0;background:none;font:800 13px "Noto Sans JP";color:var(--sub);padding:10px 0 2px}
+html.dark .fxt .best{background:#3a3115;color:#f0c75a}
+html.dark .fxside.b{background:#173328}html.dark .fxside.s{background:#3a1d1a;color:#f19a90}
 </style>
 </head>
 <body>
@@ -934,6 +970,11 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
 </section>
 
 <!-- 設定 -->
+<section class="page" id="p-fx">
+<div class="top"><img src="icon-192.png" alt=""><h1>FX</h1><div class="sub" id="fxUpd">ドル円・仮想</div></div>
+<div class="lead" style="font-size:14px">お金を使わずに、<b>決めた型どおりに売り買いしたらいくらになったか</b>を毎日自動で記録（ドル円・1万通貨）</div>
+<div id="fxBody"><div class="box" style="color:var(--sub)">読み込み中…</div></div>
+</section>
 <section class="page" id="p-set">
 <button class="copyfab" id="copyLink" aria-label="アプリのリンクをコピー"><svg class="lk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg><svg class="ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>
 <div class="top"><img src="icon-192.png" alt=""><h1>設定</h1><button class="aboutbtn" id="aboutBtn">このアプリの意味って？</button></div>
@@ -1004,6 +1045,7 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
 <nav class="tabs" id="tabs">
 <button class="tab on" data-p="ipo"><svg viewBox="0 0 24 24"><path d="M12 3c0 0-5 6-5 9.5a5 5 0 0 0 10 0C17 9 12 3 12 3z"/></svg>IPO</button>
 <button class="tab" data-p="bunbai"><svg viewBox="0 0 24 24"><path d="M20 7H4l1 12h14z"/><path d="M8 7V5a4 4 0 0 1 8 0v2"/></svg>分売</button>
+<button class="tab" data-p="fx"><svg viewBox="0 0 24 24"><path d="M3 17l5-5 4 3 8-8"/><path d="M15 7h5v5"/></svg>FX</button>
 <button class="tab" data-p="set"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2-1.2L14 3h-4l-.5 2.6a7 7 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6A7 7 0 0 0 5 12a7 7 0 0 0 .1 1.2l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 2 1.2L10 21h4l.5-2.6a7 7 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.1-.4.1-.8.1-1.2z"/></svg>設定<span class="bdg" id="setBdg"></span></button>
 </nav>
 
@@ -1141,7 +1183,7 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
 
 <script src="budoux.js"></script>
 <script>
-const BUILD='1793629030';
+const BUILD='1793637701';
 // 新しい版が出ていたら、自動で読み込み直す（ホーム画面アプリでもすぐ反映）
 (async()=>{try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const BUILD='(\d+)'/);if(m&&m[1]!==BUILD&&!sessionStorage.getItem('kd_rl'+m[1])){sessionStorage.setItem('kd_rl'+m[1],'1');location.replace('./?v='+m[1]+location.hash)}}catch(e){}})();
 const API='https://script.google.com/macros/s/AKfycbxp2NJyQCnSduboXEaXFN0kndza6-0-zqrJN_0W9tLhBymhxRO8mLlT-dcZgI5lcvLr0A/exec';
@@ -1675,6 +1717,44 @@ function openAbout(){const sh=$('#sheet');sh.innerHTML=`<h3>このアプリの�
   <p style="color:var(--sub);font-size:12px">※株は必ず得するわけではありません。初値予想は外れることもあるので、最後は自分で判断してね。</p>
   <button class="btn" id="abOk">分かった</button>`;openSheet();$('#abOk').onclick=closeSheet}
 $('#aboutBtn').onclick=openAbout;
+// ---- FXタブ（ドル円の仮想トレード・見るだけ） ----
+const FXINFO={'A ブレイク':['前日の高値を超えたら買い・安値を割ったら売り（9時から）','損切り50銭・24時に決済'],
+ 'A2 15時ブレイク':['Aと同じ考え方で、15時から始める','損切り80銭・24時に決済'],
+ 'B 仲値後の売り':['五十日（5・10日など）の10時に売り、11時に買い戻す','仲値のあとドルが売られやすい癖'],
+ 'B2 9:55売り':['五十日の9:55に売り、11時に買い戻す','Bを少し早めた型'],
+ 'C 仲値前の買い':['五十日の朝8時に買い、9:55に売る','仲値の前にドルが買われやすい癖'],
+ 'D 窓埋め':['月曜の朝、金曜の値段から飛んでいたら戻る方向に入る','戻ったら決済、戻らなければ12時に決済']};
+const FXCOL=['#1f9d6b','#2b6fd6','#d98a1c','#7a5bd6','#d2453b','#2a9bb0','#8a8f3a'];
+let FX=null,fxPick=null,fxN=12;
+function csvParse(t){return t.trim().split(/\r?\n/).map(l=>{const o=[];let c='',q=false;for(let i=0;i<l.length;i++){const ch=l[i];if(q){if(ch=='"'&&l[i+1]=='"'){c+='"';i++}else if(ch=='"')q=false;else c+=ch}else if(ch=='"')q=true;else if(ch==','){o.push(c);c=''}else c+=ch}o.push(c);return o})}
+async function loadFX(){try{const r=await fetch('../fx-kiroku/kiroku.csv?'+Date.now(),{cache:'no-store'});if(!r.ok)throw 0;const rows=csvParse(await r.text()).slice(1).filter(x=>x.length>=8&&x[0]);
+  FX=rows.map(x=>({d:x[0],t:x[1],side:x[2],lv:x[3],in:x[4],out:x[5],why:x[6],p:+x[7]||0}));renderFX()}catch(e){$('#fxBody').innerHTML='<div class="box" style="color:var(--sub)">記録を読み込めませんでした。少しして開き直してね。</div>'}}
+function renderFX(){if(!FX)return;const el=$('#fxBody');
+  const types=[...new Set(FX.map(x=>x.t))];const col={};types.forEach((t,i)=>col[t]=FXCOL[i%FXCOL.length]);
+  const days=[...new Set(FX.map(x=>x.d))].sort();
+  const st=types.map(t=>{const L=FX.filter(x=>x.t===t);const sum=L.reduce((a,x)=>a+x.p,0);return{t,n:L.length,win:L.filter(x=>x.p>0).length,sum,last:L[L.length-1]}});
+  const best=[...st].sort((a,b)=>b.sum-a.sum)[0];
+  const first=days[0],lastD=days[days.length-1];
+  const fmtD=d=>{const [y,m,dd]=d.split('-');return +m+'/'+(+dd)};
+  // 増え方のグラフ（型ごとの合計の動き）
+  const W=340,H=170,pad=8;const series=types.map(t=>{let c=0;const pts=[[0,0]];days.forEach((d,i)=>{FX.filter(x=>x.t===t&&x.d===d).forEach(x=>c+=x.p);pts.push([i+1,c])});return{t,pts}});
+  const all=series.flatMap(s=>s.pts.map(p=>p[1]));const mx=Math.max(1000,...all),mn=Math.min(-1000,...all);
+  const X=i=>pad+(W-pad*2)*i/days.length,Y=v=>pad+(H-pad*2)*(mx-v)/(mx-mn);
+  const paths=series.map(s=>{const d=s.pts.map((p,i)=>(i?'L':'M')+X(p[0]).toFixed(1)+' '+Y(p[1]).toFixed(1)).join(' ');return`<path class="ln ${fxPick===s.t?'on':''}" d="${d}" stroke="${col[s.t]}" style="--len:1200"/>`}).join('');
+  const zero=`<line x1="${pad}" x2="${W-pad}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--line)" stroke-dasharray="4 4"/><text x="${W-pad}" y="${Y(0)-4}" text-anchor="end" font-size="9" fill="var(--sub)" font-family="Inter">0円</text>`;
+  const chart=`<div class="box fxchart ${fxPick?'pick':''}"><h3>お金の増え方（型ごと）</h3><p style="margin:2px 0 8px;font:600 11.5px 'Noto Sans JP';color:var(--sub)">${fmtD(first)}〜${fmtD(lastD)}。上に行くほど増えた。型をタップすると強調</p><svg viewBox="0 0 ${W} ${H}">${zero}${paths}</svg>
+   <div class="fxleg">${types.map(t=>`<button data-fx="${esc(t)}" class="${fxPick===t?'on':''}"><i style="background:${col[t]}"></i>${esc(t.split(' ')[0])}</button>`).join('')}</div></div>`;
+  const hero=`<div class="fxhero"><small>いちばん成績が良い型</small><div class="fxbig ${best.sum>=0?'up':'dn'}">${pm(best.sum)}</div><div class="meta">${esc(best.t)}・${best.n}回中${best.win}回 勝ち<br>${fmtD(first)}〜${fmtD(lastD)}の合計（1万通貨）</div></div>`;
+  const cards=`<div class="box"><h3>型ごとの成績</h3>${[...st].sort((a,b)=>b.sum-a.sum).map(x=>{const inf=FXINFO[x.t]||['',''];return`<div class="fxt"><span class="dot" style="background:${col[x.t]}"></span><div><div class="nm">${esc(x.t)}${x===best?'<span class="best">1位</span>':''}</div><div class="ds">${esc(inf[0])}${inf[1]?'。'+esc(inf[1]):''}</div><div class="st">${x.n}回・勝ち${x.win}回・負け${x.n-x.win}回</div></div><div class="pf"><b class="${x.sum>=0?'up':'dn'}">${pm(x.sum)}</b><small>1回平均 ${pm(Math.round(x.sum/x.n))}</small></div></div>`}).join('')}</div>`;
+  const L=FX.filter(x=>!fxPick||x.t===fxPick).slice().sort((a,b)=>b.d.localeCompare(a.d));
+  const wd=d=>'日月火水木金土'[new Date(d+'T00:00:00').getDay()];
+  const recent=`<div class="box"><h3>最近の売り買い${fxPick?'（'+esc(fxPick.split(' ')[0])+'）':''}</h3>${L.slice(0,fxN).map(x=>`<div class="fxr"><div class="d">${fmtD(x.d)}<small>${wd(x.d)}</small></div><div class="tx"><b><span class="fxside ${x.side==='買い'?'b':x.side==='売り'?'s':'n'}">${x.side==='なし'?'動きなし':esc(x.side)}</span>${esc(x.t)}</b><span>${esc(x.in)} → ${esc(x.out)}（${esc(x.why)}）</span></div><div class="p ${x.p>=0?'up':'dn'}">${pm(x.p)}</div></div>`).join('')}${L.length>fxN?`<button class="fxmore" id="fxMore">もっと見る（あと${L.length-fxN}件）</button>`:''}</div>`;
+  const note=`<p style="margin:6px 20px 0;font:600 11.5px 'Noto Sans JP';color:var(--sub);line-height:1.6">※仮想トレードです（実際のお金は動いていません）。毎日0:30と10:30に前の日の分を自動で記録します。成績が良い型を、12月ごろから実際に自動売買する予定です。</p>`;
+  el.innerHTML=hero+chart+cards+recent+note;$('#fxUpd').textContent='ドル円・'+fmtD(lastD)+'まで';
+  el.querySelectorAll('[data-fx]').forEach(b=>b.onclick=()=>{fxPick=fxPick===b.dataset.fx?null:b.dataset.fx;fxN=12;renderFX()});
+  const m=$('#fxMore');if(m)m.onclick=()=>{fxN+=20;renderFX()}}
+loadFX();
+
 // ---- アプリのリンクをコピー ----
 $('#copyLink').onclick=async()=>{const url='https://inaba-tools.github.io/kabu-drop/';let ok=false;
   try{await navigator.clipboard.writeText(url);ok=true}catch(e){try{const t=document.createElement('textarea');t.value=url;t.setAttribute('readonly','');t.style.position='fixed';t.style.opacity='0';document.body.appendChild(t);t.select();t.setSelectionRange(0,999);ok=document.execCommand('copy');t.remove()}catch(_){}}
