@@ -1,31 +1,13 @@
-{
- "note": "url は今は各社の公式ページ。ASPに登録したら aff に紹介リンクを入れると、そちらが使われます。lead は 96ut.com の主幹事の書き方。",
- "items": [
-  {
-   "id": "rakuten",
-   "name": "楽天証券",
-   "short": "楽",
-   "color": "#bf0000",
-   "lead": [
-    "rakuten"
-   ],
-   "url": "https://www.rakuten-sec.co.jp/",
-   "aff": "",
-   "feat": "抽選日の18時までお金がいらない。いま使っている口座",
-   "lead2026": 0
-  },
-  {
-   "id": "sbi",
-   "name": "SBI証券",
-   "short": "S",
-   "color": "#0a3d91",
-   "lead": [
-    "sbi"
-   ],
-   "url": "https://www.sbisec.co.jp/",
-   "aff": "",
-   "feat": "ネット証券でIPOの取扱数がいちばん多い。外れるたびにポイントがたまって当たりやすくなる",
-   "lead2026": 11
-  }
- ]
-}
+{"note":"url は今は各社の公式ページ。ASPに登録したら aff に紹介リンクを入れると、そちらが使われます。fund＝IPOのお金がいつ必要か（目安）、kuji＝抽選のしかた（目安）。条件は変わることがあるので各社の申込画面で確認。",
+"items":[
+{"id":"rakuten","name":"楽天証券","short":"楽","color":"#bf0000","url":"https://www.rakuten-sec.co.jp/","aff":"","feat":"申込のときはお金がいらない。いま使っている口座","fund":"抽選日の18時まで","fundWhen":"draw","kuji":"全部が抽選。100株までのことが多い"},
+{"id":"sbi","name":"SBI証券","short":"S","color":"#0a3d91","url":"https://www.sbisec.co.jp/","aff":"","feat":"IPOの扱いがいちばん多い。外れるたびにポイントがたまる（ポイント用）","fund":"抽選日まで（同じお金でほかのIPOにも申し込める）","fundWhen":"draw","kuji":"多く申し込むほど当たりやすい＋ポイントの枠","role":"point"},
+{"id":"matsui","name":"松井証券","short":"松","color":"#d6001c","url":"https://www.matsui.co.jp/","aff":"","feat":"当たってからお金を入れればいい（申込はお金なしでOK）","fund":"当たってから（申込のときはいらない）","fundWhen":"win","kuji":"抽選"},
+{"id":"monex","name":"マネックス証券","short":"M","color":"#e8690b","url":"https://www.monex.co.jp/","aff":"","feat":"1人1回の完全平等抽選。少ないお金でも当たる確率は同じ","fund":"申込のとき（抽選が終わるまで使えない）","fundWhen":"apply","kuji":"1人1回の平等抽選"},
+{"id":"nomura","name":"野村證券","short":"野","color":"#5a3d8a","url":"https://www.nomura.co.jp/","aff":"","feat":"大手。IPOの扱いが多い。当たってからお金を入れればいい","fund":"当たってから","fundWhen":"win","kuji":"抽選"},
+{"id":"nikko","name":"SMBC日興証券","short":"日","color":"#008c5a","url":"https://www.smbcnikko.co.jp/","aff":"","feat":"大手。IPOの扱いが多い","fund":"申込のとき（抽選が終わるまで使えない）","fundWhen":"apply","kuji":"1人1回の平等抽選"},
+{"id":"mizuho","name":"みずほ証券","short":"み","color":"#0b2f7a","url":"https://www.mizuho-sc.com/","aff":"","feat":"大手。IPOを扱うことが多い","fund":"申込のとき（同じお金でほかのIPOにも申し込める）","fundWhen":"apply","kuji":"抽選"},
+{"id":"daiwa","name":"大和証券","short":"大","color":"#c4161c","url":"https://www.daiwa.jp/","aff":"","feat":"大手。IPOを扱うことが多い","fund":"申込のとき（同じお金でほかのIPOにも申し込める）","fundWhen":"apply","kuji":"抽選"},
+{"id":"okasan","name":"岡三証券","short":"岡","color":"#1c5aa6","url":"https://www.okasan.co.jp/","aff":"","feat":"中小型のIPOを扱うことがある","fund":"申込のとき","fundWhen":"apply","kuji":"抽選"},
+{"id":"tokaitokyo","name":"東海東京証券","short":"東","color":"#00788c","url":"https://www.tokaitokyo.co.jp/","aff":"","feat":"地方・中小型のIPOを扱うことがある","fund":"申込のとき","fundWhen":"apply","kuji":"抽選"}
+]}
