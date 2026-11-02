@@ -52,16 +52,16 @@ button:active{transform:scale(.97)}
 <div class="sub"><button id="undo">1つ戻る</button><button id="skip">読み間違い・とばす</button><button id="reload">更新</button></div>
 <div id="toast"></div>
 <script>
-var VERSION = '1';
+var VERSION = '2';
 var LS = { get: function (k) { try { return localStorage.getItem(k) } catch (e) { return null } },
            set: function (k, v) { try { localStorage.setItem(k, v) } catch (e) {} } };
 (function () {
   var q = new URLSearchParams(location.search);
   if (q.get('k')) LS.set('key', q.get('k'));
   if (q.get('u')) LS.set('api', q.get('u'));
-  if (q.get('k') || q.get('u')) history.replaceState(null, '', location.pathname);
 })();
-var API = LS.get('api'), KEY = LS.get('key');
+var _q = new URLSearchParams(location.search);
+var API = _q.get('u') || LS.get('api'), KEY = _q.get('k') || LS.get('key');
 var items = [], history_ = [], left = 0, stage = document.getElementById('stage');
 
 function toast(t) { var e = document.getElementById('toast'); e.textContent = t; e.style.opacity = 1; clearTimeout(toast.t); toast.t = setTimeout(function () { e.style.opacity = 0 }, 1600) }
