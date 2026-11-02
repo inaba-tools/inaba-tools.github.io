@@ -1371,9 +1371,9 @@ const BUN={kind:'bunbai',cur:'can',last:{},skipLabel:'見送った分売',
     const P=(bunbai.past||[]).filter(p=>p.price&&p.open&&pd(p.date)>=from).sort((a,b)=>pd(b.date)-pd(a.date));const el=$('#bb-past');if(!P.length){el.style.display='none';return}
     el.style.display='';const wasOpen=!!el.querySelector('details[open]');
     const f=p=>(p.open-p.price)*100,fc=p=>(p.close-p.price)*100;const wins=P.filter(p=>f(p)>0).length;const sum=P.reduce((a,p)=>a+f(p),0);const sumC=P.reduce((a,p)=>a+(p.close?fc(p):0),0);
-    el.innerHTML=`<details class="pastd" ${wasOpen?'open':''}><summary><h3>これまでの実績<span class="ref">参考</span></h3><span class="ps">直近1年 ${P.length}件 ・ 合計 <b class="${sum>=0?'up':'dn'}">${pm(sum)}</b></span><i class="cv"></i></summary>
+    el.innerHTML=`<details class="pastd" ${wasOpen?'open':''}><summary><h3>直近1年の動き</h3><span class="ps">直近1年 ${P.length}件 ・ 合計 <b class="${sum>=0?'up':'dn'}">${pm(sum)}</b></span><i class="cv"></i></summary>
     <p class="pnote">楽天で扱った分売に<b>全部100株ずつ当たって</b>、その日の<b>朝一番の値段（始値）</b>で売っていたら、いくらだったかの計算です。実際には当たらない事も多いので、参考として見てください。</p>
-    <div class="stat3"><div>得した<b class="up">${wins}/${P.length}件</b></div><div>始値で売ると<br>1年の合計<b class="${sum>=0?'up':''}">${pm(sum)}</b></div><div>終値で売ると<br>1年の合計<b class="${sumC>=0?'up':''}">${pm(sumC)}</b></div></div>
+    <div class="stat3"><div>得した件数<b class="up">${wins}/${P.length}件</b></div><div>始値で売った<br>1年の合計<b class="${sum>=0?'up':''}">${pm(sum)}</b></div><div>終値で売った<br>1年の合計<b class="${sumC>=0?'up':''}">${pm(sumC)}</b></div></div>
     <p class="pnote">終値＝その日の取引が終わる、15時30分の値段。朝に売らず、夕方まで持っていた場合です。</p>
     ${P.map(p=>`<div class="pastrow"><div>${esc(clean(p.name))}<small>${md(p.date)} ・ ${yen(p.price)}円 → 始値 ${yen(p.open)}円</small></div><div class="p ${f(p)>0?'up':f(p)<0?'dn':''}">${pm(f(p))}</div></div>`).join('')}</details>`}
 };
@@ -1730,7 +1730,7 @@ const TOURS={
   ['#list-bunbai .slot:first-child .chips','👍 良さそう／✋ 見送り','<b>東証</b>の分売は買う人が多く得しやすい（2026年は26件中22件が得）。<b>地方市場</b>（名証など）は損しやすい（7件中2件だけ得）。見送るなら <b>← 左にスワイプ</b>。'],
   ['#list-bunbai .slot:first-child .kv','値段と日にち','<b>前の日より〇円安い</b>＝前の日の終値より、いくら安く買えるか（申込単位の株数で）。実施日の朝から売れます。'],
   ['#list-bunbai .slot:first-child .card','スワイプで移動','申し込んだら <b>→ 右にスワイプ</b>。間違えたら <b>← 左</b>で戻せます。','nudge'],
-  ['#bb-past','これまでの実績','楽天で扱った分売で、当たって<b>始値で売っていたら100株でいくら</b>だったか。直近1年の得した件数と合計が分かります。タップで開きます。'],
+  ['#bb-past','直近1年の動き','楽天で扱った分売で、当たって<b>始値で売っていたら100株でいくら</b>だったか。直近1年の得した件数と合計が分かります。タップで開きます。'],
   ['#p-bunbai .help','分からなくなったら','この <b>？</b> でいつでも見直せます。']]};
 let tour=null,nudgeT=null;
 // 説明ツアー：実際のスワイプと同じ色・文字で、→右 と ←左 を交互に見せる
