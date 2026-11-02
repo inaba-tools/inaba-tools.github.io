@@ -20,25 +20,33 @@ def _fix(s):
     return s
 
 
-def _candidates(text):
+# 箱のラベル・設定画面（情報）にしか出てこない言葉。どれも無い画像は読まない
+PAGE_RE = re.compile(r"モデル番号|機種名|IMEI|MEID|EID|容量|Model|Part\s*No|Designed|Assembled|iOS|ソフトウェア|バージョン", re.I)
+
+
+def _candidates(text, need_page=True):
+    """「シリアル番号」の文字と同じ行かすぐ下の行にある、Appleのシリアルの形の文字列だけを拾う"""
+    if need_page and not PAGE_RE.search(text):
+        return []
     out = []
     lines = text.splitlines()
     for i, line in enumerate(lines):
-        near = " ".join(lines[max(0, i - 1): i + 2])
-        has_kw = bool(KEYWORD_RE.search(near))
-        # 空白やハイフンで区切られていても読めるように、区切りを消した形でも探す
-        for raw in {line, re.sub(r"[\s\-‐]", "", line)}:
-            fixed = _fix(raw)
-            for m in SERIAL_RE.finditer(fixed):
-                s = m.group(1)
-                if s in NG_WORDS:
-                    continue
-                digits = sum(c.isdigit() for c in s)
-                letters = len(s) - digits
-                if digits == 0 or letters < 2:   # 数字だけ（電話番号・IMEI）や英字だけは外す
-                    continue
-                score = 2 if has_kw else 1
-                out.append((s, score))
+        if not KEYWORD_RE.search(line):
+            continue
+        after = KEYWORD_RE.split(line)[-1]
+        nxt = lines[i + 1] if i + 1 < len(lines) else ""
+        for part in (after, nxt):
+            for raw in {part, re.sub(r"[\s\-‐:：]", "", part)}:
+                for m in re.finditer(r"(?<![0-9A-Za-z])S?([0-9A-Za-z]{10}|[0-9A-Za-z]{12})(?![0-9A-Za-z])", raw):
+                    orig = m.group(1)
+                    s = _fix(orig)
+                    if not SERIAL_RE.fullmatch(s) and not SERIAL_RE.fullmatch("S" + s):
+                        continue
+                    real_digits = sum(c.isdigit() for c in orig)   # OやIを直す前から数字だったもの
+                    letters = sum(c.isalpha() for c in s)
+                    if real_digits < 1 or letters < 2 or s in NG_WORDS:
+                        continue   # PROTECTION→PR0TECT10N のような英単語を外す
+                    out.append((s, 2))
     return out
 
 
@@ -73,6 +81,6 @@ def read_serials(image_bytes):
 def read_serials_text(text):
     """商品説明の文章にシリアルが書いてある場合"""
     found = {}
-    for s, sc in _candidates(text):
+    for s, sc in _candidates(text, need_page=False):
         found[s] = max(found.get(s, 0), sc)
     return sorted(found.items(), key=lambda x: -x[1])
