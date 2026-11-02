@@ -872,6 +872,15 @@ html.dark .pastd .ref{background:#3a3115;color:#ffd970}
 .pastd[open]>:not(summary){animation:apin .4s cubic-bezier(.2,.9,.25,1)}
 .pastd .pnote{margin:10px 0 0;font:700 12px/1.7 "Noto Sans JP";color:var(--sub)}
 .pastd .stat3 div{line-height:1.4}
+
+/* アプリのリンクをコピー（設定タブ右下の丸ボタン） */
+.copyfab{position:fixed;right:max(16px,calc(50% - 214px));bottom:calc(env(safe-area-inset-bottom) + 82px);width:54px;height:54px;border-radius:50%;border:0;background:var(--c-can,#1f9d6b);color:#fff;display:grid;place-items:center;box-shadow:0 8px 22px rgba(0,0,0,.22);z-index:8;cursor:pointer;transition:transform .3s cubic-bezier(.2,1.5,.3,1),background .25s;-webkit-tap-highlight-color:transparent}
+.copyfab:active{transform:scale(.88)}
+.copyfab svg{width:24px;height:24px}
+.copyfab .ok{display:none}
+.copyfab.done{background:#2b6fd6;transform:scale(1.08)}
+.copyfab.done .lk{display:none}.copyfab.done .ok{display:block}
+#p-set{padding-bottom:150px}
 </style>
 </head>
 <body>
@@ -926,6 +935,7 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
 
 <!-- 設定 -->
 <section class="page" id="p-set">
+<button class="copyfab" id="copyLink" aria-label="アプリのリンクをコピー"><svg class="lk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg><svg class="ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>
 <div class="top"><img src="icon-192.png" alt=""><h1>設定</h1><button class="aboutbtn" id="aboutBtn">このアプリの意味って？</button></div>
 <div class="box"><h3>これまでの儲け</h3><div class="stat3" id="sumbox"></div></div>
 <div class="menu">
@@ -1131,7 +1141,7 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
 
 <script src="budoux.js"></script>
 <script>
-const BUILD='1793613069';
+const BUILD='1793615155';
 // 新しい版が出ていたら、自動で読み込み直す（ホーム画面アプリでもすぐ反映）
 (async()=>{try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const BUILD='(\d+)'/);if(m&&m[1]!==BUILD&&!sessionStorage.getItem('kd_rl'+m[1])){sessionStorage.setItem('kd_rl'+m[1],'1');location.replace('./?v='+m[1]+location.hash)}}catch(e){}})();
 const API='https://script.google.com/macros/s/AKfycbxp2NJyQCnSduboXEaXFN0kndza6-0-zqrJN_0W9tLhBymhxRO8mLlT-dcZgI5lcvLr0A/exec';
@@ -1664,6 +1674,11 @@ function openAbout(){const sh=$('#sheet');sh.innerHTML=`<h3>このアプリの�
   <p style="color:var(--sub);font-size:12px">※株は必ず得するわけではありません。初値予想は外れることもあるので、最後は自分で判断してね。</p>
   <button class="btn" id="abOk">分かった</button>`;openSheet();$('#abOk').onclick=closeSheet}
 $('#aboutBtn').onclick=openAbout;
+// ---- アプリのリンクをコピー ----
+$('#copyLink').onclick=async()=>{const url='https://inaba-tools.github.io/kabu-drop/';let ok=false;
+  try{await navigator.clipboard.writeText(url);ok=true}catch(e){try{const t=document.createElement('textarea');t.value=url;t.setAttribute('readonly','');t.style.position='fixed';t.style.opacity='0';document.body.appendChild(t);t.select();t.setSelectionRange(0,999);ok=document.execCommand('copy');t.remove()}catch(_){}}
+  const b=$('#copyLink');if(ok){b.classList.add('done');toast('アプリのリンクをコピーしました');if(navigator.vibrate)navigator.vibrate(15);clearTimeout(b.t);b.t=setTimeout(()=>b.classList.remove('done'),1600)}else toast('コピーできませんでした')};
+
 
 // ---- デザイン（ライト／ダーク） ----
 const mqDark=matchMedia('(prefers-color-scheme: dark)');
