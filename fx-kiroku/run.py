@@ -10,6 +10,7 @@
 #   B  仲値後の売り    : 五十日の10:00に売り、11:00に買い戻し
 #   B2 9:55売り        : 五十日の9:55に売り、11:00に買い戻し
 #   C  仲値前の買い    : 五十日の8:00に買い、9:55に売る
+#   D  窓埋め          : 月曜の朝6時、金曜の終値から10銭以上飛んでいたら戻る方向に入る。金曜終値に戻ったら決済、戻らなければ12時に決済
 #  五十日＝5・10・15・20・25日・月末（休みなら前の営業日）
 import csv
 import datetime as dt
@@ -150,6 +151,31 @@ def timed(d, today, typ, side, eh, em, xh, xm, why):
     return row(d, typ, side, '-', e[0], e[1], x[0], x[1], why)
 
 
+def gap_fill(d, today):
+    """D 窓埋め（月曜だけ）"""
+    if d.weekday() != 0:
+        return None
+    fri = d - dt.timedelta(days=3)
+    a, b = jst_day(fri), jst_day(fri + dt.timedelta(days=1))
+    if a is None or b is None:
+        return None
+    fc = [x for x in a + b if x[0] >= dt.datetime(fri.year, fri.month, fri.day, 20, tzinfo=JST)]
+    mo = [x for x in today if 6 <= x[0].hour < 12]
+    if len(fc) < 50 or len(mo) < 50:
+        return None
+    close = fc[-1][4]
+    t0, o = mo[0][0], mo[0][1]
+    g = o - close
+    level = '金曜終値 %.3f' % close
+    if abs(g) < 0.10:
+        return [d.isoformat(), 'D 窓埋め', 'なし', level, '', '', '窓が10銭未満', 0]
+    side = '売り' if g > 0 else '買い'
+    for t, oo, h, l, c in mo:
+        if (side == '買い' and h >= close) or (side == '売り' and l <= close):
+            return row(d, 'D 窓埋め', side, level, t0, o, t, close, '窓が埋まった')
+    return row(d, 'D 窓埋め', side, level, t0, o, mo[-1][0], mo[-1][4], '12時に決済')
+
+
 def judge(d):
     today = jst_day(d)
     prev = jst_day(prev_weekday(d))
@@ -159,6 +185,7 @@ def judge(d):
         breakout(d, today, prev, 'A ブレイク', 9, 0.50),
         breakout(d, today, prev, 'A2 15時ブレイク', 15, 0.80),
     ]
+    out.append(gap_fill(d, today))
     if is_gotobi(d):
         out += [
             timed(d, today, 'B 仲値後の売り', '売り', 10, 0, 11, 0, '11時に買い戻し'),
@@ -190,7 +217,7 @@ def main():
                     print(x)
         d += dt.timedelta(days=1)
 
-    order = ['A ブレイク', 'A2 15時ブレイク', 'B 仲値後の売り', 'B2 9:55売り', 'C 仲値前の買い']
+    order = ['A ブレイク', 'A2 15時ブレイク', 'B 仲値後の売り', 'B2 9:55売り', 'C 仲値前の買い', 'D 窓埋め']
     rows.sort(key=lambda r: (r[0], order.index(r[1]) if r[1] in order else 9))
     with open(CSV, 'w', encoding='utf-8', newline='') as f:
         w = csv.writer(f)
