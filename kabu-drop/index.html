@@ -986,13 +986,13 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
 <div class="qag">⚙ アプリ</div>
 <details class="qa"><summary>データはどこから？いつ更新される？</summary><div class="a">IPOと分売の日程は楽天証券の公開ページ、初値予想は96ut.com、分売の株価はYahoo!ファイナンスから、<b>3時間ごとに自動で</b>取り込んでいます。</div></details>
 <details class="qa"><summary>記録はどこに保存される？</summary><div class="a">申込・当選の記録は、この端末と、Googleスプレッドシート「決算チェッカー」のログに保存されます。別の端末で開いても同じ記録が出ます。</div></details>
-<details class="qa"><summary>通知が届かない時は？</summary><div class="a">①iPhoneはSafariで「ホーム画面に追加」したアプリから開く必要があります ②設定 → 通知 でオンになっているか確認 ③iPhoneの設定 → 通知 → KABU DROP が許可されているか確認。通知は朝・夕方などに1日数回まとめて送るので、少し遅れることがあります。</div></details>
+<details class="qa"><summary>通知が届かない時は？</summary><div class="a"><b>iPhone</b>：①Safariで「ホーム画面に追加」したアプリから開く必要があります（iOS 16.4以上） ②このアプリの設定 → 通知 でオンになっているか確認 ③iPhoneの設定 → 通知 → KABU DROP が許可されているか確認。<br><b>Android</b>：①Chromeで開く（ホーム画面に追加しなくてもOK。追加するとアプリのように使えます） ②このアプリの設定 → 通知 でオンになっているか確認 ③Androidの設定 → アプリ → Chrome（またはKABU DROP）→ 通知 が許可されているか確認。省電力モードだと遅れることがあります。<br>通知は朝・夕方などに1日数回まとめて送るので、少し遅れることがあります。</div></details>
 </div></div>
 <div class="subpage" id="sub-thm"><div class="in"><div class="subtop"><button class="back"><b>‹</b>設定</button><h2>デザイン</h2></div>
 <div class="box"><h3>画面の明るさ</h3><div class="thm" id="thm">
 <button data-t="light"><div class="pv l"><i></i><i></i><i></i></div>ライト</button>
 <button data-t="dark"><div class="pv d"><i></i><i></i><i></i></div>ダーク</button>
-<button data-t="auto"><div class="pv a"><i></i><i></i><i></i></div>端末に合わせる<span class="ok">iPhoneの設定どおり</span></button>
+<button data-t="auto"><div class="pv a"><i></i><i></i><i></i></div>端末に合わせる<span class="ok">スマホの設定どおり</span></button>
 </div></div></div></div>
 <div class="subpage" id="sub-acct"><div class="in"><div class="subtop"><button class="back"><b>‹</b>設定</button><h2>証券口座</h2></div>
 <div id="bkList"></div>
@@ -1141,7 +1141,7 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
 
 <script src="budoux.js"></script>
 <script>
-const BUILD='1793615155';
+const BUILD='1793628836';
 // 新しい版が出ていたら、自動で読み込み直す（ホーム画面アプリでもすぐ反映）
 (async()=>{try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const BUILD='(\d+)'/);if(m&&m[1]!==BUILD&&!sessionStorage.getItem('kd_rl'+m[1])){sessionStorage.setItem('kd_rl'+m[1],'1');location.replace('./?v='+m[1]+location.hash)}}catch(e){}})();
 const API='https://script.google.com/macros/s/AKfycbxp2NJyQCnSduboXEaXFN0kndza6-0-zqrJN_0W9tLhBymhxRO8mLlT-dcZgI5lcvLr0A/exec';
@@ -1509,6 +1509,7 @@ const NTF=[['IPO',[['ipo_new','新しいIPOが出た時','申込期間と初値�
  ['分売',[['bun_new','新しい分売の予定が出た時','実施日をお知らせ'],['bun_open','申込受付が始まった夕方・締切前の朝','値段と、前の日よりいくら安いか'],['bun_result','結果が出た日の朝','申し込んだ分売だけ']]]];
 SET.ntf=SET.ntf||{};
 const devId=(()=>{try{let d=localStorage.getItem('kd_dev');if(!d){d='d'+Math.random().toString(36).slice(2,12)+Date.now().toString(36);localStorage.setItem('kd_dev',d)}return d}catch(e){return'dx'}})();
+const devIOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),devAnd=/Android/i.test(navigator.userAgent);
 const standalone=()=>window.navigator.standalone===true||matchMedia('(display-mode: standalone)').matches;
 const pushOK=()=>'serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window;
 let swReg=null;
@@ -1517,7 +1518,7 @@ const b64=s=>{const p='='.repeat((4-s.length%4)%4);const r=atob((s+p).replace(/-
 async function pushSync(sub){try{await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'log',kind:'push',code:devId,xp:0,memo:sub?{st:'on',sub:sub.toJSON?sub.toJSON():sub,prefs:SET.ntf,rates:{s:SET.rateS,l:SET.rateL}}:{st:'clear'}})})}catch(e){}}
 async function curSub(){try{const r=swReg||await navigator.serviceWorker.ready;return await r.pushManager.getSubscription()}catch(e){return null}}
 async function enablePush(){
-  if(!pushOK()){toast(standalone()?'この端末は通知に対応していません':'ホーム画面に追加してから開くと通知をオンにできます');ntfRender();return false}
+  if(!pushOK()){toast(standalone()?'この端末は通知に対応していません':devIOS?'ホーム画面に追加してから開くと通知をオンにできます':'Chromeで開くと通知をオンにできます');ntfRender();return false}
   try{const perm=await Notification.requestPermission();if(perm!=='granted'){toast('通知が許可されませんでした');ntfRender();return false}
     const r=swReg||await navigator.serviceWorker.ready;let sub=await r.pushManager.getSubscription();
     if(!sub)sub=await r.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64(VAPID)});
@@ -1528,7 +1529,7 @@ async function disablePush(){const s=await curSub();try{s&&await s.unsubscribe()
 async function ntfRender(){
   const st=$('#nState'),box=$('#nBox');if(!st)return;
   const on=SET.pushOn&&pushOK()&&Notification.permission==='granted';
-  if(!pushOK()){st.innerHTML=`<div class="nstate"><span class="ic">📲</span><span>${standalone()?'この端末では通知を使えません（iPhoneはiOS 16.4以上が必要）':'通知を受け取るには、Safariの共有ボタン <b>→「ホーム画面に追加」</b>をして、追加したアプリから開いてね'}</span></div>`}
+  if(!pushOK()){st.innerHTML=`<div class="nstate"><span class="ic">📲</span><span>${standalone()?(devIOS?'この端末では通知を使えません（iPhoneはiOS 16.4以上が必要）':'この端末では通知を使えません。Chromeを最新にしてみてね'):devIOS?'通知を受け取るには、Safariの共有ボタン <b>→「ホーム画面に追加」</b>をして、追加したアプリから開いてね':devAnd?'このブラウザでは通知を使えません。<b>Chrome</b>で開くと通知をオンにできます（右上の︙ →「ホーム画面に追加」でアプリのようにも使えます）':'このブラウザでは通知を使えません。Chromeなどで開いてね'}</span></div>`}
   else if(on){st.innerHTML=`<div class="nstate ok"><span class="ic">🔔</span><span style="flex:1">この端末で通知を受け取ります</span><button class="sw on" id="nMaster" aria-label="通知"></button></div><div class="row2"><button class="btn ghost" id="nTest">テスト通知</button><button class="btn ghost" id="nOff">この端末はオフ</button></div>`}
   else{st.innerHTML=`<div class="nstate"><span class="ic">🔕</span><span style="flex:1">通知はオフです</span><button class="sw" id="nMaster" aria-label="通知"></button></div>`}
   box.className='nbox'+(on?'':' off');
