@@ -846,6 +846,19 @@ html.dark .bk .kv2 i{background:#2a302c;color:#a3aaa3}
 .apin .money{flex-direction:column;align-items:stretch;gap:8px}
 .apin .money>div:first-child{display:flex;align-items:baseline;justify-content:space-between}
 .apin .money .ms{border-left:0;padding-left:0;border-top:1.5px solid rgba(160,122,16,.22);padding-top:8px}
+/* たたんだカード：評価を縦長に・数字を大きく */
+.rkbig{width:64px;min-height:96px;border-radius:16px;padding:8px 0}
+.rkbig small{font-size:11px}
+.rkbig b{font-size:44px;line-height:1;margin-top:4px}
+.pf2 b{font-size:32px}
+.pf2 small{font-size:11.5px}
+.bigd b{font-size:32px;letter-spacing:-.02em}
+.bigd small{font-size:11px}
+/* 展開した時：評価を左端に大きく */
+.m3meta{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.m3meta .rkx{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;width:52px;height:60px;border-radius:13px;padding:0}
+.m3meta .rkx small{font:800 10px "Noto Sans JP";line-height:1}
+.m3meta .rkx b{font:900 30px/1 Inter;margin-top:3px}
 </style>
 </head>
 <body>
@@ -1105,6 +1118,9 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
 
 <script src="budoux.js"></script>
 <script>
+const BUILD='1793610208';
+// 新しい版が出ていたら、自動で読み込み直す（ホーム画面アプリでもすぐ反映）
+(async()=>{try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const BUILD='(\d+)'/);if(m&&m[1]!==BUILD&&!sessionStorage.getItem('kd_rl'+m[1])){sessionStorage.setItem('kd_rl'+m[1],'1');location.replace('./?v='+m[1]+location.hash)}}catch(e){}})();
 const API='https://script.google.com/macros/s/AKfycbxp2NJyQCnSduboXEaXFN0kndza6-0-zqrJN_0W9tLhBymhxRO8mLlT-dcZgI5lcvLr0A/exec';
 const RAKUTEN='https://www.rakuten-sec.co.jp/web/domestic/ipo/';
 const R_BUNBAI='https://www.rakuten-sec.co.jp/web/domestic/off_auction/';
@@ -1266,9 +1282,9 @@ function yosoBox(o){
   const c2=`<div class="c" data-tip="${first?'first':'yoso'}" data-ex="${esc(ex)}"><div class="k">${first?'初値':'初値予想'} ⓘ</div><div class="v">${p?yen(p):'—'}<small>${p?'円':''}</small></div><div class="s">${p?kind:'まだ出ていません'}</div>${p?`<div class="h">${u}株 ${yen(p*u)}円</div>`:''}</div>`;
   const gain=p&&base?(p-base)*u:null;
   const c3=`<div class="c g ${gain!=null&&gain<0?'dn':''}" data-tip="gain"><div class="k">${first?'利益':'予想利益'}（${u}株）</div><div class="v">${gain!=null?pm(gain):'—'}</div><div class="s">${gain!=null?(first?'初値で売った場合':'初値で売ったら'):'値段が決まると出ます'}</div></div>`;
-  const meta=[y.rank&&!first?`<span class="rk ${y.rank}" data-tip="rank">評価 ${y.rank}</span>`:'',gain!=null&&gain<=0&&!first?'<span class="warn">公募割れのおそれ</span>':'',!first&&pro&&y.reader?`みんなの予想 ${yen(y.reader)}円（${y.n}人）`:'',p?'出典 96ut.com':''].filter(Boolean).join('<span>・</span>');
+  const rkx=y.rank&&!first?`<span class="rk rkx ${y.rank}" data-tip="rank"><small>評価</small><b>${y.rank}</b></span>`:'';const meta=[gain!=null&&gain<=0&&!first?'<span class="warn">公募割れのおそれ</span>':'',!first&&pro&&y.reader?`みんなの予想 ${yen(y.reader)}円（${y.n}人）`:'',p?'出典 96ut.com':''].filter(Boolean).join('<span>・</span>');
   const jt=o.k!=='end'&&!first?judgeTag(o):'';
-  return`<div class="m3 ${y.rank?'r-'+y.rank:''}">${c1}<span class="op">→</span>${c2}<span class="op">＝</span>${c3}</div>${meta||jt?`<div class="m3meta">${jt}${meta}</div>`:''}`}
+  return`<div class="m3 ${y.rank?'r-'+y.rank:''}">${c1}<span class="op">→</span>${c2}<span class="op">＝</span>${c3}</div>${meta||jt||rkx?`<div class="m3meta">${rkx}${jt}${meta}</div>`:''}`}
 
 /* ============ 分売 ============ */
 function bunbaiWindow(date){ // 申込受付：前営業日17:15〜当日8:20
@@ -1619,7 +1635,7 @@ function openCo(id){const o=IPO.find(id);if(!o)return;const x=o.x,y=yosoData[id]
 
 // ---- 改行の位置（BudouXで文節の区切りに目印を入れる） ----
 const JP=/[぀-ヿ㐀-鿿]/;
-function phrase(root){if(!window.BX||!root)return;const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>{const p=n.parentNode;if(!p||/^(SCRIPT|STYLE|TEXTAREA|INPUT|svg|text|tspan)$/i.test(p.nodeName)||p.closest('svg'))return NodeFilter.FILTER_REJECT;return JP.test(n.data)&&!n.data.includes('​')?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_SKIP}});
+function phrase(root){if(!window.BX||!root)return;const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>{const p=n.parentNode;if(!p||/^(SCRIPT|STYLE|TEXTAREA|INPUT|svg|text|tspan)$/i.test(p.nodeName)||p.closest('svg,.tco'))return NodeFilter.FILTER_REJECT;return JP.test(n.data)&&!n.data.includes('​')?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_SKIP}});
   const L=[];while(w.nextNode())L.push(w.currentNode);L.forEach(n=>{const t=window.BX.parse(n.data).join('​');if(t!==n.data)n.data=t})}
 let phT=null;const phObs=new MutationObserver(()=>{if(phT)return;phT=requestAnimationFrame(()=>{phT=null;phrase(document.body)})});
 phrase(document.body);phObs.observe(document.body,{childList:true,subtree:true,characterData:false});
