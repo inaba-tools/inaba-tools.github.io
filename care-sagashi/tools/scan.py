@@ -205,18 +205,13 @@ def main():
             for it in yahoo_search(q, exclude):
                 yah.setdefault(it["url"], it)
             time.sleep(2)
-        def cheap(it):
-            key = model_key(it.get("title"))
-            mk = market_price(key) if key else None
-            if not mk or not it.get("price") or it["price"] > mk * ratio:
-                return False
-            it["key"], it["market"] = key, mk
-            return True
+        def cheap(it):   # 2026/11/03 相場は見ない（iPhoneの機種名がわかるものは全部）
+            it["key"] = model_key(it.get("title"))
+            return bool(it["key"])
         new_m = [it for it in merc.values() if it["url"] not in seen and cheap(it)]
         new_y = [it for it in yah.values() if it["url"] not in seen and cheap(it)]
-        no_market = sum(1 for it in list(merc.values()) + list(yah.values()) if not market_price(model_key(it.get("title")) or "") and model_key(it.get("title")))
-        print(f"::notice::検索で見つかった傷ありiPhone メルカリ {len(merc)} 件・Yahoo!フリマ {len(yah)} 件（相場が出せない機種 {no_market} 件）")
-        print(f"相場より大幅に安い新しい出品 メルカリ {len(new_m)} 件・Yahoo!フリマ {len(new_y)} 件")
+        print(f"::notice::検索で見つかった傷ありiPhone メルカリ {len(merc)} 件・Yahoo!フリマ {len(yah)} 件")
+        print(f"新しい出品 メルカリ {len(new_m)} 件・Yahoo!フリマ {len(new_y)} 件")
         # 両方に時間が回るよう、交互に確認する
         order = [x for pair in zip(new_m, new_y) for x in pair] + new_m[len(new_y):] + new_y[len(new_m):]
         rows = []
@@ -246,7 +241,7 @@ def main():
             if not best:
                 stats["シリアルなし"] += 1
             if best:
-                note = f"{cond}・相場 約{int(it['market']):,}円（{int(it['market'] - it['price']):,}円安い）"
+                note = cond or "状態不明"
                 rows.append({"title": d.get("title") or it["title"], "price": it.get("price"), "site": it["site"],
                              "url": url, "image": best[2] or (d["images"][0] if d.get("images") else ""),
                              "serial": best[0], "sure": note})
@@ -262,7 +257,7 @@ def main():
         browser.close()
     CACHE.parent.mkdir(exist_ok=True)
     CACHE.write_text(json.dumps(sorted(seen)[-50000:]))
-    print(f"::notice::相場の{int(ratio*10)}割以下で確認 {checked} 件 → 追加 {added} 件（状態が良くて外した {stats['状態が良い']} 件・シリアルが読めない {stats['シリアルなし']} 件）")
+    print(f"::notice::確認 {checked} 件 → 追加 {added} 件（状態が良くて外した {stats['状態が良い']} 件・シリアルが読めない {stats['シリアルなし']} 件）")
 
 
 if __name__ == "__main__":
