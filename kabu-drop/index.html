@@ -1141,7 +1141,7 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
 
 <script src="budoux.js"></script>
 <script>
-const BUILD='1793628915';
+const BUILD='1793629030';
 // 新しい版が出ていたら、自動で読み込み直す（ホーム画面アプリでもすぐ反映）
 (async()=>{try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const BUILD='(\d+)'/);if(m&&m[1]!==BUILD&&!sessionStorage.getItem('kd_rl'+m[1])){sessionStorage.setItem('kd_rl'+m[1],'1');location.replace('./?v='+m[1]+location.hash)}}catch(e){}})();
 const API='https://script.google.com/macros/s/AKfycbxp2NJyQCnSduboXEaXFN0kndza6-0-zqrJN_0W9tLhBymhxRO8mLlT-dcZgI5lcvLr0A/exec';
@@ -1302,7 +1302,7 @@ function yosoBox(o){
   const ex=first?'':`<br><br>📅 <b>この会社の予想が出る時期</b><br>・申込開始時の予想：${md(x.data4)}ごろ（${y.bb?'出ています '+yen(y.bb)+'円':'まだ'}）<br>・直前予想：上場日 ${md(x.data18)} の少し前（${y.last?'出ています '+yen(y.last)+'円':'まだ'}）<br>・みんなの予想：上場が決まってからずっと（${y.reader?yen(y.reader)+'円・'+y.n+'人':'まだ'}）`;
   if(o.k==='end'&&!p)return'';
   const c1=`<div class="c" data-tip="kokai"><div class="k">${o.price?'公開価格':'公開価格（予想）'} ⓘ</div><div class="v">${base?yen(base):'—'}<small>円</small></div><div class="s">${o.price?'本決まり':o.hiP?'仮条件の上限で予想':base?'想定価格で予想':md(x.data9)+'に決定'}</div>${base?`<div class="h">${u}株 ${yen(base*u)}円</div>`:''}</div>`;
-  const c2=`<div class="c" data-tip="${first?'first':'yoso'}" data-ex="${esc(ex)}"><div class="k">${first?'初値':'初値予想'} ⓘ</div><div class="v">${p?yen(p):'—'}<small>${p?'円':''}</small></div><div class="s">${p?kind:'まだ出ていません'}</div>${p?`<div class="h">${u}株 ${yen(p*u)}円</div>`:''}</div>`;
+  const c2=`<div class="c" data-tip="${first?'first':'yoso'}" data-ex="${esc(ex)}"><div class="k">${first?'初値':'初値予想'} ⓘ</div><div class="v">${p?yen(p):'—'}<small>${p?'円':''}</small></div><div class="s">${p?kind:'まだ出ていません'}${first&&y.close?`<br>その日の終値 ${yen(y.close)}円`:''}</div>${p?`<div class="h">${u}株 ${yen(p*u)}円</div>`:''}</div>`;
   const gain=p&&base?(p-base)*u:null;
   const c3=`<div class="c g ${gain!=null&&gain<0?'dn':''}" data-tip="gain"><div class="k">${first?'利益':'予想利益'}（${u}株）</div><div class="v">${gain!=null?pm(gain):'—'}</div><div class="s">${gain!=null?(first?'初値で売った場合':'初値で売ったら'):'値段が決まると出ます'}</div></div>`;
   const rkx=y.rank&&!first?`<span class="rk rkx ${y.rank}" data-tip="rank"><small>評価</small><b>${y.rank}</b></span>`:'';const meta=[gain!=null&&gain<=0&&!first?'<span class="warn">公募割れのおそれ</span>':'',!first&&pro&&y.reader?`みんなの予想 ${yen(y.reader)}円（${y.n}人）`:'',p?'出典 96ut.com':''].filter(Boolean).join('<span>・</span>');
@@ -1783,7 +1783,11 @@ $('#tourAgain').onclick=()=>{['ipo','bunbai'].forEach(k=>{try{localStorage.remov
 // ---- 読み込み ----
 async function getJSON(u,def){try{const r=await fetch(u+'?'+Date.now());if(!r.ok)return def;return await r.json()}catch(e){return def}}
 async function load(){
-  [ipos,bunbai,prices,yosoData]=await Promise.all([getJSON('data/ipo.json',[]),getJSON('data/bunbai.json',{items:[],past:[]}),getJSON('data/prices.json',{}),getJSON('data/yoso.json',{})]);brokers=((await getJSON('data/brokers.json',{items:[]})).items)||[];renderBrokers();
+  [ipos,bunbai,prices,yosoData]=await Promise.all([getJSON('data/ipo.json',[]),getJSON('data/bunbai.json',{items:[],past:[]}),getJSON('data/prices.json',{}),getJSON('data/yoso.json',{})]);
+  // 楽天から消えた古いIPOも残す＋上場したIPOの実際の初値・終値（Yahoo!）
+  {const [hist,fst]=await Promise.all([getJSON('data/ipo_hist.json',{}),getJSON('data/ipo_first.json',{})]);
+   const have=new Set(ipos.map(x=>x.code));Object.values(hist||{}).forEach(x=>{if(x&&x.code&&!have.has(x.code))ipos.push(x)});
+   Object.entries(fst||{}).forEach(([c,f])=>{const y=Object.assign({},yosoData[c]||{});if(!y.first&&f.open)y.first=f.open;if(f.close)y.close=f.close;yosoData[c]=y})}brokers=((await getJSON('data/brokers.json',{items:[]})).items)||[];renderBrokers();
   try{const u=(await (await fetch('data/updated.txt?'+Date.now())).text()).trim();const d=new Date(u);if(!isNaN(d))document.querySelectorAll('.upd').forEach(el=>el.innerHTML=`楽天証券<br>${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')} 更新`)}catch(e){}
   ['ipo','bunbai'].forEach(k=>{const b=B[k];const a=b.all();if(b.cur==='can'&&!a.some(o=>o.k==='can')&&a.some(o=>o.k==='plan')){b.cur='plan';segOn(k,'plan')}});
   renderAll();loadRemote();

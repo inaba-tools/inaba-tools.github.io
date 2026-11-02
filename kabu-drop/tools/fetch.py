@@ -298,11 +298,55 @@ def fetch_yoso():
         if any(v for k, v in it.items() if k != 'n'):
             out[code] = it
     if out:
-        # 古い予想も残す（上場後の答え合わせ用）。120件まで
+        # 古い予想もずっと残す（上場後の答え合わせ用）。96utで空になった値は前の値を使う
         merged = dict(old)
-        merged.update(out)
-        keys = list(merged)[-120:]
-        save('yoso.json', {k: merged[k] for k in keys})
+        for k, v in out.items():
+            prev = merged.get(k) or {}
+            merged[k] = {kk: (vv if vv not in (None, 0) else prev.get(kk, vv)) for kk, vv in v.items()}
+        save('yoso.json', merged)
+
+
+# ---------- IPOの記録をずっと残す（楽天のデータは古いIPOが消えるため） ----------
+def keep_ipo_history():
+    hist = load('ipo_hist.json', {})
+    for x in load('ipo.json', []):
+        c = x.get('code')
+        if c:
+            hist[c] = x
+    save('ipo_hist.json', hist)
+    return hist
+
+
+# ---------- 上場したIPOの実際の初値・終値（Yahoo!ファイナンス） ----------
+def fetch_ipo_first(hist):
+    first = load('ipo_first.json', {})
+    for c, x in sorted(hist.items()):
+        if c in first:
+            continue
+        m = re.match(r'(\d{4})/(\d{1,2})/(\d{1,2})', x.get('data18') or '')
+        if not m:
+            continue
+        ld = dt.date(int(m.group(1)), int(m.group(2)), int(m.group(3)))
+        if ld > TODAY or (TODAY - ld).days > 400:
+            continue
+        p1 = int(dt.datetime(ld.year, ld.month, ld.day, tzinfo=JST).timestamp())
+        try:
+            j = json.loads(get('https://query1.finance.yahoo.com/v8/finance/chart/%s.T?period1=%d&period2=%d&interval=1d'
+                               % (c, p1, p1 + 86400 * 15)))
+            r = j['chart']['result'][0]
+            q = r['indicators']['quote'][0]
+            for i, t in enumerate(r.get('timestamp') or []):
+                o, cl, v = q['open'][i], q['close'][i], (q.get('volume') or [0] * 99)[i]
+                if o and v:
+                    d = dt.datetime.fromtimestamp(t, JST).date()
+                    if d == TODAY and dt.datetime.now(JST).hour < 16:
+                        break  # 今日上場はその日の取引が終わってから
+                    first[c] = {'open': o, 'close': cl, 'date': d.isoformat()}
+                    break
+        except Exception as e:
+            print('first error', c, e, file=sys.stderr)
+        time.sleep(0.4)
+    save('ipo_first.json', first)
 
 
 # ---------- 楽天の一般信用の貸株料 ----------
@@ -326,6 +370,10 @@ def fetch_rates():
 
 def main():
     fetch_yoso()
+    try:
+        fetch_ipo_first(keep_ipo_history())
+    except Exception as e:
+        print('ipo hist error', e, file=sys.stderr)
     try:
         found, past = fetch_bunbai()
         items = merge_bunbai(found, past)
