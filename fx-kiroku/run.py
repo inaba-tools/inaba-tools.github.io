@@ -203,9 +203,29 @@ def main():
     done = {r[0] for r in rows}
 
     now = dt.datetime.now(JST)
+    t0 = time.time()
+    # 未記録の日に必要な日足ファイルを先にまとめて並列ダウンロード
+    need = set()
+    d = START_DAY
+    while d < now.date():
+        if d.weekday() < 5 and d.isoformat() not in done:
+            for k in range(4):
+                need.add(d - dt.timedelta(days=k))
+        d += dt.timedelta(days=1)
+    need = sorted(x for x in need if x < now.date())
+    from concurrent.futures import ThreadPoolExecutor
+    with ThreadPoolExecutor(6) as ex:
+        for i, _ in enumerate(ex.map(utc_day, need)):
+            if i % 50 == 0:
+                print('download', i, '/', len(need), int(time.time() - t0), 's', flush=True)
+            if time.time() - t0 > 4.5 * 3600:
+                break
     d = START_DAY
     added = 0
     while d < now.date():
+        if time.time() - t0 > 5 * 3600:
+            print('時間切れ。続きは次回', flush=True)
+            break
         if d.weekday() < 5 and d.isoformat() not in done:
             r = judge(d)
             if r is None:
