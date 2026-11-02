@@ -13,8 +13,8 @@
 "fundWhen": "draw",
 "kuji": "全部が抽選。100株までのことが多い",
 "rec": true,
-"fundS": "抽選日の18時までに入金",
-"back": "外れたら、結果が出ればすぐ使える"
+"fundS": "抽選日の18時まで",
+"back": "結果が出たらすぐ使える"
 },
 {
 "id": "sbi",
@@ -29,8 +29,8 @@
 "kuji": "多く申し込むほど当たりやすい＋ポイントの枠",
 "role": "point",
 "rec": true,
-"fundS": "抽選日までに入金",
-"back": "外れたら、そもそも拘束されない"
+"fundS": "抽選日まで",
+"back": "お金は拘束されない"
 },
 {
 "id": "nomura",
@@ -44,8 +44,8 @@
 "fundWhen": "win",
 "kuji": "抽選",
 "rec": true,
-"fundS": "当選後に入金",
-"back": "外れても、お金は動かない"
+"fundS": "当選後でOK",
+"back": "入金していないので何もなし"
 },
 {
 "id": "matsui",
@@ -59,8 +59,8 @@
 "fundWhen": "win",
 "kuji": "抽選",
 "rec": true,
-"fundS": "当選後に入金",
-"back": "外れても、お金は動かない"
+"fundS": "当選後でOK",
+"back": "入金していないので何もなし"
 },
 {
 "id": "monex",
@@ -74,8 +74,8 @@
 "fundWhen": "apply",
 "kuji": "1人1回の平等抽選",
 "rec": false,
-"fundS": "申込時に入金",
-"back": "外れたら、結果が出れば使える"
+"fundS": "申込の時",
+"back": "結果が出たら使える"
 },
 {
 "id": "nikko",
@@ -89,8 +89,8 @@
 "fundWhen": "apply",
 "kuji": "1人1回の平等抽選",
 "rec": false,
-"fundS": "申込時に入金",
-"back": "外れたら、結果が出れば使える"
+"fundS": "申込の時",
+"back": "結果が出たら使える"
 },
 {
 "id": "mizuho",
@@ -104,8 +104,8 @@
 "fundWhen": "apply",
 "kuji": "抽選",
 "rec": false,
-"fundS": "申込時に入金",
-"back": "外れたら、そのまま使える"
+"fundS": "申込の時",
+"back": "そのまま使える"
 },
 {
 "id": "daiwa",
@@ -119,8 +119,8 @@
 "fundWhen": "apply",
 "kuji": "抽選",
 "rec": false,
-"fundS": "申込時に入金",
-"back": "外れたら、そのまま使える"
+"fundS": "申込の時",
+"back": "そのまま使える"
 },
 {
 "id": "okasan",
@@ -134,8 +134,8 @@
 "fundWhen": "apply",
 "kuji": "抽選",
 "rec": false,
-"fundS": "申込時に入金",
-"back": "外れたら、そのまま使える"
+"fundS": "申込の時",
+"back": "そのまま使える"
 },
 {
 "id": "tokaitokyo",
@@ -149,8 +149,8 @@
 "fundWhen": "apply",
 "kuji": "抽選",
 "rec": false,
-"fundS": "申込時に入金",
-"back": "外れたら、そのまま使える"
+"fundS": "申込の時",
+"back": "そのまま使える"
 }
 ]
 }
