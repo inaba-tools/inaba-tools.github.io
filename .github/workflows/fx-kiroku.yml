@@ -1,0 +1,25 @@
+name: fx-kiroku
+on:
+  schedule:
+    - cron: '30 15 * * *'   # 毎日 0:30（日本時間）
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  judge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 前日分を判定して記録
+        run: |
+          pip install -q holidays
+          python3 fx-kiroku/run.py
+      - name: Commit if changed
+        run: |
+          git config user.name "fx-kiroku-bot"
+          git config user.email "noreply@anthropic.com"
+          git add fx-kiroku/kiroku.csv
+          git diff --cached --quiet && exit 0
+          git commit -m "fx-kiroku: 仮想トレードを記録"
+          git pull --rebase
+          git push
