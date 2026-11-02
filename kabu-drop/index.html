@@ -917,6 +917,27 @@ html.dark .pastd .ref{background:#3a3115;color:#ffd970}
 .fxmore{width:100%;border:0;background:none;font:800 13px "Noto Sans JP";color:var(--sub);padding:10px 0 2px}
 html.dark .fxt .best{background:#3a3115;color:#f0c75a}
 html.dark .fxside.b{background:#173328}html.dark .fxside.s{background:#3a1d1a;color:#f19a90}
+
+/* ---- アカウント（Google） ---- */
+.gico{background:#fff!important;position:relative;overflow:hidden;box-shadow:inset 0 0 0 1px #e6e3d8}
+.gico:before{content:"";position:absolute;inset:3px;border-radius:50%;background:conic-gradient(#ea4335 0 25%,#fbbc05 0 50%,#34a853 0 75%,#4285f4 0)}
+.gico:after{content:"";position:absolute;inset:6px;border-radius:50%;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%237a7f78'%3E%3Ccircle cx='12' cy='9' r='4'/%3E%3Cpath d='M4 21c1-4.5 4.3-6.5 8-6.5s7 2 8 6.5z'/%3E%3C/svg%3E") center/78% no-repeat}
+.gico.me:after{display:none}.gico img{position:absolute;inset:5px;width:calc(100% - 10px);height:calc(100% - 10px);border-radius:50%;object-fit:cover;z-index:1}
+.gbox{text-align:center;padding:24px 18px}
+.gav{width:84px;height:84px;margin:0 auto 12px;border-radius:50%;position:relative;background:conic-gradient(#ea4335 0 25%,#fbbc05 0 50%,#34a853 0 75%,#4285f4 0);animation:gspin 1s cubic-bezier(.2,1.2,.3,1)}
+.gav>*{position:absolute;inset:5px;border-radius:50%;background:var(--card);display:grid;place-items:center;overflow:hidden}
+.gav img{width:100%;height:100%;object-fit:cover}
+.gav svg{width:60%;height:60%;fill:#9aa097}
+@keyframes gspin{from{transform:rotate(-120deg) scale(.6);opacity:0}to{transform:none;opacity:1}}
+.gbox h3{margin:0 0 4px;font:900 17px "Noto Sans JP"}
+.gbox .em{font:700 12.5px Inter;color:var(--sub);word-break:break-all}
+.gbox ul{text-align:left;margin:14px 0 16px;padding:0;list-style:none}
+.gbox li{font:700 13px "Noto Sans JP";color:var(--ink);padding:7px 0 7px 26px;position:relative;line-height:1.5}
+.gbox li:before{content:"✓";position:absolute;left:2px;top:6px;width:18px;height:18px;border-radius:50%;background:#e3f1ec;color:#1f7a55;font:900 11px/18px Inter;text-align:center}
+.gbtnw{display:flex;justify-content:center;min-height:44px}
+.gok{display:inline-flex;align-items:center;gap:6px;background:#e3f1ec;color:#1f7a55;border-radius:20px;padding:6px 12px;font:800 12px "Noto Sans JP";margin:12px 0 14px}
+html.dark .gbox li:before,html.dark .gok{background:#173328;color:#7ee3b1}
+html.dark .gico{box-shadow:inset 0 0 0 1px #2f3732}
 </style>
 </head>
 <body>
@@ -980,6 +1001,7 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
 <div class="top"><img src="icon-192.png" alt=""><h1>設定</h1><button class="aboutbtn" id="aboutBtn">このアプリの意味って？</button></div>
 <div class="box"><h3>これまでの儲け</h3><div class="stat3" id="sumbox"></div></div>
 <div class="menu">
+<button class="mi" data-sub="gacc"><span class="ico gico" id="gIco"></span><span>アカウント<small id="gSum">ログインしていません</small></span><i>›</i></button>
 <button class="mi" data-sub="ntf"><span class="ico" style="background:#d98a1c">🔔</span><span>通知<small id="ntfSum">オフ</small></span><i>›</i></button>
 <button class="mi" data-sub="acct"><span class="ico" style="background:#bf0000">🏦</span><span>証券口座<small id="bkSum">楽天証券</small></span><span class="bdg" id="acctBdg"></span><i>›</i></button>
 </div>
@@ -996,6 +1018,9 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
 </div>
 
 
+<div class="subpage" id="sub-gacc"><div class="in"><div class="subtop"><button class="back"><b>‹</b>設定</button><h2>アカウント</h2></div>
+<div class="box gbox" id="gBox"></div>
+<p style="color:var(--sub);font-size:12px;margin:8px 20px 0;line-height:1.6">KABU DROPが受け取るのは、Googleアカウントの<b>名前・メールアドレス・アイコン</b>だけです。パスワードやGmailの中身は見えません。</p></div></div>
 <div class="subpage" id="sub-ntf"><div class="in"><div class="subtop"><button class="back"><b>‹</b>設定</button><h2>通知</h2></div>
 <div class="box"><div id="nState"></div><div class="nbox" id="nBox"></div>
 <p style="color:var(--sub);font-size:12px;margin-top:10px">朝・夕方などに1日数回まとめて確認して送ります。少し遅れて届くことがあります。</p></div></div></div>
@@ -1183,7 +1208,7 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
 
 <script src="budoux.js"></script>
 <script>
-const BUILD='1793637701';
+const BUILD='1793638661';
 // 新しい版が出ていたら、自動で読み込み直す（ホーム画面アプリでもすぐ反映）
 (async()=>{try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const BUILD='(\d+)'/);if(m&&m[1]!==BUILD&&!sessionStorage.getItem('kd_rl'+m[1])){sessionStorage.setItem('kd_rl'+m[1],'1');location.replace('./?v='+m[1]+location.hash)}}catch(e){}})();
 const API='https://script.google.com/macros/s/AKfycbxp2NJyQCnSduboXEaXFN0kndza6-0-zqrJN_0W9tLhBymhxRO8mLlT-dcZgI5lcvLr0A/exec';
@@ -1226,11 +1251,15 @@ const LSK={ipo:'kd_rec',bunbai:'kd_rec_bunbai'};
 const REC={};
 KINDS.forEach(k=>{try{REC[k]=JSON.parse(localStorage.getItem(LSK[k])||'{}')}catch(e){REC[k]={}}});
 const saveLocal=k=>{try{localStorage.setItem(LSK[k],JSON.stringify(REC[k]))}catch(e){}};
-async function sync(kind,id){try{await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'log',kind,code:id,xp:0,memo:REC[kind][id]||{st:'clear'}})})}catch(e){}}
+// ---- Googleアカウント（ログインすると記録がアカウントに保存される） ----
+let SES=null,USER=null;try{const o=JSON.parse(localStorage.getItem('kd_ses')||'null');if(o){SES=o.s;USER=o.u}}catch(e){}
+const saveSes=()=>{try{SES?localStorage.setItem('kd_ses',JSON.stringify({s:SES,u:USER})):localStorage.removeItem('kd_ses')}catch(e){}};
+function setSes(s,u){SES=s;USER=u;saveSes();if(window.gaccRender)gaccRender()}
+async function sync(kind,id){try{await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'log',s:SES||undefined,kind,code:id,xp:0,memo:REC[kind][id]||{st:'clear'}})})}catch(e){}}
 function setRec(kind,id,v){if(v)REC[kind][id]={...(REC[kind][id]||{}),...v,at:Date.now()};else delete REC[kind][id];saveLocal(kind);sync(kind,id)}
 const snap=(k,id)=>REC[k][id]?JSON.parse(JSON.stringify(REC[k][id])):null;
 function restoreRec(k,id,v){if(v)REC[k][id]=v;else delete REC[k][id];saveLocal(k);sync(k,id)}
-async function loadRemote(){try{const r=await fetch(API+'?action=state');const j=await r.json();const logs=(j.state&&j.state.logs)||[];
+async function loadRemote(){try{const r=await fetch(API+'?action=state'+(SES?'&s='+encodeURIComponent(SES):''));const j=await r.json();if(j.ok===false&&j.error==='session'){setSes(null,null);toast('ログインが切れました。もう一度ログインしてね');return}if(j.user){USER=j.user;saveSes();gaccRender()}const logs=(j.state&&j.state.logs)||[];
   KINDS.forEach(kind=>{const L=logs.filter(l=>l.kind===kind);if(!L.length)return;const m={};
     L.forEach(l=>{let v=l.memo;if(typeof v==='string'){try{v=JSON.parse(v)}catch(e){v=null}}if(v)m[String(l.code)]=v.st==='clear'?null:v});
     Object.keys(m).forEach(k=>{if(m[k])REC[kind][k]=m[k];else delete REC[kind][k]});saveLocal(kind)});
@@ -1557,7 +1586,7 @@ const pushOK=()=>'serviceWorker' in navigator&&'PushManager' in window&&'Notific
 let swReg=null;
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{swReg=r;r.update&&r.update();ntfRender()}).catch(()=>{});
 const b64=s=>{const p='='.repeat((4-s.length%4)%4);const r=atob((s+p).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from([...r].map(c=>c.charCodeAt(0)))};
-async function pushSync(sub){try{await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'log',kind:'push',code:devId,xp:0,memo:sub?{st:'on',sub:sub.toJSON?sub.toJSON():sub,prefs:SET.ntf,rates:{s:SET.rateS,l:SET.rateL}}:{st:'clear'}})})}catch(e){}}
+async function pushSync(sub){try{await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'log',s:SES||undefined,kind:'push',code:devId,xp:0,memo:sub?{st:'on',sub:sub.toJSON?sub.toJSON():sub,prefs:SET.ntf,rates:{s:SET.rateS,l:SET.rateL}}:{st:'clear'}})})}catch(e){}}
 async function curSub(){try{const r=swReg||await navigator.serviceWorker.ready;return await r.pushManager.getSubscription()}catch(e){return null}}
 async function enablePush(){
   if(!pushOK()){toast(standalone()?'この端末は通知に対応していません':devIOS?'ホーム画面に追加してから開くと通知をオンにできます':'Chromeで開くと通知をオンにできます');ntfRender();return false}
@@ -1717,6 +1746,42 @@ function openAbout(){const sh=$('#sheet');sh.innerHTML=`<h3>このアプリの�
   <p style="color:var(--sub);font-size:12px">※株は必ず得するわけではありません。初値予想は外れることもあるので、最後は自分で判断してね。</p>
   <button class="btn" id="abOk">分かった</button>`;openSheet();$('#abOk').onclick=closeSheet}
 $('#aboutBtn').onclick=openAbout;
+// ---- アカウント画面 ----
+const GCID='501244398820-60rrt8sau8h0s1ucm7hoh0avkjfl5glp.apps.googleusercontent.com';
+const PERSON='<svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M4 21c1-4.5 4.3-6.5 8-6.5s7 2 8 6.5z"/></svg>';
+let gsiP=null;
+function loadGsi(){if(gsiP)return gsiP;gsiP=new Promise((ok,ng)=>{const sc=document.createElement('script');sc.src='https://accounts.google.com/gsi/client';sc.async=true;sc.onload=ok;sc.onerror=()=>{gsiP=null;ng()};document.head.appendChild(sc)});return gsiP}
+function gaccRender(){
+  const ic=$('#gIco'),sm=$('#gSum'),bx=$('#gBox');
+  if(ic){ic.classList.toggle('me',!!(USER&&USER.picture));ic.innerHTML=USER&&USER.picture?`<img src="${esc(USER.picture)}" alt="" referrerpolicy="no-referrer">`:''}
+  if(sm)sm.textContent=USER?(USER.name||USER.email):'ログインしていません';
+  if(!bx)return;
+  if(USER){bx.innerHTML=`<div class="gav"><div>${USER.picture?`<img src="${esc(USER.picture)}" alt="" referrerpolicy="no-referrer">`:PERSON}</div></div><h3>${esc(USER.name||'ログイン中')}</h3><div class="em">${esc(USER.email||'')}</div>
+    <div class="gok">☁ 記録はこのアカウントに保存されています</div>
+    <p style="color:var(--sub);font-size:12.5px;line-height:1.6;margin:0 0 14px">別のスマホやPCでも、同じGoogleアカウントでログインすれば、申込・当選・見送りの記録が同じになります。</p>
+    <button class="btn ghost" id="gOut">ログアウト</button>`;$('#gOut').onclick=gLogout;return}
+  bx.innerHTML=`<div class="gav"><div>${PERSON}</div></div><h3>Googleでログイン</h3><div class="em">パスワード不要・1回だけ</div>
+    <ul><li>機種変更しても、申込・当選の記録が消えない</li><li>iPhoneとPCで、同じ記録を見られる</li><li>通知の設定もアカウントに保存</li></ul>
+    <div class="gbtnw" id="gBtn"><span style="color:var(--sub);font-size:12px">読み込み中…</span></div>`;
+  loadGsi().then(()=>{try{google.accounts.id.initialize({client_id:GCID,callback:gLogin,ux_mode:'popup',auto_select:false,itp_support:true,use_fedcm_for_prompt:true});
+    const w=Math.min(300,Math.max(200,bx.clientWidth-36));google.accounts.id.renderButton($('#gBtn'),{theme:document.documentElement.classList.contains('dark')?'filled_black':'outline',size:'large',shape:'pill',text:'signin_with',locale:'ja',width:w,logo_alignment:'left'})}catch(e){$('#gBtn').textContent='Googleのログインを読み込めませんでした'}})
+   .catch(()=>{const b=$('#gBtn');if(b)b.textContent='Googleのログインを読み込めませんでした。通信を確認してね'})}
+async function gLogin(resp){
+  toast('ログインしています…');
+  try{const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'login',credential:resp.credential,ua:navigator.userAgent.slice(0,80)})});const j=await r.json();
+    if(!j.ok)throw new Error(j.error||'ng');
+    setSes(j.session,j.user);
+    // この端末の記録をアカウントに引っ越し
+    KINDS.forEach(k=>Object.keys(REC[k]||{}).forEach(id=>sync(k,id)));
+    try{const sub=await curSub();if(sub&&SET.pushOn)await pushSync(sub)}catch(e){}
+    toast('ログインしました');setTimeout(loadRemote,1500)}
+  catch(e){toast('ログインできませんでした（'+String(e.message||e).slice(0,30)+'）')}}
+async function gLogout(){const s=SES;try{if(SET.pushOn)await pushSync(null)}catch(e){}setSes(null,null);try{google.accounts.id.disableAutoSelect()}catch(e){}
+  try{await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'logout',s})})}catch(e){}
+  try{const sub=await curSub();if(sub&&SET.pushOn)await pushSync(sub)}catch(e){}
+  toast('ログアウトしました')}
+gaccRender();
+
 // ---- FXタブ（ドル円の仮想トレード・見るだけ） ----
 const FXINFO={'A ブレイク':['前日の高値を超えたら買い・安値を割ったら売り（9時から）','損切り50銭・24時に決済'],
  'A2 15時ブレイク':['Aと同じ考え方で、15時から始める','損切り80銭・24時に決済'],
@@ -1773,7 +1838,7 @@ applyTheme();
 // ---- 設定のサブ画面 ----
 function openSub(k){const el=$('#sub-'+k);if(!el)return;el.scrollTop=0;el.style.transform='';el.classList.add('on');$('.app').classList.add('pushed');$('#subshade').classList.add('on');return el}
 function closeSubs(){document.querySelectorAll('.subpage.on').forEach(x=>{x.style.transform='';x.classList.remove('on')});$('.app').classList.remove('pushed');$('.app').style.transform='';$('.app').style.opacity='';$('#subshade').classList.remove('on');$('#subshade').style.opacity=''}
-document.querySelectorAll('.mi[data-sub]').forEach(b=>b.onclick=()=>{if(b.dataset.sub==='acct')renderBrokers();openSub(b.dataset.sub)});
+document.querySelectorAll('.mi[data-sub]').forEach(b=>b.onclick=()=>{if(b.dataset.sub==='acct')renderBrokers();if(b.dataset.sub==='gacc')gaccRender();openSub(b.dataset.sub)});
 
 function testSwRender(){}
 testSwRender();
