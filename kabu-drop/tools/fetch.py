@@ -325,7 +325,6 @@ def fetch_rates():
 
 
 def main():
-    fetch_rates()
     fetch_yoso()
     try:
         found, past = fetch_bunbai()
@@ -334,11 +333,8 @@ def main():
         print('bunbai error', e, file=sys.stderr)
         items = load('bunbai.json', {}).get('items', [])
     fetch_names()
-    codes = yutai_codes()
-    if codes is None:
-        codes = set(load('prices.json', {}).keys())
-    codes |= {x['code'] for x in items if x.get('kind') != 'past'}
-    codes |= {x['code'] for x in load('yutai_list.json', {}).get('items', [])}
+    # 分売の株価だけ（優待はやめた）
+    codes = {x['code'] for x in items if x.get('kind') != 'past'}
     fetch_prices(codes)
 
 

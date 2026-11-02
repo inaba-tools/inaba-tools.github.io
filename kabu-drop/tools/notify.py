@@ -229,41 +229,12 @@ def build(rec, sent):
             add('res:%s' % k, 'bun_result', '分売の結果が出ています：' + name,
                 '当たっていたら、寄り付き（始値）で売るのが基本です', 'bunbai')
 
-    # 優待
-    for code, r in rec['yutai'].items():
-        st = r.get('st') or 'watch'
-        name = clean(r.get('name') or code)
-        px = (PRICES.get(code) or {}).get('p') or r.get('px')
-        if st == 'watch':
-            cyc = next_cycle(r)
-            if not cyc:
-                continue
-            L, m = cyc
-            E, X, cost, val = cross(dict(r, code=code), px, L, m, RATES)
-            k = 'yu:%s:%s' % (code, L)
-            net_txt = ('かかる費用 約%s円。' % yen(cost)) if cost is not None else ''
-            if SLOT == 'evening' and add_biz(E, -1) == TODAY:
-                add('eve:' + k, 'yu_cross', '明日は優待クロスの日：' + name,
-                    '%s一般信用の在庫を楽天証券で確認しておこう' % net_txt, 'yutai')
-            if SLOT == 'morning' and E == TODAY:
-                add('day:' + k, 'yu_cross', '今日は優待クロスの日：' + name,
-                    '%s現物買いと一般信用売りを%s株ずつ' % (net_txt, yen(r.get('sh') or 100)), 'yutai')
-            if cost is not None and val and cost >= val and 0 <= (E - TODAY).days <= 14:
-                add('warn:' + k, 'yu_warn', '優待クロスの費用が高くなっています：' + name,
-                    '株価が上がって、かかる費用（約%s円）が優待の目安（%s円）をこえそう。やめるか、日にちを見直そう' % (yen(cost), yen(val)), 'yutai')
-        elif st == 'cross' and r.get('last'):
-            L = pd(r['last'])
-            X = add_biz(L, 1)
-            if SLOT == 'morning' and X == TODAY:
-                add('ret:yu:%s:%s' % (code, L), 'yu_return', '今日は現渡しの日：' + name,
-                    '楽天証券で「現渡し」をして、売りを返せば終わりです', 'yutai')
-
     sent['_seen'] = sorted(new_seen)
     return out
 
 
 DEFAULT_ON = {'ipo_new', 'ipo_open', 'ipo_fund', 'ipo_last', 'ipo_draw', 'ipo_buy', 'ipo_sell',
-              'bun_new', 'bun_open', 'bun_result', 'yu_cross', 'yu_return', 'yu_warn'}
+              'bun_new', 'bun_open', 'bun_result'}
 PRICES = load('prices.json', {})
 RATES = {}
 
