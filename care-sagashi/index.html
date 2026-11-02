@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ケアさがし">
+<meta name="theme-color" content="#F2F2F7">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.png">
+<title>ケアさがし</title>
+<style>
+:root{--bg:#F2F2F7;--card:#fff;--text:#1c1c1e;--sub:#6e6e73;--line:#d1d1d6;--ok:#2f8f3a;--ng:#c4372f;--accent:#0a64d6}
+@media (prefers-color-scheme:dark){:root{--bg:#000;--card:#1c1c1e;--text:#f2f2f7;--sub:#98989d;--line:#38383a;--ok:#5cc96b;--ng:#ff6b61;--accent:#4a9dff}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans",sans-serif;min-height:100vh;overflow-x:hidden}
+header{display:flex;justify-content:space-between;align-items:center;padding:calc(env(safe-area-inset-top) + 12px) 16px 8px}
+header h1{font-size:18px;font-weight:600;margin:0}
+#count{font-size:13px;color:var(--sub)}
+#stage{position:relative;margin:4px 16px 0;height:calc(100vh - 150px);max-height:680px}
+.card{position:absolute;inset:0;background:var(--card);border:0.5px solid var(--line);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:10px;touch-action:pan-y;will-change:transform;transition:transform .25s ease,opacity .25s ease}
+.card.back{transform:scale(.96) translateY(10px);opacity:.6}
+.photo{flex:1;min-height:120px;border-radius:12px;background:var(--bg);overflow:hidden;display:flex;align-items:center;justify-content:center}
+.photo img{width:100%;height:100%;object-fit:contain}
+.title{font-size:16px;font-weight:600;margin:0;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.meta{font-size:13px;color:var(--sub);margin:0;display:flex;justify-content:space-between;align-items:center}
+.meta a{color:var(--accent);text-decoration:none;font-weight:600}
+.serial{font-family:ui-monospace,Menlo,monospace;font-size:22px;letter-spacing:2px;text-align:center;padding:10px;border:1px solid var(--line);border-radius:10px;user-select:all}
+.serial small{display:block;font-family:-apple-system,sans-serif;font-size:11px;letter-spacing:0;color:var(--sub);margin-top:2px}
+.until{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--sub)}
+.until input{flex:1;font-size:15px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--text)}
+.btns{display:grid;grid-template-columns:1fr 1.3fr 1fr;gap:8px}
+button{font:inherit;font-size:15px;font-weight:600;padding:14px 6px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--text)}
+button:active{transform:scale(.97)}
+.b-ng{color:var(--ng);border-color:var(--ng)}
+.b-ok{color:var(--ok);border-color:var(--ok)}
+.b-copy{background:var(--text);color:var(--card);border-color:var(--text)}
+.b-copy.done{background:var(--ok);border-color:var(--ok);color:#fff}
+.stamp{position:absolute;top:24px;padding:6px 14px;border:3px solid;border-radius:10px;font-size:22px;font-weight:800;opacity:0;transform:rotate(-12deg)}
+.stamp.ok{left:22px;color:var(--ok)}.stamp.ng{right:22px;color:var(--ng);transform:rotate(12deg)}
+.sub{display:flex;justify-content:center;gap:20px;margin:12px 0 0}
+.sub button{border:none;padding:6px;font-size:13px;color:var(--sub);font-weight:500}
+.empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:var(--sub);gap:8px;font-size:15px}
+#toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 24px);transform:translateX(-50%);background:var(--text);color:var(--card);padding:10px 16px;border-radius:20px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none}
+</style>
+</head>
+<body>
+<header><h1>ケアさがし</h1><span id="count">読み込み中…</span></header>
+<div id="stage"></div>
+<div class="sub"><button id="undo">1つ戻る</button><button id="skip">読み間違い・とばす</button><button id="reload">更新</button></div>
+<div id="toast"></div>
+<script>
+var VERSION = '1';
+var LS = { get: function (k) { try { return localStorage.getItem(k) } catch (e) { return null } },
+           set: function (k, v) { try { localStorage.setItem(k, v) } catch (e) {} } };
+(function () {
+  var q = new URLSearchParams(location.search);
+  if (q.get('k')) LS.set('key', q.get('k'));
+  if (q.get('u')) LS.set('api', q.get('u'));
+  if (q.get('k') || q.get('u')) history.replaceState(null, '', location.pathname);
+})();
+var API = LS.get('api'), KEY = LS.get('key');
+var items = [], history_ = [], left = 0, stage = document.getElementById('stage');
+
+function toast(t) { var e = document.getElementById('toast'); e.textContent = t; e.style.opacity = 1; clearTimeout(toast.t); toast.t = setTimeout(function () { e.style.opacity = 0 }, 1600) }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c] }) }
+
+function load() {
+  if (location.hash === '#demo') {   // 見た目の確認用
+    items = [{ row: 2, title: 'iPhone 15 Pro 256GB ナチュラルチタニウム SIMフリー AppleCare+あり', price: 118000, site: 'メルカリ', url: 'https://jp.mercari.com/', image: '', serial: 'DMPHK7ABQ1', sure: '高' },
+             { row: 3, title: 'MacBook Air M2 13インチ 8GB 256GB', price: 72000, site: 'メルカリ', url: 'https://jp.mercari.com/', image: '', serial: 'C02XL1ABJG5H', sure: '低' }];
+    left = 2; send = function () {}; render(); return;
+  }
+  if (!API || !KEY) { stage.innerHTML = '<div class="empty">最初の設定リンクから開いてください</div>'; document.getElementById('count').textContent = ''; return }
+  fetch(API + '?key=' + encodeURIComponent(KEY) + '&t=' + Date.now()).then(function (r) { return r.json() }).then(function (d) {
+    if (d.error) { stage.innerHTML = '<div class="empty">設定リンクが古いようです</div>'; return }
+    var have = {}; items.forEach(function (i) { have[i.row] = 1 });
+    d.items.forEach(function (i) { if (!have[i.row]) items.push(i) });
+    left = d.left; render();
+  }).catch(function () { toast('読み込めませんでした') });
+}
+
+function render() {
+  document.getElementById('count').textContent = '残り ' + left + ' 件';
+  stage.innerHTML = '';
+  if (!items.length) { stage.innerHTML = '<div class="empty"><div style="font-size:40px">✓</div>いまは確認する出品がありません<br>新しい出品は1時間ごとに届きます</div>'; return }
+  items.slice(0, 2).reverse().forEach(function (it, i, arr) {
+    var top = i === arr.length - 1, c = document.createElement('div');
+    c.className = 'card' + (top ? '' : ' back');
+    c.innerHTML =
+      '<span class="stamp ok">あり</span><span class="stamp ng">なし</span>' +
+      '<div class="photo">' + (it.image ? '<img src="' + esc(it.image) + '" alt="">' : '') + '</div>' +
+      '<p class="title">' + esc(it.title) + '</p>' +
+      '<p class="meta"><span>' + esc(it.site) + '・' + (it.price ? Number(it.price).toLocaleString() + '円' : '値段不明') + '</span>' +
+      '<a href="' + esc(it.url) + '" target="_blank" rel="noopener">商品ページ ›</a></p>' +
+      '<div class="serial">' + esc(it.serial) + '<small>' + (it.sure === '高' ? 'シリアル番号の文字の近くで読み取り' : '写真から推定（読み間違いに注意）') + '</small></div>' +
+      '<label class="until">保証期限<input type="date" class="u"></label>' +
+      '<div class="btns"><button class="b-ng">なし</button><button class="b-copy">コピー</button><button class="b-ok">あり</button></div>';
+    stage.appendChild(c);
+    if (top) wire(c, it);
+  });
+}
+
+function wire(c, it) {
+  c.querySelector('.b-copy').onclick = function (e) {
+    var b = e.currentTarget;
+    navigator.clipboard.writeText(it.serial).then(function () { b.textContent = 'コピー済み'; b.classList.add('done'); toast('サポートアプリで貼り付けてください') })
+      .catch(function () { toast('コピーできませんでした') });
+  };
+  c.querySelector('.b-ok').onclick = function () { decide(c, it, 'あり') };
+  c.querySelector('.b-ng').onclick = function () { decide(c, it, 'なし') };
+  var sx = 0, dx = 0, drag = false;
+  c.addEventListener('touchstart', function (e) { if (e.target.closest('button,input,a')) return; sx = e.touches[0].clientX; dx = 0; drag = true; c.style.transition = 'none' }, { passive: true });
+  c.addEventListener('touchmove', function (e) {
+    if (!drag) return; dx = e.touches[0].clientX - sx;
+    c.style.transform = 'translateX(' + dx + 'px) rotate(' + dx / 20 + 'deg)';
+    c.querySelector('.stamp.ok').style.opacity = Math.max(0, dx / 100);
+    c.querySelector('.stamp.ng').style.opacity = Math.max(0, -dx / 100);
+  }, { passive: true });
+  c.addEventListener('touchend', function () {
+    if (!drag) return; drag = false; c.style.transition = '';
+    if (dx > 100) decide(c, it, 'あり'); else if (dx < -100) decide(c, it, 'なし');
+    else { c.style.transform = ''; c.querySelectorAll('.stamp').forEach(function (s) { s.style.opacity = 0 }) }
+  });
+}
+
+function decide(c, it, result) {
+  var until = c.querySelector('.u') ? c.querySelector('.u').value.replace(/-/g, '/') : '';
+  var dir = result === 'あり' ? 1 : result === 'なし' ? -1 : 0;
+  c.style.transform = dir ? 'translateX(' + dir * 500 + 'px) rotate(' + dir * 20 + 'deg)' : 'translateY(-600px)';
+  c.style.opacity = 0;
+  send(it, result, until);
+  history_.push(it); items.shift(); left = Math.max(0, left - 1);
+  setTimeout(function () { render(); if (items.length < 5) load() }, 220);
+  toast(result === 'とばす' ? 'とばしました' : result + ' で記録しました');
+}
+
+function send(it, result, until) {
+  fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({ key: KEY, action: 'record', row: it.row, url: it.url, result: result, until: until }) })
+    .catch(function () { toast('記録に失敗しました。もう一度お試しください') });
+}
+
+document.getElementById('skip').onclick = function () { var c = stage.querySelector('.card:not(.back)'); if (c && items[0]) decide(c, items[0], 'とばす') };
+document.getElementById('undo').onclick = function () {
+  var it = history_.pop(); if (!it) { toast('戻せるものがありません'); return }
+  send(it, '未確認', ''); items.unshift(it); left++; render(); toast('1つ戻しました');
+};
+document.getElementById('reload').onclick = function () { items = []; load() };
+document.addEventListener('visibilitychange', function () {   // ホーム画面のアプリでも新しい版にすぐ切り替える
+  if (document.visibilityState !== 'visible') return;
+  fetch('version.txt?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.text() })
+    .then(function (v) { if (v.trim() && v.trim() !== VERSION) location.reload() }).catch(function () {});
+});
+load();
+</script>
+</body>
+</html>
