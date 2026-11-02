@@ -142,6 +142,8 @@ def yahoo_detail(url):
         return None
     j = r.json()
     return {"title": j.get("title", ""), "sold": j.get("status") != "OPEN", "description": j.get("description", ""),
+            "cond": COND_NAME.get((j.get("condition") or {}).get("id", "") if isinstance(j.get("condition"), dict) else j.get("condition", ""), "")
+                    or ((j.get("condition") or {}).get("text", "") if isinstance(j.get("condition"), dict) else ""),
             "images": [i.get("url") for i in j.get("images", []) if i.get("url")][:20]}
 
 
@@ -186,6 +188,7 @@ def main():
         ratio = DEFAULT_RATIO
     seen |= set(conf.get("known_urls") or [])
     added = checked = 0
+    stats = {"状態が良い": 0, "シリアルなし": 0}
     with sync_playwright() as p:
         browser = p.chromium.launch()
         page = browser.new_page(user_agent=UA, locale="ja-JP")
@@ -211,6 +214,8 @@ def main():
             return True
         new_m = [it for it in merc.values() if it["url"] not in seen and cheap(it)]
         new_y = [it for it in yah.values() if it["url"] not in seen and cheap(it)]
+        no_market = sum(1 for it in list(merc.values()) + list(yah.values()) if not market_price(model_key(it.get("title")) or "") and model_key(it.get("title")))
+        print(f"::notice::検索で見つかった傷ありiPhone メルカリ {len(merc)} 件・Yahoo!フリマ {len(yah)} 件（相場が出せない機種 {no_market} 件）")
         print(f"相場より大幅に安い新しい出品 メルカリ {len(new_m)} 件・Yahoo!フリマ {len(new_y)} 件")
         # 両方に時間が回るよう、交互に確認する
         order = [x for pair in zip(new_m, new_y) for x in pair] + new_m[len(new_y):] + new_y[len(new_m):]
@@ -231,11 +236,16 @@ def main():
             checked += 1
             if d.get("sold"):
                 continue
+            cond = d.get("cond") or it.get("cond") or ""
+            if cond and not any(w in cond for w in ("やや傷", "傷や汚れあり", "全体的に状態が悪い", "ジャンク")):
+                stats["状態が良い"] += 1
+                continue
             best = find_serial(d)
             if best and best[1] < 2:
                 best = None   # 「シリアル番号」の文字の近くで読めたものだけ
+            if not best:
+                stats["シリアルなし"] += 1
             if best:
-                cond = d.get("cond") or it.get("cond") or ""
                 note = f"{cond}・相場 約{int(it['market']):,}円（{int(it['market'] - it['price']):,}円安い）"
                 rows.append({"title": d.get("title") or it["title"], "price": it.get("price"), "site": it["site"],
                              "url": url, "image": best[2] or (d["images"][0] if d.get("images") else ""),
@@ -252,7 +262,7 @@ def main():
         browser.close()
     CACHE.parent.mkdir(exist_ok=True)
     CACHE.write_text(json.dumps(sorted(seen)[-50000:]))
-    print(f"確認 {checked} 件、シリアルが読めた出品 {added} 件を追加")
+    print(f"::notice::相場の{int(ratio*10)}割以下で確認 {checked} 件 → 追加 {added} 件（状態が良くて外した {stats['状態が良い']} 件・シリアルが読めない {stats['シリアルなし']} 件）")
 
 
 if __name__ == "__main__":
