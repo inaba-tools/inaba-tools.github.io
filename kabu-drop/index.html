@@ -914,6 +914,14 @@ html.dark .pastd .ref{background:#3a3115;color:#ffd970}
 .fxr .p{font:900 15px Inter}
 .fxr .tx span.fxside{display:inline-block;margin-top:0;border-radius:6px;padding:0 6px;font:900 10.5px "Noto Sans JP";margin-right:4px;vertical-align:1px}
 .fxside.n{background:#eceae2;color:#7a7f78}.fxside.b{background:#e3f1ec;color:#1f7a55}.fxside.s{background:#fbe6e3;color:#b23a30}
+.fxfold>summary{list-style:none;display:flex;align-items:center;cursor:pointer}
+.fxfold>summary::-webkit-details-marker{display:none}
+.fxfold>summary h3{margin:0;flex:1}
+.fxfold>summary:after{content:"＋";margin-left:auto;color:#b5b2a5;font-weight:900;transition:transform .25s}
+.fxfold[open]>summary:after{transform:rotate(45deg)}
+.fxfold[open]>summary{margin-bottom:8px}
+.fxhero .fxleg{position:relative;z-index:1;margin-top:12px}.fxhero .fxleg button{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:#fff}.fxhero .fxleg button.on{background:#fff;color:#1f2b25;border-color:#fff}
+.fxhero .vs{font:800 13px "Noto Sans JP";opacity:.9;margin-top:4px}
 .fxmore{width:100%;border:0;background:none;font:800 13px "Noto Sans JP";color:var(--sub);padding:10px 0 2px}
 html.dark .fxt .best{background:#3a3115;color:#f0c75a}
 html.dark .fxside.b{background:#173328}html.dark .fxside.s{background:#3a1d1a;color:#f19a90}
@@ -993,7 +1001,7 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
 <!-- 設定 -->
 <section class="page" id="p-fx">
 <div class="top"><img src="icon-192.png" alt=""><h1>FX</h1><div class="sub" id="fxUpd">ドル円・仮想</div></div>
-<div class="lead" style="font-size:14px">お金を使わずに、<b>決めた型どおりに売り買いしたらいくらになったか</b>を毎日自動で記録（ドル円・1万通貨）</div>
+<div class="lead" style="font-size:14px">「KABU DROP」専用のFX自動売買ツールで、<b>6つの型を毎日ためし、いちばん成績が良い型を使っています</b>（ドル円）</div>
 <div id="fxBody"><div class="box" style="color:var(--sub)">読み込み中…</div></div>
 </section>
 <section class="page" id="p-set">
@@ -1782,41 +1790,42 @@ async function gLogout(){const s=SES;try{if(SET.pushOn)await pushSync(null)}catc
   toast('ログアウトしました')}
 gaccRender();
 
-// ---- FXタブ（ドル円の仮想トレード・見るだけ） ----
-const FXINFO={'A ブレイク':['前日の高値を超えたら買い・安値を割ったら売り（9時から）','損切り50銭・24時に決済'],
- 'A2 15時ブレイク':['Aと同じ考え方で、15時から始める','損切り80銭・24時に決済'],
- 'B 仲値後の売り':['五十日（5・10日など）の10時に売り、11時に買い戻す','仲値のあとドルが売られやすい癖'],
- 'B2 9:55売り':['五十日の9:55に売り、11時に買い戻す','Bを少し早めた型'],
- 'C 仲値前の買い':['五十日の朝8時に買い、9:55に売る','仲値の前にドルが買われやすい癖'],
- 'D 窓埋め':['月曜の朝、金曜の値段から飛んでいたら戻る方向に入る','戻ったら決済、戻らなければ12時に決済']};
+// ---- FXタブ（ドル円の仮想運用・見るだけ。型の中身は出さない） ----
+const FXCAP=1000000,FXLOT=10; // 元手100万円・10万通貨（記録は1万通貨なので10倍）
+const FXORD=['A ブレイク','A2 15時ブレイク','B 仲値後の売り','B2 9:55売り','C 仲値前の買い','D 窓埋め'];
+const FXNAME=t=>{const i=FXORD.indexOf(t);return '型'+(i<0?t.split(' ')[0]:'ABCDEF'[i])};
 const FXCOL=['#1f9d6b','#2b6fd6','#d98a1c','#7a5bd6','#d2453b','#2a9bb0','#8a8f3a'];
-let FX=null,fxPick=null,fxN=12;
+let FX=null,fxPick=null,fxN=12,fxOpen={};
+try{fxOpen=JSON.parse(localStorage.getItem('fxOpen')||'{}')}catch(e){}
 function csvParse(t){return t.trim().split(/\r?\n/).map(l=>{const o=[];let c='',q=false;for(let i=0;i<l.length;i++){const ch=l[i];if(q){if(ch=='"'&&l[i+1]=='"'){c+='"';i++}else if(ch=='"')q=false;else c+=ch}else if(ch=='"')q=true;else if(ch==','){o.push(c);c=''}else c+=ch}o.push(c);return o})}
 async function loadFX(){try{const r=await fetch('../fx-kiroku/kiroku.csv?'+Date.now(),{cache:'no-store'});if(!r.ok)throw 0;const rows=csvParse(await r.text()).slice(1).filter(x=>x.length>=8&&x[0]);
-  FX=rows.map(x=>({d:x[0],t:x[1],side:x[2],lv:x[3],in:x[4],out:x[5],why:x[6],p:+x[7]||0}));renderFX()}catch(e){$('#fxBody').innerHTML='<div class="box" style="color:var(--sub)">記録を読み込めませんでした。少しして開き直してね。</div>'}}
+  FX=rows.map(x=>({d:x[0],t:x[1],side:x[2],p:(+x[7]||0)*FXLOT}));renderFX()}catch(e){$('#fxBody').innerHTML='<div class="box" style="color:var(--sub)">記録を読み込めませんでした。少しして開き直してね。</div>'}}
+function fxFold(key,title,body,def,cls=''){const o=key in fxOpen?fxOpen[key]:def;return`<details class="box fxfold ${cls}" data-fold="${key}" ${o?'open':''}><summary><h3>${title}</h3></summary>${body}</details>`}
 function renderFX(){if(!FX)return;const el=$('#fxBody');
   const types=[...new Set(FX.map(x=>x.t))];const col={};types.forEach((t,i)=>col[t]=FXCOL[i%FXCOL.length]);
   const days=[...new Set(FX.map(x=>x.d))].sort();
-  const st=types.map(t=>{const L=FX.filter(x=>x.t===t);const sum=L.reduce((a,x)=>a+x.p,0);return{t,n:L.length,win:L.filter(x=>x.p>0).length,sum,last:L[L.length-1]}});
+  const st=types.map(t=>{const L=FX.filter(x=>x.t===t);return{t,sum:L.reduce((a,x)=>a+x.p,0)}});
   const best=[...st].sort((a,b)=>b.sum-a.sum)[0];
+  const cur=fxPick?st.find(x=>x.t===fxPick):best;
   const first=days[0],lastD=days[days.length-1];
   const fmtD=d=>{const [y,m,dd]=d.split('-');return +m+'/'+(+dd)};
-  // 増え方のグラフ（型ごとの合計の動き）
+  // 増え方のグラフ（元手からの動き）
   const W=340,H=170,pad=8;const series=types.map(t=>{let c=0;const pts=[[0,0]];days.forEach((d,i)=>{FX.filter(x=>x.t===t&&x.d===d).forEach(x=>c+=x.p);pts.push([i+1,c])});return{t,pts}});
   const all=series.flatMap(s=>s.pts.map(p=>p[1]));const mx=Math.max(1000,...all),mn=Math.min(-1000,...all);
   const X=i=>pad+(W-pad*2)*i/days.length,Y=v=>pad+(H-pad*2)*(mx-v)/(mx-mn);
   const paths=series.map(s=>{const d=s.pts.map((p,i)=>(i?'L':'M')+X(p[0]).toFixed(1)+' '+Y(p[1]).toFixed(1)).join(' ');return`<path class="ln ${fxPick===s.t?'on':''}" d="${d}" stroke="${col[s.t]}" style="--len:1200"/>`}).join('');
-  const zero=`<line x1="${pad}" x2="${W-pad}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--line)" stroke-dasharray="4 4"/><text x="${W-pad}" y="${Y(0)-4}" text-anchor="end" font-size="9" fill="var(--sub)" font-family="Inter">0円</text>`;
-  const chart=`<div class="box fxchart ${fxPick?'pick':''}"><h3>お金の増え方（型ごと）</h3><p style="margin:2px 0 8px;font:600 11.5px 'Noto Sans JP';color:var(--sub)">${fmtD(first)}〜${fmtD(lastD)}。上に行くほど増えた。型をタップすると強調</p><svg viewBox="0 0 ${W} ${H}">${zero}${paths}</svg>
-   <div class="fxleg">${types.map(t=>`<button data-fx="${esc(t)}" class="${fxPick===t?'on':''}"><i style="background:${col[t]}"></i>${esc(t.split(' ')[0])}</button>`).join('')}</div></div>`;
-  const hero=`<div class="fxhero"><small>いちばん成績が良い型</small><div class="fxbig ${best.sum>=0?'up':'dn'}">${pm(best.sum)}</div><div class="meta">${esc(best.t)}・${best.n}回中${best.win}回 勝ち<br>${fmtD(first)}〜${fmtD(lastD)}の合計（1万通貨）</div></div>`;
-  const cards=`<div class="box"><h3>型ごとの成績</h3>${[...st].sort((a,b)=>b.sum-a.sum).map(x=>{const inf=FXINFO[x.t]||['',''];return`<div class="fxt"><span class="dot" style="background:${col[x.t]}"></span><div><div class="nm">${esc(x.t)}${x===best?'<span class="best">1位</span>':''}</div><div class="ds">${esc(inf[0])}${inf[1]?'。'+esc(inf[1]):''}</div><div class="st">${x.n}回・勝ち${x.win}回・負け${x.n-x.win}回</div></div><div class="pf"><b class="${x.sum>=0?'up':'dn'}">${pm(x.sum)}</b><small>1回平均 ${pm(Math.round(x.sum/x.n))}</small></div></div>`}).join('')}</div>`;
-  const L=FX.filter(x=>!fxPick||x.t===fxPick).slice().sort((a,b)=>b.d.localeCompare(a.d));
+  const zero=`<line x1="${pad}" x2="${W-pad}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--line)" stroke-dasharray="4 4"/><text x="${W-pad}" y="${Y(0)+11}" text-anchor="end" font-size="9" fill="var(--sub)" font-family="Inter">${yen(FXCAP)}円</text>`;
+  const leg=`<div class="fxleg">${types.map(t=>`<button data-fx="${esc(t)}" class="${fxPick===t?'on':''}"><i style="background:${col[t]}"></i>${esc(FXNAME(t))}</button>`).join('')}</div>`;
+  const chart=fxFold('chart','お金の増え方',`<p style="margin:2px 0 8px;font:600 11.5px 'Noto Sans JP';color:var(--sub)">${fmtD(first)}〜${fmtD(lastD)}。点線が元手の${yen(FXCAP)}円。型をタップするとその型の成績に切り替わります</p><svg viewBox="0 0 ${W} ${H}">${zero}${paths}</svg>`,true,'fxchart '+(fxPick?'pick':''));
+  const hero=`<div class="fxhero"><small>${fxPick?esc(FXNAME(cur.t))+'で運用した場合':'いま使っている型（'+esc(FXNAME(best.t))+'）'}</small><div class="vs">${yen(FXCAP)}円を預けていたら</div><div class="fxbig ${cur.sum>=0?'up':'dn'}">${yen(FXCAP+cur.sum)}円</div><div class="meta">${pm(cur.sum)}（${fmtD(first)}〜${fmtD(lastD)}）</div>${leg}</div>`;
+  const cards=fxFold('rank','型ごとの成績',[...st].sort((a,b)=>b.sum-a.sum).map(x=>`<div class="fxt" data-fx="${esc(x.t)}" style="cursor:pointer"><span class="dot" style="background:${col[x.t]}"></span><div><div class="nm">${esc(FXNAME(x.t))}${x===best?'<span class="best">使用中</span>':''}</div><div class="st">${yen(FXCAP)}円 → ${yen(FXCAP+x.sum)}円</div></div><div class="pf"><b class="${x.sum>=0?'up':'dn'}">${pm(x.sum)}</b></div></div>`).join(''),false);
+  const L=FX.filter(x=>x.side!=='なし'&&(fxPick?x.t===fxPick:x.t===best.t)).slice().sort((a,b)=>b.d.localeCompare(a.d));
   const wd=d=>'日月火水木金土'[new Date(d+'T00:00:00').getDay()];
-  const recent=`<div class="box"><h3>最近の売り買い${fxPick?'（'+esc(fxPick.split(' ')[0])+'）':''}</h3>${L.slice(0,fxN).map(x=>`<div class="fxr"><div class="d">${fmtD(x.d)}<small>${wd(x.d)}</small></div><div class="tx"><b><span class="fxside ${x.side==='買い'?'b':x.side==='売り'?'s':'n'}">${x.side==='なし'?'動きなし':esc(x.side)}</span>${esc(x.t)}</b><span>${esc(x.in)} → ${esc(x.out)}（${esc(x.why)}）</span></div><div class="p ${x.p>=0?'up':'dn'}">${pm(x.p)}</div></div>`).join('')}${L.length>fxN?`<button class="fxmore" id="fxMore">もっと見る（あと${L.length-fxN}件）</button>`:''}</div>`;
-  const note=`<p style="margin:6px 20px 0;font:600 11.5px 'Noto Sans JP';color:var(--sub);line-height:1.6">※仮想トレードです（実際のお金は動いていません）。毎日0:30と10:30に前の日の分を自動で記録します。成績が良い型を、12月ごろから実際に自動売買する予定です。</p>`;
+  const recent=fxFold('recent','最近の結果（'+esc(FXNAME(cur.t))+'）',L.slice(0,fxN).map(x=>`<div class="fxr"><div class="d">${fmtD(x.d)}<small>${wd(x.d)}</small></div><div class="tx"><b>${esc(FXNAME(x.t))}</b></div><div class="p ${x.p>=0?'up':'dn'}">${pm(x.p)}</div></div>`).join('')+(L.length>fxN?`<button class="fxmore" id="fxMore">もっと見る（あと${L.length-fxN}件）</button>`:''),false);
+  const note=`<p style="margin:6px 20px 0;font:600 11.5px 'Noto Sans JP';color:var(--sub);line-height:1.6">※いまは仮想運用の結果です（実際のお金は動いていません）。元手${yen(FXCAP)}円・10万通貨で売り買いした場合の金額です。過去の結果は、これからの利益を約束するものではありません。</p>`;
   el.innerHTML=hero+chart+cards+recent+note;$('#fxUpd').textContent='ドル円・'+fmtD(lastD)+'まで';
   el.querySelectorAll('[data-fx]').forEach(b=>b.onclick=()=>{fxPick=fxPick===b.dataset.fx?null:b.dataset.fx;fxN=12;renderFX()});
+  el.querySelectorAll('[data-fold]').forEach(d=>d.ontoggle=()=>{fxOpen[d.dataset.fold]=d.open;try{localStorage.setItem('fxOpen',JSON.stringify(fxOpen))}catch(e){}});
   const m=$('#fxMore');if(m)m.onclick=()=>{fxN+=20;renderFX()}}
 loadFX();
 
