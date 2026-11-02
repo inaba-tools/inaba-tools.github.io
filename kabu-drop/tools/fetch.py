@@ -331,8 +331,10 @@ def fetch_ipo_first(hist):
             continue
         p1 = int(dt.datetime(ld.year, ld.month, ld.day, tzinfo=JST).timestamp())
         try:
-            j = json.loads(get('https://query1.finance.yahoo.com/v8/finance/chart/%s.T?period1=%d&period2=%d&interval=1d'
-                               % (c, p1, p1 + 86400 * 15)))
+            mk = x.get('data19') or ''
+            suf = 'N' if '名証' in mk else 'F' if '福証' in mk else 'S' if '札証' in mk else 'T'
+            j = json.loads(get('https://query1.finance.yahoo.com/v8/finance/chart/%s.%s?period1=%d&period2=%d&interval=1d'
+                               % (c, suf, p1, p1 + 86400 * 15)))
             r = j['chart']['result'][0]
             q = r['indicators']['quote'][0]
             for i, t in enumerate(r.get('timestamp') or []):
@@ -345,8 +347,37 @@ def fetch_ipo_first(hist):
                     break
         except Exception as e:
             print('first error', c, e, file=sys.stderr)
+        if c not in first:
+            # 名証・福証・札証などは日本のYahoo!ファイナンスの時系列ページから
+            try:
+                f = yj_first(c, suf, ld)
+                if f:
+                    first[c] = f
+            except Exception as e:
+                print('first yj error', c, e, file=sys.stderr)
         time.sleep(0.4)
     save('ipo_first.json', first)
+
+
+def yj_first(code, suf, ld):
+    to = ld + dt.timedelta(days=15)
+    page = get('https://finance.yahoo.co.jp/quote/%s.%s/history?from=%s&to=%s&timeFrame=d'
+               % (code, suf, ld.strftime('%Y%m%d'), to.strftime('%Y%m%d'))).decode('utf-8', 'ignore')
+    rows = []
+    for tr in re.findall(r'<tr[^>]*>(.*?)</tr>', page, flags=re.S):
+        cells = [re.sub(r'<[^>]+>', '', c).strip() for c in re.findall(r'<t[hd][^>]*>(.*?)</t[hd]>', tr, flags=re.S)]
+        m = re.match(r'(\d{4})/(\d{1,2})/(\d{1,2})', cells[0]) if cells else None
+        if m and len(cells) >= 6:
+            d = dt.date(int(m.group(1)), int(m.group(2)), int(m.group(3)))
+            o, cl, v = number(cells[1]), number(cells[4]), number(cells[5])
+            if d >= ld and o and v:
+                rows.append((d, o, cl))
+    if not rows:
+        return None
+    d, o, cl = min(rows)
+    if d == TODAY and dt.datetime.now(JST).hour < 16:
+        return None
+    return {'open': o, 'close': cl, 'date': d.isoformat()}
 
 
 # ---------- 楽天の一般信用の貸株料 ----------
