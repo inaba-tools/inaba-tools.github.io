@@ -1131,7 +1131,7 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
 
 <script src="budoux.js"></script>
 <script>
-const BUILD='1793610208';
+const BUILD='1793613069';
 // 新しい版が出ていたら、自動で読み込み直す（ホーム画面アプリでもすぐ反映）
 (async()=>{try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const BUILD='(\d+)'/);if(m&&m[1]!==BUILD&&!sessionStorage.getItem('kd_rl'+m[1])){sessionStorage.setItem('kd_rl'+m[1],'1');location.replace('./?v='+m[1]+location.hash)}}catch(e){}})();
 const API='https://script.google.com/macros/s/AKfycbxp2NJyQCnSduboXEaXFN0kndza6-0-zqrJN_0W9tLhBymhxRO8mLlT-dcZgI5lcvLr0A/exec';
@@ -1651,7 +1651,7 @@ function openCo(id){const o=IPO.find(id);if(!o)return;const x=o.x,y=yosoData[id]
 // ---- 改行の位置（BudouXで文節の区切りに目印を入れる） ----
 const JP=/[぀-ヿ㐀-鿿]/;
 function phrase(root){if(!window.BX||!root)return;const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>{const p=n.parentNode;if(!p||/^(SCRIPT|STYLE|TEXTAREA|INPUT|svg|text|tspan)$/i.test(p.nodeName)||p.closest('svg,.tco'))return NodeFilter.FILTER_REJECT;return JP.test(n.data)&&!n.data.includes('​')?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_SKIP}});
-  const L=[];while(w.nextNode())L.push(w.currentNode);L.forEach(n=>{const t=window.BX.parse(n.data).join('​');if(t!==n.data)n.data=t})}
+  const L=[];while(w.nextNode())L.push(w.currentNode);L.forEach(n=>{const t=window.BX.parse(n.data).join('​').replace(/(?<=[!-~＆Ａ-Ｚａ-ｚ０-９])​(?=[!-~＆Ａ-Ｚａ-ｚ０-９])/g,'');if(t!==n.data)n.data=t})}
 let phT=null;const phObs=new MutationObserver(()=>{if(phT)return;phT=requestAnimationFrame(()=>{phT=null;phrase(document.body)})});
 phrase(document.body);phObs.observe(document.body,{childList:true,subtree:true,characterData:false});
 
