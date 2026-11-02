@@ -1,5 +1,7 @@
 """メルカリ・Yahoo!フリマのApple製品の出品を巡回し、画像からシリアル番号を読み取ってスプレッドシートに追加する"""
 import json
+import re
+import statistics
 import os
 import time
 from pathlib import Path
@@ -12,14 +14,58 @@ from serial_ocr import read_serials, read_serials_text
 SHEET_API_URL = os.environ["SHEET_API_URL"]   # Apps Script（Webアプリ）のURL
 SHEET_API_KEY = os.environ["SHEET_API_KEY"]
 TIME_LIMIT = int(os.environ.get("TIME_LIMIT_MIN", "40")) * 60
-CACHE = Path(".cache/seen.json")
+CACHE = Path(".cache/seen2.json")
 UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/124.0 Safari/537.36")
 
 # 設定シートが読めないときの検索ワード（Apple製品すべて）
-DEFAULT_QUERIES = ["AppleCare", "アップルケア", "iPhone", "iPad", "MacBook", "iMac", "Mac mini",
-                   "AirPods", "Apple Watch", "Apple TV", "HomePod", "Apple Vision Pro", "Studio Display"]
-DEFAULT_EXCLUDE = "ケース カバー フィルム 保護 充電器 ケーブル バンド 箱のみ 空箱 ジャンク 部品"
+DEFAULT_QUERIES = ["iPhone"]
+DEFAULT_EXCLUDE = "ケース カバー フィルム 充電器 ケーブル 箱のみ 空箱 Tシャツ シール モック"
+DEFAULT_RATIO = 0.6   # 相場の6割以下だけ出す
+MERCARI_COND = "4,5,6"   # やや傷や汚れあり・傷や汚れあり・全体的に状態が悪い
+YAHOO_BAD = {"used40", "used60", "used80"}
+YAHOO_GOOD = {"used10", "used20"}
+COND_NAME = {"4": "やや傷や汚れあり", "5": "傷や汚れあり", "6": "全体的に状態が悪い",
+             "used40": "やや傷や汚れあり", "used60": "傷や汚れあり", "used80": "全体的に状態が悪い"}
+MODEL_RE = re.compile(r"iPhone\s*(1[0-9]|[6-9]|SE\s*[23]?|X[SR]?)\s*(Pro\s*Max|Pro|Plus|mini|Max|Air|e)?", re.I)
+CAP_RE = re.compile(r"(64|128|256|512)\s*GB|1\s*TB", re.I)
+
+
+def model_key(title):
+    """商品名から「iPhone 14 Pro 128GB」のような機種＋容量を取り出す（取れなければ None）"""
+    m = MODEL_RE.search(title or "")
+    if not m:
+        return None
+    name = "iPhone " + re.sub(r"\s+", " ", m.group(1).upper().replace("SE", "SE ")).strip()
+    if name == "iPhone SE":
+        g = re.search(r"第\s*([23])\s*世代", title)
+        if g:
+            name += " " + g.group(1)
+    if m.group(2):
+        name += " " + re.sub(r"\s+", " ", m.group(2)).title().replace("Mini", "mini")
+    c = CAP_RE.search(title)
+    return name + (" " + c.group(0).upper().replace(" ", "") if c else "")
+
+
+_market = {}
+
+
+def market_price(key):
+    """同じ機種・容量で「目立った傷や汚れなし」以上の出品の、真ん中の値段（Yahoo!フリマで調べる）"""
+    if key in _market:
+        return _market[key]
+    prices = []
+    try:
+        r = requests.get(f"{YAHOO_API}/v1/search", headers=YAHOO_HEADERS, timeout=30,
+                         params={"query": key, "results": 100, "itemStatus": "open"})
+        for it in r.json().get("items", []):
+            if it.get("condition") in YAHOO_GOOD and model_key(it.get("title")) == key and it.get("price"):
+                prices.append(it["price"])
+    except (requests.RequestException, ValueError):
+        pass
+    _market[key] = statistics.median(prices) if len(prices) >= 3 else None
+    time.sleep(0.5)
+    return _market[key]
 
 
 def sheet(action, **payload):
@@ -36,6 +82,7 @@ def sheet(action, **payload):
 def search_url(q, exclude):
     from urllib.parse import quote
     return ("https://jp.mercari.com/search?status=on_sale&sort=created_time&order=desc"
+            f"&category_id=859&brand_id=3272&item_condition_id={quote(MERCARI_COND)}"
             f"&keyword={quote(q)}&exclude_keyword={quote(exclude)}")
 
 
@@ -59,6 +106,7 @@ DETAIL_JS = """() => ({
               .filter((v, i, a) => v && a.indexOf(v) === i).slice(0, 20),
     description: (document.querySelector('[data-testid="description"]') || {}).innerText || '',
     sold: /売り切れ/.test((document.querySelector('main') || document.body).innerText.split('商品の説明')[0]),
+    cond: ((document.querySelector('[data-testid="商品の状態"]') || {}).innerText || '').split('\\n')[0],
 })"""
 
 
@@ -80,7 +128,8 @@ def yahoo_search(q, exclude):
                              params={"query": query, "results": 100, "itemStatus": "open", **params})
             r.raise_for_status()
             return [{"url": f"https://paypayfleamarket.yahoo.co.jp/item/{it['id']}", "title": it.get("title", ""),
-                     "price": it.get("price"), "site": "Yahoo!フリマ"} for it in r.json().get("items", [])]
+                     "price": it.get("price"), "site": "Yahoo!フリマ", "cond": COND_NAME.get(it.get("condition"), "")}
+                    for it in r.json().get("items", []) if it.get("condition") in YAHOO_BAD]
         except (requests.RequestException, ValueError, KeyError):
             continue
     return []
@@ -131,6 +180,10 @@ def main():
     conf = sheet("config") or {}
     queries = conf.get("queries") or DEFAULT_QUERIES
     exclude = conf.get("exclude") or DEFAULT_EXCLUDE
+    try:
+        ratio = float(conf.get("ratio") or 0) / 10 or DEFAULT_RATIO
+    except ValueError:
+        ratio = DEFAULT_RATIO
     seen |= set(conf.get("known_urls") or [])
     added = checked = 0
     with sync_playwright() as p:
@@ -149,9 +202,16 @@ def main():
             for it in yahoo_search(q, exclude):
                 yah.setdefault(it["url"], it)
             time.sleep(2)
-        new_m = [it for it in merc.values() if it["url"] not in seen]
-        new_y = [it for it in yah.values() if it["url"] not in seen]
-        print(f"新しい出品 メルカリ {len(new_m)} 件・Yahoo!フリマ {len(new_y)} 件")
+        def cheap(it):
+            key = model_key(it.get("title"))
+            mk = market_price(key) if key else None
+            if not mk or not it.get("price") or it["price"] > mk * ratio:
+                return False
+            it["key"], it["market"] = key, mk
+            return True
+        new_m = [it for it in merc.values() if it["url"] not in seen and cheap(it)]
+        new_y = [it for it in yah.values() if it["url"] not in seen and cheap(it)]
+        print(f"相場より大幅に安い新しい出品 メルカリ {len(new_m)} 件・Yahoo!フリマ {len(new_y)} 件")
         # 両方に時間が回るよう、交互に確認する
         order = [x for pair in zip(new_m, new_y) for x in pair] + new_m[len(new_y):] + new_y[len(new_m):]
         rows = []
@@ -172,10 +232,14 @@ def main():
             if d.get("sold"):
                 continue
             best = find_serial(d)
+            if best and best[1] < 2:
+                best = None   # 「シリアル番号」の文字の近くで読めたものだけ
             if best:
+                cond = d.get("cond") or it.get("cond") or ""
+                note = f"{cond}・相場 約{int(it['market']):,}円（{int(it['market'] - it['price']):,}円安い）"
                 rows.append({"title": d.get("title") or it["title"], "price": it.get("price"), "site": it["site"],
                              "url": url, "image": best[2] or (d["images"][0] if d.get("images") else ""),
-                             "serial": best[0], "sure": "高" if best[1] >= 2 else "低"})
+                             "serial": best[0], "sure": note})
                 print("シリアル発見", best[0], url)
             if len(rows) >= 20:
                 sheet("append", rows=rows)
