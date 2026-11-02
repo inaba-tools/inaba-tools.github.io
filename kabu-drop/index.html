@@ -1818,7 +1818,7 @@ function renderFX(){if(!FXALL)return;const el=$('#fxBody');
   const months=[...new Set(FXALL.map(x=>x.d.slice(0,7)))].sort();const pers=[...months,'all'];
   if(!pers.includes(fxPer))fxPer=months[months.length-1];const pi=pers.indexOf(fxPer);
   FX=fxPer==='all'?FXALL:FXALL.filter(x=>x.d.startsWith(fxPer));
-  const types=[...new Set(FX.map(x=>x.t))];const col={};types.forEach((t,i)=>col[t]=FXCOL[i%FXCOL.length]);
+  const oi=t=>{const i=FXORD.indexOf(t);return i<0?99:i};const types=[...new Set(FX.map(x=>x.t))].sort((a,b)=>oi(a)-oi(b));const col={};types.forEach(t=>col[t]=FXCOL[oi(t)%FXCOL.length]);
   const days=[...new Set(FX.map(x=>x.d))].sort();
   const st=types.map(t=>{const L=FX.filter(x=>x.t===t);return{t,sum:L.reduce((a,x)=>a+x.p,0)}});
   const best=[...st].sort((a,b)=>b.sum-a.sum)[0];
