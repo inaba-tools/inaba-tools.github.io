@@ -28,7 +28,7 @@ JST = dt.timezone(dt.timedelta(hours=9))
 UTC = dt.timezone.utc
 UNITS = 10000
 FEE = 0.003 * UNITS
-START_DAY = dt.date(2026, 10, 1)   # 記録を始めた日
+START_DAY = dt.date(2025, 1, 1)   # 記録を始めた日
 HEADER = ['日付', '型', '売り買い', '前日高値/安値', '入った時刻・値段', '決済時刻・値段', '決済の理由', '損益（1万通貨）']
 JP_HOL = holidays.Japan(years=range(2024, 2032))
 

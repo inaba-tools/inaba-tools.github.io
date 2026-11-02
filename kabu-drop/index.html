@@ -1803,6 +1803,7 @@ async function gLogout(){const s=SES;try{if(SET.pushOn)await pushSync(null)}catc
 gaccRender();
 
 // ---- FXタブ（ドル円の仮想運用・見るだけ。型の中身は出さない） ----
+const FXLIVE='2026-10'; // この月から本番の記録（それより前は過去データでさかのぼって計算）
 const FXCAP=1000000,FXLOT=10; // 元手100万円・10万通貨（記録は1万通貨なので10倍）
 const FXORD=['A ブレイク','A2 15時ブレイク','B 仲値後の売り','B2 9:55売り','C 仲値前の買い','D 窓埋め'];
 const FXNAME=t=>{const i=FXORD.indexOf(t);return '型'+(i<0?t.split(' ')[0]:'ABCDEF'[i])};
@@ -1823,18 +1824,18 @@ function renderFX(){if(!FXALL)return;const el=$('#fxBody');
   const best=[...st].sort((a,b)=>b.sum-a.sum)[0];
   const cur=fxPick?st.find(x=>x.t===fxPick):best;
   const first=days[0],lastD=days[days.length-1];
-  const fmtD=d=>{const [y,m,dd]=d.split('-');return +m+'/'+(+dd)};
+  const fmtD=d=>{const [y,m,dd]=d.split('-');return (fxPer==='all'?y.slice(2)+'/':'')+(+m)+'/'+(+dd)};
   // 増え方のグラフ（元手からの動き）
   const W=340,H=170,pad=8;const series=types.map(t=>{let c=0;const pts=[[0,0]];days.forEach((d,i)=>{FX.filter(x=>x.t===t&&x.d===d).forEach(x=>c+=x.p);pts.push([i+1,c])});return{t,pts}});
   const all=series.flatMap(s=>s.pts.map(p=>p[1]));const mx=Math.max(1000,...all),mn=Math.min(-1000,...all);
   const X=i=>pad+(W-pad*2)*i/days.length,Y=v=>pad+(H-pad*2)*(mx-v)/(mx-mn);
-  const paths=series.map(s=>{const d=s.pts.map((p,i)=>(i?'L':'M')+X(p[0]).toFixed(1)+' '+Y(p[1]).toFixed(1)).join(' ');return`<path class="ln ${fxPick===s.t?'on':''}" d="${d}" stroke="${col[s.t]}" style="--len:1200"/>`}).join('');
+  const paths=series.map(s=>{const d=s.pts.map((p,i)=>(i?'L':'M')+X(p[0]).toFixed(1)+' '+Y(p[1]).toFixed(1)).join(' ');return`<path class="ln ${fxPick===s.t?'on':''}" d="${d}" stroke="${col[s.t]}" style="--len:9999"/>`}).join('');
   const zero=`<line x1="${pad}" x2="${W-pad}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--line)" stroke-dasharray="4 4"/><text x="${W-pad}" y="${Y(0)+11}" text-anchor="end" font-size="9" fill="var(--sub)" font-family="Inter">${yen(FXCAP)}円</text>`;
   const leg=`<div class="fxleg">${types.map(t=>`<button data-fx="${esc(t)}" class="${fxPick===t?'on':''}"><i style="background:${col[t]}"></i>${esc(FXNAME(t))}</button>`).join('')}</div>`;
   const chart=fxFold('chart','お金の増え方',`<p style="margin:2px 0 8px;font:600 11.5px 'Noto Sans JP';color:var(--sub)">点線が元手の${yen(FXCAP)}円。<br>型をタップすると、その型の成績に切り替わります。</p><svg viewBox="0 0 ${W} ${H}">${zero}${paths}</svg>`,true,'fxchart '+(fxPick?'pick':''),fmtD(first)+'〜'+fmtD(lastD));
   const hero=`<div class="fxhero"><small>${fxPick?esc(FXNAME(cur.t))+'で運用した場合':'いま使っている型（'+esc(FXNAME(best.t))+'）'}</small><div class="vs">${yen(FXCAP)}円を預けていたら</div><div class="fxbig ${cur.sum>=0?'up':'dn'}">${yen(FXCAP+cur.sum)}円</div><div class="meta">${pm(cur.sum)}</div>${leg}
-    <div class="fxper" id="fxPer"><div class="row"><button data-pd="-1" ${pi<=0?'disabled':''} aria-label="前へ">‹</button><div class="lb"><div class="in ${fxDir<0?'l':''}"><b>${fxPer==='all'?'全期間':(+fxPer.slice(0,4))+'年'+(+fxPer.slice(5))+'月'}</b><span>${fmtD(first)}〜${fmtD(lastD)}</span></div></div><button data-pd="1" ${pi>=pers.length-1?'disabled':''} aria-label="次へ">›</button></div>
-    <div class="dots">${pers.map((x,i)=>`<i class="${i===pi?'on':''}"></i>`).join('')}</div><div class="hint">左右にスワイプで期間を切り替え</div></div></div>`;
+    <div class="fxper" id="fxPer"><div class="row"><button data-pd="-1" ${pi<=0?'disabled':''} aria-label="前へ">‹</button><div class="lb"><div class="in ${fxDir<0?'l':''}"><b>${fxPer==='all'?'全期間':(+fxPer.slice(0,4))+'年'+(+fxPer.slice(5))+'月'}</b><span>${fmtD(first)}〜${fmtD(lastD)}${fxPer!=='all'&&fxPer<FXLIVE?'・過去データで計算':fxPer==='all'?'・'+FXLIVE.slice(0,4)+'年'+(+FXLIVE.slice(5))+'月より前は過去データで計算':''}</span></div></div><button data-pd="1" ${pi>=pers.length-1?'disabled':''} aria-label="次へ">›</button></div>
+    <div class="dots">${pers.map((x,i)=>Math.abs(i-pi)<=4?`<i class="${i===pi?'on':''}"></i>`:'').join('')}</div><div class="hint">左右にスワイプで期間を切り替え</div></div></div>`;
   const cards=fxFold('rank','型ごとの成績',[...st].sort((a,b)=>b.sum-a.sum).map(x=>`<div class="fxt" data-fx="${esc(x.t)}" style="cursor:pointer"><span class="dot" style="background:${col[x.t]}"></span><div><div class="nm">${esc(FXNAME(x.t))}${x===best?'<span class="best">使用中</span>':''}</div><div class="st">${yen(FXCAP)}円 → ${yen(FXCAP+x.sum)}円</div></div><div class="pf"><b class="${x.sum>=0?'up':'dn'}">${pm(x.sum)}</b></div></div>`).join(''),false);
   const L=FX.filter(x=>x.side!=='なし'&&(fxPick?x.t===fxPick:x.t===best.t)).slice().sort((a,b)=>b.d.localeCompare(a.d));
   const wd=d=>'日月火水木金土'[new Date(d+'T00:00:00').getDay()];
