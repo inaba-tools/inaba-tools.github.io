@@ -109,7 +109,7 @@ function render() {
       '<p class="title">' + esc(it.title) + '</p>' +
       '<p class="meta"><span>' + esc(it.site) + '・' + (it.price ? Number(it.price).toLocaleString() + '円' : '値段不明') + '</span>' +
       '<a href="' + esc(it.url) + '" target="_blank" rel="noopener">商品ページ ›</a></p>' +
-      '<div class="serial">' + esc(it.serial) + '<small>' + (it.sure === '高' ? 'シリアル番号の文字の近くで読み取り' : '写真から推定（読み間違いに注意）') + '</small></div>' +
+      '<div class="serial">' + esc(it.serial) + '<small>' + esc(it.sure) + '</small></div>' +
       '<label class="until">保証期限<input type="date" class="u"></label>' +
       '<div class="btns"><button class="b-ng">なし</button><button class="b-copy">コピー</button><button class="b-ok">あり</button></div>';
     stage.appendChild(c);
