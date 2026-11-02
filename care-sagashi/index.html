@@ -6,6 +6,7 @@
 <meta name="robots" content="noindex,nofollow">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="ケアさがし">
 <meta name="theme-color" content="#F2F2F7">
 <link rel="manifest" href="manifest.json">
@@ -16,10 +17,11 @@
 @media (prefers-color-scheme:dark){:root{--bg:#000;--card:#1c1c1e;--text:#f2f2f7;--sub:#98989d;--line:#38383a;--ok:#5cc96b;--ng:#ff6b61;--accent:#4a9dff}}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans",sans-serif;min-height:100vh;overflow-x:hidden}
-header{display:flex;justify-content:space-between;align-items:center;padding:calc(env(safe-area-inset-top) + 12px) 16px 8px}
+header{display:flex;justify-content:space-between;align-items:center;padding:calc(env(safe-area-inset-top) + 28px) 16px 12px}
 header h1{font-size:18px;font-weight:600;margin:0}
-#count{font-size:13px;color:var(--sub)}
-#stage{position:relative;margin:4px 16px 0;height:calc(100vh - 150px);max-height:680px}
+#count{font-size:14px;font-weight:600;color:var(--text);background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 12px}
+#count:empty{display:none}
+#stage{position:relative;margin:12px 16px 0;height:calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 190px);max-height:660px}
 .card{position:absolute;inset:0;background:var(--card);border:0.5px solid var(--line);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:10px;touch-action:pan-y;will-change:transform;transition:transform .25s ease,opacity .25s ease}
 .card.back{transform:scale(.96) translateY(10px);opacity:.6}
 .photo{flex:1;min-height:120px;border-radius:12px;background:var(--bg);overflow:hidden;display:flex;align-items:center;justify-content:center}
@@ -54,7 +56,7 @@ button:active{transform:scale(.97)}
 <div class="sub"><button id="undo">1つ戻る</button></div>
 <div id="toast"></div>
 <script>
-var VERSION = '6';
+var VERSION = '7';
 var LS = { get: function (k) { try { return localStorage.getItem(k) } catch (e) { return null } },
            set: function (k, v) { try { localStorage.setItem(k, v) } catch (e) {} } };
 (function () {
