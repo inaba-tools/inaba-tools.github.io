@@ -95,13 +95,18 @@ def save(name, obj):
 
 
 # ---------- 記録を読む ----------
+SEEN_KEY = '_seen'
+
+
 def state():
-    req = urllib.request.Request(API + '?action=state', headers={'User-Agent': 'Mozilla/5.0'})
+    # 全員分の記録を、アカウント（g＝伏せた番号。ログインしていない人は ''）ごとに分ける
+    req = urllib.request.Request(API + '?action=all', headers={'User-Agent': 'Mozilla/5.0'})
     with urllib.request.urlopen(req, timeout=60) as r:
         logs = json.loads(r.read()).get('state', {}).get('logs', [])
-    rec = {'ipo': {}, 'bunbai': {}, 'yutai': {}, 'push': {}}
+    groups = {}
     for l in logs:
         k = l.get('kind')
+        rec = groups.setdefault(l.get('g') or '', {'ipo': {}, 'bunbai': {}, 'yutai': {}, 'push': {}})
         if k not in rec:
             continue
         m = l.get('memo')
@@ -115,7 +120,7 @@ def state():
             rec[k].pop(code, None)
         else:
             rec[k][code] = m
-    return rec
+    return groups
 
 
 # ---------- 優待の計算（アプリと同じ） ----------
@@ -162,8 +167,8 @@ def build(rec, sent):
         out.append((key, kind, title, body, tab))
 
     yoso = load('yoso.json', {})
-    seen = set(sent.get('_seen', []))
-    first_run = '_seen' not in sent
+    seen = set(sent.get(SEEN_KEY, []))
+    first_run = SEEN_KEY not in sent
     new_seen = set(seen)
 
     # IPO
@@ -229,7 +234,7 @@ def build(rec, sent):
             add('res:%s' % k, 'bun_result', '分売の結果が出ています：' + name,
                 '当たっていたら、寄り付き（始値）で売るのが基本です', 'bunbai')
 
-    sent['_seen'] = sorted(new_seen)
+    sent[SEEN_KEY] = sorted(new_seen)
     return out
 
 
@@ -242,9 +247,20 @@ RATES = {}
 def main():
     global RATES
     key = os.environ.get('VAPID_PRIVATE', '').strip()
-    rec = state()
+    groups = state()
     RATES = load('rates.json', {'s': 3.9, 'l': 1.1})
     sent = load('sent.json', {})
+    global SEEN_KEY
+    for g, rec in groups.items():
+        SEEN_KEY = '_seen' + ('_' + g if g else '')  # 「新しく出た」の判定はアカウントごと
+        send_group(key, rec, sent)
+    # 40日より古い送信記録は消す
+    lim = (TODAY - dt.timedelta(days=40)).isoformat()
+    sent = {k: v for k, v in sent.items() if k.startswith('_seen') or k.endswith('|hello') or v >= lim}
+    save('sent.json', sent)
+
+
+def send_group(key, rec, sent):
     msgs = build(rec, sent)
     subs = {d: m for d, m in rec['push'].items() if m.get('sub') and m.get('st') == 'on'}
     print('slot', SLOT, 'msgs', len(msgs), 'devices', len(subs))
@@ -274,10 +290,6 @@ def main():
                     print('push error', dev[:6], e, file=sys.stderr)
                 except Exception as e:
                     print('push error', dev[:6], e, file=sys.stderr)
-    # 40日より古い送信記録は消す
-    lim = (TODAY - dt.timedelta(days=40)).isoformat()
-    sent = {k: v for k, v in sent.items() if k == '_seen' or k.endswith('|hello') or v >= lim}
-    save('sent.json', sent)
 
 
 if __name__ == '__main__':
