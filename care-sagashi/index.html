@@ -27,7 +27,9 @@ header h1{font-size:18px;font-weight:600;margin:0}
 .title{font-size:16px;font-weight:600;margin:0;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .meta{font-size:13px;color:var(--sub);margin:0;display:flex;justify-content:space-between;align-items:center}
 .meta a{color:var(--accent);text-decoration:none;font-weight:600}
-.serial{font-family:ui-monospace,Menlo,monospace;font-size:22px;letter-spacing:2px;text-align:center;padding:10px;border:1px solid var(--line);border-radius:10px;user-select:all}
+.serial.done{border-color:var(--ok);color:var(--ok)}
+.b-na{color:var(--sub)}
+.serial{cursor:pointer;font-family:ui-monospace,Menlo,monospace;font-size:22px;letter-spacing:2px;text-align:center;padding:10px;border:1px solid var(--line);border-radius:10px;user-select:all}
 .serial small{display:block;font-family:-apple-system,sans-serif;font-size:11px;letter-spacing:0;color:var(--sub);margin-top:2px}
 .until{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--sub)}
 .until input{flex:1;font-size:15px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--text)}
@@ -49,10 +51,10 @@ button:active{transform:scale(.97)}
 <body>
 <header><h1>ケアさがし</h1><span id="count">読み込み中…</span></header>
 <div id="stage"></div>
-<div class="sub"><button id="undo">1つ戻る</button><button id="skip">読み間違い・とばす</button><button id="reload">更新</button></div>
+<div class="sub"><button id="undo">1つ戻る</button><button id="skip">読み間違い・とばす</button></div>
 <div id="toast"></div>
 <script>
-var VERSION = '4';
+var VERSION = '5';
 var LS = { get: function (k) { try { return localStorage.getItem(k) } catch (e) { return null } },
            set: function (k, v) { try { localStorage.setItem(k, v) } catch (e) {} } };
 (function () {
@@ -110,19 +112,19 @@ function render() {
       '<p class="meta"><span>' + esc(it.site) + '・' + (it.price ? Number(it.price).toLocaleString() + '円' : '値段不明') + '</span>' +
       '<a href="' + esc(it.url) + '" target="_blank" rel="noopener">商品ページ ›</a></p>' +
       '<div class="serial">' + esc(it.serial) + '<small>' + esc(it.sure) + '</small></div>' +
-      '<label class="until">保証期限<input type="date" class="u"></label>' +
-      '<div class="btns"><button class="b-ng">なし</button><button class="b-copy">コピー</button><button class="b-ok">あり</button></div>';
+      '<div class="btns"><button class="b-ng">なし</button><button class="b-na">該当なし</button><button class="b-ok">あり</button></div>';
     stage.appendChild(c);
     if (top) wire(c, it);
   });
 }
 
 function wire(c, it) {
-  c.querySelector('.b-copy').onclick = function (e) {
+  c.querySelector('.serial').onclick = function (e) {
     var b = e.currentTarget;
-    navigator.clipboard.writeText(it.serial).then(function () { b.textContent = 'コピー済み'; b.classList.add('done'); toast('サポートアプリで貼り付けてください') })
+    navigator.clipboard.writeText(it.serial).then(function () { b.classList.add('done'); toast('コピーしました。サポートアプリで貼り付けてください') })
       .catch(function () { toast('コピーできませんでした') });
   };
+  c.querySelector('.b-na').onclick = function () { decide(c, it, '該当なし') };
   c.querySelector('.b-ok').onclick = function () { decide(c, it, 'あり') };
   c.querySelector('.b-ng').onclick = function () { decide(c, it, 'なし') };
   var sx = 0, dx = 0, drag = false;
@@ -141,14 +143,14 @@ function wire(c, it) {
 }
 
 function decide(c, it, result) {
-  var until = c.querySelector('.u') ? c.querySelector('.u').value.replace(/-/g, '/') : '';
+  var until = '';
   var dir = result === 'あり' ? 1 : result === 'なし' ? -1 : 0;
   c.style.transform = dir ? 'translateX(' + dir * 500 + 'px) rotate(' + dir * 20 + 'deg)' : 'translateY(-600px)';
   c.style.opacity = 0;
   send(it, result, until);
   history_.push(it); items.shift(); left = Math.max(0, left - 1);
   setTimeout(function () { render(); if (items.length < 5) load() }, 220);
-  toast(result === 'とばす' ? 'とばしました' : result + ' で記録しました');
+  toast(result === 'とばす' ? 'とばしました' : '「' + result + '」で記録しました');
 }
 
 function send(it, result, until) {
@@ -162,7 +164,6 @@ document.getElementById('undo').onclick = function () {
   var it = history_.pop(); if (!it) { toast('戻せるものがありません'); return }
   send(it, '未確認', ''); items.unshift(it); left++; render(); toast('1つ戻しました');
 };
-document.getElementById('reload').onclick = function () { items = []; load() };
 document.addEventListener('visibilitychange', function () {   // ホーム画面のアプリでも新しい版にすぐ切り替える
   if (document.visibilityState !== 'visible') return;
   fetch('version.txt?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.text() })
