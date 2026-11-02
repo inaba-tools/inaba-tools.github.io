@@ -119,20 +119,34 @@ YAHOO_API = "https://paypayfleamarket.yahoo.co.jp/api"
 YAHOO_HEADERS = {"User-Agent": UA, "Accept": "application/json", "Referer": "https://paypayfleamarket.yahoo.co.jp/"}
 
 
+YAHOO_IPHONE_CAT = 38340   # スマホ、タブレット、パソコン > スマホ > iPhone
+YAHOO_MODELS = ["iPhone 11", "iPhone 12", "iPhone 13", "iPhone 14", "iPhone 15", "iPhone 16", "iPhone 17",
+                "iPhone SE", "iPhone Air", "iPhone 16e"]
+
+
 def yahoo_search(q, exclude):
-    """Yahoo!フリマを新着順で検索（画面を開かずに読める）"""
-    query = q + "".join(f" -{w}" for w in exclude.split())
-    for params in ({"sort": "openTime", "order": "desc"}, {}):   # 新着順が使えなければふつうの順
-        try:
-            r = requests.get(f"{YAHOO_API}/v1/search", headers=YAHOO_HEADERS, timeout=30,
-                             params={"query": query, "results": 100, "itemStatus": "open", **params})
-            r.raise_for_status()
-            return [{"url": f"https://paypayfleamarket.yahoo.co.jp/item/{it['id']}", "title": it.get("title", ""),
-                     "price": it.get("price"), "site": "Yahoo!フリマ", "cond": COND_NAME.get(it.get("condition"), "")}
-                    for it in r.json().get("items", []) if it.get("condition") in YAHOO_BAD]
-        except (requests.RequestException, ValueError, KeyError):
-            continue
-    return []
+    """Yahoo!フリマは「iPhone」だけだとケースばかり出るので、機種名＋ジャンク／傷で探して、iPhone本体のカテゴリだけに絞る"""
+    out = []
+    for model in YAHOO_MODELS:
+        for word in ("ジャンク", "傷"):
+            query = f"{model} {word}" + "".join(f" -{w}" for w in exclude.split())
+            for off in (0, 100, 200):
+                try:
+                    r = requests.get(f"{YAHOO_API}/v1/search", headers=YAHOO_HEADERS, timeout=30,
+                                     params={"query": query, "results": 100, "itemStatus": "open", "offset": off})
+                    r.raise_for_status()
+                    items = r.json().get("items", [])
+                except (requests.RequestException, ValueError):
+                    break
+                for it in items:
+                    if (it.get("category") or {}).get("id") != YAHOO_IPHONE_CAT or it.get("condition") not in YAHOO_BAD:
+                        continue
+                    out.append({"url": f"https://paypayfleamarket.yahoo.co.jp/item/{it['id']}", "title": it.get("title", ""),
+                                "price": it.get("price"), "site": "Yahoo!フリマ", "cond": COND_NAME.get(it.get("condition"), "")})
+                if len(items) < 100:
+                    break
+                time.sleep(0.5)
+    return out
 
 
 def yahoo_detail(url):
@@ -202,9 +216,9 @@ def main():
                     merc.setdefault(it["url"], it)
             except Exception as e:
                 print("メルカリ検索できず", q, repr(e)[:100])
-            for it in yahoo_search(q, exclude):
-                yah.setdefault(it["url"], it)
             time.sleep(2)
+        for it in yahoo_search("", exclude):
+            yah.setdefault(it["url"], it)
         def cheap(it):   # 2026/11/03 相場は見ない（iPhoneの機種名がわかるものは全部）
             it["key"] = model_key(it.get("title"))
             return bool(it["key"])
