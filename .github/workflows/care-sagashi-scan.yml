@@ -1,0 +1,51 @@
+name: care-sagashi scan
+
+on:
+  schedule:
+    - cron: "23 * * * *"   # 1時間ごと
+  workflow_dispatch:
+
+concurrency:
+  group: scan
+  cancel-in-progress: false
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: care-sagashi/tools/requirements.txt
+      - run: sudo apt-get install -y -q tesseract-ocr tesseract-ocr-jpn
+      - run: pip install -r care-sagashi/tools/requirements.txt
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ hashFiles('care-sagashi/tools/requirements.txt') }}
+      - run: python -m playwright install --with-deps chromium
+      - name: 確認ずみの出品の記録
+        uses: actions/cache@v4
+        with:
+          path: care-sagashi/tools/.cache
+          key: seen-${{ github.run_id }}
+          restore-keys: seen-
+      - name: 巡回してシリアルを読む
+        run: python scan.py
+        working-directory: care-sagashi/tools
+        continue-on-error: true   # 一時的なエラーで失敗メールを出さない
+        env:
+          SHEET_API_URL: ${{ secrets.CARE_SHEET_URL }}
+          SHEET_API_KEY: ${{ secrets.CARE_SHEET_KEY }}
+      - name: 自動実行が60日で止まらないようにする
+        if: always()
+        run: gh api -X PUT "repos/${{ github.repository }}/actions/workflows/care-sagashi-scan.yml/enable"
+        env:
+          GH_TOKEN: ${{ github.token }}
