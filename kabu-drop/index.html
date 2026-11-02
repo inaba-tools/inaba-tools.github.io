@@ -920,7 +920,18 @@ html.dark .pastd .ref{background:#3a3115;color:#ffd970}
 .fxfold>summary:after{content:"＋";margin-left:auto;color:#b5b2a5;font-weight:900;transition:transform .25s}
 .fxfold[open]>summary:after{transform:rotate(45deg)}
 .fxfold[open]>summary{margin-bottom:8px}
-.fxhero .fxleg{position:relative;z-index:1;margin-top:12px}.fxhero .fxleg button{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:#fff}.fxhero .fxleg button.on{background:#fff;color:#1f2b25;border-color:#fff}
+.fxhero .fxleg{position:relative;z-index:1;margin-top:12px;display:grid;grid-template-columns:repeat(6,1fr);gap:5px}.fxhero .fxleg button{justify-content:center;padding:6px 0;font-size:11px;gap:4px}.fxhero .fxleg button i{width:7px;height:7px}
+.fxper{position:relative;z-index:1;margin-top:12px;border-top:1px solid rgba(255,255,255,.14);padding-top:10px;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.fxper .row{display:flex;align-items:center;gap:6px}
+.fxper .row button{border:0;background:rgba(255,255,255,.1);color:#fff;width:30px;height:30px;border-radius:50%;font:900 15px Inter;flex:none}
+.fxper .row button:disabled{opacity:.25}
+.fxper .lb{flex:1;text-align:center;overflow:hidden}
+.fxper .lb b{display:block;font:900 15px "Noto Sans JP"}.fxper .lb span{display:block;font:700 11px "Noto Sans JP";opacity:.75;margin-top:1px}
+.fxper .lb .in{animation:fxsl .3s ease both}.fxper .lb .in.l{animation-name:fxsr}
+@keyframes fxsl{from{transform:translateX(40px);opacity:0}to{transform:none;opacity:1}}
+@keyframes fxsr{from{transform:translateX(-40px);opacity:0}to{transform:none;opacity:1}}
+.fxper .dots{display:flex;justify-content:center;gap:5px;margin-top:8px}.fxper .dots i{width:5px;height:5px;border-radius:3px;background:rgba(255,255,255,.3);transition:.25s}.fxper .dots i.on{width:14px;background:#fff}
+.fxper .hint{text-align:center;font:700 10px "Noto Sans JP";opacity:.5;margin-top:5px}.fxhero .fxleg button{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:#fff}.fxhero .fxleg button.on{background:#fff;color:#1f2b25;border-color:#fff}
 .fxhero .vs{font:800 13px "Noto Sans JP";opacity:.9;margin-top:4px}
 .fxmore{width:100%;border:0;background:none;font:800 13px "Noto Sans JP";color:var(--sub);padding:10px 0 2px}
 html.dark .fxt .best{background:#3a3115;color:#f0c75a}
@@ -1001,7 +1012,7 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
 <!-- 設定 -->
 <section class="page" id="p-fx">
 <div class="top"><img src="icon-192.png" alt=""><h1>FX</h1><div class="sub" id="fxUpd">ドル円・仮想</div></div>
-<div class="lead" style="font-size:14px">「KABU DROP」専用のFX自動売買ツールで、<b>6つの型を毎日ためし、いちばん成績が良い型を使っています</b>（ドル円）</div>
+<div class="lead" style="font-size:14px">「KABU DROP」専用のFX自動売買ツールで、<br><b>6つの型を毎日ためし、<br>いちばん成績が良い型</b>を使っています</div>
 <div id="fxBody"><div class="box" style="color:var(--sub)">読み込み中…</div></div>
 </section>
 <section class="page" id="p-set">
@@ -1795,13 +1806,16 @@ const FXCAP=1000000,FXLOT=10; // 元手100万円・10万通貨（記録は1万�
 const FXORD=['A ブレイク','A2 15時ブレイク','B 仲値後の売り','B2 9:55売り','C 仲値前の買い','D 窓埋め'];
 const FXNAME=t=>{const i=FXORD.indexOf(t);return '型'+(i<0?t.split(' ')[0]:'ABCDEF'[i])};
 const FXCOL=['#1f9d6b','#2b6fd6','#d98a1c','#7a5bd6','#d2453b','#2a9bb0','#8a8f3a'];
-let FX=null,fxPick=null,fxN=12,fxOpen={};
+let FX=null,FXALL=null,fxPick=null,fxN=12,fxOpen={},fxPer=null,fxDir=0;
 try{fxOpen=JSON.parse(localStorage.getItem('fxOpen')||'{}')}catch(e){}
 function csvParse(t){return t.trim().split(/\r?\n/).map(l=>{const o=[];let c='',q=false;for(let i=0;i<l.length;i++){const ch=l[i];if(q){if(ch=='"'&&l[i+1]=='"'){c+='"';i++}else if(ch=='"')q=false;else c+=ch}else if(ch=='"')q=true;else if(ch==','){o.push(c);c=''}else c+=ch}o.push(c);return o})}
 async function loadFX(){try{const r=await fetch('../fx-kiroku/kiroku.csv?'+Date.now(),{cache:'no-store'});if(!r.ok)throw 0;const rows=csvParse(await r.text()).slice(1).filter(x=>x.length>=8&&x[0]);
-  FX=rows.map(x=>({d:x[0],t:x[1],side:x[2],p:(+x[7]||0)*FXLOT}));renderFX()}catch(e){$('#fxBody').innerHTML='<div class="box" style="color:var(--sub)">記録を読み込めませんでした。少しして開き直してね。</div>'}}
+  FXALL=rows.map(x=>({d:x[0],t:x[1],side:x[2],p:(+x[7]||0)*FXLOT}));renderFX()}catch(e){$('#fxBody').innerHTML='<div class="box" style="color:var(--sub)">記録を読み込めませんでした。少しして開き直してね。</div>'}}
 function fxFold(key,title,body,def,cls=''){const o=key in fxOpen?fxOpen[key]:def;return`<details class="box fxfold ${cls}" data-fold="${key}" ${o?'open':''}><summary><h3>${title}</h3></summary>${body}</details>`}
-function renderFX(){if(!FX)return;const el=$('#fxBody');
+function renderFX(){if(!FXALL)return;const el=$('#fxBody');
+  const months=[...new Set(FXALL.map(x=>x.d.slice(0,7)))].sort();const pers=[...months,'all'];
+  if(!pers.includes(fxPer))fxPer=months[months.length-1];const pi=pers.indexOf(fxPer);
+  FX=fxPer==='all'?FXALL:FXALL.filter(x=>x.d.startsWith(fxPer));
   const types=[...new Set(FX.map(x=>x.t))];const col={};types.forEach((t,i)=>col[t]=FXCOL[i%FXCOL.length]);
   const days=[...new Set(FX.map(x=>x.d))].sort();
   const st=types.map(t=>{const L=FX.filter(x=>x.t===t);return{t,sum:L.reduce((a,x)=>a+x.p,0)}});
@@ -1816,8 +1830,10 @@ function renderFX(){if(!FX)return;const el=$('#fxBody');
   const paths=series.map(s=>{const d=s.pts.map((p,i)=>(i?'L':'M')+X(p[0]).toFixed(1)+' '+Y(p[1]).toFixed(1)).join(' ');return`<path class="ln ${fxPick===s.t?'on':''}" d="${d}" stroke="${col[s.t]}" style="--len:1200"/>`}).join('');
   const zero=`<line x1="${pad}" x2="${W-pad}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--line)" stroke-dasharray="4 4"/><text x="${W-pad}" y="${Y(0)+11}" text-anchor="end" font-size="9" fill="var(--sub)" font-family="Inter">${yen(FXCAP)}円</text>`;
   const leg=`<div class="fxleg">${types.map(t=>`<button data-fx="${esc(t)}" class="${fxPick===t?'on':''}"><i style="background:${col[t]}"></i>${esc(FXNAME(t))}</button>`).join('')}</div>`;
-  const chart=fxFold('chart','お金の増え方',`<p style="margin:2px 0 8px;font:600 11.5px 'Noto Sans JP';color:var(--sub)">${fmtD(first)}〜${fmtD(lastD)}。点線が元手の${yen(FXCAP)}円。型をタップするとその型の成績に切り替わります</p><svg viewBox="0 0 ${W} ${H}">${zero}${paths}</svg>`,true,'fxchart '+(fxPick?'pick':''));
-  const hero=`<div class="fxhero"><small>${fxPick?esc(FXNAME(cur.t))+'で運用した場合':'いま使っている型（'+esc(FXNAME(best.t))+'）'}</small><div class="vs">${yen(FXCAP)}円を預けていたら</div><div class="fxbig ${cur.sum>=0?'up':'dn'}">${yen(FXCAP+cur.sum)}円</div><div class="meta">${pm(cur.sum)}（${fmtD(first)}〜${fmtD(lastD)}）</div>${leg}</div>`;
+  const chart=fxFold('chart','お金の増え方',`<p style="margin:2px 0 8px;font:600 11.5px 'Noto Sans JP';color:var(--sub)">点線が元手の${yen(FXCAP)}円。型をタップするとその型の成績に切り替わります</p><svg viewBox="0 0 ${W} ${H}">${zero}${paths}</svg>`,true,'fxchart '+(fxPick?'pick':''));
+  const hero=`<div class="fxhero"><small>${fxPick?esc(FXNAME(cur.t))+'で運用した場合':'いま使っている型（'+esc(FXNAME(best.t))+'）'}</small><div class="vs">${yen(FXCAP)}円を預けていたら</div><div class="fxbig ${cur.sum>=0?'up':'dn'}">${yen(FXCAP+cur.sum)}円</div><div class="meta">${pm(cur.sum)}</div>${leg}
+    <div class="fxper" id="fxPer"><div class="row"><button data-pd="-1" ${pi<=0?'disabled':''} aria-label="前へ">‹</button><div class="lb"><div class="in ${fxDir<0?'l':''}"><b>${fxPer==='all'?'全期間':(+fxPer.slice(0,4))+'年'+(+fxPer.slice(5))+'月'}</b><span>${fmtD(first)}〜${fmtD(lastD)}</span></div></div><button data-pd="1" ${pi>=pers.length-1?'disabled':''} aria-label="次へ">›</button></div>
+    <div class="dots">${pers.map((x,i)=>`<i class="${i===pi?'on':''}"></i>`).join('')}</div><div class="hint">左右にスワイプで期間を切り替え</div></div></div>`;
   const cards=fxFold('rank','型ごとの成績',[...st].sort((a,b)=>b.sum-a.sum).map(x=>`<div class="fxt" data-fx="${esc(x.t)}" style="cursor:pointer"><span class="dot" style="background:${col[x.t]}"></span><div><div class="nm">${esc(FXNAME(x.t))}${x===best?'<span class="best">使用中</span>':''}</div><div class="st">${yen(FXCAP)}円 → ${yen(FXCAP+x.sum)}円</div></div><div class="pf"><b class="${x.sum>=0?'up':'dn'}">${pm(x.sum)}</b></div></div>`).join(''),false);
   const L=FX.filter(x=>x.side!=='なし'&&(fxPick?x.t===fxPick:x.t===best.t)).slice().sort((a,b)=>b.d.localeCompare(a.d));
   const wd=d=>'日月火水木金土'[new Date(d+'T00:00:00').getDay()];
@@ -1826,6 +1842,11 @@ function renderFX(){if(!FX)return;const el=$('#fxBody');
   el.innerHTML=hero+chart+cards+recent+note;$('#fxUpd').textContent='ドル円・'+fmtD(lastD)+'まで';
   el.querySelectorAll('[data-fx]').forEach(b=>b.onclick=()=>{fxPick=fxPick===b.dataset.fx?null:b.dataset.fx;fxN=12;renderFX()});
   el.querySelectorAll('[data-fold]').forEach(d=>d.ontoggle=()=>{fxOpen[d.dataset.fold]=d.open;try{localStorage.setItem('fxOpen',JSON.stringify(fxOpen))}catch(e){}});
+  const go=d=>{const j=pi+d;if(j<0||j>=pers.length)return;fxPer=pers[j];fxDir=d;fxN=12;renderFX()};
+  el.querySelectorAll('[data-pd]').forEach(b=>b.onclick=()=>go(+b.dataset.pd));
+  const pz=$('#fxPer');let sx=null,sy=0;
+  pz.addEventListener('touchstart',e=>{const t=e.touches[0];sx=t.clientX;sy=t.clientY},{passive:true});
+  pz.addEventListener('touchend',e=>{if(sx==null)return;const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;sx=null;if(Math.abs(dx)>40&&Math.abs(dx)>Math.abs(dy))go(dx<0?1:-1)},{passive:true});
   const m=$('#fxMore');if(m)m.onclick=()=>{fxN+=20;renderFX()}}
 loadFX();
 
