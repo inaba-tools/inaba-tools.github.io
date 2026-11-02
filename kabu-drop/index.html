@@ -1141,7 +1141,7 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
 
 <script src="budoux.js"></script>
 <script>
-const BUILD='1793628836';
+const BUILD='1793628915';
 // 新しい版が出ていたら、自動で読み込み直す（ホーム画面アプリでもすぐ反映）
 (async()=>{try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const BUILD='(\d+)'/);if(m&&m[1]!==BUILD&&!sessionStorage.getItem('kd_rl'+m[1])){sessionStorage.setItem('kd_rl'+m[1],'1');location.replace('./?v='+m[1]+location.hash)}}catch(e){}})();
 const API='https://script.google.com/macros/s/AKfycbxp2NJyQCnSduboXEaXFN0kndza6-0-zqrJN_0W9tLhBymhxRO8mLlT-dcZgI5lcvLr0A/exec';
@@ -1272,7 +1272,7 @@ const IPO={kind:'ipo',cur:'can',last:{},
 
 function ipoSum(o){const x=o.x,y=yosoData[o.id]||{};const base=o.price||o.hiP||y.sotei;const p=y.first||y.last||y.bb||y.reader;const g=p&&base?(p-base)*o.unit:null;
   const rk=y.rank&&!y.first?`<div class="rkbig rk ${y.rank}" data-tip="rank"><small>評価</small><b>${y.rank}</b></div>`:`<div class="rkbig none"><small>評価</small><b>—</b></div>`;
-  const pf=g!=null?`<div class="pf2"><small>${y.first?'利益（100株）':'予想利益（100株）'}</small><b class="${g<0?'dn':''}">${pm(g)}</b></div>`:`<div class="pf2"><small>予想利益</small><b class="na">予想待ち</b></div>`;
+  const pf=g!=null?`<div class="pf2"><small>${y.first?'利益（100株）':'予想利益（100株）'}</small><b class="${g<0?'dn':''}">${pm(g)}</b></div>`:(o.k==='end'?`<div class="pf2"><small>利益（100株）</small><b class="na">データなし</b></div>`:`<div class="pf2"><small>予想利益</small><b class="na">予想待ち</b></div>`);
   const jt=o.k==='can'||o.k==='plan'?judgeTag(o):'';
   return`<div class="cs cs2">${rk}<div class="csr">${pf}${jt?`<div class="jt">${jt}</div>`:''}</div></div>`}
 function bunSum(o){const x=o.x;const dt=o.k==='end'?`${mdD(o.date)}`:`実施 ${mdD(o.date)}${o.decided?'':' ごろ'}`;
