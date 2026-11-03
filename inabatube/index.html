@@ -169,8 +169,8 @@ main{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:c
 .skip.on{opacity:1;transition:none}
 #rate{position:absolute;left:50%;top:14px;transform:translateX(-50%);z-index:3;background:#000b;color:#fff;font-size:14px;font-weight:700;padding:6px 14px;border-radius:999px;pointer-events:none;opacity:0;transition:opacity .2s}
 #rate.show{opacity:1}
-#ui,.skip,#rate,#spdm,#pcov{display:none!important}
-#vtouch{inset:0 0 auto 0;height:20%}
+#ui,#spdm,#pcov{display:none!important}
+#vtouch{inset:0 0 17% 0}
 #vtouch::after{content:'';position:absolute;left:50%;top:8px;width:48px;height:5px;margin-left:-24px;border-radius:9px;background:#ffffff55}
 #vtouch{position:absolute;inset:0;z-index:2;touch-action:none}
 #pane.mini #vtouch{display:none}
@@ -546,11 +546,15 @@ async function route() {
 }
 async function renderHome(force, tab = 'home') {
   chips(tab === 'home' ? '🔥 盛り上がっている動画' : '最近アップロードされた動画');
-  loading();
-  const vs = await homeFeed(force, (d, n) => { const p = $('#prog'); if (p) p.textContent = `登録チャンネルを確認中… ${d} / ${n}`; });
-  if (state.tab !== tab || state.search || state.channel) return;
   // ホーム＝盛り上がり順（1時間あたりの再生数）、新着＝新しい順
-  $('#view').innerHTML = grid(tab === 'home' ? [...vs].sort((a, b) => heat(b) - heat(a)) : vs);
+  const show = (vs, anim) => { if (state.tab !== tab || state.search || state.channel) return; const st = $('#main').scrollTop; $('#view').innerHTML = grid(tab === 'home' ? [...vs].sort((a, b) => heat(b) - heat(a)) : vs); if (!anim) { $('#view .grid')?.classList.add('noanim'); $('#main').scrollTop = st; } };
+  const old = ls.get('homeCache');
+  const fresh = !force && old && old.t > Date.now() - 10 * 60e3;
+  if (old?.v?.length) { show(old.v, true); if (fresh) return; }
+  else loading();
+  // 古い一覧を見ている間に、裏で新しい一覧を取ってきて差し替える
+  const vs = await homeFeed(true, (d, n) => { const p = $('#prog'); if (p) p.textContent = `登録チャンネルを確認中… ${d} / ${n}`; });
+  show(vs, !old?.v?.length);
 }
 async function renderSearch() {
   $('#chips').innerHTML = `<button class="chip on">「${esc(state.search)}」の検索結果</button><button class="chip" id="clr">✕ 閉じる</button>`;
@@ -955,7 +959,7 @@ dragDown($('#vtouch'), () => !isFs());
     }
     lastTap = now; clearTimeout(tapT);
     // 1回だけのタップは少し待ってから、操作パネルを出す／消す
-    tapT = setTimeout(() => { tapT = null; ui.classList.contains('show') ? hideUI() : showUI(); }, side === 'c' ? 0 : 260);
+    tapT = setTimeout(() => { tapT = null; togglePlay(); }, side === 'c' ? 0 : 260);
   };
   $('#cpp').addEventListener('click', e => { e.stopPropagation(); togglePlay(); setTimeout(showUI, 150); });
   $('#fsb').addEventListener('click', e => { e.stopPropagation(); isFs() ? exitFs() : fullscreen(); setTimeout(showUI, 450); });
@@ -993,7 +997,7 @@ dragDown($('#vtouch'), () => !isFs());
     lastTouch = Date.now();
     y0 = e.touches[0].clientY; x0 = e.touches[0].clientX; t0 = Date.now(); lp = false;
     clearTimeout(lpT);
-    lpT = setTimeout(() => { if (true || y0 === null || !ready || !playing()) return; lp = true; hideUI(); player.setPlaybackRate(2); $('#rate').classList.add('show'); }, 500);
+    lpT = setTimeout(() => { if (y0 === null || !ready || !playing()) return; lp = true; hideUI(); player.setPlaybackRate(2); $('#rate').classList.add('show'); }, 500);
   }, { passive: true });
   el.addEventListener('touchmove', e => {
     if (y0 === null) return;
@@ -1007,8 +1011,9 @@ dragDown($('#vtouch'), () => !isFs());
     const t = e.changedTouches[0], dy = t.clientY - y0, dx = t.clientX - x0; y0 = null;
     if (dy < -50 && Math.abs(dy) > Math.abs(dx)) { if (!isFs()) fullscreen(); return; }
     if (dy > 50 && isFs()) { exitFs(); return; }
-    // タップは何もしない（操作はYouTube本来のパネルで）
+    if (Math.abs(dy) < 12 && Math.abs(dx) < 12 && Date.now() - t0 < 450) { const r = el.getBoundingClientRect(); tapAt(t.clientX - r.left, r.width); }
   };
+  el.addEventListener('click', e => { if (Date.now() - lastTouch < 800) return; const r = el.getBoundingClientRect(); tapAt(e.clientX - r.left, r.width); });
   el.addEventListener('touchend', end);
   el.addEventListener('touchcancel', end);
 })();
@@ -1073,7 +1078,7 @@ const waitG = setInterval(() => { if (initAuth()) clearInterval(waitG); }, 300);
 setTimeout(() => clearInterval(waitG), 15000);
 if (autoLogin()) route();
 // ホーム画面アプリでも更新がすぐ反映されるように、新しい版があれば読み直す
-const VERSION = '28';
+const VERSION = '29';
 fetch('version.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.text()).then(t => { t = t.trim(); if (t && t !== VERSION && new URLSearchParams(location.search).get('v') !== t) location.replace(location.pathname + '?v=' + t); }).catch(() => {});
 </script>
 </body>
