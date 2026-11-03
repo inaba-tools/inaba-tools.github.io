@@ -892,7 +892,7 @@ html.dark .pastd .ref{background:#3a3115;color:#ffd970}
 @keyframes fxpop{from{transform:scale(.7);opacity:0}to{transform:none;opacity:1}}
 .fxchart svg{width:100%;height:auto;display:block}
 .fxchart .ln{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:var(--len);stroke-dashoffset:var(--len);animation:fxdraw 1.2s ease forwards;transition:opacity .25s,stroke-width .25s}
-.fxchart.fxsel .ln{opacity:.15}.fxchart.fxsel .ln.on{opacity:1;stroke-width:3.4}.fxchart .ln.auto{stroke-width:3}.fxhero .fxleg button[data-fx=AUTO] i{background:currentColor!important}
+.fxchart.fxsel .ln{opacity:.15}.fxchart.fxsel .ln.on{opacity:1;stroke-width:3.4}.fxchart .ln.auto{stroke-width:3}
 @keyframes fxdraw{to{stroke-dashoffset:0}}
 .fxleg{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
 .fxleg button{border:1px solid var(--line);background:var(--card);border-radius:20px;padding:5px 10px;font:800 11.5px "Noto Sans JP";color:var(--ink);display:flex;align-items:center;gap:5px}
@@ -921,7 +921,7 @@ html.dark .pastd .ref{background:#3a3115;color:#ffd970}
 .fxfold>summary:after{content:"＋";margin-left:auto;color:#b5b2a5;font-weight:900;transition:transform .25s}
 .fxfold[open]>summary:after{transform:rotate(45deg)}
 .fxfold[open]>summary{margin-bottom:8px}
-.fxhero .fxleg{position:relative;z-index:1;margin-top:12px;display:grid;grid-template-columns:1.25fr repeat(6,1fr);gap:5px}.fxhero .fxleg button{justify-content:center;padding:6px 0;font-size:11px;gap:4px}.fxhero .fxleg button i{width:7px;height:7px}
+.fxhero .fxleg{position:relative;z-index:1;margin-top:12px;display:grid;grid-template-columns:repeat(6,1fr);gap:5px}.fxhero .fxleg button{justify-content:center;padding:6px 0;font-size:11px;gap:4px}.fxhero .fxleg button i{width:7px;height:7px}
 .fxper{position:relative;z-index:1;margin-top:12px;border-top:1px solid rgba(255,255,255,.14);padding-top:10px;touch-action:pan-y;user-select:none;-webkit-user-select:none}
 .fxper .row{display:flex;align-items:center;gap:6px}
 .fxper .row button{border:0;background:rgba(255,255,255,.1);color:#fff;width:30px;height:30px;border-radius:50%;font:900 15px Inter;flex:none}
@@ -1013,7 +1013,7 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
 <!-- 設定 -->
 <section class="page" id="p-fx">
 <div class="top"><img src="icon-192.png" alt=""><h1>FX</h1><div class="sub" id="fxUpd">ドル円・仮想</div></div>
-<div class="lead" style="font-size:14px">「KABU DROP」専用のFX自動売買ツールで、<br><b>6つの型を毎日ためし、</b><br><b>毎月いちばん調子の良い型</b>に自動で切り替えます</div>
+<div class="lead" style="font-size:14px">「KABU DROP」専用のFX自動売買ツールで、<br><b>6つの型を毎日ためし、</b><br>その中で<b>いちばん安定している型F</b>を使っています</div>
 <div id="fxBody"><div class="box" style="color:var(--sub)">読み込み中…</div></div>
 </section>
 <section class="page" id="p-set">
@@ -1807,8 +1807,8 @@ const FXLIVE='2026-10'; // この月から本番の記録（それより前は�
 const FXCAP=1000000,FXLOT=10; // 元手100万円・10万通貨（記録は1万通貨なので10倍）
 const FXORD=['A ブレイク','A2 15時ブレイク','B 仲値後の売り','B2 9:55売り','C 仲値前の買い','D 窓埋め'];
 const FXFROM='2026-01'; // 画面に出すのはこの月から（それより前は「自動」の型選びにだけ使う）
-const FXAUTO='AUTO',FXLB=3; // 自動：毎月1日に、前の3か月で1番成績が良かった型を使う
-const FXNAME=t=>{if(t===FXAUTO)return '自動';const i=FXORD.indexOf(t);return '型'+(i<0?t.split(' ')[0]:'ABCDEF'[i])};
+const FXMAIN='D 窓埋め'; // 使っている型（2025年・2026年とも安定していた型F）
+const FXNAME=t=>{const i=FXORD.indexOf(t);return '型'+(i<0?t.split(' ')[0]:'ABCDEF'[i])};
 const FXCOL=['#1f9d6b','#2b6fd6','#d98a1c','#7a5bd6','#d2453b','#2a9bb0','#8a8f3a'];
 let FX=null,FXALL=null,fxPick=null,fxN=12,fxOpen={},fxPer=null,fxDir=0;
 try{fxOpen=JSON.parse(localStorage.getItem('fxOpen')||'{}')}catch(e){}
@@ -1816,40 +1816,35 @@ function csvParse(t){return t.trim().split(/\r?\n/).map(l=>{const o=[];let c='',
 async function loadFX(){try{const r=await fetch('../fx-kiroku/kiroku.csv?'+Date.now(),{cache:'no-store'});if(!r.ok)throw 0;const rows=csvParse(await r.text()).slice(1).filter(x=>x.length>=8&&x[0]);
   FXALL=rows.map(x=>({d:x[0],t:x[1],side:x[2],p:(+x[7]||0)*FXLOT}));renderFX()}catch(e){$('#fxBody').innerHTML='<div class="box" style="color:var(--sub)">記録を読み込めませんでした。少しして開き直してね。</div>'}}
 function fxFold(key,title,body,def,cls='',rt=''){const o=key in fxOpen?fxOpen[key]:def;return`<details class="box fxfold ${cls}" data-fold="${key}" ${o?'open':''}><summary><h3>${title}</h3>${rt?`<span class="fxrt">${rt}</span>`:''}</summary>${body}</details>`}
-function fxAutoMap(months){const pick={};const nowM=new Date(Date.now()+9*3600e3).toISOString().slice(0,7);const ms=months.includes(nowM)?months:[...months,nowM];
-  ms.forEach((m,i)=>{const lb=ms.slice(Math.max(0,i-FXLB),i).filter(x=>x<m);if(!lb.length)return;const sc={};FXALL.forEach(x=>{if(lb.includes(x.d.slice(0,7)))sc[x.t]=(sc[x.t]||0)+x.p});
-    const b=Object.keys(sc).sort((a,c)=>sc[c]-sc[a]||FXORD.indexOf(a)-FXORD.indexOf(c))[0];if(b)pick[m]=b});return{pick,nowM}}
 function renderFX(){if(!FXALL)return;const el=$('#fxBody');
   const allM=[...new Set(FXALL.map(x=>x.d.slice(0,7)))].sort();const months=allM.filter(m=>m>=FXFROM);const pers=[...months,'all'];
-  const AM=fxAutoMap(allM),apick=AM.pick;
   if(!pers.includes(fxPer))fxPer=months[months.length-1];const pi=pers.indexOf(fxPer);
   const BASE=fxPer==='all'?FXALL.filter(x=>x.d>=FXFROM):FXALL.filter(x=>x.d.startsWith(fxPer));
-  FX=[...BASE,...BASE.filter(x=>apick[x.d.slice(0,7)]===x.t).map(x=>({...x,t:FXAUTO,real:x.t}))];
-  const oi=t=>{const i=FXORD.indexOf(t);return i<0?99:i};const types=[FXAUTO,...[...new Set(BASE.map(x=>x.t))].sort((a,b)=>oi(a)-oi(b))];const col={};types.forEach(t=>col[t]=t===FXAUTO?'var(--ink)':FXCOL[oi(t)%FXCOL.length]);
+  FX=BASE;
+  const oi=t=>{const i=FXORD.indexOf(t);return i<0?99:i};const types=[...new Set(BASE.map(x=>x.t))].sort((a,b)=>oi(a)-oi(b));const col={};types.forEach(t=>col[t]=FXCOL[oi(t)%FXCOL.length]);
   const days=[...new Set(BASE.map(x=>x.d))].sort();
   const st=types.map(t=>{const L=FX.filter(x=>x.t===t);return{t,sum:L.reduce((a,x)=>a+x.p,0)}});
-  const autoSt=st[0];const cur=(fxPick&&st.find(x=>x.t===fxPick))||autoSt;const sel=cur.t;
-  const useM=fxPer==='all'?AM.nowM:fxPer,useT=apick[useM];
+  const mainSt=st.find(x=>x.t===FXMAIN)||st[0];const cur=(fxPick&&st.find(x=>x.t===fxPick))||mainSt;const sel=cur.t;
   const first=days[0],lastD=days[days.length-1];
   const fmtD=d=>{const [y,m,dd]=d.split('-');return (fxPer==='all'?y.slice(2)+'/':'')+(+m)+'/'+(+dd)};
   // 増え方のグラフ（元手からの動き）
   const W=340,H=170,pad=8;const series=types.map(t=>{let c=0;const pts=[[0,0]];days.forEach((d,i)=>{FX.filter(x=>x.t===t&&x.d===d).forEach(x=>c+=x.p);pts.push([i+1,c])});return{t,pts}});
   const all=series.flatMap(s=>s.pts.map(p=>p[1]));const mx=Math.max(1000,...all),mn=Math.min(-1000,...all);
   const X=i=>pad+(W-pad*2)*i/days.length,Y=v=>pad+(H-pad*2)*(mx-v)/(mx-mn);
-  const paths=series.map(s=>{const d=s.pts.map((p,i)=>(i?'L':'M')+X(p[0]).toFixed(1)+' '+Y(p[1]).toFixed(1)).join(' ');return`<path class="ln ${sel===s.t?'on':''} ${s.t===FXAUTO?'auto':''}" d="${d}" stroke="${col[s.t]}" style="--len:9999"/>`}).join('');
+  const paths=series.map(s=>{const d=s.pts.map((p,i)=>(i?'L':'M')+X(p[0]).toFixed(1)+' '+Y(p[1]).toFixed(1)).join(' ');return`<path class="ln ${sel===s.t?'on':''} ${s.t===FXMAIN?'auto':''}" d="${d}" stroke="${col[s.t]}" style="--len:9999"/>`}).join('');
   const zero=`<line x1="${pad}" x2="${W-pad}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--line)" stroke-dasharray="4 4"/><text x="${W-pad}" y="${Y(0)+11}" text-anchor="end" font-size="9" fill="var(--sub)" font-family="Inter">${yen(FXCAP)}円</text>`;
   const leg=`<div class="fxleg">${types.map(t=>`<button data-fx="${esc(t)}" class="${sel===t?'on':''}"><i style="background:${col[t]}"></i>${esc(FXNAME(t))}</button>`).join('')}</div>`;
-  const chart=fxFold('chart','お金の増え方',`<p style="margin:2px 0 8px;font:600 11.5px 'Noto Sans JP';color:var(--sub)">点線が元手の${yen(FXCAP)}円。<br>太い線が「自動」です。<br>型をタップすると、その型の成績に切り替わります。</p><svg viewBox="0 0 ${W} ${H}">${zero}${paths}</svg>`,true,'fxchart fxsel',fmtD(first)+'〜'+fmtD(lastD));
-  const hero=`<div class="fxhero"><small>${sel===FXAUTO?'自動で型を切り替えた場合'+(useT?'（'+(+useM.slice(5))+'月は'+esc(FXNAME(useT))+'）':''):esc(FXNAME(sel))+'だけで運用した場合'}</small><div class="vs">${yen(FXCAP)}円を預けていたら</div><div class="fxbig ${cur.sum>=0?'up':'dn'}">${yen(FXCAP+cur.sum)}円</div><div class="meta">${pm(cur.sum)}</div>${leg}
+  const chart=fxFold('chart','お金の増え方',`<p style="margin:2px 0 8px;font:600 11.5px 'Noto Sans JP';color:var(--sub)">点線が元手の${yen(FXCAP)}円。<br>太い線が、使っている型Fです。<br>型をタップすると、その型の成績に切り替わります。</p><svg viewBox="0 0 ${W} ${H}">${zero}${paths}</svg>`,true,'fxchart fxsel',fmtD(first)+'〜'+fmtD(lastD));
+  const hero=`<div class="fxhero"><small>${sel===FXMAIN?'いま使っている型（'+esc(FXNAME(sel))+'）':esc(FXNAME(sel))+'で運用した場合（比べる用）'}</small><div class="vs">${yen(FXCAP)}円を預けていたら</div><div class="fxbig ${cur.sum>=0?'up':'dn'}">${yen(FXCAP+cur.sum)}円</div><div class="meta">${pm(cur.sum)}</div>${leg}
     <div class="fxper" id="fxPer"><div class="row"><button data-pd="-1" ${pi<=0?'disabled':''} aria-label="前へ">‹</button><div class="lb"><div class="in ${fxDir<0?'l':''}"><b>${fxPer==='all'?'全期間':(+fxPer.slice(0,4))+'年'+(+fxPer.slice(5))+'月'}</b><span>${fmtD(first)}〜${fmtD(lastD)}${fxPer!=='all'&&fxPer<FXLIVE?'・過去データで計算':fxPer==='all'?'・'+FXLIVE.slice(0,4)+'年'+(+FXLIVE.slice(5))+'月より前は過去データで計算':''}</span></div></div><button data-pd="1" ${pi>=pers.length-1?'disabled':''} aria-label="次へ">›</button></div>
     <div class="dots">${pers.map((x,i)=>Math.abs(i-pi)<=4?`<i class="${i===pi?'on':''}"></i>`:'').join('')}</div><div class="hint">左右にスワイプで期間を切り替え</div></div></div>`;
-  const cards=fxFold('rank','型ごとの成績',[autoSt,...st.slice(1).sort((a,b)=>b.sum-a.sum)].map(x=>`<div class="fxt" data-fx="${esc(x.t)}" style="cursor:pointer"><span class="dot" style="background:${col[x.t]}"></span><div><div class="nm">${x.t===FXAUTO?'自動（毎月えらび直し）':esc(FXNAME(x.t))}${x.t===useT?'<span class="best">'+(+useM.slice(5))+'月に使用</span>':''}</div><div class="st">${yen(FXCAP)}円 → ${yen(FXCAP+x.sum)}円</div></div><div class="pf"><b class="${x.sum>=0?'up':'dn'}">${pm(x.sum)}</b></div></div>`).join(''),false);
+  const cards=fxFold('rank','型ごとの成績',[...st].sort((a,b)=>b.sum-a.sum).map(x=>`<div class="fxt" data-fx="${esc(x.t)}" style="cursor:pointer"><span class="dot" style="background:${col[x.t]}"></span><div><div class="nm">${esc(FXNAME(x.t))}${x.t===FXMAIN?'<span class="best">使用中</span>':''}</div><div class="st">${yen(FXCAP)}円 → ${yen(FXCAP+x.sum)}円</div></div><div class="pf"><b class="${x.sum>=0?'up':'dn'}">${pm(x.sum)}</b></div></div>`).join(''),false);
   const L=FX.filter(x=>x.side!=='なし'&&x.t===sel).slice().sort((a,b)=>b.d.localeCompare(a.d));
   const wd=d=>'日月火水木金土'[new Date(d+'T00:00:00').getDay()];
-  const recent=fxFold('recent','最近の結果（'+esc(FXNAME(cur.t))+'）',L.slice(0,fxN).map(x=>`<div class="fxr"><div class="d">${fmtD(x.d)}<small>${wd(x.d)}</small></div><div class="tx"><b>${esc(FXNAME(x.real||x.t))}</b></div><div class="p ${x.p>=0?'up':'dn'}">${pm(x.p)}</div></div>`).join('')+(L.length>fxN?`<button class="fxmore" id="fxMore">もっと見る（あと${L.length-fxN}件）</button>`:''),false);
-  const note=`<p style="margin:6px 20px 0;font:600 11.5px 'Noto Sans JP';color:var(--sub);line-height:1.6">※「自動」は、毎月1日に前の${FXLB}か月で1番成績が良かった型を選び、その月はその型で取引します。<br>※いまは仮想運用の結果です（実際のお金は動いていません）。<br>元手${yen(FXCAP)}円・10万通貨で売り買いした場合の金額です。<br>過去の結果は、これからの利益を約束するものではありません。</p>`;
+  const recent=fxFold('recent','最近の結果（'+esc(FXNAME(cur.t))+'）',L.slice(0,fxN).map(x=>`<div class="fxr"><div class="d">${fmtD(x.d)}<small>${wd(x.d)}</small></div><div class="tx"><b>${esc(FXNAME(x.t))}</b></div><div class="p ${x.p>=0?'up':'dn'}">${pm(x.p)}</div></div>`).join('')+(L.length>fxN?`<button class="fxmore" id="fxMore">もっと見る（あと${L.length-fxN}件）</button>`:''),false);
+  const note=`<p style="margin:6px 20px 0;font:600 11.5px 'Noto Sans JP';color:var(--sub);line-height:1.6">※型Fは、2025年・2026年のどちらでも成績が安定していた型です。<br>ほかの型は、比べるために毎日ためしています。<br>※いまは仮想運用の結果です（実際のお金は動いていません）。<br>元手${yen(FXCAP)}円・10万通貨で売り買いした場合の金額です。<br>過去の結果は、これからの利益を約束するものではありません。</p>`;
   el.innerHTML=hero+chart+cards+recent+note;$('#fxUpd').textContent='ドル円・'+fmtD(lastD)+'まで';
-  el.querySelectorAll('[data-fx]').forEach(b=>b.onclick=()=>{const v=b.dataset.fx;fxPick=(v===FXAUTO||fxPick===v)?null:v;fxN=12;renderFX()});
+  el.querySelectorAll('[data-fx]').forEach(b=>b.onclick=()=>{const v=b.dataset.fx;fxPick=(v===FXMAIN||fxPick===v)?null:v;fxN=12;renderFX()});
   el.querySelectorAll('[data-fold]').forEach(d=>d.ontoggle=()=>{fxOpen[d.dataset.fold]=d.open;try{localStorage.setItem('fxOpen',JSON.stringify(fxOpen))}catch(e){}});
   const go=d=>{const j=pi+d;if(j<0||j>=pers.length)return;fxPer=pers[j];fxDir=d;fxN=12;renderFX()};
   el.querySelectorAll('[data-pd]').forEach(b=>b.onclick=()=>go(+b.dataset.pd));
