@@ -63,8 +63,8 @@ def features(hi, jo, gd):
             '雇用統計の日': int(j['雇用統計の日'] or 0),
             '介入から30日以内': 1 if j['前の介入から日数'] and int(j['前の介入から日数']) <= 30 else 0,
         }
-        # 前日（UTC）のGDELT … 日本時間の朝9時には出そろっている
-        y = (dt.date.fromisoformat(d) - dt.timedelta(days=1)).isoformat()
+        # 2日前（UTC）のGDELT … 前日分のファイルは朝9時にはまだ出ていないので、確実に出ている2日前を使う
+        y = (dt.date.fromisoformat(d) - dt.timedelta(days=2)).isoformat()
         if y in gidx:
             i = gidx[y]
             past = [gd[gdays[k]] for k in range(max(0, i - 30), i)]
