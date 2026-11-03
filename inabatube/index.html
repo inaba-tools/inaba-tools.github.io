@@ -123,6 +123,17 @@ main{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:c
 #pane.mini{box-shadow:0 14px 44px #000c;outline:2px solid var(--accent)}
 #pl,#pane iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 #hit{position:absolute;inset:0;z-index:2;display:none}
+#ctl{position:absolute;inset:0;bottom:22%;z-index:3;display:grid;place-items:center;pointer-events:none;opacity:0;transition:opacity .25s}
+#ctl.show{opacity:1}
+#ctl.show #cpp{pointer-events:auto}
+#cpp{width:76px;height:76px;border-radius:50%;background:#000a;color:#fff;font-size:28px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.skip{position:absolute;top:0;bottom:22%;width:34%;z-index:3;display:grid;place-items:center;color:#fff;font-size:18px;font-weight:700;pointer-events:none;opacity:0;background:radial-gradient(circle at center,#ffffff22,#0000 70%)}
+.skip.l{left:0}.skip.r{right:0}
+.skip.go{animation:skipfx .6s var(--ease)}
+@keyframes skipfx{0%{opacity:0;transform:scale(.9)}25%{opacity:1;transform:scale(1)}100%{opacity:0}}
+#rate{position:absolute;left:50%;top:14px;transform:translateX(-50%);z-index:3;background:#000b;color:#fff;font-size:14px;font-weight:700;padding:6px 14px;border-radius:999px;pointer-events:none;opacity:0;transition:opacity .2s}
+#rate.show{opacity:1}
+#pane.mini #ctl,#pane.mini .skip,#pane.mini #rate{display:none}
 #vtouch{position:absolute;left:0;right:0;top:0;bottom:22%;z-index:2;touch-action:none}
 #pane.mini #vtouch{display:none}
 #pane.mini #hit{display:block;background:linear-gradient(#0000 55%,#000a)}
@@ -211,6 +222,9 @@ button:active{transform:scale(.95)}
 <div id="pane" class="gone">
   <div id="pl"></div>
   <div id="vtouch"></div>
+  <div id="ctl"><button id="cpp" aria-label="再生・一時停止">❚❚</button></div>
+  <div class="skip l" id="skl">« 10秒</div><div class="skip r" id="skr">10秒 »</div>
+  <div id="rate">2倍速 ▶▶</div>
   <div id="hit">
     <button class="mb" id="mpp" aria-label="再生・一時停止">❚❚</button>
     <div id="hint">上スワイプで戻す・下スワイプで閉じる</div>
@@ -329,7 +343,8 @@ async function yt(path, params) {
   try { return await ytRaw(path, params); } finally { setBusy(false); }
 }
 async function ytRaw(path, params) {
-  const useToken = loggedIn();
+  const forceKey = params._key && API_KEY; delete params._key;
+  const useToken = loggedIn() && !forceKey;
   if (!useToken && (params.mine || !API_KEY)) throw new Error('login');
   const u = new URL(API + path);
   Object.entries(params).forEach(([k, v]) => v !== undefined && v !== '' && u.searchParams.set(k, v));
@@ -623,7 +638,10 @@ function head(v) {
 }
 async function loadComments(id) {
   try {
-    const j = await yt('commentThreads', { part: 'snippet', videoId: id, maxResults: 30, order: 'relevance', textFormat: 'plainText' });
+    const q = { part: 'snippet', videoId: id, maxResults: 30, order: 'relevance', textFormat: 'plainText' };
+    let j;
+    try { j = await yt('commentThreads', { ...q, _key: 1 }); }
+    catch (e1) { if (e1.message === 'commentsDisabled' || !loggedIn()) throw e1; j = await yt('commentThreads', q); }
     if (current?.id !== id) return;
     $('#cmt').textContent = j.items.length ? `コメント（${j.items.length}件）` : 'コメント';
     $('#cms').innerHTML = j.items.length ? j.items.map((c, i) => { const s = c.snippet.topLevelComment.snippet;
@@ -634,7 +652,7 @@ async function loadComments(id) {
     $('#cmt').textContent = 'コメント';
     $('#cms').innerHTML = e.message === 'commentsDisabled'
       ? '<div class="s">この動画は、投稿者がコメントをオフにしています。\n（子ども向けの動画などは自動でオフになります）</div>'
-      : '<div class="s">コメントを読み込めませんでした。</div>';
+      : `<div class="s">コメントを読み込めませんでした。\n（${esc(e.message)}）</div>`;
   }
 }
 async function loadRelated(v) {
@@ -708,14 +726,42 @@ function fullscreen() {
 dragDown($('#topbar'));
 dragDown($('#vtouch'), () => !isFs());
 (() => {
-  const el = $('#vtouch'); let y0 = null, x0 = 0, t0 = 0;
-  el.addEventListener('touchstart', e => { y0 = e.touches[0].clientY; x0 = e.touches[0].clientX; t0 = Date.now(); }, { passive: true });
-  el.addEventListener('touchend', e => {
+  const el = $('#vtouch'); let y0 = null, x0 = 0, t0 = 0, lpT = null, lp = false, ctlT = null;
+  const showCtl = () => {
+    $('#cpp').textContent = ready && player.getPlayerState() === 1 ? '❚❚' : '▶';
+    $('#ctl').classList.add('show'); clearTimeout(ctlT);
+    ctlT = setTimeout(() => $('#ctl').classList.remove('show'), 2600);
+  };
+  const skip = (d, side) => {
+    if (!ready) return;
+    player.seekTo(Math.max(0, player.getCurrentTime() + d), true);
+    const f = $(side); f.classList.remove('go'); void f.offsetWidth; f.classList.add('go');
+  };
+  $('#cpp').addEventListener('click', e => { e.stopPropagation(); togglePlay(); setTimeout(showCtl, 120); });
+  el.addEventListener('touchstart', e => {
+    y0 = e.touches[0].clientY; x0 = e.touches[0].clientX; t0 = Date.now(); lp = false;
+    clearTimeout(lpT);
+    // 長押しで押している間だけ2倍速
+    lpT = setTimeout(() => { if (y0 === null || !ready) return; lp = true; player.setPlaybackRate(2); $('#rate').classList.add('show'); }, 450);
+  }, { passive: true });
+  el.addEventListener('touchmove', e => {
+    if (y0 === null) return;
+    if (Math.abs(e.touches[0].clientY - y0) > 10 || Math.abs(e.touches[0].clientX - x0) > 10) clearTimeout(lpT);
+  }, { passive: true });
+  const end = e => {
+    clearTimeout(lpT);
+    if (lp) { lp = false; y0 = null; try { player.setPlaybackRate(1); } catch {} $('#rate').classList.remove('show'); return; }
     if (y0 === null) return;
     const dy = e.changedTouches[0].clientY - y0, dx = e.changedTouches[0].clientX - x0; y0 = null;
     if (dy < -50 && Math.abs(dy) > Math.abs(dx)) { isFs() ? null : fullscreen(); return; }
     if (dy > 50 && isFs()) { exitFs(); return; }
-  });
+    if (Math.abs(dy) < 10 && Math.abs(dx) < 10 && Date.now() - t0 < 400) {
+      const r = el.getBoundingClientRect(), x = (e.changedTouches[0].clientX - r.left) / r.width;
+      if (x < 0.34) skip(-10, '#skl'); else if (x > 0.66) skip(10, '#skr'); else showCtl();
+    }
+  };
+  el.addEventListener('touchend', end);
+  el.addEventListener('touchcancel', end);
 })();
 dragDown($('#info'), () => $('#info').scrollTop <= 0);
 let fsUp = null;
@@ -753,7 +799,7 @@ const waitG = setInterval(() => { if (initAuth()) clearInterval(waitG); }, 300);
 setTimeout(() => clearInterval(waitG), 15000);
 if (autoLogin()) route();
 // ホーム画面アプリでも更新がすぐ反映されるように、新しい版があれば読み直す
-const VERSION = '20';
+const VERSION = '21';
 fetch('version.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.text()).then(t => { t = t.trim(); if (t && t !== VERSION && new URLSearchParams(location.search).get('v') !== t) location.replace(location.pathname + '?v=' + t); }).catch(() => {});
 </script>
 </body>
