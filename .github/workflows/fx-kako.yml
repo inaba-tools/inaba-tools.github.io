@@ -14,4 +14,4 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: kako-${{ matrix.year }}
-          path: fx-kiroku/kako_f_${{ matrix.year }}.csv
+          path: fx-kiroku/kako_f.py
