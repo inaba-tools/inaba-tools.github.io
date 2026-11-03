@@ -9,7 +9,7 @@
 #   A2 15時ブレイク    : Aを15時から始める。損切り80銭、24時に決済
 #   B  仲値後の売り    : 五十日の10:00に売り、11:00に買い戻し
 #   B2 9:55売り        : 五十日の9:55に売り、11:00に買い戻し
-#   C  仲値前の買い    : 五十日の8:00に買い、9:55に売る
+#   C  仲値前の買い    : 五十日の7:00に買い、9:55に売る（朝はGMOの広いスプレッドで計算）
 #   D  窓埋め          : 月曜の朝7時（GMOで入れる一番早い時間）、金曜の終値から10銭以上飛んでいたら戻る方向に入る。
 #                        金曜終値に戻ったら決済、戻らなければ12時に決済。7時前にもう埋まっていたら見送り
 #                        手数料はGMOクリック証券FXネオの広告スプレッド（3〜9時は3.8銭・それ以外は0.2銭）で計算
@@ -152,11 +152,12 @@ def at(today, h, m):
     return None
 
 
-def timed(d, today, typ, side, eh, em, xh, xm, why):
+def timed(d, today, typ, side, eh, em, xh, xm, why, gmo=False):
     e, x = at(today, eh, em), at(today, xh, xm)
     if not e or not x or e[0].hour != eh or x[0].hour != xh:
         return None
-    return row(d, typ, side, '-', e[0], e[1], x[0], x[1], why)
+    fee = gmo_fee(e[0], x[0]) if gmo else FEE
+    return row(d, typ, side, '-', e[0], e[1], x[0], x[1], why, fee)
 
 
 def gap_fill(d, today):
@@ -202,7 +203,7 @@ def judge(d):
         out += [
             timed(d, today, 'B 仲値後の売り', '売り', 10, 0, 11, 0, '11時に買い戻し'),
             timed(d, today, 'B2 9:55売り', '売り', 9, 55, 11, 0, '11時に買い戻し'),
-            timed(d, today, 'C 仲値前の買い', '買い', 8, 0, 9, 55, '9:55に売り'),
+            timed(d, today, 'C 仲値前の買い', '買い', 7, 0, 9, 55, '9:55に売り', gmo=True),
         ]
     return [r for r in out if r]
 
@@ -217,6 +218,10 @@ def main():
     redo = sorted(olds)
     rows = [r for r in rows if not (r[1] == 'D 窓埋め' and '7時' not in r[3])]
     redo = [dt.date.fromisoformat(x) for x in redo]
+    # 型Cは7時に買う・朝のスプレッドに変えたので、8時の古い記録は消してやり直す
+    oldc = {r[0]: r for r in rows if r[1] == 'C 仲値前の買い' and not r[4].startswith('07:00')}
+    rows = [r for r in rows if r[0] + r[1] not in {k + 'C 仲値前の買い' for k in oldc}]
+    redoc = [dt.date.fromisoformat(x) for x in sorted(oldc)]
     done = {r[0] for r in rows}
 
     now = dt.datetime.now(JST)
@@ -229,7 +234,7 @@ def main():
             for k in range(4):
                 need.add(d - dt.timedelta(days=k))
         d += dt.timedelta(days=1)
-    for m in redo:
+    for m in redo + redoc:
         for k in range(5):
             need.add(m - dt.timedelta(days=k))
     need = sorted(x for x in need if x < now.date())
@@ -259,6 +264,14 @@ def main():
         else:
             rows.append(olds[m.isoformat()])  # 取れなければ古いまま残し、次回やり直す
             print(m, '窓埋めやり直し失敗')
+    for m in redoc:
+        r = timed(m, jst_day(m) or [], 'C 仲値前の買い', '買い', 7, 0, 9, 55, '9:55に売り', gmo=True)
+        if r:
+            rows.append(r)
+            added += 1
+        else:
+            rows.append(oldc[m.isoformat()])  # 取れなければ古いまま残し、次回やり直す
+            print(m, '型Cやり直し失敗')
     d = START_DAY
     while d < now.date():
         if time.time() - t0 > 5 * 3600:
