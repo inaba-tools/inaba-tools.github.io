@@ -935,6 +935,17 @@ html.dark .pastd .ref{background:#3a3115;color:#ffd970}
 .fxper .hint{text-align:center;font:700 10px "Noto Sans JP";opacity:.5;margin-top:5px}.fxhero .fxleg button{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:#fff}.fxhero .fxleg button.on{background:#fff;color:#1f2b25;border-color:#fff}
 .fxhero .vs{font:800 13px "Noto Sans JP";opacity:.9;margin-top:4px}
 .fxmore{width:100%;border:0;background:none;font:800 13px "Noto Sans JP";color:var(--sub);padding:10px 0 2px}
+.fxj{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:11px 0;border-top:1px solid var(--line)}
+.fxj:first-of-type{border-top:0}
+.fxj .k{font:800 12px "Noto Sans JP";color:var(--sub)}.fxj .v{font:900 14px "Noto Sans JP";color:var(--ink);text-align:right}
+.fxj .s{grid-column:1/3;font:600 11.5px "Noto Sans JP";color:var(--sub);line-height:1.55}
+.fxj .tag,.fxk .tag{display:inline-block;border-radius:6px;padding:1px 7px;font:900 11px "Noto Sans JP"}
+.fxj .tag.g,.fxk .tag.g{background:#e3f1ec;color:#1f7a55}.fxj .tag.r,.fxk .tag.r{background:#fbe6e3;color:#b23a30}.fxj .tag.n,.fxk .tag.n{background:#eceae2;color:#6c716a}
+html.dark .fxj .tag.g,html.dark .fxk .tag.g{background:#173328}html.dark .fxj .tag.r,html.dark .fxk .tag.r{background:#3a1d1a;color:#f19a90}html.dark .fxj .tag.n,html.dark .fxk .tag.n{background:#2a2d29;color:#b9bdb6}
+.fxk{padding:11px 0;border-top:1px solid var(--line)}.fxk:first-of-type{border-top:0}
+.fxk .h{display:flex;align-items:center;gap:8px}.fxk .h b{font:900 14px "Noto Sans JP";color:var(--ink)}.fxk .h .tag{margin-left:auto}
+.fxk .r{font:600 11.5px "Noto Sans JP";color:var(--sub);line-height:1.6;margin-top:3px}
+.fxk .r em{font-style:normal;font-weight:800;color:var(--ink)}
 html.dark .fxt .best{background:#3a3115;color:#f0c75a}
 html.dark .fxside.b{background:#173328}html.dark .fxside.s{background:#3a1d1a;color:#f19a90}
 
@@ -1810,12 +1821,41 @@ const FXFROM='2026-01'; // 画面に出すのはこの月から（それより�
 const FXMAIN=null; // 決まった「使う型」はなし（どれも年によって負ける）
 const FXNAME=t=>{const i=FXORD.indexOf(t);return '型'+(i<0?t.split(' ')[0]:'ABCDEF'[i])};
 const FXCOL=['#1f9d6b','#2b6fd6','#d98a1c','#7a5bd6','#d2453b','#2a9bb0','#8a8f3a'];
-let FX=null,FXALL=null,fxPick=null,fxN=12,fxOpen={},fxPer=null,fxDir=0;
+let FXKYOU=null,FXKEKKA=null,FX=null,FXALL=null,fxPick=null,fxN=12,fxOpen={},fxPer=null,fxDir=0;
 try{fxOpen=JSON.parse(localStorage.getItem('fxOpen')||'{}')}catch(e){}
 function csvParse(t){return t.trim().split(/\r?\n/).map(l=>{const o=[];let c='',q=false;for(let i=0;i<l.length;i++){const ch=l[i];if(q){if(ch=='"'&&l[i+1]=='"'){c+='"';i++}else if(ch=='"')q=false;else c+=ch}else if(ch=='"')q=true;else if(ch==','){o.push(c);c=''}else c+=ch}o.push(c);return o})}
 async function loadFX(){try{const r=await fetch('../fx-kiroku/kiroku.csv?'+Date.now(),{cache:'no-store'});if(!r.ok)throw 0;const rows=csvParse(await r.text()).slice(1).filter(x=>x.length>=8&&x[0]);
-  FXALL=rows.map(x=>({d:x[0],t:x[1],side:x[2],p:(+x[7]||0)*FXLOT}));renderFX()}catch(e){$('#fxBody').innerHTML='<div class="box" style="color:var(--sub)">記録を読み込めませんでした。少しして開き直してね。</div>'}}
+  FXALL=rows.map(x=>({d:x[0],t:x[1],side:x[2],p:(+x[7]||0)*FXLOT}));
+  const gj=async u=>{try{const r=await fetch(u+'?'+Date.now(),{cache:'no-store'});return r.ok?await r.json():null}catch(e){return null}};
+  [FXKYOU,FXKEKKA]=await Promise.all([gj('../fx-kiroku/kenkyu/kyou.json'),gj('../fx-kiroku/kenkyu/kekka.json')]);renderFX()}catch(e){$('#fxBody').innerHTML='<div class="box" style="color:var(--sub)">記録を読み込めませんでした。少しして開き直してね。</div>'}}
 function fxFold(key,title,body,def,cls='',rt=''){const o=key in fxOpen?fxOpen[key]:def;return`<details class="box fxfold ${cls}" data-fold="${key}" ${o?'open':''}><summary><h3>${title}</h3>${rt?`<span class="fxrt">${rt}</span>`:''}</summary>${body}</details>`}
+function fxKyou(){const k=FXKYOU;if(!k)return'';
+  const md=d=>{const [y,m,dd]=d.split('-');return (+m)+'/'+(+dd)};const wd=d=>'日月火水木金土'[new Date(d+'T00:00:00').getDay()];
+  const tag=(c,t)=>`<span class="tag ${c}">${t}</span>`;const row=(k2,v,sub)=>`<div class="fxj"><div class="k">${k2}</div><div class="v">${v}</div>${sub?`<div class="s">${sub}</div>`:''}</div>`;
+  let h='';
+  if(k.金利差!=null){const c=k.金利差20日変化;const ch=c==null?'':Math.abs(c)<0.03?'この1か月、ほとんど変わっていません。':c<0?`この1か月で${Math.abs(c).toFixed(2)}%縮まりました。<br>縮まると、円高になりやすいと言われます。`:`この1か月で${c.toFixed(2)}%広がりました。<br>広がると、円安になりやすいと言われます。`;
+    h+=row('金利の差（米国−日本・2年）',`${k.金利差.toFixed(2)}%`,`米国${k.米2年.toFixed(2)}%・日本${k.日2年.toFixed(2)}%。<br>${ch}`)}
+  if(k.VIX!=null){const v=k.VIX;const t=v<15?tag('g','落ち着き'):v<25?tag('n','ふつう'):tag('r','荒れ気味');const c=k.VIX5日変化;
+    h+=row('VIX（米国株の荒れ具合）',`${v.toFixed(1)} ${t}`,`15より下は落ち着き、25より上は荒れ気味です。<br>${c==null?'':'5日前より'+(c>=0?'+':'−')+Math.abs(c).toFixed(1)+'。'}`)}
+  const nw=k.ニュース||{};const nl=g=>{const x=nw[g];if(!x)return null;return x.ずれ<=-0.5?tag('r','いつもより暗い'):x.ずれ>=0.5?tag('g','いつもより明るい'):tag('n','いつも通り')};
+  if(nw.円||nw.ドル)h+=row(`ニュースの明るさ（${md(k.ニュースの日)}）`,'',`円の記事：${nl('円')||'-'}<br>ドルの記事：${nl('ドル')||'-'}<br>世界中のニュースを機械で点数にしたもの（GDELT）を、ここ30日と比べています。`);
+  const ev=k.これからの発表||[];const today=k.日付;
+  h+=row('これからの大きな発表',ev.length?'':'2週間はなし',ev.map(e=>`${e[0]===today?tag('r','今日'):md(e[0])+'（'+wd(e[0])+'）'} ${esc(e[1])}・${esc(e[2])}`).join('<br>'));
+  if(k.前の介入から日数!=null)h+=row('為替介入',`前回から${k.前の介入から日数}日`,'財務省の記録より。<br>介入があった日は、あとから公表されます。');
+  h+=`<p style="margin:8px 0 0;font:600 11px 'Noto Sans JP';color:var(--sub);line-height:1.6">情勢で型を絞る検証では、勝率は上がりませんでした。<br>なので、型の売り買いには使っていません（見るだけ）。</p>`;
+  return fxFold('kyou','今日の情勢',h,true,'',md(k.日付))}
+function fxKekka(){const r=FXKEKKA;if(!r)return'';
+  const man=n=>{const a=Math.abs(n);return (n>=0?'+':'−')+(a>=10000?(Math.round(a/1000)/10).toLocaleString('ja-JP')+'万円':yen(a)+'円')};
+  const ln=x=>`100回で${Math.round(x.勝率)}回勝ち・${man(x.円)}`;
+  let h=`<p style="margin:0 0 6px;font:600 11.5px 'Noto Sans JP';color:var(--sub);line-height:1.6">2015〜2022年のデータだけで、型ごとに一番よかった絞り方を決めました。<br>2023年からは、それをそのまま当てはめています（後出しなし）。<br>使った情勢は、金利の差・VIX・大きな発表の日・為替介入・ニュースの明るさです。</p>`;
+  r.型.forEach(t=>{const a=t.試す期間_そのまま,b=t.試す期間_絞る;let tg,body;
+    if(!b){tg='<span class="tag n">効く絞り方なし</span>';body=`2023年〜：${ln(a)}`}
+    else{const up=b.勝率>a.勝率,mo=b.円>a.円;tg=up&&mo?'<span class="tag g">良くなった</span>':!up&&!mo?'<span class="tag r">悪くなった</span>':'<span class="tag n">どちらとも言えない</span>';
+      const rd=t.でたらめに選んでこれ以上になる確率;
+      body=`絞り方：<em>${esc(t.絞り方.replace('ニュース:','ニュースの'))}</em><br>2023年〜 そのまま：${ln(a)}<br>2023年〜 絞った：${ln(b)}${rd!=null&&up?`<br>でたらめに同じ回数を選んでも、10回に${Math.max(1,Math.round(rd/10))}回はこれくらいになります（偶然の範囲）。`:''}`}
+    h+=`<div class="fxk" data-fx="${esc(t.型)}" style="cursor:pointer"><div class="h"><b>${esc(t.名前)}</b>${tg}</div><div class="r">${body}</div></div>`});
+  h+=`<p style="margin:8px 0 0;font:600 11px 'Noto Sans JP';color:var(--sub);line-height:1.6">2015〜2022年に勝率を上げた絞り方が、2023年からも上げるかを全部（約500通り）比べました。<br>結果は、ほぼ無関係でした。<br>荒れた日を休むと、ブレイクの型（型A・型B）は大きく稼げる日まで逃していました。</p>`;
+  return fxFold('kekka','情勢で絞ってみた結果',h,false,'',r.試す期間)}
 function renderFX(){if(!FXALL)return;const el=$('#fxBody');
   const allM=[...new Set(FXALL.map(x=>x.d.slice(0,7)))].sort();const months=allM.filter(m=>m>=FXFROM);const pers=[...months,'all'];
   if(!pers.includes(fxPer))fxPer=months[months.length-1];const pi=pers.indexOf(fxPer);
@@ -1843,7 +1883,7 @@ function renderFX(){if(!FXALL)return;const el=$('#fxBody');
   const wd=d=>'日月火水木金土'[new Date(d+'T00:00:00').getDay()];
   const recent=fxFold('recent','最近の結果（'+esc(FXNAME(cur.t))+'）',L.slice(0,fxN).map(x=>`<div class="fxr"><div class="d">${fmtD(x.d)}<small>${wd(x.d)}</small></div><div class="tx"><b>${esc(FXNAME(x.t))}</b></div><div class="p ${x.p>=0?'up':'dn'}">${pm(x.p)}</div></div>`).join('')+(L.length>fxN?`<button class="fxmore" id="fxMore">もっと見る（あと${L.length-fxN}件）</button>`:''),false);
   const note=`<p style="margin:6px 20px 0;font:600 11.5px 'Noto Sans JP';color:var(--sub);line-height:1.6">※どの型も、勝つ年と負ける年があります。<br>※手数料はGMOクリック証券の条件で計算しています。<br>型Fは、月曜に取引できる朝7時に入り、早朝のスプレッド3.8銭を引いています。<br>ほかの型は昼間の取引なので、1回0.3銭で計算しています。<br>※いまは仮想運用の結果です（実際のお金は動いていません）。<br>元手${yen(FXCAP)}円・10万通貨で売り買いした場合の金額です。<br>過去の結果は、これからの利益を約束するものではありません。</p>`;
-  el.innerHTML=hero+chart+cards+recent+note;$('#fxUpd').textContent='ドル円・'+fmtD(lastD)+'まで';
+  el.innerHTML=hero+fxKyou()+chart+cards+fxKekka()+recent+note;$('#fxUpd').textContent='ドル円・'+fmtD(lastD)+'まで';
   el.querySelectorAll('[data-fx]').forEach(b=>b.onclick=()=>{const v=b.dataset.fx;fxPick=fxPick===v?null:v;fxN=12;renderFX()});
   el.querySelectorAll('[data-fold]').forEach(d=>d.ontoggle=()=>{fxOpen[d.dataset.fold]=d.open;try{localStorage.setItem('fxOpen',JSON.stringify(fxOpen))}catch(e){}});
   const go=d=>{const j=pi+d;if(j<0||j>=pers.length)return;fxPer=pers[j];fxDir=d;fxN=12;renderFX()};
