@@ -78,11 +78,11 @@ main{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:c
 #watch.away{transform:translateY(100%);pointer-events:none}
 @media (max-width:900px){#watch{grid-template-columns:1fr}#side{display:none}}
 #left{display:flex;flex-direction:column;min-height:0;overflow:hidden;padding:0 16px}
-#topbar{position:fixed;z-index:42;left:0;top:0;width:calc(100% - 340px);height:calc(var(--st) + 48px);display:flex;align-items:flex-end;gap:6px;padding:0 10px 4px;touch-action:none}
+#topbar{display:none!important;position:fixed;z-index:42;left:0;top:0;width:calc(100% - 340px);height:calc(var(--st) + 48px);display:flex;align-items:flex-end;gap:6px;padding:0 10px 4px;touch-action:none}
 @media (max-width:900px){#topbar{width:100%}}
 #topbar::after{content:'';position:absolute;left:50%;bottom:16px;width:56px;height:5px;margin-left:-28px;border-radius:9px;background:#ffffff40}
 #topbar button{width:44px;height:40px;font-size:22px;border-radius:8px}
-#slot{flex:none;width:min(100%,calc((100dvh - var(--st) - 160px) * 16 / 9));align-self:center;aspect-ratio:16/9;margin-top:calc(var(--st) + 48px)}
+#slot{flex:none;width:min(100%,calc((100dvh - var(--st) - 130px) * 16 / 9));align-self:center;aspect-ratio:16/9;margin-top:calc(var(--st) + 12px)}
 #info{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;touch-action:pan-y;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:14px 0 40px}
 #vt{font-size:19px;font-weight:700;line-height:1.45;margin:0}
 #vs{font-size:13px;color:var(--sub);margin-top:6px}
@@ -97,14 +97,15 @@ main{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:c
 .cm img{width:32px;height:32px;border-radius:50%;flex:none}
 .cm .n{font-size:12px;color:var(--sub)}
 .cm .x{font-size:14px;line-height:1.6;white-space:pre-wrap;word-break:break-word;margin-top:2px}
-#side{overflow-y:auto;overflow-x:hidden;touch-action:pan-y;overscroll-behavior:contain;padding:calc(var(--st) + 56px) 16px 40px 0}
+#side{overflow-y:auto;overflow-x:hidden;touch-action:pan-y;overscroll-behavior:contain;padding:calc(var(--st) + 12px) 16px 40px 0}
 .rv{display:flex;gap:10px;margin-bottom:14px;text-align:left;width:100%}
 .rv .th{width:150px;flex:none}
 .rv .t{font-size:13px}
 .rv .s{font-size:12px}
 
 /* ===== player pane (moves between watch slot and mini) ===== */
-#pane{position:fixed;z-index:40;background:#000;overflow:hidden;border-radius:var(--r);transition:left .28s ease,top .28s ease,width .28s ease,height .28s ease,box-shadow .28s;left:0;top:0;width:0;height:0}
+#pane{position:fixed;z-index:40;background:#000;overflow:hidden;border-radius:var(--r);left:0;top:0;width:0;height:0;transform-origin:0 0;will-change:transform;backface-visibility:hidden}
+#pane.max{z-index:65;border-radius:0}
 #pane.mini{box-shadow:0 14px 44px #000c;outline:2px solid var(--accent)}
 #pl,#pane iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 #hit{position:absolute;inset:0;z-index:2;display:none}
@@ -155,7 +156,9 @@ button:active{transform:scale(.95)}
 @keyframes bar{from{background-position:-50% 0}to{background-position:150% 0}}
 /* 再生画面の出入りをバネっぽく */
 #watch{transition:transform .42s var(--ease),opacity .3s}
-#pane{transition:left .42s var(--ease),top .42s var(--ease),width .42s var(--ease),height .42s var(--ease),box-shadow .3s,opacity .25s,transform .42s var(--ease)}
+#pane{transition:box-shadow .3s,opacity .25s}
+#pane.flip{transition:transform .42s var(--ease),box-shadow .3s,opacity .25s}
+#watch{will-change:transform;backface-visibility:hidden}
 #pane.dragging,#watch.dragging{transition:none!important}
 #info>*{animation:fadeUp .4s var(--ease) both}
 .toast{animation:toastIn .35s var(--spring)}
@@ -176,7 +179,6 @@ button:active{transform:scale(.95)}
 
 <nav class="tabs" id="tabs">
   <button data-tab="home" class="on"><b>⌂</b>ホーム</button>
-  <button data-tab="subs"><b>☰</b>登録チャンネル</button>
   <button data-tab="me"><b>◎</b>マイページ</button>
 </nav>
 
@@ -461,9 +463,9 @@ async function route() {
   } catch (e) { showErr(e); }
 }
 async function renderHome(force, tab = 'home') {
-  chips(tab === 'home' ? '最近アップロードされた動画' : '登録チャンネルの最近の動画');
+  chips('最近アップロードされた動画');
   loading();
-  const pick = vs => tab === 'home' ? vs.filter(v => Date.now() - new Date(v.at) < 48 * 3600e3) : vs;
+  const pick = vs => vs;
   let first = true;
   const show = vs => {
     if (state.tab !== tab || state.search || state.channel) return;
@@ -518,11 +520,12 @@ let player = null, ready = false, pending = null, mode = 'none', current = null;
 window.onYouTubeIframeAPIReady = () => {
   player = new YT.Player('pl', {
     width: '100%', height: '100%',
-    playerVars: { playsinline: 1, rel: 0, modestbranding: 1 },
+    playerVars: { playsinline: 1, rel: 0, modestbranding: 1, cc_load_policy: 0, iv_load_policy: 3 },
     events: {
       onReady: () => { ready = true; if (pending) { player.loadVideoById(pending); pending = null; } },
       onStateChange: e => {
         $('#mpp').textContent = e.data === 1 ? '❚❚' : '▶';
+        if (e.data === 1 || e.data === -1) capsOff();
         if (e.data === 1) wasPlaying = true;
         // 全画面を閉じた直後に勝手に止まったら、続きを再生する
         if (e.data === 2 && wasPlaying && Date.now() - fsChangedAt < 1500) { player.playVideo(); return; }
@@ -531,27 +534,45 @@ window.onYouTubeIframeAPIReady = () => {
     }
   });
 };
+// 位置と大きさは一度で最終形にして、見た目だけ transform で前の位置から動かす（毎コマの再計算をしないので滑らか）
+function flip(p, to) {
+  const from = p.getBoundingClientRect();
+  const same = Math.abs(from.left - to.left) < 1 && Math.abs(from.top - to.top) < 1 && Math.abs(from.width - to.width) < 1;
+  if (same) return;
+  p.classList.remove('flip'); p.style.transform = ''; p.style.transformOrigin = '';
+  Object.assign(p.style, { left: to.left + 'px', top: to.top + 'px', width: to.width + 'px', height: to.height + 'px' });
+  if (!from.width || p.classList.contains('gone')) return;
+  p.style.transform = `translate(${from.left - to.left}px,${from.top - to.top}px) scale(${from.width / to.width},${from.height / to.height})`;
+  void p.offsetWidth;
+  p.classList.add('flip'); p.style.transform = '';
+}
 function place() {
   const p = $('#pane');
   if (mode === 'none') { p.classList.add('gone'); return; }
   p.classList.remove('gone');
+  if (mode === 'max') {
+    flip(p, { left: 0, top: 0, width: innerWidth, height: innerHeight });
+    p.classList.remove('mini'); p.classList.add('max');
+    return;
+  }
+  p.classList.remove('max');
   if (mode === 'full') {
     // 再生画面がスライド中でも、止まった後の位置を先に計算して、そこへ一直線に動かす
     const w = $('#watch'), tf = w.style.transform, tr = w.style.transition;
     w.style.transition = 'none'; w.style.transform = 'none';
     const r = $('#slot').getBoundingClientRect();
     w.style.transform = tf; void w.offsetWidth; w.style.transition = tr;
-    Object.assign(p.style, { left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px' });
+    flip(p, { left: r.left, top: r.top, width: r.width, height: r.height });
     p.classList.remove('mini');
   } else {
     const w = Math.min(380, innerWidth * 0.42), h = w * 9 / 16;
-    Object.assign(p.style, { left: (innerWidth - w - 20) + 'px', top: (innerHeight - h - 96) + 'px', width: w + 'px', height: h + 'px' });
+    flip(p, { left: innerWidth - w - 20, top: innerHeight - h - 96, width: w, height: h });
     p.classList.add('mini');
   }
 }
 function setMode(m) {
   mode = m;
-  $('#watch').classList.toggle('away', m !== 'full');
+  $('#watch').classList.toggle('away', m !== 'full' && m !== 'max');
   $('#watch').setAttribute('aria-hidden', m !== 'full');
   place();
 }
@@ -643,19 +664,24 @@ function dragDown(el, canStart = () => true) {
     if (y0 === null) return; y0 = null;
     if (!active) return;
     w.classList.remove('dragging'); p.classList.remove('dragging');
-    w.style.transform = ''; w.style.opacity = ''; p.style.transform = '';
-    if (dy > 90) minimize();
+    w.style.transform = ''; w.style.opacity = '';
+    if (dy > 90) { minimize(); return; }
+    p.classList.add('flip'); p.style.transform = ''; p.style.transformOrigin = '';
   });
 }
 let wasPlaying = false, fsChangedAt = 0;
 const markFs = () => { fsChangedAt = Date.now(); };
 ['fullscreenchange', 'webkitfullscreenchange', 'resize'].forEach(ev => (ev === 'resize' ? window : document).addEventListener(ev, markFs));
-const isFs = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
-function exitFs() { (document.exitFullscreen || document.webkitExitFullscreen)?.call(document); }
+const isFs = () => mode === 'max' || !!(document.fullscreenElement || document.webkitFullscreenElement);
+function exitFs() { if (mode === 'max') { setMode('full'); return; } (document.exitFullscreen || document.webkitExitFullscreen)?.call(document); }
 function togglePlay() { if (!ready) return; player.getPlayerState() === 1 ? player.pauseVideo() : player.playVideo(); }
+function capsOff() { try { player.unloadModule('captions'); player.unloadModule('cc'); player.setOption('captions', 'track', {}); } catch {} }
 function fullscreen() {
-  const p = $('#pane');
-  (p.requestFullscreen || p.webkitRequestFullscreen)?.call(p);
+  const p = $('#pane'), fn = p.requestFullscreen || p.webkitRequestFullscreen;
+  const fallback = () => { if (!isFs()) setMode('max'); };
+  if (!fn) return fallback();
+  try { const r = fn.call(p); if (r?.catch) r.catch(fallback); } catch { return fallback(); }
+  setTimeout(fallback, 400); // 本物の全画面にならなかったら画面いっぱいに広げる
 }
 // 再生画面：上のバーと、動画の下の情報エリアの一番上で下スワイプ→小窓／上スワイプ→全画面
 dragDown($('#topbar'));
@@ -668,9 +694,7 @@ dragDown($('#vtouch'), () => !isFs());
     const dy = e.changedTouches[0].clientY - y0, dx = e.changedTouches[0].clientX - x0; y0 = null;
     if (dy < -50 && Math.abs(dy) > Math.abs(dx)) { isFs() ? null : fullscreen(); return; }
     if (dy > 50 && isFs()) { exitFs(); return; }
-    if (Math.abs(dy) < 10 && Math.abs(dx) < 10 && Date.now() - t0 < 400) togglePlay();
   });
-  el.addEventListener('click', e => { if (!('ontouchstart' in window)) togglePlay(); });
 })();
 dragDown($('#info'), () => $('#info').scrollTop <= 0);
 let fsUp = null;
@@ -684,7 +708,7 @@ $('#mpp').onclick = e => { e.stopPropagation(); if (!ready) return; player.getPl
 $('#mx').onclick = e => { e.stopPropagation(); closePlayer(); };
 $('#down').onclick = minimize;
 $('#fs').onclick = fullscreen;
-addEventListener('popstate', () => { if (mode === 'full') minimize(); });
+addEventListener('popstate', () => { if (mode === 'max') setMode('full'); else if (mode === 'full') minimize(); });
 addEventListener('resize', place);
 new ResizeObserver(place).observe($('#slot'));
 addEventListener('orientationchange', () => setTimeout(place, 300));
@@ -708,7 +732,7 @@ const waitG = setInterval(() => { if (initAuth()) clearInterval(waitG); }, 300);
 setTimeout(() => clearInterval(waitG), 15000);
 if (autoLogin()) route();
 // ホーム画面アプリでも更新がすぐ反映されるように、新しい版があれば読み直す
-const VERSION = '16';
+const VERSION = '18';
 fetch('version.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.text()).then(t => { t = t.trim(); if (t && t !== VERSION && new URLSearchParams(location.search).get('v') !== t) location.replace(location.pathname + '?v=' + t); }).catch(() => {});
 </script>
 </body>
