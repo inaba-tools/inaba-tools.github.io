@@ -254,8 +254,46 @@ function initAuth() {
   });
   return true;
 }
+/* ページごとGoogleへ移動してログインし、自動で戻ってくる（ボタンを押さなくても開いた時点で動く） */
+const REDIRECT = location.origin + location.pathname;
+function loginRedirect(silent) {
+  if (!CLIENT_ID) return;
+  const st = Math.random().toString(36).slice(2);
+  try { sessionStorage.setItem('it_state', st); sessionStorage.setItem('it_try', silent ? 'silent' : 'full'); } catch {}
+  const u = new URL('https://accounts.google.com/o/oauth2/v2/auth');
+  Object.entries({ client_id: CLIENT_ID, redirect_uri: REDIRECT, response_type: 'token', scope: SCOPE,
+    include_granted_scopes: 'true', state: st, prompt: silent ? 'none' : 'select_account' }).forEach(([k, v]) => u.searchParams.set(k, v));
+  location.replace(u);
+}
+function takeRedirectResult() {
+  if (!location.hash.includes('state=')) return null;
+  const h = new URLSearchParams(location.hash.slice(1));
+  history.replaceState(null, '', REDIRECT);
+  let st = null, tried = null;
+  try { st = sessionStorage.getItem('it_state'); tried = sessionStorage.getItem('it_try'); sessionStorage.removeItem('it_state'); } catch {}
+  if (h.get('state') !== st) return null;
+  if (h.get('access_token')) {
+    token = { v: h.get('access_token'), exp: Date.now() + ((+h.get('expires_in') || 3600) - 60) * 1000 };
+    ls.set('token', token); ls.set('everLogged', true); ls.del('homeCache');
+    try { sessionStorage.removeItem('it_try'); } catch {}
+    return 'ok';
+  }
+  // Googleのログインが残っていなかったときは、アカウント選択画面へ（1回だけ）
+  if (tried === 'silent') return 'needFull';
+  try { sessionStorage.removeItem('it_try'); } catch {}
+  return 'fail';
+}
+function autoLogin() {
+  const r = takeRedirectResult();
+  if (r === 'ok') return true;
+  if (r === 'needFull') { loginRedirect(false); return false; }
+  if (r === 'fail') return true; // 失敗したらループさせずにボタン表示に戻す
+  if (!hasSubs() && !loggedIn() && CLIENT_ID) { loginRedirect(true); return false; }
+  return true;
+}
 function login() {
   if (!CLIENT_ID) { toast('Googleの設定がまだです'); return; }
+  return loginRedirect(false);
   if (!initAuth()) { toast('読み込み中です。\nもう一度押してください'); return; }
   tokenClient.requestAccessToken({ prompt: ls.get('everLogged') ? '' : 'consent' });
 }
@@ -627,9 +665,9 @@ $('#sf').onsubmit = e => { e.preventDefault(); const q = $('#q').value.trim(); i
 /* ============ 起動 ============ */
 const waitG = setInterval(() => { if (initAuth()) clearInterval(waitG); }, 300);
 setTimeout(() => clearInterval(waitG), 15000);
-route();
+if (autoLogin()) route();
 // ホーム画面アプリでも更新がすぐ反映されるように、新しい版があれば読み直す
-const VERSION = '9';
+const VERSION = '11';
 fetch('version.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.text()).then(t => { t = t.trim(); if (t && t !== VERSION && new URLSearchParams(location.search).get('v') !== t) location.replace(location.pathname + '?v=' + t); }).catch(() => {});
 </script>
 </body>
