@@ -10,7 +10,9 @@
 #   B  仲値後の売り    : 五十日の10:00に売り、11:00に買い戻し
 #   B2 9:55売り        : 五十日の9:55に売り、11:00に買い戻し
 #   C  仲値前の買い    : 五十日の8:00に買い、9:55に売る
-#   D  窓埋め          : 月曜の朝6時、金曜の終値から10銭以上飛んでいたら戻る方向に入る。金曜終値に戻ったら決済、戻らなければ12時に決済
+#   D  窓埋め          : 月曜の朝7時（GMOで入れる一番早い時間）、金曜の終値から10銭以上飛んでいたら戻る方向に入る。
+#                        金曜終値に戻ったら決済、戻らなければ12時に決済。7時前にもう埋まっていたら見送り
+#                        手数料はGMOクリック証券FXネオの広告スプレッド（3〜9時は3.8銭・それ以外は0.2銭）で計算
 #  五十日＝5・10・15・20・25日・月末（休みなら前の営業日）
 import csv
 import datetime as dt
@@ -103,9 +105,15 @@ def prev_weekday(d):
     return p
 
 
-def row(d, typ, side, level, et, ep, xt, xp, why):
+def row(d, typ, side, level, et, ep, xt, xp, why, fee=FEE):
     diff = (xp - ep) if side == '買い' else (ep - xp)
-    return [d.isoformat(), typ, side, level, '%s %.3f' % (hm(et), ep), '%s %.3f' % (hm(xt), xp), why, round(diff * UNITS - FEE)]
+    return [d.isoformat(), typ, side, level, '%s %.3f' % (hm(et), ep), '%s %.3f' % (hm(xt), xp), why, round(diff * UNITS - fee)]
+
+
+def gmo_fee(et, xt):
+    """GMO FXネオの広告スプレッド（銭）を入りと決済で半分ずつ払う → 1万通貨あたりの円"""
+    sp = lambda t: 3.8 if 3 <= t.hour < 9 else 0.2
+    return (sp(et) + sp(xt)) / 2 * 0.01 * UNITS
 
 
 def breakout(d, today, prev, typ, start, stop):
@@ -152,7 +160,7 @@ def timed(d, today, typ, side, eh, em, xh, xm, why):
 
 
 def gap_fill(d, today):
-    """D 窓埋め（月曜だけ）"""
+    """D 窓埋め（月曜だけ・朝7時に入る）"""
     if d.weekday() != 0:
         return None
     fri = d - dt.timedelta(days=3)
@@ -160,20 +168,24 @@ def gap_fill(d, today):
     if a is None or b is None:
         return None
     fc = [x for x in a + b if x[0] >= dt.datetime(fri.year, fri.month, fri.day, 20, tzinfo=JST)]
-    mo = [x for x in today if 6 <= x[0].hour < 12]
+    pre = [x for x in today if x[0].hour < 7]
+    mo = [x for x in today if 7 <= x[0].hour < 12]
     if len(fc) < 50 or len(mo) < 50:
         return None
     close = fc[-1][4]
+    level = '金曜終値 %.3f・7時' % close
+    if pre and min(x[3] for x in pre) <= close <= max(x[2] for x in pre):
+        return [d.isoformat(), 'D 窓埋め', 'なし', level, '', '', '7時前に埋まった', 0]
     t0, o = mo[0][0], mo[0][1]
     g = o - close
-    level = '金曜終値 %.3f' % close
     if abs(g) < 0.10:
         return [d.isoformat(), 'D 窓埋め', 'なし', level, '', '', '窓が10銭未満', 0]
     side = '売り' if g > 0 else '買い'
     for t, oo, h, l, c in mo:
         if (side == '買い' and h >= close) or (side == '売り' and l <= close):
-            return row(d, 'D 窓埋め', side, level, t0, o, t, close, '窓が埋まった')
-    return row(d, 'D 窓埋め', side, level, t0, o, mo[-1][0], mo[-1][4], '12時に決済')
+            return row(d, 'D 窓埋め', side, level, t0, o, t, close, '窓が埋まった', gmo_fee(t0, t))
+    t, c = mo[-1][0], mo[-1][4]
+    return row(d, 'D 窓埋め', side, level, t0, o, t, c, '12時に決済', gmo_fee(t0, t))
 
 
 def judge(d):
@@ -200,6 +212,11 @@ def main():
     if os.path.exists(CSV):
         with open(CSV, encoding='utf-8') as f:
             rows = [r for r in list(csv.reader(f))[1:] if r]
+    # 6時ルールの古い窓埋めは消して、7時・GMO手数料でやり直す
+    olds = {r[0]: r for r in rows if r[1] == 'D 窓埋め' and '7時' not in r[3]}
+    redo = sorted(olds)
+    rows = [r for r in rows if not (r[1] == 'D 窓埋め' and '7時' not in r[3])]
+    redo = [dt.date.fromisoformat(x) for x in redo]
     done = {r[0] for r in rows}
 
     now = dt.datetime.now(JST)
@@ -212,6 +229,9 @@ def main():
             for k in range(4):
                 need.add(d - dt.timedelta(days=k))
         d += dt.timedelta(days=1)
+    for m in redo:
+        for k in range(5):
+            need.add(m - dt.timedelta(days=k))
     need = sorted(x for x in need if x < now.date())
     from concurrent.futures import ThreadPoolExecutor
     with ThreadPoolExecutor(6) as ex:
@@ -229,8 +249,17 @@ def main():
         for x in miss:
             _cache.pop(x, None)
             utc_day(x)
-    d = START_DAY
     added = 0
+    for m in redo:
+        r = gap_fill(m, jst_day(m) or [])
+        if r:
+            rows.append(r)
+            added += 1
+            print(r)
+        else:
+            rows.append(olds[m.isoformat()])  # 取れなければ古いまま残し、次回やり直す
+            print(m, '窓埋めやり直し失敗')
+    d = START_DAY
     while d < now.date():
         if time.time() - t0 > 5 * 3600:
             print('時間切れ。続きは次回', flush=True)
