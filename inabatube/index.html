@@ -79,11 +79,12 @@ main{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:c
 #watch.away{transform:translateY(100%);pointer-events:none}
 @media (max-width:900px){#watch{grid-template-columns:1fr}#side{display:none}}
 #left{display:flex;flex-direction:column;min-height:0;overflow:hidden;padding:0 16px}
-#topbar{display:none!important;position:fixed;z-index:42;left:0;top:0;width:calc(100% - 340px);height:calc(var(--st) + 48px);display:flex;align-items:flex-end;gap:6px;padding:0 10px 4px;touch-action:none}
+#topbar{position:fixed;z-index:42;left:0;top:0;width:calc(100% - 340px);height:calc(var(--st) + 34px);display:flex;align-items:flex-end;gap:6px;padding:0 10px 4px;touch-action:none}
 @media (max-width:900px){#topbar{width:100%}}
-#topbar::after{content:'';position:absolute;left:50%;bottom:16px;width:56px;height:5px;margin-left:-28px;border-radius:9px;background:#ffffff40}
-#topbar button{width:44px;height:40px;font-size:22px;border-radius:8px}
-#slot{flex:none;width:min(100%,calc((100dvh - var(--st) - 130px) * 16 / 9));align-self:center;aspect-ratio:16/9;margin-top:calc(var(--st) + 12px)}
+#topbar::after{content:'';position:absolute;left:50%;bottom:14px;width:56px;height:5px;margin-left:-28px;border-radius:9px;background:#ffffff40}
+#topbar button{width:40px;height:30px;font-size:20px;border-radius:8px;color:var(--sub)}
+#watch.away #topbar{display:none}
+#slot{flex:none;width:min(100%,calc((100dvh - var(--st) - 130px) * 16 / 9));align-self:center;aspect-ratio:16/9;margin-top:calc(var(--st) + 36px)}
 #info{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;touch-action:pan-y;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:14px 0 40px}
 #vt{font-size:19px;font-weight:700;line-height:1.45;margin:0}
 #vs{font-size:13px;color:var(--sub);margin-top:6px}
@@ -170,7 +171,8 @@ main{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:c
 #rate{position:absolute;left:50%;top:14px;transform:translateX(-50%);z-index:3;background:#000b;color:#fff;font-size:14px;font-weight:700;padding:6px 14px;border-radius:999px;pointer-events:none;opacity:0;transition:opacity .2s}
 #rate.show{opacity:1}
 #ui,#spdm,#pcov{display:none!important}
-#vtouch{inset:0 0 22% 0}
+#vtouch{display:none}
+#pane.max #vtouch{display:block;inset:0 0 auto 0;height:12%}
 #vtouch::after{content:'';position:absolute;left:50%;top:8px;width:48px;height:5px;margin-left:-24px;border-radius:9px;background:#ffffff55}
 #vtouch{position:absolute;inset:0;z-index:2;touch-action:none}
 #pane.mini #vtouch{display:none}
@@ -1078,7 +1080,7 @@ const waitG = setInterval(() => { if (initAuth()) clearInterval(waitG); }, 300);
 setTimeout(() => clearInterval(waitG), 15000);
 if (autoLogin()) route();
 // ホーム画面アプリでも更新がすぐ反映されるように、新しい版があれば読み直す
-const VERSION = '30';
+const VERSION = '31';
 fetch('version.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.text()).then(t => { t = t.trim(); if (t && t !== VERSION && new URLSearchParams(location.search).get('v') !== t) location.replace(location.pathname + '?v=' + t); }).catch(() => {});
 </script>
 </body>
