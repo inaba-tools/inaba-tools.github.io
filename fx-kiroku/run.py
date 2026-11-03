@@ -220,6 +220,15 @@ def main():
                 print('download', i, '/', len(need), int(time.time() - t0), 's', flush=True)
             if time.time() - t0 > 4.5 * 3600:
                 break
+    for k in range(3):  # 取れなかったファイルは、時間をおいて取り直す
+        miss = [x for x in need if _cache.get(x) is None]
+        if not miss or time.time() - t0 > 4.5 * 3600:
+            break
+        print('取り直し', k, len(miss), flush=True)
+        time.sleep(30)
+        for x in miss:
+            _cache.pop(x, None)
+            utc_day(x)
     d = START_DAY
     added = 0
     while d < now.date():
