@@ -15,10 +15,11 @@ for k in range(3):  # 取れなかった日は、時間をおいて取り直す
         run._cache.pop(x, None)
         run.utc_day(x)
 skip = 0
-out = []
+# 開始時刻（時, 分）× 手数料（銭）の組み合わせ
+VARS = [(6, 0, 0.3), (6, 0, 2), (6, 0, 5), (7, 0, 0.3), (7, 0, 1), (7, 0, 2), (8, 0, 0.3), (8, 0, 1)]
+tot = {v: [0, 0] for v in VARS}
 for d in mons:
-    fri, sun = run.utc_day(d - dt.timedelta(days=3)), run.utc_day(d - dt.timedelta(days=1))
-    mon = run.utc_day(d)
+    fri, sun, mon = (run.utc_day(d - dt.timedelta(days=k)) for k in (3, 1, 0))
     if not fri or not mon or not sun:
         skip += 1
         continue
@@ -27,23 +28,29 @@ for d in mons:
     today = [x for x in sun + mon if x[0].date() == d]
     if len(fc) < 50:
         continue
-    # gap_fill は金曜分を jst_day で取り直すので、同じ計算をここで行う
-    mo = [x for x in today if 6 <= x[0].hour < 12]
-    if len(mo) < 50:
-        continue
     close = fc[-1][4]
-    t0, o = mo[0][0], mo[0][1]
-    g = o - close
-    if abs(g) < 0.10:
-        out.append([d.isoformat(), 'なし', 0]); continue
-    side = '売り' if g > 0 else '買い'
-    res = None
-    for t, oo, h, l, c in mo:
-        if (side == '買い' and h >= close) or (side == '売り' and l <= close):
-            res = run.row(d, 'D', side, '', t0, o, t, close, '窓が埋まった'); break
-    if res is None:
-        res = run.row(d, 'D', side, '', t0, o, mo[-1][0], mo[-1][4], '12時に決済')
-    out.append([d.isoformat(), side, res[-1]])
-with open('kako_f_%d.csv' % y, 'w', newline='') as fp:
-    csv.writer(fp).writerows(out)
-print('RESULT', y, len(out), sum(r[2] for r in out), 'skip', skip)
+    for v in VARS:
+        hh, mm, fee = v
+        st = dt.datetime(d.year, d.month, d.day, hh, mm, tzinfo=run.JST)
+        pre = [x for x in today if 6 <= x[0].hour and x[0] < st]
+        mo = [x for x in today if st <= x[0] and x[0].hour < 12]
+        if len(mo) < 30:
+            continue
+        o = mo[0][1]
+        g = o - close
+        # 開始前にもう窓が埋まっていたら取引しない
+        if pre and min(x[3] for x in pre) <= close <= max(x[2] for x in pre):
+            continue
+        if abs(g) < 0.10:
+            continue
+        side = 1 if g < 0 else -1  # 買い=1
+        xp = mo[-1][4]
+        for t, oo, h, l, c in mo:
+            if (side == 1 and h >= close) or (side == -1 and l <= close):
+                xp = close
+                break
+        tot[v][0] += round(((xp - o) * side - fee / 100) * run.UNITS)
+        tot[v][1] += 1
+for v in VARS:
+    print('RESULT', y, '%d:%02d' % v[:2], v[2], tot[v][0], tot[v][1], flush=True)
+print('skip', skip)
