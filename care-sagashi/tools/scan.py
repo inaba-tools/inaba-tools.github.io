@@ -14,12 +14,12 @@ from serial_ocr import read_serials, read_serials_text
 SHEET_API_URL = os.environ["SHEET_API_URL"]   # Apps Script（Webアプリ）のURL
 SHEET_API_KEY = os.environ["SHEET_API_KEY"]
 TIME_LIMIT = int(os.environ.get("TIME_LIMIT_MIN", "40")) * 60
-CACHE = Path(".cache/seen2.json")
+CACHE = Path(".cache/seen3.json")   # 2026/11/03 読み取り方を変えたので見直す
 UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/124.0 Safari/537.36")
 
 # 設定シートが読めないときの検索ワード（Apple製品すべて）
-DEFAULT_QUERIES = ["iPhone"]
+DEFAULT_QUERIES = ["iPhone 15", "iPhone 16", "iPhone 17", "iPhone 18", "iPhone Air"]
 DEFAULT_EXCLUDE = "ケース カバー フィルム 充電器 ケーブル 箱のみ 空箱 Tシャツ シール モック"
 DEFAULT_RATIO = 0.6   # 相場の6割以下だけ出す
 MERCARI_COND = "4,5,6"   # やや傷や汚れあり・傷や汚れあり・全体的に状態が悪い
@@ -27,7 +27,7 @@ YAHOO_BAD = {"used40", "used60", "used80"}
 YAHOO_GOOD = {"used10", "used20"}
 COND_NAME = {"4": "やや傷や汚れあり", "5": "傷や汚れあり", "6": "全体的に状態が悪い",
              "used40": "やや傷や汚れあり", "used60": "傷や汚れあり", "used80": "全体的に状態が悪い"}
-MODEL_RE = re.compile(r"iPhone\s*(1[0-9]|[6-9]|SE\s*[23]?|X[SR]?)\s*(Pro\s*Max|Pro|Plus|mini|Max|Air|e)?", re.I)
+MODEL_RE = re.compile(r"iPhone\s*(Air|1[0-9]|[6-9]|SE\s*[23]?|X[SR]?)\s*(Pro\s*Max|Pro|Plus|mini|Max|e)?", re.I)
 CAP_RE = re.compile(r"(64|128|256|512)\s*GB|1\s*TB", re.I)
 
 
@@ -36,7 +36,7 @@ def model_key(title):
     m = MODEL_RE.search(title or "")
     if not m:
         return None
-    name = "iPhone " + re.sub(r"\s+", " ", m.group(1).upper().replace("SE", "SE ")).strip()
+    name = "iPhone " + ("Air" if m.group(1).lower() == "air" else re.sub(r"\s+", " ", m.group(1).upper().replace("SE", "SE ")).strip())
     if name == "iPhone SE":
         g = re.search(r"第\s*([23])\s*世代", title)
         if g:
@@ -120,7 +120,7 @@ YAHOO_HEADERS = {"User-Agent": UA, "Accept": "application/json", "Referer": "htt
 
 
 YAHOO_IPHONE_CAT = 38340   # スマホ、タブレット、パソコン > スマホ > iPhone
-YAHOO_MODELS = ["iPhone 11", "iPhone 12", "iPhone 13", "iPhone 14", "iPhone 15", "iPhone 16", "iPhone 17",
+YAHOO_MODELS = ["iPhone 15", "iPhone 16", "iPhone 17", "iPhone 18",
                 "iPhone SE", "iPhone Air", "iPhone 16e"]
 
 
@@ -170,24 +170,27 @@ def mercari_detail(page, url):
     return d
 
 
+def new_model(key):
+    """iPhone 15以降（Air・16eも）。SEは外す"""
+    m = re.match(r"iPhone (\d+)", key or "")
+    return bool(m and int(m.group(1)) >= 15) or (key or "").startswith("iPhone Air")
+
+
 def find_serial(d):
-    """説明欄→写真の順にシリアルを探す。(シリアル, 点数, 画像URL) か None"""
-    best = None
-    for s, sc in read_serials_text(d.get("description", "")):
-        best = (s, sc, "")
-        break
-    if not best or best[1] < 2:
-        for img_url in d.get("images", []):
-            try:
-                b = requests.get(img_url, headers={"User-Agent": UA}, timeout=30).content
-            except requests.RequestException:
-                continue
-            found = read_serials(b)
-            if found and (not best or found[0][1] > best[1]):
-                best = (found[0][0], found[0][1], img_url)
-            if best and best[1] >= 2:
-                break
-    return best
+    """説明欄→写真の順にシリアルを探す。(シリアル, 画像URL#crop=…) か None
+    iPhone 15以降のシリアルは10桁だけ。画像URLの後ろにシリアルの位置を付けて、カードで拡大表示する"""
+    for s in read_serials_text(d.get("description", ""), lengths=(10,)):
+        return (s, "")
+    for img_url in d.get("images", []):
+        try:
+            b = requests.get(img_url, headers={"User-Agent": UA}, timeout=30).content
+        except requests.RequestException:
+            continue
+        found = read_serials(b, lengths=(10,))
+        if found:
+            s, box = found[0]
+            return (s, img_url + "#crop=" + ",".join(f"{v:.4f}" for v in box))
+    return None
 
 
 def main():
@@ -219,9 +222,9 @@ def main():
             time.sleep(2)
         for it in yahoo_search("", exclude):
             yah.setdefault(it["url"], it)
-        def cheap(it):   # 2026/11/03 相場は見ない（iPhoneの機種名がわかるものは全部）
+        def cheap(it):   # 2026/11/03 相場は見ない。iPhone 15以降だけ（AppleCareが残っている人が多い）
             it["key"] = model_key(it.get("title"))
-            return bool(it["key"])
+            return bool(it["key"]) and new_model(it["key"])
         new_m = [it for it in merc.values() if it["url"] not in seen and cheap(it)]
         new_y = [it for it in yah.values() if it["url"] not in seen and cheap(it)]
         print(f"::notice::検索で見つかった傷ありiPhone メルカリ {len(merc)} 件・Yahoo!フリマ {len(yah)} 件")
@@ -250,14 +253,12 @@ def main():
                 stats["状態が良い"] += 1
                 continue
             best = find_serial(d)
-            if best and best[1] < 2:
-                best = None   # 「シリアル番号」の文字の近くで読めたものだけ
             if not best:
                 stats["シリアルなし"] += 1
             if best:
                 note = cond or "状態不明"
                 rows.append({"title": d.get("title") or it["title"], "price": it.get("price"), "site": it["site"],
-                             "url": url, "image": best[2] or (d["images"][0] if d.get("images") else ""),
+                             "url": url, "image": best[1] or (d["images"][0] if d.get("images") else ""),
                              "serial": best[0], "sure": note})
                 print("シリアル発見", best[0], url)
             if len(rows) >= 20:

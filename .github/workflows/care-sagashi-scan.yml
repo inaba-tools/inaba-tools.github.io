@@ -24,7 +24,6 @@ jobs:
           python-version: "3.12"
           cache: pip
           cache-dependency-path: care-sagashi/tools/requirements.txt
-      - run: sudo apt-get install -y -q tesseract-ocr tesseract-ocr-jpn
       - run: pip install -r care-sagashi/tools/requirements.txt
       - uses: actions/cache@v4
         with:
