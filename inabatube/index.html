@@ -74,7 +74,7 @@ main{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:c
 .tabs b{display:block;font-size:21px;margin-bottom:2px}
 
 /* ===== watch ===== */
-#watch{position:fixed;inset:0;z-index:30;background:var(--bg);display:grid;grid-template-columns:minmax(0,1fr) 340px;transform:translateY(0);transition:transform .28s ease}
+#watch{position:fixed;inset:0;overflow:hidden;z-index:30;background:var(--bg);display:grid;grid-template-columns:minmax(0,1fr) 340px;transform:translateY(0);transition:transform .28s ease}
 #watch.away{transform:translateY(100%);pointer-events:none}
 @media (max-width:900px){#watch{grid-template-columns:1fr}#side{display:none}}
 #left{display:flex;flex-direction:column;min-height:0;overflow:hidden;padding:0 16px}
@@ -83,7 +83,7 @@ main{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:c
 #topbar::after{content:'';position:absolute;left:50%;bottom:16px;width:56px;height:5px;margin-left:-28px;border-radius:9px;background:#ffffff40}
 #topbar button{width:44px;height:40px;font-size:22px;border-radius:8px}
 #slot{flex:none;width:min(100%,calc((100dvh - var(--st) - 160px) * 16 / 9));align-self:center;aspect-ratio:16/9;margin-top:calc(var(--st) + 48px)}
-#info{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:14px 0 40px}
+#info{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;touch-action:pan-y;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:14px 0 40px}
 #vt{font-size:19px;font-weight:700;line-height:1.45;margin:0}
 #vs{font-size:13px;color:var(--sub);margin-top:6px}
 .chrow{display:flex;align-items:center;gap:12px;margin:14px 0}
@@ -97,7 +97,7 @@ main{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:c
 .cm img{width:32px;height:32px;border-radius:50%;flex:none}
 .cm .n{font-size:12px;color:var(--sub)}
 .cm .x{font-size:14px;line-height:1.6;white-space:pre-wrap;word-break:break-word;margin-top:2px}
-#side{overflow:auto;overscroll-behavior:contain;padding:calc(var(--st) + 56px) 16px 40px 0}
+#side{overflow-y:auto;overflow-x:hidden;touch-action:pan-y;overscroll-behavior:contain;padding:calc(var(--st) + 56px) 16px 40px 0}
 .rv{display:flex;gap:10px;margin-bottom:14px;text-align:left;width:100%}
 .rv .th{width:150px;flex:none}
 .rv .t{font-size:13px}
@@ -522,7 +522,13 @@ window.onYouTubeIframeAPIReady = () => {
     playerVars: { playsinline: 1, rel: 0, modestbranding: 1 },
     events: {
       onReady: () => { ready = true; if (pending) { player.loadVideoById(pending); pending = null; } },
-      onStateChange: e => { $('#mpp').textContent = e.data === 1 ? '❚❚' : '▶'; }
+      onStateChange: e => {
+        $('#mpp').textContent = e.data === 1 ? '❚❚' : '▶';
+        if (e.data === 1) wasPlaying = true;
+        // 全画面を閉じた直後に勝手に止まったら、続きを再生する
+        if (e.data === 2 && wasPlaying && Date.now() - fsChangedAt < 1500) { player.playVideo(); return; }
+        if (e.data === 2 || e.data === 0) wasPlaying = false;
+      }
     }
   });
 };
@@ -531,7 +537,11 @@ function place() {
   if (mode === 'none') { p.classList.add('gone'); return; }
   p.classList.remove('gone');
   if (mode === 'full') {
+    // 再生画面がスライド中でも、止まった後の位置を先に計算して、そこへ一直線に動かす
+    const w = $('#watch'), tf = w.style.transform, tr = w.style.transition;
+    w.style.transition = 'none'; w.style.transform = 'none';
     const r = $('#slot').getBoundingClientRect();
+    w.style.transform = tf; void w.offsetWidth; w.style.transition = tr;
     Object.assign(p.style, { left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px' });
     p.classList.remove('mini');
   } else {
@@ -638,6 +648,9 @@ function dragDown(el, canStart = () => true) {
     if (dy > 90) minimize();
   });
 }
+let wasPlaying = false, fsChangedAt = 0;
+const markFs = () => { fsChangedAt = Date.now(); };
+['fullscreenchange', 'webkitfullscreenchange', 'resize'].forEach(ev => (ev === 'resize' ? window : document).addEventListener(ev, markFs));
 function fullscreen() {
   const p = $('#pane');
   (p.requestFullscreen || p.webkitRequestFullscreen)?.call(p);
@@ -680,7 +693,7 @@ const waitG = setInterval(() => { if (initAuth()) clearInterval(waitG); }, 300);
 setTimeout(() => clearInterval(waitG), 15000);
 if (autoLogin()) route();
 // ホーム画面アプリでも更新がすぐ反映されるように、新しい版があれば読み直す
-const VERSION = '14';
+const VERSION = '15';
 fetch('version.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.text()).then(t => { t = t.trim(); if (t && t !== VERSION && new URLSearchParams(location.search).get('v') !== t) location.replace(location.pathname + '?v=' + t); }).catch(() => {});
 </script>
 </body>
