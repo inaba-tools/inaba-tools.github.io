@@ -167,7 +167,7 @@ main{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:c
 .skip.on{opacity:1;transition:none}
 #rate{position:absolute;left:50%;top:14px;transform:translateX(-50%);z-index:3;background:#000b;color:#fff;font-size:14px;font-weight:700;padding:6px 14px;border-radius:999px;pointer-events:none;opacity:0;transition:opacity .2s}
 #rate.show{opacity:1}
-#pane.mini #ui,#pane.mini .skip,#pane.mini #rate,#pane.mini #spdm{display:none}
+#ui,.skip,#rate,#spdm,#pcov,#vtouch{display:none!important}
 #vtouch{position:absolute;inset:0;z-index:2;touch-action:none}
 #pane.mini #vtouch{display:none}
 #pane.mini #hit{display:block;background:linear-gradient(#0000 55%,#000a)}
@@ -647,7 +647,7 @@ let player = null, ready = false, pending = null, mode = 'none', current = null;
 window.onYouTubeIframeAPIReady = () => {
   player = new YT.Player('pl', {
     width: '100%', height: '100%',
-    playerVars: { playsinline: 1, rel: 0, modestbranding: 1, cc_load_policy: 0, iv_load_policy: 3, controls: 0, disablekb: 1, fs: 0 },
+    playerVars: { playsinline: 1, rel: 0, cc_load_policy: 0, iv_load_policy: 3 },
     events: {
       onReady: () => { ready = true; if (pending) { player.loadVideoById(pending); pending = null; } },
       onStateChange: e => {
@@ -714,7 +714,6 @@ function openVideo(id) {
   setMode('full');
   if (v.title) markSeen(v);
   loadInfo(v);
-  setTimeout(() => { if (current?.id === id) pvEnsure(); }, 2500);
 }
 function minimize() { if (mode === 'full') setMode('mini'); }
 function closePlayer() { try { player.stopVideo(); } catch {} setMode('none'); }
@@ -1050,7 +1049,7 @@ const waitG = setInterval(() => { if (initAuth()) clearInterval(waitG); }, 300);
 setTimeout(() => clearInterval(waitG), 15000);
 if (autoLogin()) route();
 // ホーム画面アプリでも更新がすぐ反映されるように、新しい版があれば読み直す
-const VERSION = '25';
+const VERSION = '26';
 fetch('version.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.text()).then(t => { t = t.trim(); if (t && t !== VERSION && new URLSearchParams(location.search).get('v') !== t) location.replace(location.pathname + '?v=' + t); }).catch(() => {});
 </script>
 </body>
