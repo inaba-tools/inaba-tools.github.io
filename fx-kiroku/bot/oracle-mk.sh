@@ -1,6 +1,6 @@
 set -e
 C=$OCI_TENANCY
-[ -f ~/.ssh/fxkey ] || ssh-keygen -t ed25519 -N '' -f ~/.ssh/fxkey -q
+[ -f ~/.ssh/fxkey ] || ssh-keygen -t rsa -b 4096 -N '' -f ~/.ssh/fxkey -q
 AD=$(oci iam availability-domain list -c $C --query 'data[0].name' --raw-output)
 echo "AD=$AD"
 VCN=$(oci network vcn create -c $C --cidr-block 10.0.0.0/16 --display-name fx-vcn --wait-for-state AVAILABLE --query data.id --raw-output)
