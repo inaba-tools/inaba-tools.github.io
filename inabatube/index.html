@@ -158,7 +158,7 @@ main{padding-bottom:110px}
 <script src="https://www.youtube.com/iframe_api" async></script>
 <script>
 /* ============ 設定 ============ */
-const CLIENT_ID = ''; // Google Cloud の OAuth クライアントID（設定後に入る）
+const CLIENT_ID = '610146352020-hd7mv58n38ueeslehag244ega0rrn4o4.apps.googleusercontent.com'; // Google Cloud の OAuth クライアントID（設定後に入る）
 const SCOPE = 'https://www.googleapis.com/auth/youtube.readonly';
 const API = 'https://www.googleapis.com/youtube/v3/';
 
@@ -522,7 +522,7 @@ const waitG = setInterval(() => { if (initAuth()) clearInterval(waitG); }, 300);
 setTimeout(() => clearInterval(waitG), 15000);
 route();
 // ホーム画面アプリでも更新がすぐ反映されるように、新しい版があれば読み直す
-const VERSION = '1';
+const VERSION = '2';
 fetch('version.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.text()).then(t => { t = t.trim(); if (t && t !== VERSION && new URLSearchParams(location.search).get('v') !== t) location.replace(location.pathname + '?v=' + t); }).catch(() => {});
 </script>
 </body>
