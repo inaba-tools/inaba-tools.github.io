@@ -1,0 +1,47 @@
+name: fx-kenkyu
+# FXの型を情勢で絞る研究用：2015年〜の1分足から6つの型の結果を年ごとに作り直す（重いので手動・研究用）
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'fx-kiroku/kenkyu/go-kakaku.txt'
+permissions:
+  contents: write
+jobs:
+  kakaku:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        year: [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026]
+    steps:
+      - uses: actions/checkout@v4
+      - name: 1年分の型を計算
+        run: |
+          pip install -q holidays
+          python3 fx-kiroku/kenkyu/kakaku.py ${{ matrix.year }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kakaku-${{ matrix.year }}
+          path: fx-kiroku/kenkyu/data/*_${{ matrix.year }}.csv
+  matome:
+    needs: kakaku
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: fx-kiroku/kenkyu/data
+          merge-multiple: true
+      - name: Commit
+        run: |
+          git config user.name "fx-kiroku-bot"
+          git config user.email "noreply@anthropic.com"
+          git add fx-kiroku/kenkyu/data
+          git diff --cached --quiet && exit 0
+          git commit -m "fx-kenkyu: 2015年〜の型の結果"
+          git pull --rebase
+          git push
