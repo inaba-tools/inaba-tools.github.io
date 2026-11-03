@@ -229,7 +229,7 @@ async function yt(path, params) {
   const u = new URL(API + path);
   Object.entries(params).forEach(([k, v]) => v !== undefined && v !== '' && u.searchParams.set(k, v));
   if (!useToken) u.searchParams.set('key', API_KEY);
-  const r = await fetch(u, useToken ? { headers: { Authorization: 'Bearer ' + token.v } } : {});
+  const r = await fetch(u, useToken ? { headers: { Authorization: 'Bearer ' + token.v } } : { referrerPolicy: 'no-referrer-when-downgrade' });
   if (r.status === 401 && useToken) { token = null; ls.del('token'); return yt(path, params); }
   const j = await r.json();
   if (!r.ok) { const e = new Error(j.error?.errors?.[0]?.reason || 'api'); e.code = r.status; throw e; }
