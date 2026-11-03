@@ -93,6 +93,14 @@ main{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:c
 .desc.open{max-height:none}
 .desc a{color:var(--accent)}
 .cmh{font-size:16px;font-weight:700;margin:22px 0 10px}
+/* 右側：関連動画の上のコメント欄（押すと上下にスライドで開閉） */
+#cmbox{background:var(--panel);border-radius:var(--r);margin-bottom:14px;overflow:hidden}
+.cmbar{display:flex;align-items:center;justify-content:space-between;width:100%;padding:12px 14px;font-size:15px;font-weight:700;text-align:left}
+.cmbar i{font-style:normal;color:var(--sub);transition:transform .35s var(--ease)}
+#cmbox.open .cmbar i{transform:rotate(180deg)}
+.cmbody{max-height:0;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;padding:0 14px;transition:max-height .45s var(--ease),padding .45s var(--ease)}
+#cmbox.open .cmbody{max-height:55dvh;padding:0 14px 10px}
+.cmbody .s{white-space:pre-line;padding:6px 0 10px}
 .cm{display:flex;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
 .cm img{width:32px;height:32px;border-radius:50%;flex:none}
 .cm .n{font-size:12px;color:var(--sub)}
@@ -591,7 +599,8 @@ function closePlayer() { try { player.stopVideo(); } catch {} setMode('none'); }
 async function loadInfo(v) {
   const info = $('#info'), side = $('#side');
   info.innerHTML = v.title ? head(v) : '';
-  side.innerHTML = '<div class="s">関連動画を読み込み中…</div>';
+  side.innerHTML = `<div id="cmbox"><button id="cmh" class="cmbar"><span id="cmt">コメント</span><i>▾</i></button><div id="cms" class="cmbody"><div class="s">読み込み中…</div></div></div><div id="rel"><div class="s">関連動画を読み込み中…</div></div>`;
+  $('#cmh').onclick = () => $('#cmbox').classList.toggle('open');
   try {
     if (!v.title || !v.desc) { const [full] = await videosByIds([v.id]); if (full) { Object.assign(v, slimV(full)); cache[v.id] = v; markSeen(v); info.innerHTML = head(v); } }
     loadComments(v.id);
@@ -603,18 +612,23 @@ function head(v) {
   return `<h1 id="vt">${esc(v.title)}</h1>
   <div id="vs">${num(v.views)}回視聴 ・ ${ago(v.at)}${v.likes ? ' ・ 高評価 ' + num(v.likes) : ''}</div>
   <button class="chrow" data-ch="${esc(v.chId)}" data-name="${esc(v.ch)}"><img src="${esc(iconOf(v.chId))}" alt="" onerror="this.style.visibility='hidden'"><b>${esc(v.ch)}</b></button>
-  ${v.desc ? `<div class="desc" id="desc">${linkify(v.desc)}</div>` : ''}
-  <div class="cmh" id="cmh">コメント</div><div id="cms"><div class="s">読み込み中…</div></div>`;
+  ${v.desc ? `<div class="desc" id="desc">${linkify(v.desc)}</div>` : ''}`;
 }
 async function loadComments(id) {
   try {
     const j = await yt('commentThreads', { part: 'snippet', videoId: id, maxResults: 30, order: 'relevance', textFormat: 'plainText' });
     if (current?.id !== id) return;
-    $('#cmh').textContent = 'コメント';
+    $('#cmt').textContent = j.items.length ? `コメント（${j.items.length}件）` : 'コメント';
     $('#cms').innerHTML = j.items.length ? j.items.map((c, i) => { const s = c.snippet.topLevelComment.snippet;
       return `<div class="cm" style="--i:${i}"><img loading="lazy" src="${esc(s.authorProfileImageUrl)}" alt="" onerror="this.style.visibility='hidden'"><div><div class="n">${esc(s.authorDisplayName)} ・ ${ago(s.publishedAt)}${s.likeCount ? ' ・ 👍 ' + num(s.likeCount) : ''}</div><div class="x">${esc(s.textDisplay)}</div></div></div>`; }).join('')
       : '<div class="s">コメントはまだありません。</div>';
-  } catch (e) { if (current?.id === id) $('#cms').innerHTML = '<div class="s">コメントはオフになっています。</div>'; }
+  } catch (e) {
+    if (current?.id !== id) return;
+    $('#cmt').textContent = 'コメント';
+    $('#cms').innerHTML = e.message === 'commentsDisabled'
+      ? '<div class="s">この動画は、投稿者がコメントをオフにしています。\n（子ども向けの動画などは自動でオフになります）</div>'
+      : '<div class="s">コメントを読み込めませんでした。</div>';
+  }
 }
 async function loadRelated(v) {
   const key = 'rel:' + v.id;
@@ -630,8 +644,8 @@ async function loadRelated(v) {
   if (current?.id !== v.id) return;
   await fillIcons(vs).catch(() => {});
   vs.forEach(x => cache[x.id] = x);
-  $('#side').classList.add('side-in');
-  $('#side').innerHTML = vs.map((x, i) => `<button class="rv" style="--i:${i}" data-v="${esc(x.id)}"><div class="th">${thumbImg(esc(x.id))}<i>${x.live ? 'ライブ' : esc(dur(x.dur))}</i></div><div><div class="t">${esc(x.title)}</div><div class="s">${esc(x.ch)}<br>${num(x.views)}回 ・ ${ago(x.at)}</div></div></button>`).join('') || '<div class="s">関連動画が見つかりませんでした。</div>';
+  $('#rel').classList.add('side-in');
+  $('#rel').innerHTML = vs.map((x, i) => `<button class="rv" style="--i:${i}" data-v="${esc(x.id)}"><div class="th">${thumbImg(esc(x.id))}<i>${x.live ? 'ライブ' : esc(dur(x.dur))}</i></div><div><div class="t">${esc(x.title)}</div><div class="s">${esc(x.ch)}<br>${num(x.views)}回 ・ ${ago(x.at)}</div></div></button>`).join('') || '<div class="s">関連動画が見つかりませんでした。</div>';
 }
 
 /* ============ スワイプ ============ */
@@ -732,7 +746,7 @@ const waitG = setInterval(() => { if (initAuth()) clearInterval(waitG); }, 300);
 setTimeout(() => clearInterval(waitG), 15000);
 if (autoLogin()) route();
 // ホーム画面アプリでも更新がすぐ反映されるように、新しい版があれば読み直す
-const VERSION = '18';
+const VERSION = '19';
 fetch('version.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.text()).then(t => { t = t.trim(); if (t && t !== VERSION && new URLSearchParams(location.search).get('v') !== t) location.replace(location.pathname + '?v=' + t); }).catch(() => {});
 </script>
 </body>
