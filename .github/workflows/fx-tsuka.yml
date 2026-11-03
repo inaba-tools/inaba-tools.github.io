@@ -1,0 +1,28 @@
+name: fx-tsuka
+# FX研究用：ほかの通貨も含めた5分足（2015年〜）を作って、成果物（artifact）として置く。コミットはしない
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'fx-kiroku/kenkyu/tsuka/go.txt'
+permissions:
+  contents: read
+jobs:
+  ashi:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        pair: [USDJPY, EURUSD, EURJPY, GBPJPY, AUDJPY, AUDUSD]
+        year: [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026]
+    steps:
+      - uses: actions/checkout@v4
+      - name: 5分足を作る
+        run: cd fx-kiroku/kenkyu/tsuka && python3 ashi.py ${{ matrix.pair }} ${{ matrix.year }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ashi-${{ matrix.pair }}-${{ matrix.year }}
+          path: fx-kiroku/kenkyu/tsuka/ashi_*.csv.gz
+          retention-days: 30
