@@ -1806,6 +1806,7 @@ gaccRender();
 const FXLIVE='2026-10'; // この月から本番の記録（それより前は過去データでさかのぼって計算）
 const FXCAP=1000000,FXLOT=10; // 元手100万円・10万通貨（記録は1万通貨なので10倍）
 const FXORD=['A ブレイク','A2 15時ブレイク','B 仲値後の売り','B2 9:55売り','C 仲値前の買い','D 窓埋め'];
+const FXFROM='2026-01'; // 画面に出すのはこの月から（それより前は「自動」の型選びにだけ使う）
 const FXAUTO='AUTO',FXLB=3; // 自動：毎月1日に、前の3か月で1番成績が良かった型を使う
 const FXNAME=t=>{if(t===FXAUTO)return '自動';const i=FXORD.indexOf(t);return '型'+(i<0?t.split(' ')[0]:'ABCDEF'[i])};
 const FXCOL=['#1f9d6b','#2b6fd6','#d98a1c','#7a5bd6','#d2453b','#2a9bb0','#8a8f3a'];
@@ -1819,10 +1820,10 @@ function fxAutoMap(months){const pick={};const nowM=new Date(Date.now()+9*3600e3
   ms.forEach((m,i)=>{const lb=ms.slice(Math.max(0,i-FXLB),i).filter(x=>x<m);if(!lb.length)return;const sc={};FXALL.forEach(x=>{if(lb.includes(x.d.slice(0,7)))sc[x.t]=(sc[x.t]||0)+x.p});
     const b=Object.keys(sc).sort((a,c)=>sc[c]-sc[a]||FXORD.indexOf(a)-FXORD.indexOf(c))[0];if(b)pick[m]=b});return{pick,nowM}}
 function renderFX(){if(!FXALL)return;const el=$('#fxBody');
-  const months=[...new Set(FXALL.map(x=>x.d.slice(0,7)))].sort();const pers=[...months,'all'];
-  const AM=fxAutoMap(months),apick=AM.pick;
+  const allM=[...new Set(FXALL.map(x=>x.d.slice(0,7)))].sort();const months=allM.filter(m=>m>=FXFROM);const pers=[...months,'all'];
+  const AM=fxAutoMap(allM),apick=AM.pick;
   if(!pers.includes(fxPer))fxPer=months[months.length-1];const pi=pers.indexOf(fxPer);
-  const BASE=fxPer==='all'?FXALL:FXALL.filter(x=>x.d.startsWith(fxPer));
+  const BASE=fxPer==='all'?FXALL.filter(x=>x.d>=FXFROM):FXALL.filter(x=>x.d.startsWith(fxPer));
   FX=[...BASE,...BASE.filter(x=>apick[x.d.slice(0,7)]===x.t).map(x=>({...x,t:FXAUTO,real:x.t}))];
   const oi=t=>{const i=FXORD.indexOf(t);return i<0?99:i};const types=[FXAUTO,...[...new Set(BASE.map(x=>x.t))].sort((a,b)=>oi(a)-oi(b))];const col={};types.forEach(t=>col[t]=t===FXAUTO?'var(--ink)':FXCOL[oi(t)%FXCOL.length]);
   const days=[...new Set(BASE.map(x=>x.d))].sort();
