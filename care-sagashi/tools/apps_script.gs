@@ -8,7 +8,7 @@ function checkKey_(k) { return k && k === PropertiesService.getScriptProperties(
 function now_() { return Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy/MM/dd HH:mm'); }
 
 function sheet_(name, head) {
-  var ss = SpreadsheetApp.getActive();
+  var ss = SpreadsheetApp.openById('ここにスプレッドシートのID');   // 公開リポジトリなのでIDは書かない（Apps Scriptの画面では本物のIDを入れる）
   var sh = ss.getSheetByName(name);
   if (!sh) {
     sh = ss.insertSheet(name);
@@ -42,6 +42,18 @@ function conf_() {
   return o;
 }
 
+function subs_() {
+  try { return JSON.parse(conf_()['通知の送り先'] || '{}'); } catch (err) { return {}; }
+}
+
+function setConf_(name, value, memo) {
+  var s = sheet_('設定'), v = s.getDataRange().getValues();
+  for (var i = 0; i < v.length; i++) {
+    if (v[i][0] === name) { s.getRange(i + 1, 2).setValue(value); return; }
+  }
+  s.appendRow([name, value, memo]);
+}
+
 function doGet(e) {
   var p = e.parameter || {};
   if (!checkKey_(p.key)) return ok_({ error: 'key' });
@@ -64,8 +76,21 @@ function doPost(e) {
     var sh = sheet_('候補', HEAD);
     if (p.action === 'config') {
       var c = conf_(), urls = sh.getLastRow() > 1 ? sh.getRange(2, 5, sh.getLastRow() - 1, 1).getValues().map(function (r) { return r[0]; }) : [];
+      var left = 0;
+      if (sh.getLastRow() > 1) sh.getRange(2, 9, sh.getLastRow() - 1, 1).getValues().forEach(function (r) { if (r[0] === '' || r[0] === '未確認') left++; });
       return ok_({ queries: (c['検索ワード'] || '').split(',').map(function (s) { return s.trim(); }).filter(String),
-                   exclude: c['除外ワード'] || '', known_urls: urls });
+                   exclude: c['除外ワード'] || '', known_urls: urls, subs: subs_(), left: left });
+    }
+    if (p.action === 'subscribe') {   // iPhoneの通知の送り先（端末ごと）
+      var all = subs_();
+      all[String(p.dev || 'x').slice(0, 40)] = p.sub;
+      setConf_('通知の送り先', JSON.stringify(all), 'アプリで「通知をオン」にした端末。消すと通知が止まる');
+      return ok_({ ok: true });
+    }
+    if (p.action === 'unsubscribe') {
+      var a2 = subs_(); delete a2[String(p.dev || '')];
+      setConf_('通知の送り先', JSON.stringify(a2), 'アプリで「通知をオン」にした端末。消すと通知が止まる');
+      return ok_({ ok: true });
     }
     if (p.action === 'append') {
       var rows = (p.rows || []).map(function (r) {

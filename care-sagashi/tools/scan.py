@@ -193,6 +193,25 @@ def find_serial(d):
     return None
 
 
+def notify(added):
+    """新しい候補が届いたら、iPhoneに通知してアイコンの数字（バッジ）を残りの件数にする"""
+    key = os.environ.get("VAPID_PRIVATE", "").strip()
+    conf = sheet("config") or {}
+    subs, left = conf.get("subs") or {}, conf.get("left") or added
+    if not key or not subs:
+        return
+    from pywebpush import webpush
+    body = json.dumps({"title": f"新しい候補が{added}件届きました", "body": f"確認していないのは{left}件です", "badge": left},
+                      ensure_ascii=False)
+    for dev, sub in subs.items():
+        try:
+            webpush(subscription_info=sub, data=body, vapid_private_key=key,
+                    vapid_claims={"sub": "https://inaba-tools.github.io/care-sagashi/"}, ttl=6 * 3600)
+            print("通知を送った", dev[:6])
+        except Exception as e:
+            print("通知できず", dev[:6], repr(e)[:120])
+
+
 def main():
     start = time.time()
     seen = set(json.loads(CACHE.read_text())) if CACHE.exists() else set()
@@ -270,6 +289,8 @@ def main():
             sheet("append", rows=rows)
             added += len(rows)
         browser.close()
+    if added:
+        notify(added)
     CACHE.parent.mkdir(exist_ok=True)
     CACHE.write_text(json.dumps(sorted(seen)[-50000:]))
     print(f"::notice::確認 {checked} 件 → 追加 {added} 件（状態が良くて外した {stats['状態が良い']} 件・シリアルが読めない {stats['シリアルなし']} 件）")

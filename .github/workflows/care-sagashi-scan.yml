@@ -43,6 +43,7 @@ jobs:
         env:
           SHEET_API_URL: ${{ secrets.CARE_SHEET_URL }}
           SHEET_API_KEY: ${{ secrets.CARE_SHEET_KEY }}
+          VAPID_PRIVATE: ${{ secrets.VAPID_PRIVATE }}   # kabu-dropと同じ通知の鍵
       - name: 自動実行が60日で止まらないようにする
         if: always()
         run: gh api -X PUT "repos/${{ github.repository }}/actions/workflows/care-sagashi-scan.yml/enable"
