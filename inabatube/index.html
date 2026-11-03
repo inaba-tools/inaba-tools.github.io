@@ -133,6 +133,7 @@ button:active{transform:scale(.95)}
 @keyframes bounce{0%{transform:translateY(0) scale(1)}40%{transform:translateY(-6px) scale(1.18)}100%{transform:translateY(0) scale(1)}}
 /* A: カードが順番にふわっと出る */
 .grid>.v,.chs>.ch,.side-in>.rv,.cm{opacity:0;animation:rise .5s var(--ease) forwards;animation-delay:calc(min(var(--i,0),18) * 35ms)}
+.grid.noanim>.v{animation:none;opacity:1}
 @keyframes rise{from{opacity:0;transform:translateY(16px) scale(.98)}to{opacity:1;transform:none}}
 /* A: タブ切り替えでスッと流れる */
 #view.slide-l{animation:slideL .38s var(--ease)}
@@ -321,12 +322,10 @@ async function ytRaw(path, params) {
   return j;
 }
 async function videosByIds(ids) {
-  const out = [];
-  for (let i = 0; i < ids.length; i += 50) {
-    const j = await yt('videos', { part: 'snippet,contentDetails,statistics', id: ids.slice(i, i + 50).join(','), maxResults: 50 });
-    out.push(...j.items);
-  }
-  return out;
+  const chunks = [];
+  for (let i = 0; i < ids.length; i += 50) chunks.push(ids.slice(i, i + 50));
+  const res = await Promise.all(chunks.map(c => yt('videos', { part: 'snippet,contentDetails,statistics', id: c.join(','), maxResults: 50 })));
+  return res.flatMap(j => j.items);
 }
 async function pool(items, n, fn) {
   const res = []; let i = 0;
@@ -351,15 +350,24 @@ async function channelVideos(chId, n) {
   const j = await yt('playlistItems', { part: 'contentDetails', playlistId: uploads(chId), maxResults: n });
   return j.items.map(x => x.contentDetails.videoId);
 }
-async function homeFeed(force) {
+async function homeFeed(force, onPart) {
   const c = ls.get('homeCache');
   if (!force && c && c.t > Date.now() - 10 * 60e3) return c.v;
   const subs = await getSubs(force);
-  const lists = await pool(subs.slice(0, 150), 8, s => channelVideos(s.id, 4));
-  const ids = [...new Set(lists.flat().filter(Boolean))];
-  let vids = await videosByIds(ids);
-  vids = vids.filter(v => !isShort(v)).sort((a, b) => new Date(b.snippet.publishedAt) - new Date(a.snippet.publishedAt));
-  const slim = vids.slice(0, 240).map(slimV);
+  // 取れた分から順に表示する（全部そろうのを待たない）
+  const all = new Map(); let queue = [], last = 0;
+  const sorted = () => [...all.values()].sort((a, b) => new Date(b.at) - new Date(a.at)).slice(0, 240);
+  const flush = async (final) => {
+    const ids = [...new Set(queue.splice(0))].filter(id => !all.has(id));
+    if (ids.length) (await videosByIds(ids)).filter(v => !isShort(v)).forEach(v => all.set(v.id, slimV(v)));
+    if (onPart && all.size && (final || Date.now() - last > 700)) { last = Date.now(); onPart(sorted()); }
+  };
+  await pool(subs.slice(0, 150), 24, async s => {
+    queue.push(...(await channelVideos(s.id, 4)));
+    if (queue.length >= 50) await flush();
+  });
+  await flush(true);
+  const slim = sorted();
   ls.set('homeCache', { t: Date.now(), v: slim });
   return slim;
 }
@@ -452,9 +460,16 @@ async function renderHome(force) {
   chips();
   if (state.chip === 'seen') { $('#view').innerHTML = grid(seen()); return; }
   loading();
-  let vs = await homeFeed(force);
-  if (state.chip === 'recent') vs = vs.filter(v => Date.now() - new Date(v.at) < 48 * 3600e3);
-  $('#view').innerHTML = grid(vs);
+  const chip = state.chip;
+  const pick = vs => chip === 'recent' ? vs.filter(v => Date.now() - new Date(v.at) < 48 * 3600e3) : vs;
+  let first = true;
+  const show = vs => {
+    if (state.tab !== 'home' || state.chip !== chip || state.search || state.channel) return;
+    $('#view').innerHTML = grid(pick(vs));
+    if (!first) $('#view .grid')?.classList.add('noanim');
+    first = false;
+  };
+  show(await homeFeed(force, show));
 }
 async function renderSearch() {
   $('#chips').innerHTML = `<button class="chip on">「${esc(state.search)}」の検索結果</button><button class="chip" id="clr">✕ 閉じる</button>`;
@@ -665,7 +680,7 @@ const waitG = setInterval(() => { if (initAuth()) clearInterval(waitG); }, 300);
 setTimeout(() => clearInterval(waitG), 15000);
 if (autoLogin()) route();
 // ホーム画面アプリでも更新がすぐ反映されるように、新しい版があれば読み直す
-const VERSION = '13';
+const VERSION = '14';
 fetch('version.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.text()).then(t => { t = t.trim(); if (t && t !== VERSION && new URLSearchParams(location.search).get('v') !== t) location.replace(location.pathname + '?v=' + t); }).catch(() => {});
 </script>
 </body>
