@@ -170,7 +170,7 @@ main{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:c
 #rate{position:absolute;left:50%;top:14px;transform:translateX(-50%);z-index:3;background:#000b;color:#fff;font-size:14px;font-weight:700;padding:6px 14px;border-radius:999px;pointer-events:none;opacity:0;transition:opacity .2s}
 #rate.show{opacity:1}
 #ui,#spdm,#pcov{display:none!important}
-#vtouch{inset:0 0 17% 0}
+#vtouch{inset:0 0 22% 0}
 #vtouch::after{content:'';position:absolute;left:50%;top:8px;width:48px;height:5px;margin-left:-24px;border-radius:9px;background:#ffffff55}
 #vtouch{position:absolute;inset:0;z-index:2;touch-action:none}
 #pane.mini #vtouch{display:none}
@@ -959,7 +959,7 @@ dragDown($('#vtouch'), () => !isFs());
     }
     lastTap = now; clearTimeout(tapT);
     // 1回だけのタップは少し待ってから、操作パネルを出す／消す
-    tapT = setTimeout(() => { tapT = null; togglePlay(); }, side === 'c' ? 0 : 260);
+    tapT = setTimeout(() => { tapT = null; }, side === 'c' ? 0 : 260);
   };
   $('#cpp').addEventListener('click', e => { e.stopPropagation(); togglePlay(); setTimeout(showUI, 150); });
   $('#fsb').addEventListener('click', e => { e.stopPropagation(); isFs() ? exitFs() : fullscreen(); setTimeout(showUI, 450); });
@@ -1078,7 +1078,7 @@ const waitG = setInterval(() => { if (initAuth()) clearInterval(waitG); }, 300);
 setTimeout(() => clearInterval(waitG), 15000);
 if (autoLogin()) route();
 // ホーム画面アプリでも更新がすぐ反映されるように、新しい版があれば読み直す
-const VERSION = '29';
+const VERSION = '30';
 fetch('version.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.text()).then(t => { t = t.trim(); if (t && t !== VERSION && new URLSearchParams(location.search).get('v') !== t) location.replace(location.pathname + '?v=' + t); }).catch(() => {});
 </script>
 </body>
