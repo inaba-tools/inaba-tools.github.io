@@ -253,7 +253,7 @@ function initAuth() {
   return true;
 }
 /* ページごとGoogleへ移動してログインし、自動で戻ってくる（ボタンを押さなくても開いた時点で動く） */
-const REDIRECT = location.origin + location.pathname;
+const REDIRECT = 'https://inaba-tools.github.io/inabatube/'; // Google Cloud に登録した戻り先と完全に同じにする
 function loginRedirect(silent) {
   if (!CLIENT_ID) return;
   const st = Math.random().toString(36).slice(2);
@@ -665,7 +665,7 @@ const waitG = setInterval(() => { if (initAuth()) clearInterval(waitG); }, 300);
 setTimeout(() => clearInterval(waitG), 15000);
 if (autoLogin()) route();
 // ホーム画面アプリでも更新がすぐ反映されるように、新しい版があれば読み直す
-const VERSION = '12';
+const VERSION = '13';
 fetch('version.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.text()).then(t => { t = t.trim(); if (t && t !== VERSION && new URLSearchParams(location.search).get('v') !== t) location.replace(location.pathname + '?v=' + t); }).catch(() => {});
 </script>
 </body>
