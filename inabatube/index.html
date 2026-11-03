@@ -427,7 +427,7 @@ function setMode(m) {
   $('#watch').setAttribute('aria-hidden', m !== 'full');
   place();
 }
-function open(id) {
+function openVideo(id) {
   const v = cache[id] || seen().find(x => x.id === id) || { id };
   current = v;
   if (ready) player.loadVideoById(id); else pending = id;
@@ -516,7 +516,7 @@ $('#watch').addEventListener('transitionend', place);
 
 /* ============ クリック ============ */
 document.addEventListener('click', e => {
-  const v = e.target.closest('[data-v]'); if (v) return open(v.dataset.v);
+  const v = e.target.closest('[data-v]'); if (v) return openVideo(v.dataset.v);
   const c = e.target.closest('[data-ch]');
   if (c) { if (mode === 'full') minimize(); state.channel = { id: c.dataset.ch, name: c.dataset.name }; state.search = ''; route(); return; }
   const ch = e.target.closest('[data-chip]'); if (ch) { state.chip = ch.dataset.chip; route(); return; }
@@ -532,7 +532,7 @@ const waitG = setInterval(() => { if (initAuth()) clearInterval(waitG); }, 300);
 setTimeout(() => clearInterval(waitG), 15000);
 route();
 // ホーム画面アプリでも更新がすぐ反映されるように、新しい版があれば読み直す
-const VERSION = '5';
+const VERSION = '6';
 fetch('version.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.text()).then(t => { t = t.trim(); if (t && t !== VERSION && new URLSearchParams(location.search).get('v') !== t) location.replace(location.pathname + '?v=' + t); }).catch(() => {});
 </script>
 </body>
