@@ -3,3 +3,4 @@ playwright
 pillow
 numpy
 rapidocr_onnxruntime
+pywebpush

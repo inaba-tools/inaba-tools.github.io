@@ -54,12 +54,12 @@ button:active{transform:scale(.97)}
 </style>
 </head>
 <body>
-<header><h1>ケアさがし</h1><span id="count">読み込み中…</span></header>
+<header><h1>ケアさがし</h1><span style="display:flex;gap:8px;align-items:center"><button id="bell" aria-label="通知" style="display:none;padding:4px 10px;font-size:13px;border-radius:20px">🔔 通知をオン</button><span id="count">読み込み中…</span></span></header>
 <div id="stage"></div>
 <div class="sub"><button id="undo">1つ戻る</button></div>
 <div id="toast"></div>
 <script>
-var VERSION = '8';
+var VERSION = '9';
 var LS = { get: function (k) { try { return localStorage.getItem(k) } catch (e) { return null } },
            set: function (k, v) { try { localStorage.setItem(k, v) } catch (e) {} } };
 (function () {
@@ -112,8 +112,41 @@ function zoom(url) {   // シリアルの部分だけ拡大して見せる（0�
     '<p class="zoomcap">写真のシリアル部分（読み取り結果と見比べてください）</p>';
 }
 
+// ---- アイコンの数字（バッジ）と通知 ----
+var VAPID = 'BB-VNadIELVCIZ58O4WvglYbtSIJm5NgUe-djLQozp8LYwZGHAgbqoQYx4tUAFAvVYCHPuLFSQDv_MgNWrcdhWg';
+var swReg = null;
+var devId = LS.get('dev') || ('d' + Math.random().toString(36).slice(2, 12)); LS.set('dev', devId);
+function badge(n) { try { if (navigator.setAppBadge) { n > 0 ? navigator.setAppBadge(n) : navigator.clearAppBadge() } } catch (e) {} }
+function pushOK() { return 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window }
+function b64(s) { var p = '='.repeat((4 - s.length % 4) % 4), r = atob((s + p).replace(/-/g, '+').replace(/_/g, '/')); return Uint8Array.from(r.split('').map(function (c) { return c.charCodeAt(0) })) }
+function bellRender() {
+  var b = document.getElementById('bell');
+  b.style.display = pushOK() && API && KEY && Notification.permission !== 'granted' ? '' : 'none';
+}
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(function (r) {
+  swReg = r; r.update && r.update();
+  if (pushOK() && Notification.permission === 'granted' && API && KEY) subscribe(false);   // 登録先が変わっていたら送り直す
+  bellRender();
+}).catch(function () {});
+function subscribe(ask) {
+  return (ask ? Notification.requestPermission() : Promise.resolve(Notification.permission)).then(function (perm) {
+    if (perm !== 'granted') { if (ask) toast('通知が許可されませんでした'); bellRender(); return }
+    var reg = swReg ? Promise.resolve(swReg) : navigator.serviceWorker.ready;
+    return reg.then(function (r) {
+      return r.pushManager.getSubscription().then(function (sub) {
+        return sub || r.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64(VAPID) });
+      });
+    }).then(function (sub) {
+      return fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ key: KEY, action: 'subscribe', dev: devId, sub: sub.toJSON ? sub.toJSON() : sub }) });
+    }).then(function () { if (ask) toast('通知をオンにしました。新しい候補が届くとお知らせします'); badge(left); bellRender() });
+  }).catch(function () { if (ask) toast('通知をオンにできませんでした'); bellRender() });
+}
+document.getElementById('bell').onclick = function () { subscribe(true) };
+
 function render() {
   document.getElementById('count').textContent = '残り ' + left + ' 件';
+  badge(left);
   stage.innerHTML = '';
   if (!items.length) { stage.innerHTML = '<div class="empty"><div style="font-size:40px">✓</div>いまは確認する出品がありません<br>新しい出品は1時間ごとに届きます</div>'; return }
   items.slice(0, 2).reverse().forEach(function (it, i, arr) {
