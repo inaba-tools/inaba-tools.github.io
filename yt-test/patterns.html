@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>見た目パターン</title>
+<style>
+  :root{
+    --bg:#0f1412;--panel:#18201d;--card:#1f2925;--text:#e8efe9;--sub:#9aaba1;--accent:#4fbf8f;--accent2:#2a3a33;--radius:14px;--font:-apple-system,"Hiragino Sans",sans-serif;
+  }
+  body[data-p="B"]{--bg:#0b0b0c;--panel:#141416;--card:#1b1b1e;--text:#f3efe9;--sub:#a59e94;--accent:#ff8a3d;--accent2:#2b2118;--radius:6px;}
+  body[data-p="C"]{--bg:#0e1626;--panel:#14203a;--card:#1b2a48;--text:#eaf2ff;--sub:#93a8c8;--accent:#5cc8ff;--accent2:#1d3358;--radius:20px;}
+  html,body{margin:0;height:100%;overscroll-behavior:none}
+  body{background:var(--bg);color:var(--text);font-family:var(--font);transition:background .3s}
+  .switch{position:fixed;top:10px;left:50%;transform:translateX(-50%);z-index:50;display:flex;gap:6px;background:#000a;padding:6px;border-radius:999px;backdrop-filter:blur(8px)}
+  .switch button{border:0;border-radius:999px;padding:8px 14px;font-size:14px;background:#333;color:#fff}
+  .switch button.on{background:#fff;color:#000;font-weight:700}
+  header{display:flex;align-items:center;gap:14px;padding:58px 24px 10px}
+  .logo{font-weight:800;font-size:22px;letter-spacing:.02em}
+  .logo span{color:var(--accent)}
+  .search{flex:1;max-width:520px;margin-left:auto;background:var(--panel);border-radius:999px;padding:11px 18px;color:var(--sub);font-size:15px}
+  .chips{display:flex;gap:8px;padding:6px 24px 14px;overflow:auto}
+  .chip{white-space:nowrap;background:var(--panel);color:var(--text);padding:8px 16px;border-radius:999px;font-size:14px}
+  .chip.on{background:var(--accent);color:#000;font-weight:700}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px 18px;padding:0 24px 120px}
+  .thumb{aspect-ratio:16/9;border-radius:var(--radius);position:relative;overflow:hidden}
+  .thumb i{position:absolute;right:8px;bottom:8px;background:#000c;color:#fff;font-style:normal;font-size:12px;padding:2px 6px;border-radius:4px}
+  .meta{display:flex;gap:10px;margin-top:10px}
+  .av{width:36px;height:36px;border-radius:50%;flex:none;background:var(--accent2);border:2px solid var(--accent)}
+  .t{font-size:15px;font-weight:600;line-height:1.4}
+  .s{font-size:13px;color:var(--sub);margin-top:3px}
+  .tabs{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:center;gap:70px;padding:12px 0 22px;background:var(--panel);border-top:1px solid #ffffff10}
+  .tabs div{font-size:12px;color:var(--sub);text-align:center}
+  .tabs div.on{color:var(--accent);font-weight:700}
+  .tabs b{display:block;font-size:20px;margin-bottom:2px}
+  .mini{position:fixed;right:20px;bottom:90px;width:360px;aspect-ratio:16/9;border-radius:var(--radius);background:linear-gradient(135deg,#333,#111);box-shadow:0 12px 40px #000a;outline:2px solid var(--accent)}
+  .mini span{position:absolute;left:10px;bottom:8px;font-size:12px;background:#000b;padding:3px 8px;border-radius:6px}
+  .note{position:fixed;left:24px;bottom:96px;font-size:13px;color:var(--sub)}
+</style>
+</head>
+<body data-p="A">
+<div class="switch">
+  <button data-k="A" class="on">A 森グリーン</button>
+  <button data-k="B">B シネマ橙</button>
+  <button data-k="C">C 夜空ブルー</button>
+</div>
+<header>
+  <div class="logo">Tube<span>Ru</span></div>
+  <div class="search">🔍 検索</div>
+</header>
+<div class="chips">
+  <div class="chip on">すべて</div><div class="chip">最近アップロードされた動画</div><div class="chip">ゲーム</div><div class="chip">音楽</div><div class="chip">視聴済み</div>
+</div>
+<div class="grid" id="g"></div>
+<div class="mini"><span>▶ 再生中（下スワイプで閉じる）</span></div>
+<div class="tabs">
+  <div class="on"><b>⌂</b>ホーム</div><div><b>☰</b>登録チャンネル</div><div><b>◎</b>マイページ</div>
+</div>
+<script>
+  const hues=[[20,40],[200,260],[90,140],[300,340],[40,60],[160,200],[0,20],[240,280],[120,170]];
+  const g=document.getElementById('g');
+  hues.forEach((h,i)=>{
+    g.insertAdjacentHTML('beforeend',`<div><div class="thumb" style="background:linear-gradient(135deg,hsl(${h[0]} 60% 45%),hsl(${h[1]} 60% 25%))"><i>${10+i}:2${i}</i></div>
+    <div class="meta"><div class="av"></div><div><div class="t">見本の動画タイトル ${i+1}・ここに2行まで入ります</div><div class="s">チャンネル名 ・ 3万回視聴 ・ ${i+1}日前</div></div></div></div>`);
+  });
+  document.querySelectorAll('.switch button').forEach(b=>b.onclick=()=>{
+    document.body.dataset.p=b.dataset.k;
+    document.querySelectorAll('.switch button').forEach(x=>x.classList.toggle('on',x===b));
+  });
+</script>
+</body>
+</html>
