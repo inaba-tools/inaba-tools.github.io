@@ -69,7 +69,8 @@ main{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:c
 
 /* ===== tabs ===== */
 .tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;justify-content:center;gap:72px;padding:7px 0 calc(env(safe-area-inset-bottom,0px) + 7px);background:var(--panel);border-top:1px solid var(--line)}
-.tabs button{font-size:0;color:var(--sub);text-align:center;min-width:56px;height:34px}
+.tabs button{font-size:11px;color:var(--sub);text-align:center;min-width:64px;line-height:1.2}
+.tabs span{display:block;margin-top:3px;white-space:nowrap}
 .tabs button.on{color:var(--accent);font-weight:700}
 .tabs b{display:block;font-size:22px;line-height:1}
 .prog{padding:0 24px 10px;color:var(--sub);font-size:13px;min-height:1px}
@@ -84,8 +85,9 @@ main{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:c
 #topbar::after{content:'';position:absolute;left:50%;bottom:14px;width:56px;height:5px;margin-left:-28px;border-radius:9px;background:#ffffff40}
 #topbar button{width:40px;height:30px;font-size:20px;border-radius:8px;color:var(--sub)}
 #watch.away #topbar{display:none}
+#topbar button{display:none!important}
 #slot{flex:none;width:min(100%,calc((100dvh - var(--st) - 130px) * 16 / 9));align-self:center;aspect-ratio:16/9;margin-top:calc(var(--st) + 36px)}
-#info{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;touch-action:pan-y;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:14px 0 40px}
+#info{flex:1;min-height:0;overflow:hidden;touch-action:none;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:14px 0 40px}
 #vt{font-size:19px;font-weight:700;line-height:1.45;margin:0}
 #vs{font-size:13px;color:var(--sub);margin-top:6px}
 .chrow{display:flex;align-items:center;gap:12px;margin:14px 0}
@@ -93,6 +95,7 @@ main{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:c
 .chrow b{font-size:15px}
 .desc{display:none;background:var(--panel);border-radius:var(--r);font-size:14px;line-height:1.7;white-space:pre-wrap;word-break:break-word;margin-top:12px}
 .desc>.in{padding:12px 14px}
+.desc.open{max-height:34dvh;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;-webkit-overflow-scrolling:touch}
 .desc.open{display:block;animation:descIn .32s var(--ease)}
 @keyframes descIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
 #vhead{cursor:pointer}
@@ -204,6 +207,9 @@ button:active{transform:scale(.95)}
 .grid.noanim>.v{animation:none;opacity:1}
 @keyframes rise{from{opacity:0;transform:translateY(16px) scale(.98)}to{opacity:1;transform:none}}
 /* A: タブ切り替えでスッと流れる */
+#ptr{position:fixed;left:50%;top:calc(var(--st) + 66px);z-index:25;width:40px;height:40px;margin-left:-20px;border-radius:50%;background:var(--panel);color:var(--accent);display:grid;place-items:center;font-size:22px;font-weight:700;opacity:0;transform:translateY(-30px);pointer-events:none;transition:opacity .25s,transform .3s var(--ease)}
+#ptr.spin span{animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 #view.slide-l{animation:slideL .38s var(--ease)}
 #view.slide-r{animation:slideR .38s var(--ease)}
 #view.fade{animation:fadeUp .35s var(--ease)}
@@ -243,10 +249,10 @@ button:active{transform:scale(.95)}
 </main>
 
 <nav class="tabs" id="tabs">
-  <button data-tab="home" class="on" aria-label="ホーム（盛り上がり）"><b>⌂</b></button>
-  <button data-tab="new" aria-label="新着"><b>◷</b></button>
-  <button data-tab="trend" aria-label="急上昇"><b>↗</b></button>
-  <button data-tab="me" aria-label="マイページ"><b>◎</b></button>
+  <button data-tab="home" class="on"><b>⌂</b><span>盛り上がり</span></button>
+  <button data-tab="new"><b>◷</b><span>最近アップロード</span></button>
+  <button data-tab="trend"><b>↗</b><span>急上昇</span></button>
+  <button data-tab="me"><b>◎</b><span>マイページ</span></button>
 </nav>
 
 <section id="watch" class="away" aria-hidden="true">
@@ -546,10 +552,22 @@ async function route() {
     await renderHome();
   } catch (e) { showErr(e); }
 }
+// 引っぱって更新したとき、まだ出していない動画を先に並べる
+function rotate(t, vs, fresh) {
+  let s = new Set(JSON.parse(sessionStorage.getItem('shown:' + t) || '[]'));
+  if (fresh) {
+    const a = vs.filter(v => !s.has(v.id)), b = vs.filter(v => s.has(v.id));
+    if (a.length < 12) s = new Set(); else vs = [...a, ...b];
+  }
+  sessionStorage.setItem('shown:' + t, JSON.stringify([...s, ...vs.slice(0, 36).map(v => v.id)].slice(-800)));
+  return vs;
+}
 async function renderHome(force, tab = 'home') {
-  chips(tab === 'home' ? '🔥 盛り上がっている動画' : '最近アップロードされた動画');
+  chips('');
+  const refresh = state.refresh; state.refresh = false;
   // ホーム＝盛り上がり順（1時間あたりの再生数）、新着＝新しい順
-  const show = (vs, anim) => { if (state.tab !== tab || state.search || state.channel) return; const st = $('#main').scrollTop; $('#view').innerHTML = grid(tab === 'home' ? [...vs].sort((a, b) => heat(b) - heat(a)) : vs); if (!anim) { $('#view .grid')?.classList.add('noanim'); $('#main').scrollTop = st; } };
+  const show = (vs, anim, rot) => { if (state.tab !== tab || state.search || state.channel) return; const st = $('#main').scrollTop; $('#view').innerHTML = grid(tab === 'home' ? rotate('home', [...vs].sort((a, b) => heat(b) - heat(a)), rot) : vs); if (!anim) { $('#view .grid')?.classList.add('noanim'); $('#main').scrollTop = st; } };
+  if (refresh) { show(await homeFeed(true), true, true); return; }
   const old = ls.get('homeCache');
   const fresh = !force && old && old.t > Date.now() - 10 * 60e3;
   if (old?.v?.length) { show(old.v, true); if (fresh) return; }
@@ -573,10 +591,11 @@ async function renderSearch() {
   $('#view').innerHTML = grid(vs);
 }
 async function renderTrend() {
-  chips('急上昇（登録していないチャンネル）');
+  chips('');
+  const refresh = state.refresh; state.refresh = false;
   loading();
   const c = JSON.parse(sessionStorage.getItem('trend') || 'null');
-  let vs = c && c.t > Date.now() - 15 * 60e3 ? c.v : null;
+  let vs = !refresh && c && c.t > Date.now() - 15 * 60e3 ? c.v : null;
   if (!vs) {
     const mine = new Set((ls.get('subs')?.list || []).map(x => x.id));
     let raw = [], page = '';
@@ -588,7 +607,7 @@ async function renderTrend() {
     await fillIcons(vs).catch(() => {});
     sessionStorage.setItem('trend', JSON.stringify({ t: Date.now(), v: vs }));
   }
-  if (state.tab === 'trend' && !state.search && !state.channel) $('#view').innerHTML = grid(vs);
+  if (state.tab === 'trend' && !state.search && !state.channel) $('#view').innerHTML = grid(rotate('trend', vs, refresh));
 }
 async function renderChannel() {
   const isSub = () => (ls.get('subs')?.list || []).some(x => x.id === state.channel.id);
@@ -885,7 +904,7 @@ function swipe(el, { up, down, tap }) {
 function dragDown(el, canStart = () => true) {
   let y0 = null, dy = 0, active = false;
   const w = $('#watch'), p = $('#pane');
-  el.addEventListener('touchstart', e => { if (mode !== 'full' || !canStart()) { y0 = null; return; } y0 = e.touches[0].clientY; dy = 0; active = false; }, { passive: true });
+  el.addEventListener('touchstart', e => { if (mode !== 'full' || !canStart(e)) { y0 = null; return; } y0 = e.touches[0].clientY; dy = 0; active = false; }, { passive: true });
   el.addEventListener('touchmove', e => {
     if (y0 === null) return;
     dy = e.touches[0].clientY - y0;
@@ -1019,7 +1038,7 @@ dragDown($('#vtouch'), () => !isFs());
   el.addEventListener('touchend', end);
   el.addEventListener('touchcancel', end);
 })();
-dragDown($('#info'), () => $('#info').scrollTop <= 0);
+dragDown($('#info'), e => !e.target.closest('.desc.open'));
 let fsUp = null;
 $('#topbar').addEventListener('touchstart', e => { fsUp = e.touches[0].clientY; }, { passive: true });
 $('#topbar').addEventListener('touchend', e => { if (fsUp !== null && fsUp - e.changedTouches[0].clientY > 50) fullscreen(); fsUp = null; });
@@ -1075,12 +1094,34 @@ document.addEventListener('click', e => {
 $('#logo').onclick = () => { state.tab = 'home'; state.chip = 'all'; state.search = ''; state.channel = null; route(); };
 $('#sf').onsubmit = e => { e.preventDefault(); const q = $('#q').value.trim(); if (!q) return; $('#q').blur(); state.search = q; state.channel = null; route(); };
 
+/* ============ 引っぱって更新（盛り上がり・急上昇） ============ */
+(() => {
+  const m = $('#main'), p = document.createElement('div'); p.id = 'ptr'; p.innerHTML = '<span>↻</span>'; document.body.append(p);
+  let y0 = null, d = 0;
+  const can = () => m.scrollTop <= 0 && (state.tab === 'home' || state.tab === 'trend') && !state.search && !state.channel;
+  m.addEventListener('touchstart', e => { y0 = can() ? e.touches[0].clientY : null; d = 0; }, { passive: true });
+  m.addEventListener('touchmove', e => {
+    if (y0 === null) return; d = e.touches[0].clientY - y0;
+    p.style.transition = 'none';
+    if (d <= 0) { p.style.opacity = 0; return; }
+    p.style.opacity = Math.min(1, d / 80); p.style.transform = `translateY(${Math.min(d, 110) * 0.6 - 30}px) rotate(${d * 3}deg)`;
+  }, { passive: true });
+  m.addEventListener('touchend', () => {
+    if (y0 === null) return; y0 = null; p.style.transition = '';
+    if (d > 80) {
+      p.classList.add('spin'); p.style.opacity = 1; p.style.transform = 'translateY(24px)';
+      state.refresh = true;
+      Promise.resolve(route()).finally(() => { p.classList.remove('spin'); p.style.opacity = 0; p.style.transform = ''; });
+    } else { p.style.opacity = 0; p.style.transform = ''; }
+  });
+})();
+
 /* ============ 起動 ============ */
 const waitG = setInterval(() => { if (initAuth()) clearInterval(waitG); }, 300);
 setTimeout(() => clearInterval(waitG), 15000);
 if (autoLogin()) route();
 // ホーム画面アプリでも更新がすぐ反映されるように、新しい版があれば読み直す
-const VERSION = '31';
+const VERSION = '32';
 fetch('version.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.text()).then(t => { t = t.trim(); if (t && t !== VERSION && new URLSearchParams(location.search).get('v') !== t) location.replace(location.pathname + '?v=' + t); }).catch(() => {});
 </script>
 </body>
