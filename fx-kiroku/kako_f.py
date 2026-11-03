@@ -6,20 +6,27 @@ import run
 y = int(sys.argv[1])
 mons = [d for d in (dt.date(y, 1, 1) + dt.timedelta(days=i) for i in range(366)) if d.year == y and d.weekday() == 0]
 need = sorted({x for d in mons for x in (d - dt.timedelta(days=3), d - dt.timedelta(days=1), d)})
-with ThreadPoolExecutor(6) as ex:
+with ThreadPoolExecutor(4) as ex:
     list(ex.map(run.utc_day, need))
+for k in range(3):  # 取れなかった日は、時間をおいて取り直す
+    miss = [x for x in need if run._cache.get(x) is None]
+    print('取り直し', k, len(miss), flush=True)
+    for x in miss:
+        run._cache.pop(x, None)
+        run.utc_day(x)
+skip = 0
 out = []
 for d in mons:
     fri, sun = run.utc_day(d - dt.timedelta(days=3)), run.utc_day(d - dt.timedelta(days=1))
     mon = run.utc_day(d)
-    if not fri or mon is None:
+    if not fri or not mon or not sun:
+        skip += 1
         continue
     f = d - dt.timedelta(days=3)
     fc = [x for x in fri if x[0] >= dt.datetime(f.year, f.month, f.day, 20, tzinfo=run.JST)]
-    today = [x for x in (sun or []) + mon if x[0].date() == d]
+    today = [x for x in sun + mon if x[0].date() == d]
     if len(fc) < 50:
         continue
-    r = run.gap_fill(d, today) if False else None
     # gap_fill は金曜分を jst_day で取り直すので、同じ計算をここで行う
     mo = [x for x in today if 6 <= x[0].hour < 12]
     if len(mo) < 50:
@@ -39,4 +46,4 @@ for d in mons:
     out.append([d.isoformat(), side, res[-1]])
 with open('kako_f_%d.csv' % y, 'w', newline='') as fp:
     csv.writer(fp).writerows(out)
-print(y, len(out), sum(r[2] for r in out))
+print('RESULT', y, len(out), sum(r[2] for r in out), 'skip', skip)
