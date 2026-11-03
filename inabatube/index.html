@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<title>inabaTube｜登録チャンネルの新着をシンプルに見られる動画ビューア</title>
+<title>inabaTube</title>
 <meta name="description" content="inabaTubeは、YouTubeの登録チャンネルの新着動画を、iPadの横画面で見やすく並べるシンプルな動画ビューアです。ショートなし、小窓再生、コメント表示に対応。">
 <link rel="canonical" href="https://inaba-tools.github.io/inabatube/">
 <meta name="robots" content="noindex, nofollow">
@@ -629,7 +629,7 @@ const waitG = setInterval(() => { if (initAuth()) clearInterval(waitG); }, 300);
 setTimeout(() => clearInterval(waitG), 15000);
 route();
 // ホーム画面アプリでも更新がすぐ反映されるように、新しい版があれば読み直す
-const VERSION = '8';
+const VERSION = '9';
 fetch('version.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.text()).then(t => { t = t.trim(); if (t && t !== VERSION && new URLSearchParams(location.search).get('v') !== t) location.replace(location.pathname + '?v=' + t); }).catch(() => {});
 </script>
 </body>
