@@ -118,6 +118,48 @@ main{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:c
 #pane.gone{opacity:0;pointer-events:none}
 
 .toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);z-index:60;background:#000e;border:1px solid var(--line);padding:10px 18px;border-radius:999px;font-size:14px}
+
+/* ===== アニメーション ===== */
+:root{--spring:cubic-bezier(.22,1.2,.36,1);--ease:cubic-bezier(.2,.8,.2,1)}
+/* C: 押すと少し沈む */
+button{transition:transform .18s var(--ease),background-color .2s,color .2s,opacity .2s}
+button:active{transform:scale(.95)}
+.v:active,.rv:active,.ch:active{transform:scale(.97)}
+.v .th img,.rv .th img{transition:transform .35s var(--ease),filter .35s}
+.v:active .th img{transform:scale(1.04);filter:brightness(1.12)}
+.chip{transition:transform .18s var(--ease),background-color .25s,color .25s}
+.chip.on{animation:pop .35s var(--spring)}
+@keyframes pop{0%{transform:scale(.88)}100%{transform:scale(1)}}
+.tabs button b{transition:transform .3s var(--spring)}
+.tabs button.on b{animation:bounce .45s var(--spring)}
+@keyframes bounce{0%{transform:translateY(0) scale(1)}40%{transform:translateY(-6px) scale(1.18)}100%{transform:translateY(0) scale(1)}}
+/* A: カードが順番にふわっと出る */
+.grid>.v,.chs>.ch,.side-in>.rv,.cm{opacity:0;animation:rise .5s var(--ease) forwards;animation-delay:calc(min(var(--i,0),18) * 35ms)}
+@keyframes rise{from{opacity:0;transform:translateY(16px) scale(.98)}to{opacity:1;transform:none}}
+/* A: タブ切り替えでスッと流れる */
+#view.slide-l{animation:slideL .38s var(--ease)}
+#view.slide-r{animation:slideR .38s var(--ease)}
+#view.fade{animation:fadeUp .35s var(--ease)}
+@keyframes slideL{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:none}}
+@keyframes slideR{from{opacity:0;transform:translateX(-40px)}to{opacity:1;transform:none}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.msg{animation:fadeUp .4s var(--ease)}
+/* C: 読み込み中はオレンジの光が流れる */
+.sk .th,.sk .l{position:relative;overflow:hidden;background:var(--card)}
+.sk .l{height:13px;border-radius:4px;margin-top:10px}
+.sk .l.w2{width:60%}
+.sk .th::after,.sk .l::after{content:'';position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(90deg,#0000,#ff8a3d22 45%,#ff8a3d44 50%,#ff8a3d22 55%,#0000);animation:sheen 1.3s ease-in-out infinite}
+@keyframes sheen{to{transform:translateX(100%)}}
+.loadbar{position:fixed;left:0;top:0;height:3px;width:100%;z-index:70;background:linear-gradient(90deg,#0000,var(--accent),#0000);background-size:50% 100%;background-repeat:no-repeat;animation:bar 1s linear infinite;pointer-events:none}
+@keyframes bar{from{background-position:-50% 0}to{background-position:150% 0}}
+/* 再生画面の出入りをバネっぽく */
+#watch{transition:transform .42s var(--ease),opacity .3s}
+#pane{transition:left .42s var(--ease),top .42s var(--ease),width .42s var(--ease),height .42s var(--ease),box-shadow .3s,opacity .25s,transform .42s var(--ease)}
+#pane.dragging,#watch.dragging{transition:none!important}
+#info>*{animation:fadeUp .4s var(--ease) both}
+.toast{animation:toastIn .35s var(--spring)}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,16px) scale(.9)}to{opacity:1;transform:translate(-50%,0)}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.grid>.v,.chs>.ch,.side-in>.rv,.cm{opacity:1}}
 </style>
 </head>
 <body>
@@ -227,13 +269,17 @@ function logout() {
 const hasSubs = () => !!ls.get('subs')?.list?.length;
 const canUse = () => loggedIn() || (API_KEY && hasSubs());
 async function yt(path, params) {
+  setBusy(true);
+  try { return await ytRaw(path, params); } finally { setBusy(false); }
+}
+async function ytRaw(path, params) {
   const useToken = loggedIn();
   if (!useToken && (params.mine || !API_KEY)) throw new Error('login');
   const u = new URL(API + path);
   Object.entries(params).forEach(([k, v]) => v !== undefined && v !== '' && u.searchParams.set(k, v));
   if (!useToken) u.searchParams.set('key', API_KEY);
   const r = await fetch(u, useToken ? { headers: { Authorization: 'Bearer ' + token.v } } : { referrerPolicy: 'no-referrer-when-downgrade' });
-  if (r.status === 401 && useToken) { token = null; ls.del('token'); return yt(path, params); }
+  if (r.status === 401 && useToken) { token = null; ls.del('token'); return ytRaw(path, params); }
   const j = await r.json();
   if (!r.ok) { const e = new Error(j.error?.errors?.[0]?.reason || 'api'); e.code = r.status; throw e; }
   return j;
@@ -304,16 +350,26 @@ function markSeen(v) { const h = seen().filter(x => x.id !== v.id); h.unshift(v)
 
 /* ============ 描画 ============ */
 const cache = {};
-function card(v) {
+function card(v, i = 0) {
   cache[v.id] = v;
   const s = seen().some(x => x.id === v.id);
-  return `<button class="v" data-v="${esc(v.id)}">
+  return `<button class="v" style="--i:${i}" data-v="${esc(v.id)}">
     <div class="th"><img loading="lazy" src="${esc(v.thumb)}" alt=""><i>${v.live ? 'ライブ' : esc(dur(v.dur))}</i>${s ? '<div class="seen"></div>' : ''}</div>
     <div class="meta"><img class="av" loading="lazy" src="${esc(iconOf(v.chId))}" alt="" onerror="this.style.visibility='hidden'">
     <div><div class="t">${esc(v.title)}</div><div class="s">${esc(v.ch)} ・ ${num(v.views)}回視聴 ・ ${ago(v.at)}</div></div></div></button>`;
 }
-const grid = vs => vs.length ? `<div class="grid">${vs.map(card).join('')}</div>` : `<div class="msg">表示できる動画がありません。</div>`;
-function loading(t = '読み込み中…') { $('#view').innerHTML = `<div class="msg">${t}</div>`; }
+const grid = vs => vs.length ? `<div class="grid">${vs.map((v, i) => card(v, i)).join('')}</div>` : `<div class="msg">表示できる動画がありません。</div>`;
+function loading() {
+  const one = '<div class="v sk" style="opacity:1;animation:none"><div class="th"></div><div class="l"></div><div class="l w2"></div></div>';
+  $('#view').innerHTML = `<div class="grid">${one.repeat(9)}</div>`;
+}
+let busy = 0;
+function setBusy(on) {
+  busy = Math.max(0, busy + (on ? 1 : -1));
+  let b = $('.loadbar');
+  if (busy && !b) { b = document.createElement('div'); b.className = 'loadbar'; document.body.append(b); }
+  if (!busy && b) b.remove();
+}
 function needLogin() {
   $('#chips').innerHTML = '';
   $('#view').innerHTML = CLIENT_ID
@@ -335,7 +391,16 @@ const CHIPS = [['all', 'すべて'], ['recent', '最近アップロードされ�
 function chips() {
   $('#chips').innerHTML = CHIPS.map(([k, t]) => `<button class="chip ${state.chip === k ? 'on' : ''}" data-chip="${k}">${t}</button>`).join('');
 }
+const TAB_ORDER = { home: 0, subs: 1, me: 2 };
+let lastTab = 'home';
+function animView() {
+  const v = $('#view'), d = TAB_ORDER[state.tab] - TAB_ORDER[lastTab];
+  v.classList.remove('slide-l', 'slide-r', 'fade'); void v.offsetWidth;
+  v.classList.add(d > 0 ? 'slide-l' : d < 0 ? 'slide-r' : 'fade');
+  lastTab = state.tab;
+}
 async function route() {
+  animView();
   document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === state.tab));
   $('#main').scrollTop = 0;
   if (state.tab === 'me') return renderMe();
@@ -374,7 +439,7 @@ async function renderSubs() {
   loading();
   const subs = await getSubs();
   $('#view').innerHTML = `<div class="sec">登録チャンネル（${subs.length}）</div><div class="chs">` +
-    subs.map(s => `<button class="ch" data-ch="${esc(s.id)}" data-name="${esc(s.title)}"><img loading="lazy" src="${esc(s.icon)}" alt=""><b>${esc(s.title)}</b></button>`).join('') + '</div>';
+    subs.map((s, i) => `<button class="ch" style="--i:${i}" data-ch="${esc(s.id)}" data-name="${esc(s.title)}"><img loading="lazy" src="${esc(s.icon)}" alt=""><b>${esc(s.title)}</b></button>`).join('') + '</div>';
 }
 async function renderChannel() {
   $('#chips').innerHTML = `<button class="chip on">${esc(state.channel.name)}</button><button class="chip" id="clr">✕ 戻る</button>`;
@@ -465,8 +530,8 @@ async function loadComments(id) {
     const j = await yt('commentThreads', { part: 'snippet', videoId: id, maxResults: 30, order: 'relevance', textFormat: 'plainText' });
     if (current?.id !== id) return;
     $('#cmh').textContent = 'コメント';
-    $('#cms').innerHTML = j.items.length ? j.items.map(c => { const s = c.snippet.topLevelComment.snippet;
-      return `<div class="cm"><img loading="lazy" src="${esc(s.authorProfileImageUrl)}" alt="" onerror="this.style.visibility='hidden'"><div><div class="n">${esc(s.authorDisplayName)} ・ ${ago(s.publishedAt)}${s.likeCount ? ' ・ 👍 ' + num(s.likeCount) : ''}</div><div class="x">${esc(s.textDisplay)}</div></div></div>`; }).join('')
+    $('#cms').innerHTML = j.items.length ? j.items.map((c, i) => { const s = c.snippet.topLevelComment.snippet;
+      return `<div class="cm" style="--i:${i}"><img loading="lazy" src="${esc(s.authorProfileImageUrl)}" alt="" onerror="this.style.visibility='hidden'"><div><div class="n">${esc(s.authorDisplayName)} ・ ${ago(s.publishedAt)}${s.likeCount ? ' ・ 👍 ' + num(s.likeCount) : ''}</div><div class="x">${esc(s.textDisplay)}</div></div></div>`; }).join('')
       : '<div class="s">コメントはまだありません。</div>';
   } catch (e) { if (current?.id === id) $('#cms').innerHTML = '<div class="s">コメントはオフになっています。</div>'; }
 }
@@ -484,7 +549,8 @@ async function loadRelated(v) {
   if (current?.id !== v.id) return;
   await fillIcons(vs).catch(() => {});
   vs.forEach(x => cache[x.id] = x);
-  $('#side').innerHTML = vs.map(x => `<button class="rv" data-v="${esc(x.id)}"><div class="th"><img loading="lazy" src="${esc(x.thumb)}" alt=""><i>${x.live ? 'ライブ' : esc(dur(x.dur))}</i></div><div><div class="t">${esc(x.title)}</div><div class="s">${esc(x.ch)}<br>${num(x.views)}回 ・ ${ago(x.at)}</div></div></button>`).join('') || '<div class="s">関連動画が見つかりませんでした。</div>';
+  $('#side').classList.add('side-in');
+  $('#side').innerHTML = vs.map((x, i) => `<button class="rv" style="--i:${i}" data-v="${esc(x.id)}"><div class="th"><img loading="lazy" src="${esc(x.thumb)}" alt=""><i>${x.live ? 'ライブ' : esc(dur(x.dur))}</i></div><div><div class="t">${esc(x.title)}</div><div class="s">${esc(x.ch)}<br>${num(x.views)}回 ・ ${ago(x.at)}</div></div></button>`).join('') || '<div class="s">関連動画が見つかりませんでした。</div>';
 }
 
 /* ============ スワイプ ============ */
@@ -498,13 +564,40 @@ function swipe(el, { up, down, tap }) {
     else if (Math.abs(dy) < 10 && Math.abs(dx) < 10 && Date.now() - t0 < 400 && tap && !e.target.closest('.mb')) { tap(); e.preventDefault(); }
   });
 }
+// 再生画面を下に引っぱると、指について動いて小窓に縮む
+function dragDown(el, canStart = () => true) {
+  let y0 = null, dy = 0, active = false;
+  const w = $('#watch'), p = $('#pane');
+  el.addEventListener('touchstart', e => { if (mode !== 'full' || !canStart()) { y0 = null; return; } y0 = e.touches[0].clientY; dy = 0; active = false; }, { passive: true });
+  el.addEventListener('touchmove', e => {
+    if (y0 === null) return;
+    dy = e.touches[0].clientY - y0;
+    if (!active && dy > 8) { active = true; w.classList.add('dragging'); p.classList.add('dragging'); }
+    if (!active) return;
+    e.preventDefault();
+    const d = Math.max(0, dy), k = Math.min(1, d / (innerHeight * 0.6));
+    w.style.transform = `translateY(${d}px)`; w.style.opacity = 1 - k * 0.6;
+    p.style.transform = `translateY(${d}px) scale(${1 - k * 0.45})`; p.style.transformOrigin = 'right top';
+  }, { passive: false });
+  el.addEventListener('touchend', () => {
+    if (y0 === null) return; y0 = null;
+    if (!active) return;
+    w.classList.remove('dragging'); p.classList.remove('dragging');
+    w.style.transform = ''; w.style.opacity = ''; p.style.transform = '';
+    if (dy > 90) minimize();
+  });
+}
 function fullscreen() {
   const p = $('#pane');
   (p.requestFullscreen || p.webkitRequestFullscreen)?.call(p);
 }
 // 再生画面：上のバーと、動画の下の情報エリアの一番上で下スワイプ→小窓／上スワイプ→全画面
-swipe($('#topbar'), { down: minimize, up: fullscreen });
-swipe($('#info'), { down: () => { if ($('#info').scrollTop <= 0) minimize(); } });
+dragDown($('#topbar'));
+dragDown($('#info'), () => $('#info').scrollTop <= 0);
+let fsUp = null;
+$('#topbar').addEventListener('touchstart', e => { fsUp = e.touches[0].clientY; }, { passive: true });
+$('#topbar').addEventListener('touchend', e => { if (fsUp !== null && fsUp - e.changedTouches[0].clientY > 50) fullscreen(); fsUp = null; });
+
 // 小窓：上スワイプ→戻す／下スワイプ→閉じる／タップ→戻す
 swipe($('#hit'), { up: () => setMode('full'), down: closePlayer, tap: () => setMode('full') });
 $('#hit').addEventListener('click', e => { if (!e.target.closest('.mb')) setMode('full'); });
@@ -536,7 +629,7 @@ const waitG = setInterval(() => { if (initAuth()) clearInterval(waitG); }, 300);
 setTimeout(() => clearInterval(waitG), 15000);
 route();
 // ホーム画面アプリでも更新がすぐ反映されるように、新しい版があれば読み直す
-const VERSION = '7';
+const VERSION = '8';
 fetch('version.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.text()).then(t => { t = t.trim(); if (t && t !== VERSION && new URLSearchParams(location.search).get('v') !== t) location.replace(location.pathname + '?v=' + t); }).catch(() => {});
 </script>
 </body>
