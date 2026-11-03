@@ -81,7 +81,7 @@ def features(hi, jo, gd):
             x['前日の値幅(20日比)'] = rng[-1] / (sum(rng[:-1]) / 20)
             closes = [hi[h][3] for h in pd]
             x['20日の流れ'] = closes[-1] - sum(closes[:-1]) / 20
-        f[d] = x
+        f[d] = {k: v for k, v in x.items() if v is not None}
     return f
 
 

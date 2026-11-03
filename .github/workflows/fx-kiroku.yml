@@ -15,11 +15,16 @@ jobs:
         run: |
           pip install -q holidays
           python3 fx-kiroku/run.py
+      - name: 今日の情勢（金利差・VIX・発表日・ニュースの明るさ）
+        run: |
+          cd fx-kiroku/kenkyu
+          python3 jousei.py || echo "情勢データの取得に失敗（前回のまま）"
+          python3 kyou.py || echo "今日の情勢の作成に失敗（前回のまま）"
       - name: Commit if changed
         run: |
           git config user.name "fx-kiroku-bot"
           git config user.email "noreply@anthropic.com"
-          git add fx-kiroku/kiroku.csv
+          git add fx-kiroku/kiroku.csv fx-kiroku/kenkyu/jousei.csv fx-kiroku/kenkyu/kyou.json fx-kiroku/kenkyu/data/gdelt_*.csv
           git diff --cached --quiet && exit 0
           git commit -m "fx-kiroku: 仮想トレードを記録"
           git pull --rebase
