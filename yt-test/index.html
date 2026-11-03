@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta http-equiv="Cache-Control" content="no-cache">
+<title>広告テスト</title>
+<style>
+  :root { color-scheme: dark; }
+  html, body { margin: 0; background: #111; color: #eee; font-family: -apple-system, "Hiragino Sans", sans-serif; overscroll-behavior: none; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 16px; }
+  h1 { font-size: 18px; margin: 4px 0 12px; }
+  .player { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #000; border-radius: 12px; overflow: hidden; }
+  .player iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  form { display: flex; gap: 8px; margin: 14px 0; }
+  input { flex: 1; font-size: 16px; padding: 10px 12px; border-radius: 10px; border: 1px solid #333; background: #1c1c1c; color: #eee; }
+  button { font-size: 16px; padding: 10px 16px; border-radius: 10px; border: 0; background: #3a7; color: #fff; }
+  p { font-size: 14px; line-height: 1.7; color: #bbb; margin: 6px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>広告が出るかテスト</h1>
+  <div class="player"><iframe id="yt" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>
+  <form id="f">
+    <input id="u" placeholder="YouTubeのURLを貼る" inputmode="url">
+    <button>再生</button>
+  </form>
+  <p>動画を再生して、最初や途中に広告が出るか見てください。</p>
+  <p>いつも広告が出る動画のURLを貼って試すと確実です。</p>
+</div>
+<script>
+  const yt = document.getElementById('yt');
+  function load(id) { yt.src = 'https://www.youtube.com/embed/' + id + '?playsinline=1&rel=0'; }
+  function parse(s) {
+    const m = s.match(/(?:v=|youtu\.be\/|shorts\/|embed\/|live\/)([\w-]{11})/) || s.match(/^([\w-]{11})$/);
+    return m ? m[1] : null;
+  }
+  const q = new URLSearchParams(location.search).get('v');
+  load(q && parse(q) ? parse(q) : 'dQw4w9WgXcQ');
+  document.getElementById('f').addEventListener('submit', e => {
+    e.preventDefault();
+    const id = parse(document.getElementById('u').value.trim());
+    if (id) load(id); else alert('URLが読み取れませんでした');
+  });
+</script>
+</body>
+</html>
