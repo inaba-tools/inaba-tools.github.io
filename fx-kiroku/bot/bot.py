@@ -313,6 +313,15 @@ def main():
             log('エラー %s\n%s' % (fn.__name__, traceback.format_exc(limit=3)))
         json.dump(st, open(STATE + '.tmp', 'w'), ensure_ascii=False, indent=1)
         os.replace(STATE + '.tmp', STATE)
+    # 30分ごとに「動いている」合図をスプレッドシートへ送る（朝の報告で止まっていないか確かめる用）
+    if SHEET_URL and now.minute % 30 == 0:
+        try:
+            tail = open(LOG, encoding='utf-8').read().splitlines()[-5:] if os.path.exists(LOG) else []
+            requests.post(SHEET_URL, json={'alive': now.strftime('%Y/%m/%d %H:%M'),
+                                           'mode': '練習' if DRY else '本番',
+                                           'log': '\n'.join(tail)}, timeout=20)
+        except Exception as e:
+            log('合図を送れず: %s' % e)
 
 
 if __name__ == '__main__':
