@@ -89,8 +89,14 @@ main{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:c
 .chrow{display:flex;align-items:center;gap:12px;margin:14px 0}
 .chrow img{width:42px;height:42px;border-radius:50%}
 .chrow b{font-size:15px}
-.desc{background:var(--panel);border-radius:var(--r);padding:12px 14px;font-size:14px;line-height:1.7;white-space:pre-wrap;word-break:break-word;max-height:4.9em;overflow:hidden;position:relative}
-.desc.open{max-height:none}
+.desc{background:var(--panel);border-radius:var(--r);font-size:14px;line-height:1.7;white-space:pre-wrap;word-break:break-word;overflow:hidden;display:grid;grid-template-rows:0fr;opacity:0;margin-top:0;transition:grid-template-rows .45s var(--ease),opacity .3s,margin .45s var(--ease)}
+.desc>.in{min-height:0;padding:0 14px}
+.desc.open{grid-template-rows:1fr;opacity:1;margin-top:12px}
+.desc.open>.in{padding:12px 14px}
+#vhead{cursor:pointer}
+#vs .more{margin-left:10px;color:var(--text);font-weight:600}
+#vs .more i{font-style:normal;display:inline-block;transition:transform .35s var(--ease)}
+#vhead.open #vs .more i{transform:rotate(180deg)}
 .desc a{color:var(--accent)}
 .cmh{font-size:16px;font-weight:700;margin:22px 0 10px}
 /* 右側：関連動画の上のコメント欄（押すと上下にスライドで開閉） */
@@ -609,10 +615,11 @@ async function loadInfo(v) {
 }
 function linkify(t) { return esc(t).replace(/https?:\/\/[^\s<]+/g, u => `<a href="${u}" target="_blank" rel="noopener">${u}</a>`); }
 function head(v) {
-  return `<h1 id="vt">${esc(v.title)}</h1>
-  <div id="vs">${num(v.views)}回視聴 ・ ${ago(v.at)}${v.likes ? ' ・ 高評価 ' + num(v.likes) : ''}</div>
+  return `<div id="vhead" role="button"><h1 id="vt">${esc(v.title)}</h1>
+  <div id="vs">${num(v.views)}回視聴 ・ ${ago(v.at)}${v.likes ? ' ・ 高評価 ' + num(v.likes) : ''}${v.desc ? '<span class="more">概要 <i>▾</i></span>' : ''}</div></div>
+  ${v.desc ? `<div class="desc" id="desc"><div class="in">${linkify(v.desc)}</div></div>` : ''}
   <button class="chrow" data-ch="${esc(v.chId)}" data-name="${esc(v.ch)}"><img src="${esc(iconOf(v.chId))}" alt="" onerror="this.style.visibility='hidden'"><b>${esc(v.ch)}</b></button>
-  ${v.desc ? `<div class="desc" id="desc">${linkify(v.desc)}</div>` : ''}`;
+`;
 }
 async function loadComments(id) {
   try {
@@ -736,7 +743,7 @@ document.addEventListener('click', e => {
   const ch = e.target.closest('[data-chip]'); if (ch) { state.chip = ch.dataset.chip; route(); return; }
   const t = e.target.closest('[data-tab]');
   if (t) { state.tab = t.dataset.tab; state.search = ''; state.channel = null; if (t.dataset.tab === 'home') state.chip = state.chip || 'all'; route(); return; }
-  if (e.target.closest('#desc')) $('#desc').classList.toggle('open');
+  if (e.target.closest('#vhead') && $('#desc')) { $('#desc').classList.toggle('open'); $('#vhead').classList.toggle('open'); }
 });
 $('#logo').onclick = () => { state.tab = 'home'; state.chip = 'all'; state.search = ''; state.channel = null; route(); };
 $('#sf').onsubmit = e => { e.preventDefault(); const q = $('#q').value.trim(); if (!q) return; $('#q').blur(); state.search = q; state.channel = null; route(); };
@@ -746,7 +753,7 @@ const waitG = setInterval(() => { if (initAuth()) clearInterval(waitG); }, 300);
 setTimeout(() => clearInterval(waitG), 15000);
 if (autoLogin()) route();
 // ホーム画面アプリでも更新がすぐ反映されるように、新しい版があれば読み直す
-const VERSION = '19';
+const VERSION = '20';
 fetch('version.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.text()).then(t => { t = t.trim(); if (t && t !== VERSION && new URLSearchParams(location.search).get('v') !== t) location.replace(location.pathname + '?v=' + t); }).catch(() => {});
 </script>
 </body>
