@@ -16,7 +16,8 @@ for k in range(3):  # 取れなかった日は、時間をおいて取り直す
         run.utc_day(x)
 skip = 0
 # 開始時刻（時, 分）× 手数料（銭）の組み合わせ
-VARS = [(6, 0, 0.3), (6, 0, 2), (6, 0, 5), (7, 0, 0.3), (7, 0, 1), (7, 0, 2), (8, 0, 0.3), (8, 0, 1)]
+# 手数料 'gmo' = GMOクリック証券FXネオ（3:00〜9:00は3.8銭、9:00〜は0.2銭）。入る時と出る時の半分ずつ払う
+VARS = [(6, 0, 0.3), (7, 0, 'gmo'), (7, 0, 'gmo2'), (8, 0, 'gmo'), (9, 0, 'gmo'), (9, 0, 'gmo2')]
 tot = {v: [0, 0] for v in VARS}
 for d in mons:
     fri, sun, mon = (run.utc_day(d - dt.timedelta(days=k)) for k in (3, 1, 0))
@@ -44,13 +45,19 @@ for d in mons:
         if abs(g) < 0.10:
             continue
         side = 1 if g < 0 else -1  # 買い=1
-        xp = mo[-1][4]
+        xp, xt = mo[-1][4], mo[-1][0]
         for t, oo, h, l, c in mo:
             if (side == 1 and h >= close) or (side == -1 and l <= close):
-                xp = close
+                xp, xt = close, t
                 break
-        tot[v][0] += round(((xp - o) * side - fee / 100) * run.UNITS)
+        if fee in ('gmo', 'gmo2'):  # gmo=広告どおり、gmo2=広告の2倍に広がっていた場合
+            k = 1 if fee == 'gmo' else 2
+            sp = lambda tt: (3.8 if tt.hour < 9 else 0.2) * k
+            cost = (sp(mo[0][0]) + sp(xt)) / 2
+        else:
+            cost = fee
+        tot[v][0] += round(((xp - o) * side - cost / 100) * run.UNITS)
         tot[v][1] += 1
 for v in VARS:
-    print('RESULT', y, '%d:%02d' % v[:2], v[2], tot[v][0], tot[v][1], flush=True)
+    print('RESULT', y, '%d:%02d' % v[:2], str(v[2]), tot[v][0], tot[v][1], flush=True)
 print('skip', skip)
