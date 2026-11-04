@@ -1117,7 +1117,7 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
 <nav class="tabs" id="tabs">
 <button class="tab on" data-p="ipo"><svg viewBox="0 0 24 24"><path d="M12 3c0 0-5 6-5 9.5a5 5 0 0 0 10 0C17 9 12 3 12 3z"/></svg>IPO</button>
 <button class="tab" data-p="bunbai"><svg viewBox="0 0 24 24"><path d="M20 7H4l1 12h14z"/><path d="M8 7V5a4 4 0 0 1 8 0v2"/></svg>分売</button>
-<button class="tab" data-p="fx"><svg viewBox="0 0 24 24"><path d="M3 17l5-5 4 3 8-8"/><path d="M15 7h5v5"/></svg>FX</button>
+<button class="tab" data-p="fx" hidden><svg viewBox="0 0 24 24"><path d="M3 17l5-5 4 3 8-8"/><path d="M15 7h5v5"/></svg>FX</button>
 <button class="tab" data-p="set"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2-1.2L14 3h-4l-.5 2.6a7 7 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6A7 7 0 0 0 5 12a7 7 0 0 0 .1 1.2l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 2 1.2L10 21h4l.5-2.6a7 7 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.1-.4.1-.8.1-1.2z"/></svg>設定<span class="bdg" id="setBdg"></span></button>
 </nav>
 
@@ -1798,7 +1798,7 @@ const GCID='501244398820-60rrt8sau8h0s1ucm7hoh0avkjfl5glp.apps.googleusercontent
 const PERSON='<svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M4 21c1-4.5 4.3-6.5 8-6.5s7 2 8 6.5z"/></svg>';
 let gsiP=null;
 function loadGsi(){if(gsiP)return gsiP;gsiP=new Promise((ok,ng)=>{const sc=document.createElement('script');sc.src='https://accounts.google.com/gsi/client';sc.async=true;sc.onload=ok;sc.onerror=()=>{gsiP=null;ng()};document.head.appendChild(sc)});return gsiP}
-function gaccRender(){
+function gaccRender(){if(window.fxGate)fxGate();
   const ic=$('#gIco'),sm=$('#gSum'),bx=$('#gBox');
   if(ic){ic.classList.toggle('me',!!(USER&&USER.picture));ic.innerHTML=USER&&USER.picture?`<img src="${esc(USER.picture)}" alt="" referrerpolicy="no-referrer">`:''}
   if(sm)sm.textContent=USER?(USER.name||USER.email):'ログインしていません';
@@ -1915,7 +1915,13 @@ function renderFX(){if(!FXALL)return;const el=$('#fxBody');
   pz.addEventListener('touchstart',e=>{const t=e.touches[0];sx=t.clientX;sy=t.clientY},{passive:true});
   pz.addEventListener('touchend',e=>{if(sx==null)return;const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;sx=null;if(Math.abs(dx)>40&&Math.abs(dx)>Math.abs(dy))go(dx<0?1:-1)},{passive:true});
   const m=$('#fxMore');if(m)m.onclick=()=>{fxN+=20;renderFX()}}
-loadFX();
+// FXタブは運営者がログインしたときだけ表示（メールアドレスそのものは載せず、ハッシュで照合）
+var FXOWN='60abadef75514b34ef667842e5a1513d26fd3cc53aea0bf0d71a243ceb46ff2b',FXON=false,FXLOADED=false;
+async function fxGate(){let ok=false;try{const e=(USER&&USER.email||'').trim().toLowerCase();if(e&&crypto.subtle){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(e));ok=[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')===FXOWN}}catch(_){}
+  FXON=ok;const t=document.querySelector('.tab[data-p="fx"]');if(t)t.hidden=!ok;
+  if(ok&&!FXLOADED){FXLOADED=true;loadFX()}
+  if(!ok){const pg=document.getElementById('p-fx');if(pg&&pg.classList.contains('on'))goTab('ipo')}}
+fxGate();
 
 // ---- アプリのリンクをコピー ----
 $('#copyLink').onclick=async()=>{const url='https://inaba-tools.github.io/kabu-drop/';let ok=false;
