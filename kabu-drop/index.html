@@ -1044,6 +1044,7 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
 <button class="mi" data-sub="thm"><span class="ico" style="background:#5b5f9e">◐</span><span>デザイン<small id="thmSum">端末に合わせる</small></span><i>›</i></button>
 <button class="mi" data-sub="qa"><span class="ico" style="background:#2b6fd6">?</span><span>Q&amp;A（よくある質問）<small>初値予想・評価・SBIのポイント など</small></span><i>›</i></button>
 <button class="mi" data-sub="data"><span class="ico" style="background:#9aa097">⟳</span><span>データについて<small>どこから・いつ更新</small></span><i>›</i></button>
+<a class="mi" href="privacy.html" style="text-decoration:none"><span class="ico" style="background:#7a7f78">🔒</span><span>プライバシーポリシー<small>集める情報と使い道・広告について</small></span><i>›</i></a>
 </div>
 </section>
 </div>
@@ -1051,7 +1052,7 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
 
 <div class="subpage" id="sub-gacc"><div class="in"><div class="subtop"><button class="back"><b>‹</b>設定</button><h2>アカウント</h2></div>
 <div class="box gbox" id="gBox"></div>
-<p style="color:var(--sub);font-size:12px;margin:8px 20px 0;line-height:1.6">KABU DROPが受け取るのは、Googleアカウントの<b>名前・メールアドレス・アイコン</b>だけです。パスワードやGmailの中身は見えません。</p></div></div>
+<p style="color:var(--sub);font-size:12px;margin:8px 20px 0;line-height:1.6">KABU DROPが受け取るのは、Googleアカウントの<b>名前・メールアドレス・アイコン</b>だけです。パスワードやGmailの中身は見えません。<br><a href="privacy.html" style="color:var(--green);font-weight:700">プライバシーポリシー</a></p></div></div>
 <div class="subpage" id="sub-ntf"><div class="in"><div class="subtop"><button class="back"><b>‹</b>設定</button><h2>通知</h2></div>
 <div class="box"><div id="nState"></div><div class="nbox" id="nBox"></div>
 <p style="color:var(--sub);font-size:12px;margin-top:10px">朝・夕方などに1日数回まとめて確認して送ります。少し遅れて届くことがあります。</p></div></div></div>
@@ -1239,7 +1240,7 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
 
 <script src="budoux.js"></script>
 <script>
-const BUILD='1793638661';
+const BUILD='1793766271';
 // 新しい版が出ていたら、自動で読み込み直す（ホーム画面アプリでもすぐ反映）
 (async()=>{try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const BUILD='(\d+)'/);if(m&&m[1]!==BUILD&&!sessionStorage.getItem('kd_rl'+m[1])){sessionStorage.setItem('kd_rl'+m[1],'1');location.replace('./?v='+m[1]+location.hash)}}catch(e){}})();
 const API='https://script.google.com/macros/s/AKfycbxp2NJyQCnSduboXEaXFN0kndza6-0-zqrJN_0W9tLhBymhxRO8mLlT-dcZgI5lcvLr0A/exec';
