@@ -63,6 +63,21 @@
 "back": "入金していないので何もなし"
 },
 {
+"id": "dmm",
+"name": "DMM株",
+"short": "D",
+"color": "#1c1c1c",
+"url": "https://kabu.dmm.com/",
+"aff": "https://h.accesstrade.net/sp/cc?rk=0100mjw300p24g",
+"feat": "1口座1票の完全平等抽選。当たってからお金を用意すれば良い",
+"fund": "当たってから（申込のときはいらない）",
+"fundWhen": "win",
+"kuji": "1口座1票の平等抽選",
+"rec": true,
+"fundS": "当選後でOK",
+"back": "入金していないので何もなし"
+},
+{
 "id": "monex",
 "name": "マネックス証券",
 "short": "M",
@@ -151,6 +166,51 @@
 "rec": false,
 "fundS": "申込の時",
 "back": "そのまま使える"
+},
+{
+"id": "esmart",
+"name": "三菱UFJ eスマート証券",
+"short": "e",
+"color": "#d0103a",
+"url": "https://kabu.com/",
+"aff": "",
+"feat": "旧auカブコム証券。抽選は平等。購入申込のときにお金が必要",
+"fund": "購入申込のとき（抽選の前）",
+"fundWhen": "draw",
+"kuji": "平等抽選",
+"rec": false,
+"fundS": "購入申込の時",
+"back": "落選がわかったらすぐ使える"
+},
+{
+"id": "gmoclick",
+"name": "GMOクリック証券",
+"short": "G",
+"color": "#f39800",
+"url": "https://www.click-sec.com/",
+"aff": "",
+"feat": "100%完全平等抽選。ただしIPOの取扱いはとても少ない",
+"fund": "購入申込の最終日15時まで",
+"fundWhen": "draw",
+"kuji": "完全平等抽選",
+"rec": false,
+"fundS": "購入申込の最終日",
+"back": "結果が出たら使える"
+},
+{
+"id": "iwaicosmo",
+"name": "岩井コスモ証券",
+"short": "岩",
+"color": "#00479d",
+"url": "https://www.iwaicosmo.co.jp/",
+"aff": "",
+"feat": "IPOの取扱いが多め。ネットの抽選は全体の10%ほど",
+"fund": "購入申込のとき（抽選の前）",
+"fundWhen": "draw",
+"kuji": "ネットは1人1票の平等抽選（10%）",
+"rec": false,
+"fundS": "購入申込の時",
+"back": "結果が出たら使える"
 }
 ]
 }
