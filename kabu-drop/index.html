@@ -942,6 +942,8 @@ html.dark .pastd .ref{background:#3a3115;color:#ffd970}
 .fxj .tag,.fxk .tag{display:inline-block;border-radius:6px;padding:1px 7px;font:900 11px "Noto Sans JP"}
 .fxj .tag.g,.fxk .tag.g{background:#e3f1ec;color:#1f7a55}.fxj .tag.r,.fxk .tag.r{background:#fbe6e3;color:#b23a30}.fxj .tag.n,.fxk .tag.n{background:#eceae2;color:#6c716a}
 html.dark .fxj .tag.g,html.dark .fxk .tag.g{background:#173328}html.dark .fxj .tag.r,html.dark .fxk .tag.r{background:#3a1d1a;color:#f19a90}html.dark .fxj .tag.n,html.dark .fxk .tag.n{background:#2a2d29;color:#b9bdb6}
+.fxms{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:2px 0 8px}.fxms div{background:var(--bg);border-radius:12px;padding:9px 6px;text-align:center;font:700 11px "Noto Sans JP";color:var(--sub)}.fxms b{display:block;font:900 17px Inter;margin-bottom:2px}.fxms b.up{color:#1f9d6b}.fxms b.dn{color:var(--red)}
+.fxm{display:grid;grid-template-columns:78px 1fr auto;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line)}.fxm .d{font:800 12.5px "Noto Sans JP";color:var(--ink)}.fxm .d small{display:block;font:700 10px "Noto Sans JP";color:var(--sub)}.fxm .bar{height:8px;background:var(--bg);border-radius:4px;overflow:hidden}.fxm .bar i{display:block;height:100%;border-radius:4px}.fxm .bar i.up{background:#1f9d6b}.fxm .bar i.dn{background:var(--red)}.fxm .p{font:900 14px Inter;text-align:right}.fxm .p.up{color:#1f9d6b}.fxm .p.dn{color:var(--red)}
 .fxk{padding:11px 0;border-top:1px solid var(--line)}.fxk:first-of-type{border-top:0}
 .fxk .h{display:flex;align-items:center;gap:8px}.fxk .h b{font:900 14px "Noto Sans JP";color:var(--ink)}.fxk .h .tag{margin-left:auto}
 .fxk .r{font:600 11.5px "Noto Sans JP";color:var(--sub);line-height:1.6;margin-top:3px}
@@ -1024,7 +1026,7 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
 <!-- 設定 -->
 <section class="page" id="p-fx">
 <div class="top"><img src="icon-192.png" alt=""><h1>FX</h1><div class="sub" id="fxUpd">ドル円・仮想</div></div>
-<div class="lead" style="font-size:14px">「KABU DROP」専用のFX自動売買ツールで、<br><b>6つの型を毎日ためしています。</b><br>どの型も、年によって負ける時期があります。</div>
+<div class="lead" style="font-size:14px">自作のFXの仕組みで、<br><b>6つの型を毎日ためしている記録です。</b><br>どの型も、勝つ月と負ける月があります。</div>
 <div id="fxBody"><div class="box" style="color:var(--sub)">読み込み中…</div></div>
 </section>
 <section class="page" id="p-set">
@@ -1240,7 +1242,7 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
 
 <script src="budoux.js"></script>
 <script>
-const BUILD='1793766271';
+const BUILD='1793766422';
 // 新しい版が出ていたら、自動で読み込み直す（ホーム画面アプリでもすぐ反映）
 (async()=>{try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const BUILD='(\d+)'/);if(m&&m[1]!==BUILD&&!sessionStorage.getItem('kd_rl'+m[1])){sessionStorage.setItem('kd_rl'+m[1],'1');location.replace('./?v='+m[1]+location.hash)}}catch(e){}})();
 const API='https://script.google.com/macros/s/AKfycbxp2NJyQCnSduboXEaXFN0kndza6-0-zqrJN_0W9tLhBymhxRO8mLlT-dcZgI5lcvLr0A/exec';
@@ -1876,15 +1878,22 @@ function renderFX(){if(!FXALL)return;const el=$('#fxBody');
   const zero=`<line x1="${pad}" x2="${W-pad}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--line)" stroke-dasharray="4 4"/><text x="${W-pad}" y="${Y(0)+11}" text-anchor="end" font-size="9" fill="var(--sub)" font-family="Inter">${yen(FXCAP)}円</text>`;
   const leg=`<div class="fxleg">${types.map(t=>`<button data-fx="${esc(t)}" class="${sel===t?'on':''}"><i style="background:${col[t]}"></i>${esc(FXNAME(t))}</button>`).join('')}</div>`;
   const chart=fxFold('chart','お金の増え方',`<p style="margin:2px 0 8px;font:600 11.5px 'Noto Sans JP';color:var(--sub)">点線が元手の${yen(FXCAP)}円。<br>太い線が、いま選んでいる型です。<br>型をタップすると、その型の成績に切り替わります。</p><svg viewBox="0 0 ${W} ${H}">${zero}${paths}</svg>`,true,'fxchart fxsel',fmtD(first)+'〜'+fmtD(lastD));
-  const hero=`<div class="fxhero"><small>${esc(FXNAME(sel))}で運用した場合</small><div class="vs">${yen(FXCAP)}円を預けていたら</div><div class="fxbig ${cur.sum>=0?'up':'dn'}">${yen(FXCAP+cur.sum)}円</div><div class="meta">${pm(cur.sum)}</div>${leg}
+  // 月ごとの成績（負けた月も全部出す）と、一番へこんだ金額
+  const SL=FXALL.filter(x=>x.t===sel&&x.d>=FXFROM).sort((a,b)=>a.d.localeCompare(b.d));
+  const mSum={};SL.forEach(x=>{const m=x.d.slice(0,7);mSum[m]=(mSum[m]||0)+x.p});const mKeys=Object.keys(mSum).sort().reverse();
+  const wM=mKeys.filter(m=>mSum[m]>0).length,lM=mKeys.filter(m=>mSum[m]<0).length;
+  let pk=0,cc=0,dd=0;SL.forEach(x=>{cc+=x.p;if(cc>pk)pk=cc;if(cc-pk<dd)dd=cc-pk});
+  const mx2=Math.max(1,...mKeys.map(m=>Math.abs(mSum[m])));
+  const monthsBox=fxFold('months','月ごとの成績（'+esc(FXNAME(sel))+'）',`<div class="fxms"><div><b class="up">${wM}</b>勝った月</div><div><b class="dn">${lM}</b>負けた月</div><div><b class="dn">${dd<0?pm(dd):'0円'}</b>一番へこんだ時</div></div>`+mKeys.map(m=>{const v=mSum[m];return`<div class="fxm"><div class="d">${(+m.slice(0,4))}年${(+m.slice(5))}月${m<FXLIVE?'<small>過去データ</small>':''}</div><div class="bar"><i class="${v>=0?'up':'dn'}" style="width:${Math.max(3,Math.round(Math.abs(v)/mx2*100))}%"></i></div><div class="p ${v>=0?'up':'dn'}">${pm(v)}</div></div>`}).join('')+`<p style="margin:8px 0 0;font:600 11px 'Noto Sans JP';color:var(--sub);line-height:1.6">「一番へこんだ時」は、それまでの一番いい時から、一番お金が減ったところまでの金額です。<br>運用するなら、これくらい減る時期があると考えておく必要があります。</p>`,true,'','');
+  const hero=`<div class="fxhero"><small>${esc(FXNAME(sel))}で運用した場合</small><div class="vs">${yen(FXCAP)}円を預けていたら</div><div class="fxbig ${cur.sum>=0?'up':'dn'}">${yen(FXCAP+cur.sum)}円</div><div class="meta">${pm(cur.sum)}<br>一番へこんだ時 ${dd<0?pm(dd):'0円'}（${wM}勝ち月・${lM}負け月）</div>${leg}
     <div class="fxper" id="fxPer"><div class="row"><button data-pd="-1" ${pi<=0?'disabled':''} aria-label="前へ">‹</button><div class="lb"><div class="in ${fxDir<0?'l':''}"><b>${fxPer==='all'?'全期間':(+fxPer.slice(0,4))+'年'+(+fxPer.slice(5))+'月'}</b><span>${fmtD(first)}〜${fmtD(lastD)}${fxPer!=='all'&&fxPer<FXLIVE?'・過去データで計算':fxPer==='all'?'・'+FXLIVE.slice(0,4)+'年'+(+FXLIVE.slice(5))+'月より前は過去データで計算':''}</span></div></div><button data-pd="1" ${pi>=pers.length-1?'disabled':''} aria-label="次へ">›</button></div>
     <div class="dots">${pers.map((x,i)=>Math.abs(i-pi)<=4?`<i class="${i===pi?'on':''}"></i>`:'').join('')}</div><div class="hint">左右にスワイプで期間を切り替え</div></div></div>`;
   const cards=fxFold('rank','型ごとの成績',[...st].sort((a,b)=>b.sum-a.sum).map(x=>`<div class="fxt" data-fx="${esc(x.t)}" style="cursor:pointer"><span class="dot" style="background:${col[x.t]}"></span><div><div class="nm">${esc(FXNAME(x.t))}</div><div class="st">${yen(FXCAP)}円 → ${yen(FXCAP+x.sum)}円</div></div><div class="pf"><b class="${x.sum>=0?'up':'dn'}">${pm(x.sum)}</b></div></div>`).join(''),false);
   const L=FX.filter(x=>x.side!=='なし'&&x.t===sel).slice().sort((a,b)=>b.d.localeCompare(a.d));
   const wd=d=>'日月火水木金土'[new Date(d+'T00:00:00').getDay()];
   const recent=fxFold('recent','最近の結果（'+esc(FXNAME(cur.t))+'）',L.slice(0,fxN).map(x=>`<div class="fxr"><div class="d">${fmtD(x.d)}<small>${wd(x.d)}</small></div><div class="tx"><b>${esc(FXNAME(x.t))}</b></div><div class="p ${x.p>=0?'up':'dn'}">${pm(x.p)}</div></div>`).join('')+(L.length>fxN?`<button class="fxmore" id="fxMore">もっと見る（あと${L.length-fxN}件）</button>`:''),false);
-  const note=`<p style="margin:6px 20px 0;font:600 11.5px 'Noto Sans JP';color:var(--sub);line-height:1.6">※どの型も、勝つ年と負ける年があります。<br>※手数料はGMOクリック証券の条件で計算しています。<br>型Fは、月曜に取引できる朝7時に入り、早朝のスプレッド3.8銭を引いています。<br>ほかの型は昼間の取引なので、1回0.3銭で計算しています。<br>※いまは仮想運用の結果です（実際のお金は動いていません）。<br>元手${yen(FXCAP)}円・10万通貨で売り買いした場合の金額です。<br>過去の結果は、これからの利益を約束するものではありません。</p>`;
-  el.innerHTML=hero+fxKyou()+chart+cards+fxKekka()+recent+note;$('#fxUpd').textContent='ドル円・'+fmtD(lastD)+'まで';
+  const note=`<p style="margin:6px 20px 0;font:600 11.5px 'Noto Sans JP';color:var(--sub);line-height:1.6">※どの型も、勝つ年と負ける年があります。<br>※手数料はGMOクリック証券の条件で計算しています。<br>型Fは、月曜に取引できる朝7時に入り、早朝のスプレッド3.8銭を引いています。<br>ほかの型は昼間の取引なので、1回0.3銭で計算しています。<br>※いまは仮想運用の結果です（実際のお金は動いていません）。<br>元手${yen(FXCAP)}円・10万通貨で売り買いした場合の金額です。<br>過去の結果は、これからの利益を約束するものではありません。<br>※FXは値動きが大きいと、預けたお金より大きく損をすることがあります。<br>※このタブは記録の公開で、取引をすすめるものではありません。</p>`;
+  el.innerHTML=hero+fxKyou()+chart+monthsBox+cards+fxKekka()+recent+note;$('#fxUpd').textContent='ドル円・'+fmtD(lastD)+'まで';
   el.querySelectorAll('[data-fx]').forEach(b=>b.onclick=()=>{const v=b.dataset.fx;fxPick=fxPick===v?null:v;fxN=12;renderFX()});
   el.querySelectorAll('[data-fold]').forEach(d=>d.ontoggle=()=>{fxOpen[d.dataset.fold]=d.open;try{localStorage.setItem('fxOpen',JSON.stringify(fxOpen))}catch(e){}});
   const go=d=>{const j=pi+d;if(j<0||j>=pers.length)return;fxPer=pers[j];fxDir=d;fxN=12;renderFX()};
