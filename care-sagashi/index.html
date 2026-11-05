@@ -21,7 +21,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:cal
 header h1{font-size:18px;font-weight:600;margin:0}
 #count{font-size:14px;font-weight:600;color:var(--text);background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 12px}
 #count:empty{display:none}
-#stage{position:relative;margin:12px 16px 0;height:calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 190px);max-height:660px}
+#stage{position:relative;margin:10px 16px 0;height:calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 200px);max-height:660px}
 .card{position:absolute;inset:0;background:var(--card);border:0.5px solid var(--line);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:10px;touch-action:pan-y;will-change:transform;transition:transform .25s ease,opacity .25s ease}
 .card.back{transform:scale(.96) translateY(10px);opacity:.6}
 .photo{flex:1;min-height:120px;border-radius:12px;background:var(--bg);overflow:hidden;display:flex;align-items:center;justify-content:center}
@@ -50,16 +50,32 @@ button:active{transform:scale(.97)}
 .sub{display:flex;justify-content:center;margin:12px 16px 0}
 .sub button{padding:10px 28px;font-size:14px;color:var(--text);background:var(--card)}
 .empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:var(--sub);gap:8px;font-size:15px}
+.tabs{display:flex;gap:4px;margin:0 16px;padding:3px;background:var(--line);border-radius:10px}
+.tabs button{flex:1;padding:7px 0;font-size:14px;border:0;border-radius:8px;background:transparent;color:var(--text)}
+.tabs button.on{background:var(--card);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.bar{display:flex;justify-content:space-between;align-items:center;margin:10px 16px 0}
+.bar button{padding:8px 14px;font-size:14px;background:var(--card)}
+#settings{margin:16px;display:none}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--card);border:0.5px solid var(--line);border-radius:12px;padding:14px}
+.row b{font-size:15px}.row p{margin:4px 0 0;font-size:12px;color:var(--sub);line-height:1.5}
+.sw{position:relative;flex:none;width:51px;height:31px;border-radius:16px;background:var(--line);transition:background .2s;border:0;padding:0}
+.sw::after{content:'';position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s}
+.sw.on{background:#34c759}.sw.on::after{transform:translateX(20px)}
+.note{font-size:12px;color:var(--sub);line-height:1.6;margin:10px 4px 0}
 #toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 24px);transform:translateX(-50%);background:var(--text);color:var(--card);padding:10px 16px;border-radius:20px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none}
 </style>
 </head>
 <body>
-<header><h1>ケアさがし</h1><span style="display:flex;gap:8px;align-items:center"><button id="bell" aria-label="通知" style="display:none;padding:4px 10px;font-size:13px;border-radius:20px">🔔 通知をオン</button><span id="count">読み込み中…</span></span></header>
-<div id="stage"></div>
-<div class="sub"><button id="undo">1つ戻る</button></div>
+<header><h1>ケアさがし</h1><span id="count">読み込み中…</span></header>
+<div class="tabs"><button id="tCards" class="on">さがす</button><button id="tSet">設定</button></div>
+<div id="cards"><div class="bar"><button id="undo">↶ 1つ戻る</button></div><div id="stage"></div></div>
+<div id="settings">
+<div class="row"><div><b>新しい候補の通知</b><p>巡回で新しい候補が見つかったら、iPhoneに通知します。<br>アイコンの数字は、まだ確認していない件数です。</p></div><button id="nsw" class="sw" aria-label="通知のオンオフ"></button></div>
+<p class="note" id="nnote"></p>
+</div>
 <div id="toast"></div>
 <script>
-var VERSION = '9';
+var VERSION = '10';
 var LS = { get: function (k) { try { return localStorage.getItem(k) } catch (e) { return null } },
            set: function (k, v) { try { localStorage.setItem(k, v) } catch (e) {} } };
 (function () {
@@ -119,18 +135,28 @@ var devId = LS.get('dev') || ('d' + Math.random().toString(36).slice(2, 12)); LS
 function badge(n) { try { if (navigator.setAppBadge) { n > 0 ? navigator.setAppBadge(n) : navigator.clearAppBadge() } } catch (e) {} }
 function pushOK() { return 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window }
 function b64(s) { var p = '='.repeat((4 - s.length % 4) % 4), r = atob((s + p).replace(/-/g, '+').replace(/_/g, '/')); return Uint8Array.from(r.split('').map(function (c) { return c.charCodeAt(0) })) }
+function notifyOn() { return pushOK() && Notification.permission === 'granted' && LS.get('notify') !== 'off' }
 function bellRender() {
-  var b = document.getElementById('bell');
-  b.style.display = pushOK() && API && KEY && Notification.permission !== 'granted' ? '' : 'none';
+  var on = notifyOn(), n = document.getElementById('nnote');
+  document.getElementById('nsw').classList.toggle('on', on);
+  if (!pushOK()) n.innerHTML = '通知は、ホーム画面に追加したアプリから開いたときだけ使えます。';
+  else if (Notification.permission === 'denied') n.innerHTML = '通知がブロックされています。<br>iPhoneの「設定 → 通知 → ケアさがし」で許可してください。';
+  else n.innerHTML = on ? '音が気になるときは、iPhoneの「設定 → 通知 → ケアさがし」でサウンドだけオフにできます。' : '';
+}
+function unsubscribe() {
+  LS.set('notify', 'off'); bellRender();
+  fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ key: KEY, action: 'unsubscribe', dev: devId }) })
+    .then(function () { toast('通知をオフにしました') }).catch(function () { toast('オフにできませんでした') });
 }
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(function (r) {
   swReg = r; r.update && r.update();
-  if (pushOK() && Notification.permission === 'granted' && API && KEY) subscribe(false);   // 登録先が変わっていたら送り直す
+  if (notifyOn() && API && KEY) subscribe(false);   // 登録先が変わっていたら送り直す
   bellRender();
 }).catch(function () {});
 function subscribe(ask) {
   return (ask ? Notification.requestPermission() : Promise.resolve(Notification.permission)).then(function (perm) {
     if (perm !== 'granted') { if (ask) toast('通知が許可されませんでした'); bellRender(); return }
+    if (ask) LS.set('notify', 'on');
     var reg = swReg ? Promise.resolve(swReg) : navigator.serviceWorker.ready;
     return reg.then(function (r) {
       return r.pushManager.getSubscription().then(function (sub) {
@@ -142,7 +168,20 @@ function subscribe(ask) {
     }).then(function () { if (ask) toast('通知をオンにしました。新しい候補が届くとお知らせします'); badge(left); bellRender() });
   }).catch(function () { if (ask) toast('通知をオンにできませんでした'); bellRender() });
 }
-document.getElementById('bell').onclick = function () { subscribe(true) };
+document.getElementById('nsw').onclick = function () {
+  if (!API || !KEY) { toast('先に設定リンクを貼ってください'); return }
+  if (!pushOK()) { toast('ホーム画面のアプリから開いてください'); return }
+  notifyOn() ? unsubscribe() : subscribe(true);
+};
+function tab(set) {
+  document.getElementById('cards').style.display = set ? 'none' : '';
+  document.getElementById('settings').style.display = set ? 'block' : 'none';
+  document.getElementById('tCards').classList.toggle('on', !set);
+  document.getElementById('tSet').classList.toggle('on', set);
+  bellRender();
+}
+document.getElementById('tCards').onclick = function () { tab(false) };
+document.getElementById('tSet').onclick = function () { tab(true) };
 
 function render() {
   document.getElementById('count').textContent = '残り ' + left + ' 件';
