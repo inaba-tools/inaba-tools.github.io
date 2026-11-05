@@ -107,6 +107,19 @@ DETAIL_JS = """() => ({
     description: (document.querySelector('[data-testid="description"]') || {}).innerText || '',
     sold: /売り切れ/.test((document.querySelector('main') || document.body).innerText.split('商品の説明')[0]),
     cond: ((document.querySelector('[data-testid="商品の状態"]') || {}).innerText || '').split('\\n')[0],
+    price: (() => {   // 値段は部品の内側（shadow DOM）にあることがあるので、いくつかの場所から探す
+        const num = t => { const m = /([\\d,]{3,})/.exec(String(t || '').replace(/\\s/g, '')); return m ? parseInt(m[1].replace(/,/g, ''), 10) : null; };
+        const meta = document.querySelector('meta[name="product:price:amount"],meta[property="product:price:amount"]');
+        if (meta && num(meta.content)) return num(meta.content);
+        for (const s of document.querySelectorAll('script[type="application/ld+json"]')) {
+            try { const j = JSON.parse(s.textContent); const o = [].concat(j)[0].offers; const v = num([].concat(o || [])[0]?.price); if (v) return v; } catch (e) {}
+        }
+        const deep = el => el ? (el.shadowRoot ? el.shadowRoot.textContent : '') + el.textContent : '';
+        const el = document.querySelector('[data-testid="price"]') || document.querySelector('mer-price');
+        if (el) { const v = num(deep(el) + ' ' + (el.getAttribute('value') || '')); if (v) return v; }
+        const top = (document.querySelector('main') || document.body).innerText.split('商品の説明')[0];
+        const m = /[¥￥]\\s*([\\d,]+)/.exec(top); return m ? parseInt(m[1].replace(/,/g, ''), 10) : null;
+    })(),
 })"""
 
 
@@ -276,7 +289,7 @@ def main():
                 stats["シリアルなし"] += 1
             if best:
                 note = cond or "状態不明"
-                rows.append({"title": d.get("title") or it["title"], "price": it.get("price"), "site": it["site"],
+                rows.append({"title": d.get("title") or it["title"], "price": it.get("price") or d.get("price"), "site": it["site"],
                              "url": url, "image": best[1] or (d["images"][0] if d.get("images") else ""),
                              "serial": best[0], "sure": note})
                 print("シリアル発見", best[0], url)
