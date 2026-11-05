@@ -351,6 +351,63 @@ def close_a(s, now, why, px=None, already=False):
     s['open'] = None
 
 
+# ---------- 型A（逆指値方式）… 比べるための記録だけ（本物の注文は出さない） ----------
+# 朝のうちに「前の平日の高値で買い・安値で売り」の逆指値を置いておいた場合を、値段を見ながら再現する。
+# 線を越えたら「線ちょうど＋すべり0.2銭」で約定したことにする（今の型Aは越えたのを見てから成り行き）。
+def kata_a_stop_sim(st, now):
+    s = st.setdefault('A2', {})
+    today = now.date().isoformat()
+    name = '型A 逆指値（比較）'
+    o = s.get('open')
+    if o and o['day'] != today:
+        sim_close(s, o, None, now, '持ち越し分を決済', name)
+        o = None
+    if now.weekday() >= 5 or now.hour < 9:
+        return
+    tk = ticker('USD_JPY')
+    if not market_open(tk):
+        return
+    bid, ask = float(tk['bid']), float(tk['ask'])
+    if o:
+        if (o['side'] == 'BUY' and bid <= o['stop']) or (o['side'] == 'SELL' and ask >= o['stop']):
+            sim_close(s, o, o['stop'] - 0.002 if o['side'] == 'BUY' else o['stop'] + 0.002, now, '損切り（50銭）', name)
+        elif (now.hour, now.minute) >= (23, 58):
+            sim_close(s, o, bid if o['side'] == 'BUY' else ask, now, '23:58に決済', name)
+        return
+    if s.get('done') == today or (now.hour, now.minute) >= (23, 50):
+        return
+    lv = (st.get('A') or {}).get('level')  # 線は今の型Aと同じものを使う
+    if not lv or lv['day'] != today:
+        return
+    if ask > lv['H']:
+        side, px = 'BUY', lv['H'] + (ask - bid) / 2 + 0.002
+    elif bid < lv['L']:
+        side, px = 'SELL', lv['L'] - (ask - bid) / 2 - 0.002
+    else:
+        return
+    stop = px - STOP_A if side == 'BUY' else px + STOP_A
+    s['open'] = {'day': today, 'side': side, 'price': round(px, 3), 'stop': stop, 'time': now.strftime('%H:%M')}
+    s['done'] = today
+    log('型A逆指値（比較） %s %.3f で入ったことにする' % ('買い' if side == 'BUY' else '売り', px))
+
+
+def sim_close(s, o, px, now, why, name):
+    if px is None:
+        tk = ticker('USD_JPY')
+        px = float(tk['bid'] if o['side'] == 'BUY' else tk['ask'])
+    row = [o['day'], name, '買い' if o['side'] == 'BUY' else '売り', o['time'], o['price'], now.strftime('%H:%M'),
+           round(px, 3), why, round(pnl('USD_JPY', o['side'], o['price'], px, SIZE_A)), '比較']
+    with open(KIROKU, 'a', newline='', encoding='utf-8') as f:
+        csv.writer(f).writerow(row)
+    log('記録 %s' % row)
+    if SHEET_URL:
+        try:
+            requests.post(SHEET_URL, json={'row': row}, timeout=20)
+        except Exception as e:
+            log('スプレッドシートへ送れず: %s' % e)
+    s['open'] = None
+
+
 # ---------- ユーロドル 2時買い→9:01売り ----------
 def eurusd(st, now):
     s = st.setdefault('EU', {})
@@ -463,7 +520,7 @@ def main():
         reconcile(st, now)
     except Exception:
         log('照らし合わせでエラー\n%s' % traceback.format_exc(limit=3))
-    for fn in (eurusd, kata_a):
+    for fn in (eurusd, kata_a, kata_a_stop_sim):
         try:
             fn(st, now)
         except Exception:
