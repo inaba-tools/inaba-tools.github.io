@@ -14,9 +14,17 @@
 #   ・ユーロドルにも、普段はかからない広さの「保険の損切り」（100pips）を置く
 #   ・スプレッドが広すぎる時は入らない（次の1分でもう一度見る）
 #   ・入った時のスプレッドと、損切りが動いた時の本当の値段を記録する
+#
+#  健康診断と自動ストップ（2026-11-05 追加）
+#   ・毎朝8:05に健康診断（時計のずれ・空き容量・GMOにつながるか・本番はAPIキーと口座）。問題があればメール
+#   ・1日の損が LIMIT_DAY 円、直近30日の損が LIMIT_30D 円を超えたら、本番は新しく入るのを止める（練習はメールだけ）
+#   ・15分続けてエラーが出たら知らせる（本番は止める）
+#   ・Oracleの無料サーバーが「使われていない」と回収されないよう、CPUを3割ほど低い優先度で使い続ける（bot.py busy）
 import csv
 import subprocess
 import datetime as dt
+import email.utils
+import shutil
 import fcntl
 import hashlib
 import hmac
@@ -55,6 +63,9 @@ SIZE_EU = int(env('SIZE_EU', '10000'))    # ユーロドルの数量
 STOP_A = 0.50                             # 型Aの損切り幅（円）
 STOP_EU = 0.0100                          # ユーロドルの保険の損切り幅（100pips。普段はかからない）
 MAX_SPREAD = {'USD_JPY': 0.010, 'EUR_USD': 0.00015}  # これより広い時は入らない（ドル円1銭・ユーロドル1.5pips）
+LIMIT_DAY = int(env('LIMIT_DAY', '15000'))   # 1日の損がこれを超えたら止める（円）
+LIMIT_30D = int(env('LIMIT_30D', '50000'))   # 直近30日の損がこれを超えたら止める（円）
+ERR_LIMIT = 15                               # 15回（15分）続けてエラーなら知らせる・止める
 SHEET_URL = env('SHEET_URL')              # 記録をスプレッドシートにも送るとき（Apps ScriptのURL）
 STATE = os.path.join(HERE, 'state.json')
 KIROKU = os.path.join(HERE, 'kiroku.csv')
@@ -483,26 +494,158 @@ def eu_record(s, o, px, now, why):
 
 SAFE_UPDATE = ('0 3 * * 0 cd {d} && curl -fsSL {raw}/bot.py -o bot.py.new && python3 -m py_compile bot.py.new '
                '&& grep -q "def main" bot.py.new && mv bot.py.new bot.py')
+BUSY_LINE = '* * * * * cd {d} && nice -n 19 /usr/bin/python3 bot.py busy >/dev/null 2>&1'
 
 
 def fix_crontab():
-    """古い自動更新（取得に失敗するとbot.pyが壊れる書き方）を、安全な書き方に1回だけ置きかえる"""
-    flag = os.path.join(HERE, '.cron-fixed')
+    """自動更新を安全な書き方に・回収よけ（busy）を足す。1回だけ"""
+    flag = os.path.join(HERE, '.cron-v2')
     if os.path.exists(flag):
         return
     try:
         cur = subprocess.run(['crontab', '-l'], capture_output=True, text=True).stdout
-        lines = [l for l in cur.splitlines() if not ('bot.py.new' in l and 'curl' in l)]
+        lines = [l for l in cur.splitlines() if not ('bot.py.new' in l and 'curl' in l) and 'bot.py busy' not in l]
         raw = 'https://raw.githubusercontent.com/inaba-tools/inaba-tools.github.io/main/fx-kiroku/bot'
         lines.append(SAFE_UPDATE.format(d=HERE, raw=raw))
+        lines.append(BUSY_LINE.format(d=HERE))
         subprocess.run(['crontab', '-'], input='\n'.join(lines) + '\n', text=True, check=True)
         open(flag, 'w').write(dt.datetime.now(JST).isoformat())
-        log('自動更新の設定を安全な形に直しました')
+        subprocess.Popen(['nice', '-n', '19', sys.executable, os.path.abspath(__file__), 'busy'], cwd=HERE,
+                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
+        time.sleep(1)
+        log('自動更新の設定と、回収よけ（busy）を入れました')
     except Exception as e:
-        log('自動更新の設定を直せず: %s' % e)
+        log('cronの設定を直せず: %s' % e)
+
+
+# ---------- Oracleの回収よけ ----------
+def busy():
+    """Oracleは7日間 CPU・ネットワークの使用が20%未満のサーバーを「使われていない」として止めることがある。
+    それを避けるため、CPUを約3割（BUSY_RATE）だけ、いちばん低い優先度で使い続ける。botの動きは邪魔しない"""
+    lock = open(os.path.join(HERE, '.busy.lock'), 'w')
+    try:
+        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except OSError:
+        return  # もう動いている
+    rate = min(max(float(env('BUSY_RATE', '0.3')), 0.0), 0.6)
+    x = 1
+    while True:
+        t = time.time()
+        while time.time() - t < rate * 0.1:
+            x = (x * 31 + 7) % 1000003
+        time.sleep((1 - rate) * 0.1)
+
+
+def busy_running():
+    f = open(os.path.join(HERE, '.busy.lock'), 'w')
+    try:
+        fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except OSError:
+        return True
+    fcntl.flock(f, fcntl.LOCK_UN)
+    return False
+
+
+# ---------- 自動ストップ ----------
+REAL_KATA = ('型A ドル円', 'ユーロドル', '迷子')  # 比較用の記録は数えない
+
+
+def losses(now):
+    """今日と直近30日の損益（円）。今のモード（練習／本番）の記録だけ数える"""
+    day, since = now.date(), now.date() - dt.timedelta(days=30)
+    mode = '練習' if DRY else '本番'
+    d_sum = m_sum = 0.0
+    if not os.path.exists(KIROKU):
+        return 0.0, 0.0
+    for r in csv.reader(open(KIROKU, encoding='utf-8')):
+        if len(r) < 10 or not r[1].startswith(REAL_KATA) or r[9] != mode:
+            continue
+        try:
+            d, y = dt.date.fromisoformat(r[0]), float(r[8])
+        except ValueError:
+            continue
+        if d == day:
+            d_sum += y
+        if d > since:
+            m_sum += y
+    return d_sum, m_sum
+
+
+def guard(st, now):
+    g = st.setdefault('guard', {})
+    today = now.date().isoformat()
+    d_sum, m_sum = losses(now)
+    for key, val, lim, label in (('day', d_sum, LIMIT_DAY, '今日'), ('30d', m_sum, LIMIT_30D, '直近30日')):
+        if val > -lim or g.get(key) == today:
+            continue
+        g[key] = today
+        msg = '%sの損が %s円 になり、上限（%s円）を超えました。' % (label, '{:,}'.format(round(val)), '{:,}'.format(lim))
+        if DRY:
+            alert(msg + '練習モードなので止めずに続けます。')
+        else:
+            stop_file('損の上限で停止 %s %s' % (label, now.isoformat()))
+            alert(msg + '新しく入るのを止めました（持っている分の決済は続けます）。STOPファイルを消すまで再開しません。')
+
+
+def err_count(st, now, had_error):
+    n = st.get('err_streak', 0) + 1 if had_error else 0
+    st['err_streak'] = n
+    if n == ERR_LIMIT:
+        if DRY:
+            alert('%d分続けてエラーが出ています（bot.log を確認）。' % n)
+        else:
+            stop_file('エラーが続いたので停止 %s' % now.isoformat())
+            alert('%d分続けてエラーが出たので、新しく入るのを止めました。STOPファイルを消すまで再開しません。' % n)
+
+
+# ---------- 健康診断（毎朝8:05） ----------
+def trim(path, keep=3000, limit=3_000_000):
+    if os.path.exists(path) and os.path.getsize(path) > limit:
+        lines = open(path, encoding='utf-8', errors='replace').read().splitlines()[-keep:]
+        open(path, 'w', encoding='utf-8').write('\n'.join(lines) + '\n')
+
+
+def health(st, now, force=False):
+    today = now.date().isoformat()
+    if not force and (st.get('health') == today or (now.hour, now.minute) < (8, 5)):
+        return
+    st['health'] = today
+    ok, ng = [], []
+    try:
+        r = requests.get(PUB + '/v1/status', timeout=20)
+        srv = email.utils.parsedate_to_datetime(r.headers['Date'])
+        gap = abs((dt.datetime.now(dt.timezone.utc) - srv).total_seconds())
+        (ok if gap < 20 else ng).append('時計のずれ%d秒' % gap)
+        ok.append('GMO %s' % r.json().get('data', {}).get('status', '?'))
+    except Exception as e:
+        ng.append('GMOにつながらない（%s）' % e)
+    free = shutil.disk_usage(HERE).free / 1e9
+    (ok if free > 1 else ng).append('空き容量%.1fGB' % free)
+    (ok if busy_running() else ng).append('回収よけ' + ('動作中' if busy_running() else '止まっている'))
+    if not DRY:
+        try:
+            a = prv('GET', '/v1/account/assets') or {}
+            a = a[0] if isinstance(a, list) else a
+            ok.append('口座 %s円' % '{:,}'.format(round(float(a.get('equity', a.get('balance', 0))))))
+            mr = a.get('marginRatio')
+            if mr not in (None, '', '0') and float(mr) < 300:
+                ng.append('証拠金維持率 %s%%' % mr)
+        except Exception as e:
+            ng.append('APIキーで口座を見られない（%s）' % e)
+    if os.path.exists(os.path.join(HERE, 'STOP')):
+        ng.append('STOP中: ' + open(os.path.join(HERE, 'STOP'), encoding='utf-8').read().strip())
+    d_sum, m_sum = losses(now)
+    ok.append('直近30日 %s円' % '{:+,}'.format(round(m_sum)))
+    for f in (LOG, os.path.join(HERE, 'cron.log')):
+        trim(f)
+    log('健康診断 ' + ('OK' if not ng else '問題あり') + '：' + '・'.join(ng + ok))
+    if ng:
+        alert('健康診断で問題：' + '・'.join(ng))
 
 
 def main():
+    if sys.argv[1:] == ['busy']:
+        return busy()
     lock = open(os.path.join(HERE, '.lock'), 'w')
     try:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -520,13 +663,18 @@ def main():
         reconcile(st, now)
     except Exception:
         log('照らし合わせでエラー\n%s' % traceback.format_exc(limit=3))
-    for fn in (eurusd, kata_a, kata_a_stop_sim):
+    had_error = False
+    for fn in (eurusd, kata_a, kata_a_stop_sim, guard, health):
         try:
             fn(st, now)
         except Exception:
+            had_error = True
             log('エラー %s\n%s' % (fn.__name__, traceback.format_exc(limit=3)))
         json.dump(st, open(STATE + '.tmp', 'w'), ensure_ascii=False, indent=1)
         os.replace(STATE + '.tmp', STATE)
+    err_count(st, now, had_error)
+    json.dump(st, open(STATE + '.tmp', 'w'), ensure_ascii=False, indent=1)
+    os.replace(STATE + '.tmp', STATE)
     # 30分ごとに「動いている」合図をスプレッドシートへ送る（朝の報告で止まっていないか確かめる用）
     if SHEET_URL and now.minute % 30 == 0:
         try:
