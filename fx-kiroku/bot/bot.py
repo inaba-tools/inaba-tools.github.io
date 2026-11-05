@@ -6,7 +6,16 @@
 #
 #  DRY_RUN=1（はじめはこれ）… 本物の注文は出さず、そのときの買値・売値で約定したことにして記録だけする。
 #  STOP というファイルを置くと、新しく入るのをやめる（持っている分の決済だけは続ける）。
+#
+#  安全のしくみ（2026-11-05 追加）
+#   ・本番では毎回、GMO側の実際のポジションと記録を照らし合わせ、知らないポジション（迷子）があれば
+#     すぐ決済して STOP を置き、知らせる
+#   ・注文のあと損切りが置けなかったら、すぐ決済する
+#   ・ユーロドルにも、普段はかからない広さの「保険の損切り」（100pips）を置く
+#   ・スプレッドが広すぎる時は入らない（次の1分でもう一度見る）
+#   ・入った時のスプレッドと、損切りが動いた時の本当の値段を記録する
 import csv
+import subprocess
 import datetime as dt
 import fcntl
 import hashlib
@@ -44,6 +53,8 @@ KEY, SECRET = env('GMO_API_KEY'), env('GMO_API_SECRET')
 SIZE_A = int(env('SIZE_A', '10000'))      # 型Aの数量（ドル円）
 SIZE_EU = int(env('SIZE_EU', '10000'))    # ユーロドルの数量
 STOP_A = 0.50                             # 型Aの損切り幅（円）
+STOP_EU = 0.0100                          # ユーロドルの保険の損切り幅（100pips。普段はかからない）
+MAX_SPREAD = {'USD_JPY': 0.010, 'EUR_USD': 0.00015}  # これより広い時は入らない（ドル円1銭・ユーロドル1.5pips）
 SHEET_URL = env('SHEET_URL')              # 記録をスプレッドシートにも送るとき（Apps ScriptのURL）
 STATE = os.path.join(HERE, 'state.json')
 KIROKU = os.path.join(HERE, 'kiroku.csv')
@@ -93,12 +104,37 @@ def market_open(t):
     return t['status'] == 'OPEN'
 
 
+def spread(tk):
+    return float(tk['ask']) - float(tk['bid'])
+
+
+def spread_txt(sym, sp):
+    return ('%.1f銭' % (sp * 100)) if sym == 'USD_JPY' else ('%.1fpips' % (sp * 10000))
+
+
+def alert(msg):
+    """困ったことが起きたとき：ログに残し、スプレッドシートにも知らせる"""
+    log('【要確認】' + msg)
+    if SHEET_URL:
+        try:
+            requests.post(SHEET_URL, json={'alert': msg, 'time': dt.datetime.now(JST).strftime('%Y/%m/%d %H:%M'),
+                                           'mode': '練習' if DRY else '本番'}, timeout=20)
+        except Exception:
+            pass
+
+
+def stop_file(why):
+    with open(os.path.join(HERE, 'STOP'), 'w', encoding='utf-8') as f:
+        f.write(why + '\n')
+
+
 # ---------- 注文（練習モードでは約定したことにするだけ） ----------
 def open_market(sym, side, size, cid):
     tk = ticker(sym)
     px = float(tk['ask'] if side == 'BUY' else tk['bid'])
+    sp = spread(tk)
     if DRY:
-        return {'positionId': 'dry-' + cid, 'price': px}
+        return {'positionId': 'dry-' + cid, 'price': px, 'spread': sp}
     od = prv('POST', '/v1/order', {'symbol': sym, 'side': side, 'size': str(size),
                                    'executionType': 'MARKET', 'clientOrderId': cid})
     oid = od[0]['orderId'] if isinstance(od, list) else od['orderId']
@@ -106,8 +142,9 @@ def open_market(sym, side, size, cid):
         ex = prv('GET', '/v1/executions', params={'orderId': oid})
         lst = (ex or {}).get('list', [])
         if lst:
-            return {'positionId': lst[0]['positionId'], 'price': float(lst[0]['price'])}
+            return {'positionId': lst[0]['positionId'], 'price': float(lst[0]['price']), 'spread': sp}
         time.sleep(1)
+    # 約定が確認できなくても、次の回の照らし合わせで迷子として決済される
     raise RuntimeError('約定が確認できない orderId=%s' % oid)
 
 
@@ -146,13 +183,53 @@ def cancel(cid):
         log('取消できず（もう約定済みかも）: %s' % e)
 
 
-def still_open(pos):
+def positions(sym):
+    return (prv('GET', '/v1/openPositions', params={'symbol': sym}) or {}).get('list', [])
+
+
+def still_open(pos, sym='USD_JPY'):
     if DRY:
         return True
-    for p in (prv('GET', '/v1/openPositions', params={'symbol': 'USD_JPY'}) or {}).get('list', []):
-        if str(p['positionId']) == str(pos):
-            return True
-    return False
+    return any(str(p['positionId']) == str(pos) for p in positions(sym))
+
+
+def stop_fill_price(sym, pos, fallback):
+    """損切りが動いたときの本当の約定値（取れなければ損切り予定の値段）"""
+    try:
+        for x in (prv('GET', '/v1/latestExecutions', params={'symbol': sym, 'count': 20}) or {}).get('list', []):
+            if str(x.get('positionId')) == str(pos) and x.get('settleType') == 'CLOSE':
+                return float(x['price'])
+    except Exception as e:
+        log('損切りの約定値を取れず: %s' % e)
+    return fallback
+
+
+def reconcile(st, now):
+    """本番だけ：GMOの実際のポジションと記録を照らし合わせ、迷子があれば決済して止める"""
+    if DRY:
+        return
+    known = set()
+    for k in ('A', 'EU'):
+        o = (st.get(k) or {}).get('open')
+        if o:
+            known.add(str(o['pos']))
+    for sym in ('USD_JPY', 'EUR_USD'):
+        for p in positions(sym):
+            if str(p['positionId']) in known:
+                continue
+            side = p['side']
+            try:
+                px = close_market(sym, side, p['positionId'], p['size'], 'Z%s' % now.strftime('%d%H%M%S'))
+                uj = 1.0 if sym == 'USD_JPY' else float(ticker('USD_JPY')['bid'])
+                record(now.date().isoformat(), '迷子の決済 ' + sym, side, float(p['price']), '?', px,
+                       now.strftime('%H:%M'), '記録にないポジションを決済',
+                       pnl(sym, side, float(p['price']), px, float(p['size']), uj))
+            except Exception as e:
+                alert('記録にないポジション %s %s を決済できませんでした（GMOの画面で確認してください）: %s'
+                      % (sym, p['positionId'], e))
+            stop_file('迷子のポジションが見つかったので停止 %s' % now.isoformat())
+            alert('記録にないポジション（%s %s）があったので決済し、新しく入るのを止めました。'
+                  'STOPファイルを消すまで再開しません。' % (sym, p['positionId']))
 
 
 # ---------- 記録 ----------
@@ -224,7 +301,7 @@ def kata_a(st, now):
         if DRY and ((o['side'] == 'BUY' and bid <= o['stop']) or (o['side'] == 'SELL' and ask >= o['stop'])):
             close_a(s, now, '損切り（50銭）', px=bid if o['side'] == 'BUY' else ask)
         elif not DRY and not still_open(o['pos']):
-            close_a(s, now, '損切り（50銭）', px=o['stop'], already=True)
+            close_a(s, now, '損切り（50銭）', px=stop_fill_price('USD_JPY', o['pos'], o['stop']), already=True)
         elif (now.hour, now.minute) >= (23, 58):
             cancel(o['stop_cid'])
             close_a(s, now, '23:58に決済')
@@ -243,21 +320,32 @@ def kata_a(st, now):
     side = 'BUY' if mid > lv['H'] else 'SELL' if mid < lv['L'] else None
     if not side:
         return
+    if spread(tk) > MAX_SPREAD['USD_JPY']:
+        log('型A スプレッドが広い（%s）ので今は入らない' % spread_txt('USD_JPY', spread(tk)))
+        return
     cid = 'A%s%s' % (now.strftime('%Y%m%d'), 'O')
+    s['done'] = today  # 先に「今日は入った」にしておく（エラーでも二重に注文しない）
     f = open_market('USD_JPY', side, SIZE_A, cid)
     stop = f['price'] - STOP_A if side == 'BUY' else f['price'] + STOP_A
     stop_cid = 'A%sS' % now.strftime('%Y%m%d')
-    place_stop('USD_JPY', side, f['positionId'], SIZE_A, stop, stop_cid)
     s['open'] = {'day': today, 'side': side, 'pos': f['positionId'], 'price': f['price'], 'stop': stop,
-                 'stop_cid': stop_cid, 'time': now.strftime('%H:%M')}
-    s['done'] = today
-    log('型A %s %.3f で入った（損切り %.3f）' % ('買い' if side == 'BUY' else '売り', f['price'], stop))
+                 'stop_cid': stop_cid, 'time': now.strftime('%H:%M'), 'spread': f['spread']}
+    try:
+        place_stop('USD_JPY', side, f['positionId'], SIZE_A, stop, stop_cid)
+    except Exception as e:
+        alert('型A 損切り注文が置けなかったので、すぐ決済します: %s' % e)
+        close_a(s, now, '損切りが置けず即決済')
+        return
+    log('型A %s %.3f で入った（損切り %.3f・スプレッド %s）' % ('買い' if side == 'BUY' else '売り', f['price'], stop,
+                                                     spread_txt('USD_JPY', f['spread'])))
 
 
 def close_a(s, now, why, px=None, already=False):
     o = s['open']
     if not already and not (DRY and px is not None):
         px = close_market('USD_JPY', o['side'], o['pos'], SIZE_A, 'A%sX' % now.strftime('%Y%m%d%H%M'))
+    if 'spread' in o:
+        why += '（入る時のスプレッド %s）' % spread_txt('USD_JPY', o['spread'])
     record(o['day'], '型A ドル円', o['side'], o['price'], o['time'], px, now.strftime('%H:%M'), why,
            pnl('USD_JPY', o['side'], o['price'], px, SIZE_A))
     s['open'] = None
@@ -269,15 +357,31 @@ def eurusd(st, now):
     today = now.date().isoformat()
     o = s.get('open')
     if o:
-        if (now.hour, now.minute) >= (9, 1) or o['day'] != today:
-            tk = ticker('EUR_USD')
-            if not market_open(tk):
-                return
-            px = close_market('EUR_USD', 'BUY', o['pos'], SIZE_EU, 'E%sX' % now.strftime('%Y%m%d%H%M'))
-            uj = float(ticker('USD_JPY')['bid'])
-            record(o['day'], 'ユーロドル 2時買い', 'BUY', o['price'], o['time'], px, now.strftime('%H:%M'),
-                   '9:01以降に決済', pnl('EUR_USD', 'BUY', o['price'], px, SIZE_EU, uj))
-            s['open'] = None
+        tk = ticker('EUR_USD')
+        if not market_open(tk):
+            return
+        bid = float(tk['bid'])
+        stop = o.get('stop')
+        hit = None
+        if stop is not None:
+            if DRY and bid <= stop:
+                hit = bid
+            elif not DRY and not still_open(o['pos'], 'EUR_USD'):
+                hit = stop_fill_price('EUR_USD', o['pos'], stop)
+        if hit is not None:
+            eu_record(s, o, hit, now, '保険の損切り（100pips）')
+            return
+        late = (now.hour, now.minute) >= (9, 1) or o['day'] != today
+        if not late:
+            return
+        # 9時台はスプレッドが落ち着くまで少し待つ（9:30を過ぎたら構わず決済）
+        if spread(tk) > MAX_SPREAD['EUR_USD'] and o['day'] == today and (now.hour, now.minute) < (9, 30):
+            log('ユーロドル スプレッドが広い（%s）ので決済を待つ' % spread_txt('EUR_USD', spread(tk)))
+            return
+        if o.get('stop_cid'):
+            cancel(o['stop_cid'])
+        px = close_market('EUR_USD', 'BUY', o['pos'], SIZE_EU, 'E%sX' % now.strftime('%Y%m%d%H%M'))
+        eu_record(s, o, px, now, '9:01以降に決済')
         return
     # 入るのは 2:00〜2:04 だけ（月曜の2時はまだ市場が開いていない）
     if now.weekday() >= 5 or now.hour != 2 or now.minute > 4 or s.get('done') == today:
@@ -287,10 +391,58 @@ def eurusd(st, now):
     tk = ticker('EUR_USD')
     if not market_open(tk):
         return
+    if spread(tk) > MAX_SPREAD['EUR_USD']:
+        log('ユーロドル スプレッドが広い（%s）ので今は入らない' % spread_txt('EUR_USD', spread(tk)))
+        return
+    s['done'] = today  # 先に「今日は入った」にしておく（エラーでも二重に注文しない）
     f = open_market('EUR_USD', 'BUY', SIZE_EU, 'E%sO' % now.strftime('%Y%m%d'))
-    s['open'] = {'day': today, 'pos': f['positionId'], 'price': f['price'], 'time': now.strftime('%H:%M')}
-    s['done'] = today
-    log('ユーロドル 買い %.5f で入った' % f['price'])
+    stop = round(f['price'] - STOP_EU, 5)
+    stop_cid = 'E%sS' % now.strftime('%Y%m%d')
+    s['open'] = {'day': today, 'pos': f['positionId'], 'price': f['price'], 'time': now.strftime('%H:%M'),
+                 'stop': stop, 'stop_cid': stop_cid, 'spread': f['spread']}
+    try:
+        if not DRY:
+            prv('POST', '/v1/closeOrder', {'symbol': 'EUR_USD', 'side': 'SELL', 'executionType': 'STOP',
+                                           'stopPrice': '%.5f' % stop, 'clientOrderId': stop_cid,
+                                           'settlePosition': [{'positionId': f['positionId'], 'size': str(SIZE_EU)}]})
+    except Exception as e:
+        alert('ユーロドル 保険の損切りが置けなかったので、すぐ決済します: %s' % e)
+        s['open']['stop_cid'] = None
+        px = close_market('EUR_USD', 'BUY', f['positionId'], SIZE_EU, 'E%sX' % now.strftime('%Y%m%d%H%M'))
+        eu_record(s, s['open'], px, now, '損切りが置けず即決済')
+        return
+    log('ユーロドル 買い %.5f で入った（保険の損切り %.5f・スプレッド %s）'
+        % (f['price'], stop, spread_txt('EUR_USD', f['spread'])))
+
+
+def eu_record(s, o, px, now, why):
+    if 'spread' in o:
+        why += '（入る時のスプレッド %s）' % spread_txt('EUR_USD', o['spread'])
+    uj = float(ticker('USD_JPY')['bid'])
+    record(o['day'], 'ユーロドル 2時買い', 'BUY', o['price'], o['time'], px, now.strftime('%H:%M'), why,
+           pnl('EUR_USD', 'BUY', o['price'], px, SIZE_EU, uj))
+    s['open'] = None
+
+
+SAFE_UPDATE = ('0 3 * * 0 cd {d} && curl -fsSL {raw}/bot.py -o bot.py.new && python3 -m py_compile bot.py.new '
+               '&& grep -q "def main" bot.py.new && mv bot.py.new bot.py')
+
+
+def fix_crontab():
+    """古い自動更新（取得に失敗するとbot.pyが壊れる書き方）を、安全な書き方に1回だけ置きかえる"""
+    flag = os.path.join(HERE, '.cron-fixed')
+    if os.path.exists(flag):
+        return
+    try:
+        cur = subprocess.run(['crontab', '-l'], capture_output=True, text=True).stdout
+        lines = [l for l in cur.splitlines() if not ('bot.py.new' in l and 'curl' in l)]
+        raw = 'https://raw.githubusercontent.com/inaba-tools/inaba-tools.github.io/main/fx-kiroku/bot'
+        lines.append(SAFE_UPDATE.format(d=HERE, raw=raw))
+        subprocess.run(['crontab', '-'], input='\n'.join(lines) + '\n', text=True, check=True)
+        open(flag, 'w').write(dt.datetime.now(JST).isoformat())
+        log('自動更新の設定を安全な形に直しました')
+    except Exception as e:
+        log('自動更新の設定を直せず: %s' % e)
 
 
 def main():
@@ -306,6 +458,11 @@ def main():
     now = dt.datetime.now(JST)
     if os.environ.get('TEST_NOW'):  # 動作確認用に時刻をずらす
         now = dt.datetime.fromisoformat(os.environ['TEST_NOW']).replace(tzinfo=JST)
+    fix_crontab()
+    try:
+        reconcile(st, now)
+    except Exception:
+        log('照らし合わせでエラー\n%s' % traceback.format_exc(limit=3))
     for fn in (eurusd, kata_a):
         try:
             fn(st, now)
