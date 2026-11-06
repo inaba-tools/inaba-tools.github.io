@@ -492,6 +492,45 @@ def eu_record(s, o, px, now, why):
     s['open'] = None
 
 
+# ---------- ユーロドル 2時買い→13時売り … 比べるための記録だけ（本物の注文は出さない・2026-11-06 追加） ----------
+# 過去の研究（5分足）で、決める期間2015〜2022年は8年とも・試す期間2023年〜も4年ともプラスだった。
+# 今のユーロドル（9:01売り）と同じ入り方で、持つ時間だけ長くした場合を記録する。
+def eu13_sim(st, now):
+    s = st.setdefault('EU13', {})
+    today = now.date().isoformat()
+    name = 'ユーロドル 13時売り（比較）'
+    o = s.get('open')
+    if o:
+        if (now.hour, now.minute) < (13, 0) and o['day'] == today:
+            return
+        tk = ticker('EUR_USD')
+        if not market_open(tk):
+            return
+        px = float(tk['bid'])
+        uj = float(ticker('USD_JPY')['bid'])
+        row = [o['day'], name, '買い', o['time'], o['price'], now.strftime('%H:%M'), round(px, 5),
+               '13時に決済（入る時のスプレッド %s）' % spread_txt('EUR_USD', o['spread']),
+               round(pnl('EUR_USD', 'BUY', o['price'], px, SIZE_EU, uj)), '比較']
+        with open(KIROKU, 'a', newline='', encoding='utf-8') as f:
+            csv.writer(f).writerow(row)
+        log('記録 %s' % row)
+        if SHEET_URL:
+            try:
+                requests.post(SHEET_URL, json={'row': row}, timeout=20)
+            except Exception as e:
+                log('スプレッドシートへ送れず: %s' % e)
+        s['open'] = None
+        return
+    if now.weekday() >= 5 or now.hour != 2 or now.minute > 4 or s.get('done') == today:
+        return
+    tk = ticker('EUR_USD')
+    if not market_open(tk) or spread(tk) > MAX_SPREAD['EUR_USD']:
+        return
+    s['done'] = today
+    s['open'] = {'day': today, 'price': float(tk['ask']), 'time': now.strftime('%H:%M'), 'spread': spread(tk)}
+    log('ユーロドル13時売り（比較） %.5f で入ったことにする' % float(tk['ask']))
+
+
 SAFE_UPDATE = ('0 3 * * 0 cd {d} && curl -fsSL {raw}/bot.py -o bot.py.new && python3 -m py_compile bot.py.new '
                '&& grep -q "def main" bot.py.new && mv bot.py.new bot.py')
 BUSY_LINE = '* * * * * cd {d} && nice -n 19 /usr/bin/python3 bot.py busy >/dev/null 2>&1'
@@ -664,7 +703,7 @@ def main():
     except Exception:
         log('照らし合わせでエラー\n%s' % traceback.format_exc(limit=3))
     had_error = False
-    for fn in (eurusd, kata_a, kata_a_stop_sim, guard, health):
+    for fn in (eurusd, kata_a, kata_a_stop_sim, eu13_sim, guard, health):
         try:
             fn(st, now)
         except Exception:
