@@ -224,6 +224,9 @@ def reconcile(st, now):
         o = (st.get(k) or {}).get('open')
         if o:
             known.add(str(o['pos']))
+    for o in (st.get('K') or {}).values():  # 自動で本番に入れた型
+        if o.get('open'):
+            known.add(str(o['open']['pos']))
     for sym in ('USD_JPY', 'EUR_USD'):
         for p in positions(sym):
             if str(p['positionId']) in known:
@@ -328,6 +331,8 @@ def kata_a(st, now):
             return
         lv = s['level'] = {'day': today, 'H': r[0], 'L': r[1]}
         log('型A 今日の線 高値%.3f / 安値%.3f' % (r[0], r[1]))
+    if 'A' in kouho_state().get('off', []):  # もっと良い候補と入れ替わった（線は比較用に計算だけ続ける）
+        return
     side = 'BUY' if mid > lv['H'] else 'SELL' if mid < lv['L'] else None
     if not side:
         return
@@ -452,6 +457,8 @@ def eurusd(st, now):
         eu_record(s, o, px, now, '9:01以降に決済')
         return
     # 入るのは 2:00〜2:04 だけ（月曜の2時はまだ市場が開いていない）
+    if 'EU' in kouho_state().get('off', []):  # もっと良い候補と入れ替わった
+        return
     if now.weekday() >= 5 or now.hour != 2 or now.minute > 4 or s.get('done') == today:
         return
     if os.path.exists(os.path.join(HERE, 'STOP')):
@@ -492,43 +499,281 @@ def eu_record(s, o, px, now, why):
     s['open'] = None
 
 
-# ---------- ユーロドル 2時買い→13時売り … 比べるための記録だけ（本物の注文は出さない・2026-11-06 追加） ----------
-# 過去の研究（5分足）で、決める期間2015〜2022年は8年とも・試す期間2023年〜も4年ともプラスだった。
-# 今のユーロドル（9:01売り）と同じ入り方で、持つ時間だけ長くした場合を記録する。
-def eu13_sim(st, now):
-    s = st.setdefault('EU13', {})
+# ================= 候補の型：記録だけで並走 → 基準を超えたら自動で本番へ（2026-11-06 追加） =================
+# ・候補は過去の研究（2015〜2022で決めて2023〜で試す）で両方プラスだった時間帯のくせ
+# ・記録（bot.py kouho、本番botとは別のプロセス）はGMOの実際の買値・売値で「入ったことにする」だけ
+# ・合格：記録60回以上・合計+6,000円以上・直近30回もプラス（12/24〜1/3は数えない）。後から甘くしない
+# ・同じ通貨で持つ時間が重なる型は1つまで（今の型Aとユーロドルも含む）。重なる時は、同じ期間で1万円以上
+#   上回った時だけ入れ替える
+# ・本番で動く型は全部で4つまで。本番で30回以上たって合計マイナス、かつ記録より1回100円以上悪ければ外す
+#   （持っている分の決済が終わってから外す）
+# ・本番の損も「損の上限」に数える（REAL_KATA の '自動 '）
+KOUHO = [
+    {'name': 'ユーロドル 2時買い→13時売り', 'sym': 'EUR_USD', 'side': 'BUY', 'h': 2, 'k': 11},
+    {'name': 'ユーロドル 13時売り→21時', 'sym': 'EUR_USD', 'side': 'SELL', 'h': 13, 'k': 8},
+    {'name': 'ユーロドル 16時売り→21時', 'sym': 'EUR_USD', 'side': 'SELL', 'h': 16, 'k': 5},
+    {'name': 'ユーロドル 18時売り→21時', 'sym': 'EUR_USD', 'side': 'SELL', 'h': 18, 'k': 3},
+    {'name': 'ユーロドル 18時売り→1時', 'sym': 'EUR_USD', 'side': 'SELL', 'h': 18, 'k': 7},
+    {'name': 'ドル円 14時買い→22時', 'sym': 'USD_JPY', 'side': 'BUY', 'h': 14, 'k': 8},
+    {'name': 'ドル円 15時買い→22時', 'sym': 'USD_JPY', 'side': 'BUY', 'h': 15, 'k': 7},
+]
+CORE = {'A': {'sym': 'USD_JPY', 'hours': set(range(9, 24)), 'kata': '型A ドル円'},
+        'EU': {'sym': 'EUR_USD', 'hours': set(range(2, 10)), 'kata': 'ユーロドル 2時買い'}}
+KOUHO_CSV = os.path.join(HERE, 'kouho.csv')
+KOUHO_JSON = os.path.join(HERE, 'kouho.json')
+SIZE_K = 10000
+STOP_K = {'USD_JPY': 1.00, 'EUR_USD': 0.0100}   # 保険の損切り（普段はかからない広さ）
+PASS_N, PASS_YEN, LIVE_MAX, MIN_MARGIN = 60, 6000, 4, 100000
+
+
+def kouho_state():
+    try:
+        return json.load(open(KOUHO_JSON, encoding='utf-8'))
+    except Exception:
+        return {}
+
+
+def save_kouho_state(d):
+    json.dump(d, open(KOUHO_JSON + '.tmp', 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
+    os.replace(KOUHO_JSON + '.tmp', KOUHO_JSON)
+
+
+def k_hours(c):
+    return {(c['h'] + i) % 24 for i in range(c['k'])}
+
+
+def k_exit(now, c):
+    return (now.replace(minute=0, second=0, microsecond=0) + dt.timedelta(hours=c['k'])).isoformat()
+
+
+def holiday(day):
+    """12/24〜1/3（値段が荒れやすいので合格の判断に使わない）"""
+    d = dt.date.fromisoformat(day)
+    return (d.month == 12 and d.day >= 24) or (d.month == 1 and d.day <= 3)
+
+
+def k_entry_ok(c, now, done):
+    return now.weekday() < 5 and now.hour == c['h'] and now.minute <= 4 and done != now.date().isoformat()
+
+
+def k_pnl(c, ein, xout):
+    uj = 1.0 if c['sym'] == 'USD_JPY' else float(ticker('USD_JPY')['bid'])
+    return pnl(c['sym'], c['side'], ein, xout, SIZE_K, uj)
+
+
+# ---------- 記録だけ（別プロセス：bot.py kouho） ----------
+def kouho_shadow(ks, now):
+    sh = ks.setdefault('shadow', {})
+    for c in KOUHO:
+        s = sh.setdefault(c['name'], {})
+        o = s.get('open')
+        tk = None
+        if o:
+            if now.isoformat() < o['exit']:
+                continue
+            tk = ticker(c['sym'])
+            if not market_open(tk):
+                continue
+            px = float(tk['bid'] if c['side'] == 'BUY' else tk['ask'])
+            row = [o['day'], c['name'], '買い' if c['side'] == 'BUY' else '売り', o['time'], o['price'],
+                   now.strftime('%m/%d %H:%M'), px, round(k_pnl(c, o['price'], px)), o.get('spread', '')]
+            new = not os.path.exists(KOUHO_CSV)
+            with open(KOUHO_CSV, 'a', newline='', encoding='utf-8') as f:
+                w = csv.writer(f)
+                if new:
+                    w.writerow(['日付', '候補', '売り買い', '入った時刻', '入った値段', '決済', '決済値段', '損益（円）', 'スプレッド'])
+                w.writerow(row)
+            s['open'] = None
+            continue
+        if not k_entry_ok(c, now, s.get('done')):
+            continue
+        tk = ticker(c['sym'])
+        if not market_open(tk) or spread(tk) > MAX_SPREAD[c['sym']]:
+            continue
+        s['done'] = now.date().isoformat()
+        px = float(tk['ask'] if c['side'] == 'BUY' else tk['bid'])
+        s['open'] = {'day': now.date().isoformat(), 'time': now.strftime('%H:%M'), 'price': px,
+                     'exit': k_exit(now, c), 'spread': spread_txt(c['sym'], spread(tk))}
+
+
+def read_rows(path, name_col, yen_col, names=None):
+    out = {}
+    if not os.path.exists(path):
+        return out
+    for r in csv.reader(open(path, encoding='utf-8')):
+        try:
+            day, y = r[0], float(r[yen_col])
+            dt.date.fromisoformat(day)
+        except (ValueError, IndexError):
+            continue
+        if holiday(day) or (names and r[name_col] not in names):
+            continue
+        out.setdefault(r[name_col], []).append((day, y))
+    return out
+
+
+def kouho_judge(ks, now):
+    """毎朝8:10に1回：合格・入れ替え・外すを決める（決めた結果は kouho.json に書き、本番botが読む）"""
     today = now.date().isoformat()
-    name = 'ユーロドル 13時売り（比較）'
-    o = s.get('open')
-    if o:
-        if (now.hour, now.minute) < (13, 0) and o['day'] == today:
-            return
-        tk = ticker('EUR_USD')
-        if not market_open(tk):
-            return
-        px = float(tk['bid'])
-        uj = float(ticker('USD_JPY')['bid'])
-        row = [o['day'], name, '買い', o['time'], o['price'], now.strftime('%H:%M'), round(px, 5),
-               '13時に決済（入る時のスプレッド %s）' % spread_txt('EUR_USD', o['spread']),
-               round(pnl('EUR_USD', 'BUY', o['price'], px, SIZE_EU, uj)), '比較']
-        with open(KIROKU, 'a', newline='', encoding='utf-8') as f:
-            csv.writer(f).writerow(row)
-        log('記録 %s' % row)
-        if SHEET_URL:
-            try:
-                requests.post(SHEET_URL, json={'row': row}, timeout=20)
-            except Exception as e:
-                log('スプレッドシートへ送れず: %s' % e)
-        s['open'] = None
+    if ks.get('judged') == today or (now.hour, now.minute) < (8, 10):
         return
-    if now.weekday() >= 5 or now.hour != 2 or now.minute > 4 or s.get('done') == today:
+    ks['judged'] = today
+    live, off = ks.setdefault('live', []), ks.setdefault('off', [])
+    removing, retired = ks.setdefault('removing', []), ks.setdefault('retired', [])
+    sh = read_rows(KOUHO_CSV, 1, 7)
+    real = read_rows(KIROKU, 1, 8)
+    st = json.load(open(STATE)) if os.path.exists(STATE) else {}
+    by = {c['name']: c for c in KOUHO}
+    # 外す：本番で30回以上・合計マイナス・記録より1回100円以上悪い
+    for n in list(live):
+        lv = real.get('自動 ' + n, [])
+        sv = sh.get(n, [])
+        if n not in removing and len(lv) >= 30 and sum(y for _, y in lv) < 0 and sv and \
+                sum(y for _, y in lv) / len(lv) < sum(y for _, y in sv) / len(sv) - 100:
+            removing.append(n)
+            log('候補 %s を本番から外します（本番%d回 %+d円）' % (n, len(lv), sum(y for _, y in lv)))
+    for n in list(removing):
+        if not ((st.get('K') or {}).get(n) or {}).get('open'):
+            removing.remove(n)
+            if n in live:
+                live.remove(n)
+            retired.append(n)
+            for key in list(off):  # 入れ替えていた型を、重なる本番の候補がなくなったら戻す
+                cv = CORE[key]
+                if not any(by[m]['sym'] == cv['sym'] and k_hours(by[m]) & cv['hours'] for m in live):
+                    off.remove(key)
+    # 合格した候補を入れる
+    for c in KOUHO:
+        n = c['name']
+        v = sh.get(n, [])
+        if n in live or n in retired or len(v) < PASS_N:
+            continue
+        if sum(y for _, y in v) < PASS_YEN or sum(y for _, y in v[-30:]) <= 0:
+            continue
+        start = v[0][0]
+        mine = sum(y for _, y in v)
+        clash_core = [k for k, cv in CORE.items() if k not in off and cv['sym'] == c['sym'] and cv['hours'] & k_hours(c)]
+        clash_live = [m for m in live if by[m]['sym'] == c['sym'] and k_hours(by[m]) & k_hours(c)]
+        better = True
+        for k in clash_core:
+            other = sum(y for d, y in real.get(CORE[k]['kata'], []) if d >= start)
+            better &= mine >= other + 10000
+        for m in clash_live:
+            other = sum(y for d, y in sh.get(m, []) if d >= start)
+            better &= mine >= other + 10000
+        if not better:
+            continue
+        active = len([k for k in CORE if k not in off and k not in clash_core]) + \
+            len([m for m in live if m not in clash_live and m not in removing])
+        if active + 1 > LIVE_MAX:
+            continue
+        off.extend(clash_core)
+        for m in clash_live:
+            if m not in removing:
+                removing.append(m)
+        live.append(n)
+        log('候補 %s が合格したので本番に入れます（記録%d回 %+d円）%s' % (
+            n, len(v), mine, ('・入れ替え: ' + '、'.join(clash_core + clash_live)) if clash_core or clash_live else ''))
+    summ = []
+    for c in KOUHO:
+        v = sh.get(c['name'], [])
+        summ.append('%s %d回 %+d円%s' % (c['name'], len(v), sum(y for _, y in v), '（本番中）' if c['name'] in live else ''))
+    log('候補の成績：' + ' / '.join(summ))
+
+
+def kouho_main():
+    lock = open(os.path.join(HERE, '.lock-kouho'), 'w')
+    try:
+        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except OSError:
         return
-    tk = ticker('EUR_USD')
-    if not market_open(tk) or spread(tk) > MAX_SPREAD['EUR_USD']:
+    now = dt.datetime.now(JST)
+    if os.environ.get('TEST_NOW'):
+        now = dt.datetime.fromisoformat(os.environ['TEST_NOW']).replace(tzinfo=JST)
+    ks = kouho_state()
+    for fn in (kouho_shadow, kouho_judge):
+        try:
+            fn(ks, now)
+        except Exception:
+            log('候補 エラー %s\n%s' % (fn.__name__, traceback.format_exc(limit=3)))
+        save_kouho_state(ks)
+
+
+# ---------- 本番（本番botの中で動く：合格した候補だけ） ----------
+def k_stop(c, pos, price, cid):
+    if DRY:
         return
-    s['done'] = today
-    s['open'] = {'day': today, 'price': float(tk['ask']), 'time': now.strftime('%H:%M'), 'spread': spread(tk)}
-    log('ユーロドル13時売り（比較） %.5f で入ったことにする' % float(tk['ask']))
+    prv('POST', '/v1/closeOrder', {'symbol': c['sym'], 'side': 'SELL' if c['side'] == 'BUY' else 'BUY',
+                                   'executionType': 'STOP',
+                                   'stopPrice': ('%.3f' if c['sym'] == 'USD_JPY' else '%.5f') % price,
+                                   'clientOrderId': cid,
+                                   'settlePosition': [{'positionId': pos, 'size': str(SIZE_K)}]})
+
+
+def margin_ok():
+    if DRY:
+        return True
+    a = prv('GET', '/v1/account/assets') or {}
+    a = a[0] if isinstance(a, list) else a
+    return float(a.get('availableAmount', 0)) >= MIN_MARGIN
+
+
+def k_close(c, s, o, px, now, why):
+    record(o['day'], '自動 ' + c['name'], c['side'], o['price'], o['time'], px, now.strftime('%H:%M'), why,
+           k_pnl(c, o['price'], px))
+    s['open'] = None
+
+
+def kouho_live(st, now):
+    ks = kouho_state()
+    live, removing = ks.get('live', []), ks.get('removing', [])
+    K = st.setdefault('K', {})
+    for i, c in enumerate(KOUHO):
+        n = c['name']
+        s = K.get(n)
+        o = (s or {}).get('open')
+        if not o and n not in live:
+            continue
+        s = K.setdefault(n, {})
+        if o:
+            tk = ticker(c['sym'])
+            if not market_open(tk):
+                continue
+            bid, ask = float(tk['bid']), float(tk['ask'])
+            if DRY and ((c['side'] == 'BUY' and bid <= o['stop']) or (c['side'] == 'SELL' and ask >= o['stop'])):
+                k_close(c, s, o, bid if c['side'] == 'BUY' else ask, now, '保険の損切り')
+            elif not DRY and not still_open(o['pos'], c['sym']):
+                k_close(c, s, o, stop_fill_price(c['sym'], o['pos'], o['stop']), now, '保険の損切り')
+            elif now.isoformat() >= o['exit']:
+                if o.get('stop_cid'):
+                    cancel(o['stop_cid'])
+                px = close_market(c['sym'], c['side'], o['pos'], SIZE_K, 'K%d%sX' % (i, now.strftime('%Y%m%d%H%M')))
+                k_close(c, s, o, px, now, '%d時間後に決済' % c['k'])
+            continue
+        if n in removing or not k_entry_ok(c, now, s.get('done')) or os.path.exists(os.path.join(HERE, 'STOP')):
+            continue
+        tk = ticker(c['sym'])
+        if not market_open(tk) or spread(tk) > MAX_SPREAD[c['sym']]:
+            continue
+        if not margin_ok():
+            log('自動 %s 証拠金に余裕がないので今日は入らない' % n)
+            s['done'] = now.date().isoformat()
+            continue
+        s['done'] = now.date().isoformat()
+        cid = 'K%d%s' % (i, now.strftime('%Y%m%d'))
+        f = open_market(c['sym'], c['side'], SIZE_K, cid + 'O')
+        stop = f['price'] - STOP_K[c['sym']] if c['side'] == 'BUY' else f['price'] + STOP_K[c['sym']]
+        s['open'] = {'day': now.date().isoformat(), 'pos': f['positionId'], 'price': f['price'],
+                     'time': now.strftime('%H:%M'), 'exit': k_exit(now, c), 'stop': stop, 'stop_cid': cid + 'S'}
+        try:
+            k_stop(c, f['positionId'], stop, cid + 'S')
+        except Exception as e:
+            alert('自動 %s 保険の損切りが置けなかったので、すぐ決済します: %s' % (n, e))
+            s['open']['stop_cid'] = None
+            px = close_market(c['sym'], c['side'], f['positionId'], SIZE_K, cid + 'X')
+            k_close(c, s, s['open'], px, now, '損切りが置けず即決済')
+            continue
+        log('自動 %s %s で入った' % (n, f['price']))
 
 
 SAFE_UPDATE = ('0 3 * * 0 cd {d} && curl -fsSL {raw}/bot.py -o bot.py.new && python3 -m py_compile bot.py.new '
@@ -586,7 +831,7 @@ def busy_running():
 
 
 # ---------- 自動ストップ ----------
-REAL_KATA = ('型A ドル円', 'ユーロドル', '迷子')  # 比較用の記録は数えない
+REAL_KATA = ('型A ドル円', 'ユーロドル', '迷子', '自動 ')  # 比較用の記録は数えない
 
 
 def losses(now):
@@ -685,6 +930,8 @@ def health(st, now, force=False):
 def main():
     if sys.argv[1:] == ['busy']:
         return busy()
+    if sys.argv[1:] == ['kouho']:
+        return kouho_main()
     lock = open(os.path.join(HERE, '.lock'), 'w')
     try:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -698,12 +945,13 @@ def main():
     if os.environ.get('TEST_NOW'):  # 動作確認用に時刻をずらす
         now = dt.datetime.fromisoformat(os.environ['TEST_NOW']).replace(tzinfo=JST)
     fix_crontab()
+    fix_crontab3()
     try:
         reconcile(st, now)
     except Exception:
         log('照らし合わせでエラー\n%s' % traceback.format_exc(limit=3))
     had_error = False
-    for fn in (eurusd, kata_a, kata_a_stop_sim, eu13_sim, guard, health):
+    for fn in (eurusd, kata_a, kata_a_stop_sim, kouho_live, guard, health):
         try:
             fn(st, now)
         except Exception:
