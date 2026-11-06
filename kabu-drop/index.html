@@ -894,23 +894,31 @@ html.dark .pastd .ref{background:#3a3115;color:#ffd970}
 #p-set{padding-bottom:150px}
 
 /* ---- FXタブ ---- */
-.fxday{background:var(--card);border-radius:22px;padding:18px 18px 12px;margin:10px 16px;box-shadow:0 1px 0 rgba(0,0,0,.03),0 10px 26px rgba(40,44,30,.08);text-align:center;touch-action:pan-y;overflow:hidden}
-.fxday .in{animation:fxpop .45s cubic-bezier(.2,1.4,.3,1)}.fxday .in.l{animation:fxinL .35s cubic-bezier(.2,1,.3,1)}.fxday .in.r{animation:fxinR .35s cubic-bezier(.2,1,.3,1)}
+.fxlead{font-size:13px!important;margin-bottom:4px!important}
+.fxbot{margin-left:auto;text-align:right;line-height:1.2}.fxbot span{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font:800 12px "Noto Sans JP"}
+.fxbot span i{width:7px;height:7px;border-radius:50%;background:currentColor;box-shadow:0 0 0 3px color-mix(in srgb,currentColor 25%,transparent)}
+.fxbot .ok{background:rgba(31,157,107,.13);color:#1f8a5e}.fxbot .ng{background:rgba(210,69,59,.13);color:var(--red)}.fxbot small{display:block;margin-top:3px;font:600 10px Inter;color:var(--sub)}
+.fxday{--tint:var(--line);position:relative;height:430px;display:flex;flex-direction:column;background:var(--card);border-radius:26px;padding:16px 18px 12px;margin:8px 16px 10px;
+  box-shadow:0 1px 0 rgba(0,0,0,.03),0 14px 32px rgba(40,44,30,.10);touch-action:pan-y;overflow:hidden;background-image:radial-gradient(120% 70% at 50% 0%,var(--tint),transparent 70%)}
+.fxday.p{--tint:rgba(31,157,107,.16)}.fxday.m{--tint:rgba(210,69,59,.14)}.fxday.z{--tint:rgba(130,135,125,.10)}
+.fxday .in{flex:1;display:flex;flex-direction:column;min-height:0;animation:fxpop .45s cubic-bezier(.2,1.4,.3,1)}.fxday .in.l{animation:fxinL .35s cubic-bezier(.2,1,.3,1)}.fxday .in.r{animation:fxinR .35s cubic-bezier(.2,1,.3,1)}
 @keyframes fxinL{from{transform:translateX(-40px);opacity:0}to{transform:none;opacity:1}}@keyframes fxinR{from{transform:translateX(40px);opacity:0}to{transform:none;opacity:1}}
-.fxday .dt{font:800 14px "Noto Sans JP";color:var(--sub)}.fxday .dt em{font-style:normal;margin-left:6px;padding:1px 8px;border-radius:10px;background:var(--ink);color:var(--card);font-size:11px}
-.fxday .fxbig2{font:900 48px Inter;letter-spacing:-.03em;margin:4px 0 8px}.fxday .fxbig2.up{color:#1f9d6b}.fxday .fxbig2.dn{color:var(--red)}.fxday .fxbig2.nz{font:900 30px "Noto Sans JP";color:var(--sub);margin:12px 0 14px}
-.fxday .rows{text-align:left;margin:0 2px}
-.fxdr{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-top:1px solid var(--line);font:800 14px "Noto Sans JP"}
-.fxdr small{margin-left:6px;font:600 11px "Noto Sans JP";color:var(--sub)}.fxdr b{font:900 16px Inter}
+.fxday .hd{display:flex;align-items:center;justify-content:space-between;height:26px}
+.fxday .dt{font:900 20px Inter;color:var(--ink)}.fxday .dt small{font:800 13px "Noto Sans JP";color:var(--sub);margin-left:2px}
+.fxday .nw{padding:3px 10px;border-radius:20px;background:var(--ink);color:var(--card);font:800 11px "Noto Sans JP"}
+.fxday .mid{height:118px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.fxday .fxbig2{font:900 52px/1 Inter;letter-spacing:-.035em;font-variant-numeric:tabular-nums}.fxday .fxbig2 i{font-style:normal;font-size:.5em;margin:0 2px;vertical-align:.32em}
+.fxday .fxbig2.up{color:#1f9d6b}.fxday .fxbig2.dn{color:var(--red)}.fxday .fxbig2.nz{font:900 30px "Noto Sans JP";color:var(--sub)}
+.fxday .cap{margin-top:8px;font:700 12px "Noto Sans JP";color:var(--sub)}
+.fxday .rows{flex:1;min-height:0;overflow-y:auto;background:var(--bg);border-radius:16px;padding:2px 12px}
+.fxdr{display:flex;justify-content:space-between;align-items:center;height:42px;border-top:1px solid var(--line);font:800 14px "Noto Sans JP"}.fxdr:first-child{border-top:0}
+.fxdr small{margin-left:6px;font:600 11px "Noto Sans JP";color:var(--sub)}.fxdr b{font:900 16px Inter;font-variant-numeric:tabular-nums}
 .fxdr b.up,.fxty .up,.fxday .acc .up{color:#1f9d6b}.fxdr b.dn,.fxty .dn,.fxday .acc .dn{color:var(--red)}
-.fxday .acc{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 4px}.fxday .acc div{background:var(--bg);border-radius:14px;padding:8px}
-.fxday .acc small{display:block;font:700 11px "Noto Sans JP";color:var(--sub)}.fxday .acc b{font:900 16px Inter}
-.fxday .st{display:inline-flex;flex-direction:column;gap:2px;border-radius:14px;padding:8px 14px;margin-top:8px;font:800 13px "Noto Sans JP"}
-.fxday .st.ok{background:rgba(31,157,107,.12);color:#1f8a5e}.fxday .st.ng{background:rgba(210,69,59,.12);color:var(--red)}.fxday .st small{font:600 11px "Noto Sans JP";color:var(--sub)}
-.fxday .nav{display:flex;align-items:center;justify-content:space-between;margin-top:12px}
-.fxday .nav button{width:40px;height:40px;border-radius:50%;border:0;background:var(--bg);color:var(--ink);font:900 22px Inter}.fxday .nav button:disabled{opacity:.25}
+.fxday .acc{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.fxday .acc div{border:1.5px solid var(--line);border-radius:14px;padding:7px 10px;text-align:left}
+.fxday .acc small{display:block;font:700 11px "Noto Sans JP";color:var(--sub)}.fxday .acc b{font:900 17px Inter;font-variant-numeric:tabular-nums}
+.fxday .nav{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+.fxday .nav button{width:36px;height:36px;border-radius:50%;border:0;background:var(--bg);color:var(--ink);font:900 20px Inter}.fxday .nav button:disabled{opacity:.25}
 .fxday .dots{display:flex;gap:6px}.fxday .dots i{width:7px;height:7px;border-radius:50%;background:var(--line);transition:all .25s}.fxday .dots i.on{width:18px;border-radius:4px;background:var(--ink)}
-.fxday .hint{font:600 11px "Noto Sans JP";color:var(--sub);margin-top:6px}
 .fxty{padding:9px 0;border-top:1px solid var(--line)}.fxty:first-child{border-top:0}
 .fxty .h{display:flex;justify-content:space-between;font:800 14px "Noto Sans JP"}.fxty .h span{font:900 15px Inter}
 .fxty .wb{height:8px;border-radius:4px;background:var(--line);margin:6px 0 4px;overflow:hidden}.fxty .wb i{display:block;height:100%;border-radius:4px;background:#1f9d6b}
@@ -1058,8 +1066,8 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
 
 <!-- 設定 -->
 <section class="page" id="p-fx">
-<div class="top"><img src="icon-192.png" alt=""><h1>FX</h1><div class="sub" id="fxUpd">練習・仮想</div></div>
-<div class="lead" style="font-size:14px">決まったやり方で、<br><b>練習botが毎日取引した記録です。</b><br>左右にスワイプすると、日ごとの収支が見られます。</div>
+<div class="top"><img src="icon-192.png" alt=""><h1>FX</h1><div class="fxbot" id="fxUpd"></div></div>
+<div class="lead fxlead">練習botの毎日の収支です。<br>左右にスワイプで日を切り替え。</div>
 <div id="fxBody"><div class="box" style="color:var(--sub)">読み込み中…</div></div>
 </section>
 <section class="page" id="p-set">
@@ -1870,20 +1878,19 @@ function renderFX(){if(!FXD)return;const el=$('#fxBody');const f=FXD,days=fxDays
   const mTot=sum(all.filter(x=>x.d.startsWith(mon)).flatMap(x=>x.items)),aTot=sum(all.flatMap(x=>x.items));
   const isNew=fxI===0&&D.d===f.d;
   const rows=D.items.length?D.items.map(x=>`<div class="fxdr"><span>${esc(x.t)}<small>${esc(x.side||'')}</small></span><b class="${x.p>=0?'up':'dn'}">${pm(x.p)}</b></div>`).join(''):'<div class="fxdr"><span style="color:var(--sub)">条件に合わず、取引はありませんでした。</span></div>';
-  const card=`<div class="fxday"><div class="in ${fxDir<0?'r':fxDir>0?'l':''}">
-    <div class="dt">${md(D.d)}（${wd(D.d)}）${isNew?'<em>最新</em>':''}</div>
-    ${D.items.length?`<div class="fxbig2 ${tot>=0?'up':'dn'}">${pm(tot)}</div>`:`<div class="fxbig2 nz">取引なし</div>`}
-    <div class="rows">${rows}</div>
-    <div class="acc"><div><small>${(+mon.slice(5))}月の合計</small><b class="${mTot>=0?'up':'dn'}">${pm(mTot)}</b></div><div><small>これまでの合計</small><b class="${aTot>=0?'up':'dn'}">${pm(aTot)}</b></div></div>
-    ${isNew?`<div class="st ${b.ok?'ok':'ng'}">${b.ok?'✅ botは正常に動いています':'⚠️ botの合図が止まっています'}<small>最後の合図 ${esc(b.last||'—')}</small></div>`:''}
+  const pos=tot>=0;const n=D.items.length;
+  const card=`<div class="fxday ${n?(pos?'p':'m'):'z'}"><div class="in ${fxDir<0?'r':fxDir>0?'l':''}">
+    <div class="hd"><span class="dt">${md(D.d)}<small>（${wd(D.d)}）</small></span>${isNew?'<span class="nw">最新</span>':''}</div>
+    <div class="mid">${n?`<div class="fxbig2 ${pos?'up':'dn'}"><i>${pos?'+':'−'}</i>${yen(Math.abs(tot))}<i>円</i></div><div class="cap">${n}件の決済</div>`:`<div class="fxbig2 nz">取引なし</div><div class="cap">条件に合わず、取引はありませんでした。</div>`}</div>
+    <div class="rows">${D.items.map(x=>`<div class="fxdr"><span>${esc(x.t)}<small>${esc(x.side||'')}</small></span><b class="${x.p>=0?'up':'dn'}">${pm(x.p)}</b></div>`).join('')}</div>
+    <div class="acc"><div><small>${(+mon.slice(5))}月の合計</small><b class="${mTot>=0?'up':'dn'}">${pm(mTot)}</b></div><div><small>これまで</small><b class="${aTot>=0?'up':'dn'}">${pm(aTot)}</b></div></div>
   </div>
-  <div class="nav"><button data-fd="1" ${fxI>=days.length-1?'disabled':''} aria-label="前の日">‹</button><div class="dots">${days.map((x,i)=>Math.abs(i-fxI)<=4?`<i class="${i===fxI?'on':''}"></i>`:'').join('')}</div><button data-fd="-1" ${fxI<=0?'disabled':''} aria-label="次の日">›</button></div>
-  <div class="hint">左右にスワイプで日を切り替え</div></div>`;
+  <div class="nav"><button data-fd="1" ${fxI>=days.length-1?'disabled':''} aria-label="前の日">‹</button><div class="dots">${days.map((x,i)=>Math.abs(i-fxI)<=4?`<i class="${i===fxI?'on':''}"></i>`:'').join('')}</div><button data-fd="-1" ${fxI<=0?'disabled':''} aria-label="次の日">›</button></div></div>`;
   const bar=x=>{const r=x.n?Math.round(x.win/x.n*100):0;return`<div class="fxty"><div class="h"><b>${esc(x.t)}</b><span class="${x.sum>=0?'up':'dn'}">${pm(x.sum)}</span></div><div class="wb"><i style="width:${r}%"></i></div><small>${x.n}回中${x.win}回勝ち</small></div>`};
-  const types=fxFold('ftype','型ごとの成績（これまで）',(f.types||[]).map(bar).join('')||'<p class="fxtn">まだ決済がありません。</p>',true);
+  const types=fxFold('ftype2','型ごとの成績（これまで）',(f.types||[]).map(bar).join('')||'<p class="fxtn">まだ決済がありません。</p>',false);
   const cand=fxFold('fcand','候補（記録だけ）',(f.cand||[]).length?f.cand.map(bar).join(''):'<p class="fxtn">候補の記録はまだありません。</p>',false,(f.cand||[]).length+'件');
   const note=`<p style="margin:6px 20px 0;font:600 11.5px 'Noto Sans JP';color:var(--sub);line-height:1.6">※いまは練習（仮想）の結果です。<br>実際のお金は動いていません。<br>※過去の結果は、これからの利益を約束するものではありません。<br>※このタブは記録で、取引をすすめるものではありません。</p>`;
-  el.innerHTML=card+types+cand+note;$('#fxUpd').textContent=md(f.d)+'の朝まで';
+  el.innerHTML=card+types+cand+note;$('#fxUpd').innerHTML=`<span class="${b.ok?'ok':'ng'}"><i></i>${b.ok?'bot 正常':'bot 停止?'}</span><small>${esc(b.last||'')}</small>`;
   const go=d=>{const j=fxI+d;if(j<0||j>=days.length)return;fxDir=d;fxI=j;renderFX()};
   el.querySelectorAll('[data-fd]').forEach(x=>x.onclick=()=>go(+x.dataset.fd));
   el.querySelectorAll('[data-fold]').forEach(d=>d.ontoggle=()=>{fxOpen[d.dataset.fold]=d.open;try{localStorage.setItem('fxOpen',JSON.stringify(fxOpen))}catch(e){}});
