@@ -197,6 +197,7 @@ button{font-family:inherit}
 .lnpr .pr{position:absolute;top:10px;right:12px;font:800 10px Inter;opacity:.7;border:1px solid rgba(255,255,255,.5);border-radius:5px;padding:1px 5px}
 .lnpr b{display:block;font:900 16px "Noto Sans JP";margin-bottom:4px}
 .lnpr p{margin:0 0 12px;font:600 12px/1.6 "Noto Sans JP";opacity:.85}
+.lnpr small{display:block;margin-top:10px;font:600 10px/1.6 "Noto Sans JP";opacity:.7}
 .lnpr a{display:block;text-align:center;background:var(--gold);color:#1d2320;text-decoration:none;font:900 14px "Noto Sans JP";padding:11px;border-radius:12px}
 .hint{font-size:11.5px;color:var(--grey);text-align:center;margin:4px 16px 8px;font-weight:700;line-height:1.5}
 .empty{text-align:center;padding:40px 20px;color:var(--sub);font-weight:700;font-size:14px;line-height:1.7}
@@ -1928,13 +1929,13 @@ async function fxGate(){let ok=false;try{const e=(USER&&USER.email||'').trim().t
 function fxView(v){document.querySelectorAll('#fxSeg button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));$('#fxLearn').hidden=v!=='learn';$('#fxBot').hidden=v!=='bot'}
 document.querySelectorAll('#fxSeg button').forEach(b=>b.onclick=()=>fxView(b.dataset.v));
 // ---- 学ぶ（稲葉の投稿をそのまま並べる。データは data/learn.json） ----
-const LEARN_PR='';  // DMM FX の紹介リンク（A8）。空なら枠を出さない
+const LEARN_PR='https://px.a8.net/svt/ejp?a8mat=4BGD76+5WJRQQ+1WP2+69WPU';  // DMM FX の紹介リンク（A8）。空なら枠を出さない
 async function loadLearn(){const el=$('#lnBody');let L=[];
   try{const r=await fetch('data/learn.json?'+Date.now(),{cache:'no-store'});if(r.ok)L=(await r.json()).posts||[]}catch(e){}
   const md=d=>{const m=/^(\d+)-(\d+)-(\d+)/.exec(d||'');return m?(+m[2])+'/'+(+m[3]):''};
   const list=L.length?L.map((p,i)=>`<div class="ln" style="animation-delay:${Math.min(i,6)*.05}s"><img src="data/${esc(p.img)}" alt="" loading="lazy"><div class="bd"><div class="mt"><span class="tg ${p.k==='kabu'?'kabu':''}">${p.k==='kabu'?'株':'FX'}</span>${md(p.d)}</div><div class="tx">${esc(String(p.t).replace(/。(?!\n)/g,'。\n'))}</div><button class="more">続きを読む</button></div></div>`).join('')
     :'<div class="box" style="color:var(--sub)">まだありません。<br>毎日少しずつ増えていきます。</div>';
-  const pr=LEARN_PR?`<div class="lnpr"><span class="pr">PR</span><b>FXを始めるなら DMM FX</b><p>スマホで口座開設できます。<br>まずは少ない金額で試すのがおすすめです。</p><a href="${LEARN_PR}" target="_blank" rel="noopener nofollow sponsored">口座を開く</a></div>`:'';
+  const pr=LEARN_PR?`<div class="lnpr"><span class="pr">PR</span><b>FXを始めるなら DMM FX</b><p>スマホで口座開設できます。<br>まずは少ない金額で試すのがおすすめです。</p><a href="${LEARN_PR}" target="_blank" rel="noopener nofollow sponsored">口座を開く</a><small>FXは元本保証がありません。<br>相場の動きで、預けたお金より大きな損失が出ることがあります。<br>株式会社DMM.com証券 関東財務局長(金商)第1629号</small><img src="https://www15.a8.net/0.gif?a8mat=4BGD76+5WJRQQ+1WP2+69WPU" width="1" height="1" alt="" style="position:absolute;opacity:0"></div>`:'';
   const note=`<p style="margin:6px 20px 24px;font:600 11.5px 'Noto Sans JP';color:var(--sub);line-height:1.6">※チャートは過去の値動きをもとにしています。<br>※売買をすすめるものではありません。<br>投資の判断はご自身でお願いします。</p>`;
   el.innerHTML=list+pr+note;
   el.querySelectorAll('.ln').forEach(c=>{const t=c.querySelector('.tx'),b=c.querySelector('.more');requestAnimationFrame(()=>{if(t.scrollHeight<=t.clientHeight+2)b.remove()});b.onclick=()=>{c.classList.toggle('open');b.textContent=c.classList.contains('open')?'閉じる':'続きを読む'}})}
