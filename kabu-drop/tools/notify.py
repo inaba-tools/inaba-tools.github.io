@@ -102,7 +102,16 @@ def vapid_key(raw):
     try:
         return _vapid_key(raw)
     except Exception as e:
+        import base64, re
+        s = (raw or '').strip()
+        t = ''.join(s.split()).replace('+', '-').replace('/', '_').rstrip('=')
+        try:
+            dl = len(base64.urlsafe_b64decode(t + '=' * (-len(t) % 4)))
+        except Exception:
+            dl = -1
         print('vapid key error', type(e).__name__, e, file=sys.stderr)
+        print('vapid key shape: len', len(s), 'lines', s.count('\n') + 1, 'BEGIN' in s, 'hex' if re.fullmatch('[0-9a-fA-F]+', s or 'x') else '',
+              'quote' if s[:1] in '"\'' else '', 'decoded', dl, file=sys.stderr)
         return None
 
 
