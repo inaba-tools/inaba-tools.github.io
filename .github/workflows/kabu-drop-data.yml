@@ -5,6 +5,9 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
+concurrency:
+  group: kabu-drop
+  cancel-in-progress: false
 jobs:
   fetch:
     runs-on: ubuntu-latest
