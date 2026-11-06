@@ -502,20 +502,22 @@ def eu_record(s, o, px, now, why):
 # ================= 候補の型：記録だけで並走 → 基準を超えたら自動で本番へ（2026-11-06 追加） =================
 # ・候補は過去の研究（2015〜2022で決めて2023〜で試す）で両方プラスだった時間帯のくせ
 # ・記録（bot.py kouho、本番botとは別のプロセス）はGMOの実際の買値・売値で「入ったことにする」だけ
-# ・合格：記録60回以上・合計+6,000円以上・直近30回もプラス（12/24〜1/3は数えない）。後から甘くしない
-# ・同じ通貨で持つ時間が重なる型は1つまで（今の型Aとユーロドルも含む）。重なる時は、同じ期間で1万円以上
-#   上回った時だけ入れ替える
-# ・本番で動く型は全部で4つまで。本番で30回以上たって合計マイナス、かつ記録より1回100円以上悪ければ外す
-#   （持っている分の決済が終わってから外す）
-# ・本番の損も「損の上限」に数える（REAL_KATA の '自動 '）
-KOUHO = [
-    {'name': 'ユーロドル 2時買い→13時売り', 'sym': 'EUR_USD', 'side': 'BUY', 'h': 2, 'k': 11},
-    {'name': 'ユーロドル 13時売り→21時', 'sym': 'EUR_USD', 'side': 'SELL', 'h': 13, 'k': 8},
-    {'name': 'ユーロドル 16時売り→21時', 'sym': 'EUR_USD', 'side': 'SELL', 'h': 16, 'k': 5},
-    {'name': 'ユーロドル 18時売り→21時', 'sym': 'EUR_USD', 'side': 'SELL', 'h': 18, 'k': 3},
-    {'name': 'ユーロドル 18時売り→1時', 'sym': 'EUR_USD', 'side': 'SELL', 'h': 18, 'k': 7},
-    {'name': 'ドル円 14時買い→22時', 'sym': 'USD_JPY', 'side': 'BUY', 'h': 14, 'k': 8},
-    {'name': 'ドル円 15時買い→22時', 'sym': 'USD_JPY', 'side': 'BUY', 'h': 15, 'k': 7},
+# ・数か月の成績は運で大きくぶれる（1回の上下が数千円・得は1回100〜180円）ので、記録や本番の「儲け」で
+#   良し悪しを決めない。たまたま良かった候補を避けるため、強さの根拠は12年分の研究だけにする
+# ・合格：記録100回以上・合計プラス・記録の平均が研究の平均より「はっきり悪い」とは言えない（t > −1）
+#   ＝本番の値段・スプレッドでも研究どおり動いているかの確認。12/24〜1/3は数えない
+# ・持つ時間が同じ通貨で重なる型は入れない（今の型Aとユーロドルも含む。自動の入れ替えはしない）
+#   重なる候補が同時に合格したら、研究の平均が高いほうを1つだけ
+# ・本番で動く型は全部で4つまで。証拠金の空きが10万円未満なら入らない。損は「損の上限」に数える
+# ・外す（自動で入れた型だけ。今の型Aとユーロドルは外さない）：本番100回以上・合計マイナス・
+#   本番の平均が研究の平均より「はっきり悪い」（t < −2.5）。外すのは30日に1つまで・持っている分の決済後
+KOUHO = [  # hist＝研究（2015〜2026・1万通貨）での1回あたりの平均（円）
+    {'name': 'ユーロドル 13時売り→21時', 'sym': 'EUR_USD', 'side': 'SELL', 'h': 13, 'k': 8, 'hist': 182},
+    {'name': 'ユーロドル 16時売り→21時', 'sym': 'EUR_USD', 'side': 'SELL', 'h': 16, 'k': 5, 'hist': 133},
+    {'name': 'ユーロドル 18時売り→21時', 'sym': 'EUR_USD', 'side': 'SELL', 'h': 18, 'k': 3, 'hist': 168},
+    {'name': 'ユーロドル 18時売り→1時', 'sym': 'EUR_USD', 'side': 'SELL', 'h': 18, 'k': 7, 'hist': 133},
+    {'name': 'ドル円 14時買い→22時', 'sym': 'USD_JPY', 'side': 'BUY', 'h': 14, 'k': 8, 'hist': 119},
+    {'name': 'ドル円 15時買い→22時', 'sym': 'USD_JPY', 'side': 'BUY', 'h': 15, 'k': 7, 'hist': 107},
 ]
 CORE = {'A': {'sym': 'USD_JPY', 'hours': set(range(9, 24)), 'kata': '型A ドル円'},
         'EU': {'sym': 'EUR_USD', 'hours': set(range(2, 10)), 'kata': 'ユーロドル 2時買い'}}
@@ -523,7 +525,7 @@ KOUHO_CSV = os.path.join(HERE, 'kouho.csv')
 KOUHO_JSON = os.path.join(HERE, 'kouho.json')
 SIZE_K = 10000
 STOP_K = {'USD_JPY': 1.00, 'EUR_USD': 0.0100}   # 保険の損切り（普段はかからない広さ）
-PASS_N, PASS_YEN, LIVE_MAX, MIN_MARGIN = 60, 6000, 4, 100000
+PASS_N, OUT_N, LIVE_MAX, MIN_MARGIN = 100, 100, 4, 100000
 
 
 def kouho_state():
@@ -612,73 +614,66 @@ def read_rows(path, name_col, yen_col, names=None):
     return out
 
 
+def t_vs(vals, target):
+    """平均が target からどれだけはっきり離れているか（t値）。数が少ない・ばらつきが出せない時は0"""
+    n = len(vals)
+    if n < 20:
+        return 0.0
+    m = sum(vals) / n
+    sd = (sum((v - m) ** 2 for v in vals) / (n - 1)) ** 0.5
+    return (m - target) / (sd / n ** 0.5) if sd > 0 else 0.0
+
+
 def kouho_judge(ks, now):
-    """毎朝8:10に1回：合格・入れ替え・外すを決める（決めた結果は kouho.json に書き、本番botが読む）"""
+    """毎朝8:10に1回：合格・外すを決める（結果は kouho.json に書き、本番botが読む）"""
     today = now.date().isoformat()
     if ks.get('judged') == today or (now.hour, now.minute) < (8, 10):
         return
     ks['judged'] = today
-    live, off = ks.setdefault('live', []), ks.setdefault('off', [])
-    removing, retired = ks.setdefault('removing', []), ks.setdefault('retired', [])
+    live, removing = ks.setdefault('live', []), ks.setdefault('removing', [])
+    retired = ks.setdefault('retired', [])
+    ks.setdefault('off', [])
+    if not os.path.exists(KIROKU) or not os.path.exists(KOUHO_CSV):
+        return  # 記録が読めない時は何も決めない（誤作動よけ）
     sh = read_rows(KOUHO_CSV, 1, 7)
     real = read_rows(KIROKU, 1, 8)
     st = json.load(open(STATE)) if os.path.exists(STATE) else {}
     by = {c['name']: c for c in KOUHO}
-    # 外す：本番で30回以上・合計マイナス・記録より1回100円以上悪い
+    # 外す（慎重に）
+    last = ks.get('last_out', '2000-01-01')
     for n in list(live):
-        lv = real.get('自動 ' + n, [])
-        sv = sh.get(n, [])
-        if n not in removing and len(lv) >= 30 and sum(y for _, y in lv) < 0 and sv and \
-                sum(y for _, y in lv) / len(lv) < sum(y for _, y in sv) / len(sv) - 100:
+        if n in removing or n not in by or (now.date() - dt.date.fromisoformat(last)).days < 30:
+            continue
+        v = [y for _, y in real.get('自動 ' + n, [])]
+        if len(v) >= OUT_N and sum(v) < 0 and t_vs(v, by[n]['hist']) < -2.5:
             removing.append(n)
-            log('候補 %s を本番から外します（本番%d回 %+d円）' % (n, len(lv), sum(y for _, y in lv)))
+            ks['last_out'] = today
+            log('候補 %s を本番から外します（本番%d回 %+d円・研究よりはっきり悪い）' % (n, len(v), sum(v)))
     for n in list(removing):
         if not ((st.get('K') or {}).get(n) or {}).get('open'):
             removing.remove(n)
             if n in live:
                 live.remove(n)
             retired.append(n)
-            for key in list(off):  # 入れ替えていた型を、重なる本番の候補がなくなったら戻す
-                cv = CORE[key]
-                if not any(by[m]['sym'] == cv['sym'] and k_hours(by[m]) & cv['hours'] for m in live):
-                    off.remove(key)
-    # 合格した候補を入れる
+    # 入れる：強さの根拠は研究。記録は「本番の値段でも研究どおりか」の確認だけ
+    ok = []
     for c in KOUHO:
-        n = c['name']
-        v = sh.get(n, [])
-        if n in live or n in retired or len(v) < PASS_N:
+        v = [y for _, y in sh.get(c['name'], [])]
+        if c['name'] in live or c['name'] in retired or len(v) < PASS_N:
             continue
-        if sum(y for _, y in v) < PASS_YEN or sum(y for _, y in v[-30:]) <= 0:
+        if sum(v) > 0 and t_vs(v, c['hist']) > -1:
+            ok.append(c)
+    for c in sorted(ok, key=lambda c: -c['hist']):
+        busy = [cv['hours'] for cv in CORE.values() if cv['sym'] == c['sym']] + \
+            [k_hours(by[m]) for m in live if by[m]['sym'] == c['sym']]
+        if any(hs & k_hours(c) for hs in busy) or len(CORE) + len(live) >= LIVE_MAX:
             continue
-        start = v[0][0]
-        mine = sum(y for _, y in v)
-        clash_core = [k for k, cv in CORE.items() if k not in off and cv['sym'] == c['sym'] and cv['hours'] & k_hours(c)]
-        clash_live = [m for m in live if by[m]['sym'] == c['sym'] and k_hours(by[m]) & k_hours(c)]
-        better = True
-        for k in clash_core:
-            other = sum(y for d, y in real.get(CORE[k]['kata'], []) if d >= start)
-            better &= mine >= other + 10000
-        for m in clash_live:
-            other = sum(y for d, y in sh.get(m, []) if d >= start)
-            better &= mine >= other + 10000
-        if not better:
-            continue
-        active = len([k for k in CORE if k not in off and k not in clash_core]) + \
-            len([m for m in live if m not in clash_live and m not in removing])
-        if active + 1 > LIVE_MAX:
-            continue
-        off.extend(clash_core)
-        for m in clash_live:
-            if m not in removing:
-                removing.append(m)
-        live.append(n)
-        log('候補 %s が合格したので本番に入れます（記録%d回 %+d円）%s' % (
-            n, len(v), mine, ('・入れ替え: ' + '、'.join(clash_core + clash_live)) if clash_core or clash_live else ''))
-    summ = []
-    for c in KOUHO:
-        v = sh.get(c['name'], [])
-        summ.append('%s %d回 %+d円%s' % (c['name'], len(v), sum(y for _, y in v), '（本番中）' if c['name'] in live else ''))
-    log('候補の成績：' + ' / '.join(summ))
+        live.append(c['name'])
+        v = [y for _, y in sh.get(c['name'], [])]
+        log('候補 %s が合格したので本番に入れます（記録%d回 %+d円）' % (c['name'], len(v), sum(v)))
+    log('候補の成績：' + ' / '.join('%s %d回 %+d円%s' % (
+        c['name'], len(sh.get(c['name'], [])), sum(y for _, y in sh.get(c['name'], [])),
+        '（本番中）' if c['name'] in live else '') for c in KOUHO))
 
 
 def kouho_main():
