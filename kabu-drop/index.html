@@ -898,7 +898,7 @@ html.dark .pastd .ref{background:#3a3115;color:#ffd970}
 .fxday .in{animation:fxpop .45s cubic-bezier(.2,1.4,.3,1)}.fxday .in.l{animation:fxinL .35s cubic-bezier(.2,1,.3,1)}.fxday .in.r{animation:fxinR .35s cubic-bezier(.2,1,.3,1)}
 @keyframes fxinL{from{transform:translateX(-40px);opacity:0}to{transform:none;opacity:1}}@keyframes fxinR{from{transform:translateX(40px);opacity:0}to{transform:none;opacity:1}}
 .fxday .dt{font:800 14px "Noto Sans JP";color:var(--sub)}.fxday .dt em{font-style:normal;margin-left:6px;padding:1px 8px;border-radius:10px;background:var(--ink);color:var(--card);font-size:11px}
-.fxday .big{font:900 48px Inter;letter-spacing:-.03em;margin:4px 0 8px}.fxday .big.up{color:#1f9d6b}.fxday .big.dn{color:var(--red)}.fxday .big.nz{font:900 30px "Noto Sans JP";color:var(--sub);margin:12px 0 14px}
+.fxday .fxbig2{font:900 48px Inter;letter-spacing:-.03em;margin:4px 0 8px}.fxday .fxbig2.up{color:#1f9d6b}.fxday .fxbig2.dn{color:var(--red)}.fxday .fxbig2.nz{font:900 30px "Noto Sans JP";color:var(--sub);margin:12px 0 14px}
 .fxday .rows{text-align:left;margin:0 2px}
 .fxdr{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-top:1px solid var(--line);font:800 14px "Noto Sans JP"}
 .fxdr small{margin-left:6px;font:600 11px "Noto Sans JP";color:var(--sub)}.fxdr b{font:900 16px Inter}
@@ -1872,7 +1872,7 @@ function renderFX(){if(!FXD)return;const el=$('#fxBody');const f=FXD,days=fxDays
   const rows=D.items.length?D.items.map(x=>`<div class="fxdr"><span>${esc(x.t)}<small>${esc(x.side||'')}</small></span><b class="${x.p>=0?'up':'dn'}">${pm(x.p)}</b></div>`).join(''):'<div class="fxdr"><span style="color:var(--sub)">条件に合わず、取引はありませんでした。</span></div>';
   const card=`<div class="fxday"><div class="in ${fxDir<0?'r':fxDir>0?'l':''}">
     <div class="dt">${md(D.d)}（${wd(D.d)}）${isNew?'<em>最新</em>':''}</div>
-    ${D.items.length?`<div class="big ${tot>=0?'up':'dn'}">${pm(tot)}</div>`:`<div class="big nz">取引なし</div>`}
+    ${D.items.length?`<div class="fxbig2 ${tot>=0?'up':'dn'}">${pm(tot)}</div>`:`<div class="fxbig2 nz">取引なし</div>`}
     <div class="rows">${rows}</div>
     <div class="acc"><div><small>${(+mon.slice(5))}月の合計</small><b class="${mTot>=0?'up':'dn'}">${pm(mTot)}</b></div><div><small>これまでの合計</small><b class="${aTot>=0?'up':'dn'}">${pm(aTot)}</b></div></div>
     ${isNew?`<div class="st ${b.ok?'ok':'ng'}">${b.ok?'✅ botは正常に動いています':'⚠️ botの合図が止まっています'}<small>最後の合図 ${esc(b.last||'—')}</small></div>`:''}
