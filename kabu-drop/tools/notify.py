@@ -321,7 +321,7 @@ def send_group(key, rec, sent):
             if hk not in sent:
                 try:
                     webpush(subscription_info=m['sub'], data=json.dumps({'title': 'KABU DROP の通知がつながりました', 'body': 'これから締切や売る日をお知らせします。種類は設定タブで選べます', 'tab': 'set', 'tag': 'hello'}, ensure_ascii=False),
-                            vapid_private_key=key, vapid_claims={'sub': APP.rstrip('/')}, ttl=6 * 3600)
+                            vapid_private_key=key, vapid_claims={'sub': 'https://inaba-tools.github.io'}, ttl=6 * 3600)
                     sent[hk] = TODAY.isoformat()
                     print('sent hello')
                 except Exception as e:
@@ -332,7 +332,7 @@ def send_group(key, rec, sent):
                     continue
                 try:
                     webpush(subscription_info=m['sub'], data=json.dumps({'title': title, 'body': body, 'tab': tab, 'tag': k}, ensure_ascii=False),
-                            vapid_private_key=key, vapid_claims={'sub': APP.rstrip('/')}, ttl=6 * 3600)
+                            vapid_private_key=key, vapid_claims={'sub': 'https://inaba-tools.github.io'}, ttl=6 * 3600)
                     sent[sk] = TODAY.isoformat()
                     print('sent', kind, title)
                 except WebPushException as e:
@@ -365,7 +365,7 @@ def main_fx():
             try:
                 from pywebpush import webpush
                 webpush(subscription_info=m['sub'], data=json.dumps({'title': title, 'body': body, 'tab': 'fx', 'tag': tag}, ensure_ascii=False),
-                        vapid_private_key=key, vapid_claims={'sub': APP.rstrip('/')}, ttl=6 * 3600)
+                        vapid_private_key=key, vapid_claims={'sub': 'https://inaba-tools.github.io'}, ttl=6 * 3600)
                 sent[sk] = TODAY.isoformat()
                 print('sent fx', title)
             except Exception as e:

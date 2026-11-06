@@ -214,12 +214,18 @@ def notify(added):
     if not key or not subs:
         return
     from pywebpush import webpush
+    from py_vapid import Vapid
+    try:
+        key = Vapid.from_pem(key.encode()) if "BEGIN" in key else Vapid.from_string("".join(key.split()))
+    except Exception as e:
+        print("通知の鍵を読めません", repr(e)[:80])
+        return
     body = json.dumps({"title": f"新しい候補が{added}件届きました", "body": f"確認していないのは{left}件です", "badge": left},
                       ensure_ascii=False)
     for dev, sub in subs.items():
         try:
             webpush(subscription_info=sub, data=body, vapid_private_key=key,
-                    vapid_claims={"sub": "https://inaba-tools.github.io/care-sagashi/"}, ttl=6 * 3600)
+                    vapid_claims={"sub": "https://inaba-tools.github.io"}, ttl=6 * 3600)
             print("通知を送った", dev[:6])
         except Exception as e:
             print("通知できず", dev[:6], repr(e)[:120])
