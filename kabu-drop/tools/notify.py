@@ -292,5 +292,37 @@ def send_group(key, rec, sent):
                     print('push error', dev[:6], e, file=sys.stderr)
 
 
+# ---------- FXの朝の成績（自分の端末だけ：設定で fx_daily をオンにした端末） ----------
+def main_fx():
+    key = os.environ.get('VAPID_PRIVATE', '').strip()
+    fx = load('fx_today.json', None)
+    if not fx or not key:
+        print('fx: no data or key')
+        return
+    sent = load('sent.json', {})
+    total = fx.get('total') or 0
+    ok = (fx.get('bot') or {}).get('ok')
+    n = len(fx.get('fresh') or [])
+    title = 'FX 朝の成績 %s %s' % (pm(total) if n else '取引なし', '✅正常' if ok else '⚠️botを確認')
+    body = ('昨日の決済%d件。' % n if n else '') + 'タップでFXタブを開きます'
+    tag = 'fx:' + str(fx.get('d') or TODAY.isoformat())
+    for g, rec in state().items():
+        for dev, m in rec['push'].items():
+            if not (m.get('sub') and m.get('st') == 'on' and (m.get('prefs') or {}).get('fx_daily') is True):
+                continue
+            sk = dev[:12] + '|' + tag
+            if sk in sent:
+                continue
+            try:
+                from pywebpush import webpush
+                webpush(subscription_info=m['sub'], data=json.dumps({'title': title, 'body': body, 'tab': 'fx', 'tag': tag}, ensure_ascii=False),
+                        vapid_private_key=key, vapid_claims={'sub': APP.rstrip('/')}, ttl=6 * 3600)
+                sent[sk] = TODAY.isoformat()
+                print('sent fx', title)
+            except Exception as e:
+                print('fx push error', dev[:6], e, file=sys.stderr)
+    save('sent.json', sent)
+
+
 if __name__ == '__main__':
-    main()
+    main_fx() if '--fx' in sys.argv else main()

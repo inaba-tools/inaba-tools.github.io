@@ -1,0 +1,42 @@
+name: kabu-drop fx daily
+# FX練習botのスクリプト（Google）から毎朝呼ばれ、成績を自分の端末だけに通知する
+on:
+  workflow_dispatch:
+    inputs:
+      fx:
+        description: 成績まとめ（JSON）
+        required: true
+        type: string
+permissions:
+  contents: write
+concurrency:
+  group: kabu-drop
+  cancel-in-progress: false
+jobs:
+  fx:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 成績を保存
+        env:
+          FX: ${{ inputs.fx }}
+        run: |
+          python3 -c "
+          import json,os
+          d=json.loads(os.environ['FX'])
+          json.dump(d,open('kabu-drop/data/fx_today.json','w',encoding='utf-8'),ensure_ascii=False,separators=(',',':'))
+          "
+      - name: 通知を送る
+        env:
+          VAPID_PRIVATE: ${{ secrets.VAPID_PRIVATE }}
+        run: |
+          pip install -q pywebpush
+          python3 kabu-drop/tools/notify.py --fx
+      - name: Commit
+        run: |
+          git config user.name "kabu-drop-bot"
+          git config user.email "noreply@anthropic.com"
+          git add kabu-drop/data/fx_today.json kabu-drop/data/sent.json
+          git diff --cached --quiet && exit 0
+          git commit -m "kabu-drop: FXの朝の成績"
+          for i in 1 2 3; do git pull --rebase -q && git push && break; sleep 5; done
