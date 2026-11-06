@@ -828,6 +828,8 @@ html.dark .pf2 b{color:#5fe0a8}html.dark .pf2 b.dn{color:#ff8b80}
 .bigd small{display:block;margin-top:3px;font:800 10.5px "Noto Sans JP";color:var(--sub)}
 html.dark .bigd b{color:#b9a6ff}
 .tco{display:inline}
+/* 会社名は1行に収める（長い名前は文字を小さく） */
+.hd .nm .t{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tco .coi{display:inline-block;vertical-align:3px;margin-left:6px}
 
 /* ---- おすすめの申込（読みやすく） ---- */
@@ -1927,6 +1929,17 @@ async function fxGate(){let ok=false;try{const e=(USER&&USER.email||'').trim().t
   if(!ok){const pg=document.getElementById('p-fx');if(pg&&pg.classList.contains('on'))goTab('ipo')}}
 fxGate();
 
+
+// ---- 会社名を1行に収める（はみ出す時は文字を小さく、最小12px） ----
+function fitNames(){document.querySelectorAll('.hd .nm .t').forEach(t=>{if(!t.offsetParent)return;
+  const fit=()=>{t.style.fontSize='';let f=parseFloat(getComputedStyle(t).fontSize);while(t.scrollWidth>t.clientWidth+1&&f>12){f-=.5;t.style.fontSize=f+'px'}return t.scrollWidth<=t.clientWidth+1};
+  if(fit())return;
+  // それでも入らない時は「ホールディングス」を「HD」に縮める
+  const w=document.createTreeWalker(t,NodeFilter.SHOW_TEXT);let n,ch=false;while(n=w.nextNode()){const v=n.nodeValue.replace(/ホールディングス/g,'HD').replace(/インベストメント/g,'インベスト');if(v!==n.nodeValue){n.nodeValue=v;ch=true}}
+  if(ch)fit()})}
+let fitT=0;new MutationObserver(()=>{cancelAnimationFrame(fitT);fitT=requestAnimationFrame(fitNames)}).observe(document.body,{childList:true,subtree:true});
+addEventListener('resize',()=>requestAnimationFrame(fitNames));
+document.addEventListener('click',e=>{if(e.target.closest('.tab'))setTimeout(fitNames,60)},true);setInterval(()=>{if(!document.hidden)fitNames()},1500);
 // ---- アプリのリンクをコピー ----
 $('#copyLink').onclick=async()=>{const url='https://inaba-tools.github.io/kabu-drop/';let ok=false;
   try{await navigator.clipboard.writeText(url);ok=true}catch(e){try{const t=document.createElement('textarea');t.value=url;t.setAttribute('readonly','');t.style.position='fixed';t.style.opacity='0';document.body.appendChild(t);t.select();t.setSelectionRange(0,999);ok=document.execCommand('copy');t.remove()}catch(_){}}
