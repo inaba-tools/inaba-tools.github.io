@@ -573,6 +573,10 @@ def kouho_shadow(ks, now):
         if o:
             if now.isoformat() < o['exit']:
                 continue
+            if now - dt.datetime.fromisoformat(o['exit']) > dt.timedelta(hours=2):
+                log('候補 %s 決済時刻を2時間以上すぎていた（止まっていた？）ので、この回は記録しない' % c['name'])
+                s['open'] = None
+                continue
             tk = ticker(c['sym'])
             if not market_open(tk):
                 continue
@@ -911,6 +915,11 @@ def health(st, now, force=False):
                 ng.append('証拠金維持率 %s%%' % mr)
         except Exception as e:
             ng.append('APIキーで口座を見られない（%s）' % e)
+    kj = kouho_state().get('judged')
+    if os.path.exists(os.path.join(HERE, '.cron-v3')) and (not kj or (now.date() - dt.date.fromisoformat(kj)).days > 2):
+        ng.append('候補の記録（kouho）が2日以上動いていない')
+    else:
+        ok.append('候補の記録 動作中')
     if os.path.exists(os.path.join(HERE, 'STOP')):
         ng.append('STOP中: ' + open(os.path.join(HERE, 'STOP'), encoding='utf-8').read().strip())
     d_sum, m_sum = losses(now)
