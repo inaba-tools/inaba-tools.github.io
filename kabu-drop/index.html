@@ -180,6 +180,24 @@ button{font-family:inherit}
 .btn.red{background:var(--red)}.btn.ghost{background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line)}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .row2 .btn{margin-top:8px;font-size:13px;padding:12px}
+.fxseg[hidden]{display:none}
+.fxseg{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:10px 16px 0;background:var(--line);padding:4px;border-radius:14px}
+.fxseg button{border:0;background:none;border-radius:11px;padding:9px 4px;font:800 13px "Noto Sans JP";color:var(--sub);transition:background .25s,color .25s}
+.fxseg button.on{background:var(--card);color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.ln{background:var(--card);border-radius:20px;margin:12px 16px;overflow:hidden;box-shadow:0 1px 0 rgba(0,0,0,.03),0 10px 26px rgba(40,44,30,.06);animation:rise .5s cubic-bezier(.2,1,.3,1) both}
+.ln img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;background:#0f1412}
+.ln .bd{padding:12px 16px 14px}
+.ln .mt{display:flex;align-items:center;gap:8px;font:700 11.5px "Noto Sans JP";color:var(--sub);margin-bottom:6px}
+.ln .tg{font:800 10.5px "Noto Sans JP";color:#fff;background:var(--blue);padding:2px 8px;border-radius:99px}
+.ln .tg.kabu{background:var(--green)}
+.ln .tx{font:600 13.5px/1.75 "Noto Sans JP";color:var(--ink);white-space:pre-line;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+.ln.open .tx{display:block;-webkit-line-clamp:unset}
+.ln .more{border:0;background:none;padding:6px 0 0;font:800 12px "Noto Sans JP";color:var(--blue)}
+.lnpr{margin:16px 16px 6px;padding:16px;border-radius:18px;background:linear-gradient(135deg,#1d2320,#2f3a33);color:#fff;position:relative}
+.lnpr .pr{position:absolute;top:10px;right:12px;font:800 10px Inter;opacity:.7;border:1px solid rgba(255,255,255,.5);border-radius:5px;padding:1px 5px}
+.lnpr b{display:block;font:900 16px "Noto Sans JP";margin-bottom:4px}
+.lnpr p{margin:0 0 12px;font:600 12px/1.6 "Noto Sans JP";opacity:.85}
+.lnpr a{display:block;text-align:center;background:var(--gold);color:#1d2320;text-decoration:none;font:900 14px "Noto Sans JP";padding:11px;border-radius:12px}
 .hint{font-size:11.5px;color:var(--grey);text-align:center;margin:4px 16px 8px;font-weight:700;line-height:1.5}
 .empty{text-align:center;padding:40px 20px;color:var(--sub);font-weight:700;font-size:14px;line-height:1.7}
 .tabs{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:min(460px,100%);background:rgba(255,255,255,.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);display:flex;padding:8px 6px calc(10px + env(safe-area-inset-bottom));z-index:9}
@@ -1067,8 +1085,11 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
 <!-- 設定 -->
 <section class="page" id="p-fx">
 <div class="top"><img src="icon-192.png" alt=""><h1>FX</h1><div class="fxbot" id="fxUpd"></div></div>
-<div class="lead fxlead">練習botの毎日の収支です。<br>左右にスワイプで日を切り替え。</div>
-<div id="fxBody"><div class="box" style="color:var(--sub)">読み込み中…</div></div>
+<div class="fxseg" id="fxSeg" hidden><button data-v="learn" class="on">学ぶ</button><button data-v="bot">練習bot</button></div>
+<div id="fxLearn"><div class="lead fxlead">FXと株の考え方を、<br>本物のチャートで1枚ずつ。</div>
+<div id="lnBody"><div class="box" style="color:var(--sub)">読み込み中…</div></div></div>
+<div id="fxBot" hidden><div class="lead fxlead">練習botの毎日の収支です。<br>左右にスワイプで日を切り替え。</div>
+<div id="fxBody"><div class="box" style="color:var(--sub)">読み込み中…</div></div></div>
 </section>
 <section class="page" id="p-set">
 <button class="copyfab" id="copyLink" aria-label="アプリのリンクをコピー"><svg class="lk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg><svg class="ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>
@@ -1146,7 +1167,7 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
 <nav class="tabs" id="tabs">
 <button class="tab on" data-p="ipo"><svg viewBox="0 0 24 24"><path d="M12 3c0 0-5 6-5 9.5a5 5 0 0 0 10 0C17 9 12 3 12 3z"/></svg>IPO</button>
 <button class="tab" data-p="bunbai"><svg viewBox="0 0 24 24"><path d="M20 7H4l1 12h14z"/><path d="M8 7V5a4 4 0 0 1 8 0v2"/></svg>分売</button>
-<button class="tab" data-p="fx" hidden><svg viewBox="0 0 24 24"><path d="M3 17l5-5 4 3 8-8"/><path d="M15 7h5v5"/></svg>FX</button>
+<button class="tab" data-p="fx"><svg viewBox="0 0 24 24"><path d="M3 17l5-5 4 3 8-8"/><path d="M15 7h5v5"/></svg>FX</button>
 <button class="tab" data-p="set"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2-1.2L14 3h-4l-.5 2.6a7 7 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6A7 7 0 0 0 5 12a7 7 0 0 0 .1 1.2l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 2 1.2L10 21h4l.5-2.6a7 7 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.1-.4.1-.8.1-1.2z"/></svg>設定<span class="bdg" id="setBdg"></span></button>
 </nav>
 
@@ -1900,9 +1921,24 @@ function renderFX(){if(!FXD)return;const el=$('#fxBody');const f=FXD,days=fxDays
 // FXタブは運営者がログインしたときだけ表示（メールアドレスそのものは載せず、ハッシュで照合）
 var FXOWN='60abadef75514b34ef667842e5a1513d26fd3cc53aea0bf0d71a243ceb46ff2b',FXON=false,FXLOADED=false;
 async function fxGate(){let ok=false;try{const e=(USER&&USER.email||'').trim().toLowerCase();if(e&&crypto.subtle){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(e));ok=[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')===FXOWN}}catch(_){}
-  const was=FXON;FXON=ok;const t=document.querySelector('.tab[data-p="fx"]');if(t)t.hidden=!ok;if(was!==ok&&window.ntfRender)ntfRender();
+  const was=FXON;FXON=ok;$('#fxSeg').hidden=!ok;if(!ok)fxView('learn');if(was!==ok&&window.ntfRender)ntfRender();
   if(ok&&!FXLOADED){FXLOADED=true;loadFX()}
-  if(!ok){const pg=document.getElementById('p-fx');if(pg&&pg.classList.contains('on'))goTab('ipo')}}
+  }
+// 学ぶ／練習bot の切り替え（練習botは運営者だけ）
+function fxView(v){document.querySelectorAll('#fxSeg button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));$('#fxLearn').hidden=v!=='learn';$('#fxBot').hidden=v!=='bot'}
+document.querySelectorAll('#fxSeg button').forEach(b=>b.onclick=()=>fxView(b.dataset.v));
+// ---- 学ぶ（稲葉の投稿をそのまま並べる。データは data/learn.json） ----
+const LEARN_PR='';  // DMM FX の紹介リンク（A8）。空なら枠を出さない
+async function loadLearn(){const el=$('#lnBody');let L=[];
+  try{const r=await fetch('data/learn.json?'+Date.now(),{cache:'no-store'});if(r.ok)L=(await r.json()).posts||[]}catch(e){}
+  const md=d=>{const m=/^(\d+)-(\d+)-(\d+)/.exec(d||'');return m?(+m[2])+'/'+(+m[3]):''};
+  const list=L.length?L.map((p,i)=>`<div class="ln" style="animation-delay:${Math.min(i,6)*.05}s"><img src="data/${esc(p.img)}" alt="" loading="lazy"><div class="bd"><div class="mt"><span class="tg ${p.k==='kabu'?'kabu':''}">${p.k==='kabu'?'株':'FX'}</span>${md(p.d)}</div><div class="tx">${esc(String(p.t).replace(/。(?!\n)/g,'。\n'))}</div><button class="more">続きを読む</button></div></div>`).join('')
+    :'<div class="box" style="color:var(--sub)">まだありません。<br>毎日少しずつ増えていきます。</div>';
+  const pr=LEARN_PR?`<div class="lnpr"><span class="pr">PR</span><b>FXを始めるなら DMM FX</b><p>スマホで口座開設できます。<br>まずは少ない金額で試すのがおすすめです。</p><a href="${LEARN_PR}" target="_blank" rel="noopener nofollow sponsored">口座を開く</a></div>`:'';
+  const note=`<p style="margin:6px 20px 24px;font:600 11.5px 'Noto Sans JP';color:var(--sub);line-height:1.6">※チャートは過去の値動きをもとにしています。<br>※売買をすすめるものではありません。<br>投資の判断はご自身でお願いします。</p>`;
+  el.innerHTML=list+pr+note;
+  el.querySelectorAll('.ln').forEach(c=>{const t=c.querySelector('.tx'),b=c.querySelector('.more');requestAnimationFrame(()=>{if(t.scrollHeight<=t.clientHeight+2)b.remove()});b.onclick=()=>{c.classList.toggle('open');b.textContent=c.classList.contains('open')?'閉じる':'続きを読む'}})}
+loadLearn();
 fxGate();
 
 // ---- アプリのリンクをコピー ----

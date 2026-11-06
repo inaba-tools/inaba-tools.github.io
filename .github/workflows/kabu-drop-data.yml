@@ -26,6 +26,8 @@ jobs:
         run: |
           pip install -q openpyxl pywebpush
           python3 kabu-drop/tools/fetch.py
+      - name: 学ぶ（稲葉の投稿）を取り込む
+        run: python3 kabu-drop/tools/learn.py || true
       - name: 通知を送る
         env:
           VAPID_PRIVATE: ${{ secrets.VAPID_PRIVATE }}
