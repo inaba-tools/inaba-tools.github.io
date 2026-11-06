@@ -1807,7 +1807,7 @@ function applyBox(o,pre){const A=ownAccs(o);const acc=(o.r&&o.r.acc)||{};const m
   return`<details class="apl ${pre?'pre':''}" data-oid="${esc(o.id)}" ${open?'open':''}><summary><span class="h osb">おすすめ</span><span class="st">${st}</span>${pre?'':`<span class="ct ${n?'':'zero'}">${n}/${need.length}</span>`}<i class="cv"></i></summary>
   <div class="apin"><p class="why">${why}</p>
   ${tot?`<div class="money"><div><small>必要なお金</small><b>${man(tot)}</b></div><div class="ms"><b>落選の場合、支払いは不要</b><small>お金は口座に残ります <a href="#" data-qa="qa-back">詳しく ›</a></small></div></div>`:''}
-  ${rows.map(row).join('')}
+  ${rows.filter(x=>!x.rc.skip||acc[x.b.id]).map(row).join('')}
   <div class="f">${pre?`申込は<b>${md(o.x.data4)}</b>から。<br>口座の開設には数日〜1週間ほど掛かります。`:'申し込んだら、会社のアイコンをタップしてチェック。<br>全部チェックすると「申込済み」に移ります。'}</div></div></details>`}
 function wonLinks(o){const acc=(o.r&&o.r.acc)||{};const L=ownAccs(o).filter(a=>acc[a.b.id]);const T=L.length?L:ownAccs(o).slice(0,1);
   return T.length?`<div class="apo" style="margin-top:10px"><div class="t">申し込んだ会社で、当たったか・購入の手続きを確認しよう</div><div class="ch">${T.map(({b})=>`<a href="${APPLY_URL[b.id]||bkUrl(b)}" target="_blank" rel="noopener"><span class="lg" style="background:${b.color}">${b.short}</span>${bshort(b)}を開く</a>`).join('')}</div></div>`:''}
@@ -2011,11 +2011,12 @@ function startNudge(card){stopNudge();const sl=card.parentNode;const list=sl.clo
     card.style.transition='transform .55s cubic-bezier(.4,0,.3,1)';card.style.transform=`translateX(${d==='R'?w*.42:-w*.42}px) rotate(${d==='R'?3:-3}deg)`;
     setTimeout(()=>{if(!nudgeT)return;card.style.transform='';setTimeout(()=>{if(nudgeT)u.style.opacity=0},350)},1200)};
   nudgeT=setInterval(step,2000);step()}
-function startTour(k){{const c=document.querySelector('#list-'+k+' .slot .card');if(c&&!c.classList.contains('open')){OPEN.add(c.parentNode.dataset.id);c.classList.add('open')}const d=document.querySelector('#list-'+k+' .slot details.apl');if(d)d.open=true}
+let tourFold=[];
+function startTour(k){tourFold=[];{const c=document.querySelector('#list-'+k+' .slot .card');if(c&&!c.classList.contains('open')){OPEN.add(c.parentNode.dataset.id);c.classList.add('open');tourFold.push(()=>{OPEN.delete(c.parentNode.dataset.id);c.classList.remove('open')})}const d=document.querySelector('#list-'+k+' .slot details.apl');if(d&&!d.open){d.open=true;tourFold.push(()=>{d.open=false;APLOPEN.delete(d.dataset.oid)})}}
   const steps=TOURS[k].filter(st=>{const el=document.querySelector(st[0]);return el&&el.offsetParent!==null});if(!steps.length)return;
   window.scrollTo(0,0);tour={k,steps,i:0};$('#tour').classList.add('on');tourShow()}
 function tourEnd(){if(!tour)return;try{localStorage.setItem('kd_tour_'+tour.k,'1')}catch(e){}stopNudge();
-  $('#tour').classList.remove('on');tour=null}
+  $('#tour').classList.remove('on');tour=null;tourFold.forEach(f=>{try{f()}catch(e){}});tourFold=[]}  // 説明で開いたカードは閉じて戻す
 function tourShow(){const st=tour.steps[tour.i];const el=document.querySelector(st[0]);stopNudge();
   if(!el){tourNext();return}
   const tip=$('#tip');tip.classList.add('fade');
