@@ -94,6 +94,46 @@ def save(name, obj):
         json.dump(obj, f, ensure_ascii=False, separators=(',', ':'), sort_keys=True)
 
 
+# ---------- 通知の鍵を読む（PEM・base64url・DER どの形でも読めるようにする） ----------
+PUB = 'BB-VNadIELVCIZ58O4WvglYbtSIJm5NgUe-djLQozp8LYwZGHAgbqoQYx4tUAFAvVYCHPuLFSQDv_MgNWrcdhWg'
+
+
+def vapid_key(raw):
+    try:
+        return _vapid_key(raw)
+    except Exception as e:
+        print('vapid key error', type(e).__name__, e, file=sys.stderr)
+        return None
+
+
+def _vapid_key(raw):
+    import base64
+    from py_vapid import Vapid
+    s = (raw or '').strip().strip('"').strip("'")
+    if not s:
+        return None
+    v = None
+    if 'BEGIN' in s:
+        v = Vapid.from_pem(s.replace('\\n', '\n').encode())
+    else:
+        t = ''.join(s.split()).replace('+', '-').replace('/', '_').rstrip('=')
+        try:
+            v = Vapid.from_string(t)
+        except Exception:
+            b = base64.urlsafe_b64decode(t + '=' * (-len(t) % 4))
+            try:
+                v = Vapid.from_pem(b)  # base64にしたPEM
+            except Exception:
+                v = Vapid.from_der(base64.urlsafe_b64encode(b))
+    try:
+        from cryptography.hazmat.primitives import serialization
+        pb = v.public_key.public_bytes(serialization.Encoding.X962, serialization.PublicFormat.UncompressedPoint)
+        print('vapid key ok, matches app:', base64.urlsafe_b64encode(pb).decode().rstrip('=') == PUB)
+    except Exception as e:
+        print('vapid check skipped', e)
+    return v
+
+
 # ---------- 記録を読む ----------
 SEEN_KEY = '_seen'
 
@@ -246,7 +286,7 @@ RATES = {}
 
 def main():
     global RATES
-    key = os.environ.get('VAPID_PRIVATE', '').strip()
+    key = vapid_key(os.environ.get('VAPID_PRIVATE', ''))
     groups = state()
     RATES = load('rates.json', {'s': 3.9, 'l': 1.1})
     sent = load('sent.json', {})
@@ -294,7 +334,7 @@ def send_group(key, rec, sent):
 
 # ---------- FXの朝の成績（自分の端末だけ：設定で fx_daily をオンにした端末） ----------
 def main_fx():
-    key = os.environ.get('VAPID_PRIVATE', '').strip()
+    key = vapid_key(os.environ.get('VAPID_PRIVATE', ''))
     fx = load('fx_today.json', None)
     if not fx or not key:
         print('fx: no data or key')
