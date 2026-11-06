@@ -1,8 +1,5 @@
 name: fx-kiroku
-on:
-  schedule:
-    - cron: '30 15 * * *'   # 毎日 0:30（日本時間）
-    - cron: '30 1 * * *'    # 毎日 10:30（日本時間）… 前日分の1分足が出そろってから確実に記録
+on:  # 2026-11-06 定時実行を止めた（FXタブは練習botの記録に切り替え）。手動でだけ動かせる
   workflow_dispatch:
   push:
     paths:
