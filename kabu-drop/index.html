@@ -1885,7 +1885,7 @@ function renderFX(){if(!FXD)return;const el=$('#fxBody');const f=FXD,days=fxDays
     <div class="rows">${D.items.map(x=>`<div class="fxdr"><span>${esc(x.t)}<small>${esc(x.side||'')}</small></span><b class="${x.p>=0?'up':'dn'}">${pm(x.p)}</b></div>`).join('')}</div>
     <div class="acc"><div><small>${(+mon.slice(5))}月の合計</small><b class="${mTot>=0?'up':'dn'}">${pm(mTot)}</b></div><div><small>これまで</small><b class="${aTot>=0?'up':'dn'}">${pm(aTot)}</b></div></div>
   </div>
-  <div class="nav"><button data-fd="1" ${fxI>=days.length-1?'disabled':''} aria-label="前の日">‹</button><div class="dots">${days.map((x,i)=>Math.abs(i-fxI)<=4?`<i class="${i===fxI?'on':''}"></i>`:'').join('')}</div><button data-fd="-1" ${fxI<=0?'disabled':''} aria-label="次の日">›</button></div></div>`;
+  <div class="nav"><button data-fd="1" ${fxI>=days.length-1?'disabled':''} aria-label="前の日">‹</button><div class="dots">${days.map((x,i)=>Math.abs(i-fxI)<=4?`<i class="${i===fxI?'on':''}"></i>`:'').reverse().join('')}</div><button data-fd="-1" ${fxI<=0?'disabled':''} aria-label="次の日">›</button></div></div>`;
   const bar=x=>{const r=x.n?Math.round(x.win/x.n*100):0;return`<div class="fxty"><div class="h"><b>${esc(x.t)}</b><span class="${x.sum>=0?'up':'dn'}">${pm(x.sum)}</span></div><div class="wb"><i style="width:${r}%"></i></div><small>${x.n}回中${x.win}回勝ち</small></div>`};
   const types=fxFold('ftype2','型ごとの成績（これまで）',(f.types||[]).map(bar).join('')||'<p class="fxtn">まだ決済がありません。</p>',false);
   const cand=fxFold('fcand','候補（記録だけ）',(f.cand||[]).length?f.cand.map(bar).join(''):'<p class="fxtn">候補の記録はまだありません。</p>',false,(f.cand||[]).length+'件');
