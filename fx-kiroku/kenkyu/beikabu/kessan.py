@@ -1,12 +1,14 @@
 # 米国株の決算発表日：SEC（米国の公式機関）の提出書類から、決算結果（8-K の Item 2.02）を出した日を取る
 import json,sys,time,urllib.request,csv
-UA={'User-Agent':'inaba-tools research github-actions@users.noreply.github.com'}
+UA={'User-Agent':'inaba-tools research 342586836+inaba-tools@users.noreply.github.com'}
 def get(u):
     for i in range(3):
         try:
             with urllib.request.urlopen(urllib.request.Request(u,headers=UA),timeout=60) as r: return json.load(r)
         except Exception as e: print('retry',u,e); time.sleep(5)
-tk=get('https://www.sec.gov/files/company_tickers.json'); cik={v['ticker']:v['cik_str'] for v in tk.values()}
+tk=get('https://www.sec.gov/files/company_tickers.json') or {}
+if not tk: print('SECに断られたので決算日は今回飛ばす')
+cik={v['ticker']:v['cik_str'] for v in tk.values()}
 w=csv.writer(open('kessan.csv','w',newline='')); w.writerow(['ticker','date','time'])
 for s in sys.argv[1:]:
     c=cik.get(s)
