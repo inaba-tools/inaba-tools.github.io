@@ -1,5 +1,6 @@
 name: beikabu
 # 研究用：米国株の1時間足と決算日を作り、データ専用の枝 kenkyu-beikabu に置く（mainやサイトは変えない）
+# 1銘柄ずつ別々に取る（止まった銘柄があっても他は残す）
 on:
   workflow_dispatch:
   push:
@@ -8,16 +9,39 @@ on:
 permissions:
   contents: read
 jobs:
-  get:
+  kessan:
     runs-on: ubuntu-latest
-    timeout-minutes: 300
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - run: cd fx-kiroku/kenkyu/beikabu && python3 kessan.py TSLA NVDA AMD META NFLX AMZN AAPL MSFT GOOGL INTC MU PYPL SHOP SQ UBER SNAP TWTR BABA NIO PLTR COIN ROKU ZM CRM ADBE ORCL BA DIS NKE SBUX F GM XOM CVX JPM BAC C GS WMT COST HD MRNA PFE LLY AVGO QCOM SMCI ARM
+      - uses: actions/upload-artifact@v4
+        with: {name: kessan, path: fx-kiroku/kenkyu/beikabu/kessan.csv}
+  ashi:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        sym: ["TSLA", "NVDA", "AMD", "META", "NFLX", "AMZN", "AAPL", "MSFT", "GOOGL", "INTC", "MU", "PYPL", "SHOP", "SQ", "UBER", "SNAP", "TWTR", "BABA", "NIO", "PLTR", "COIN", "ROKU", "ZM", "CRM", "ADBE", "ORCL", "BA", "DIS", "NKE", "SBUX", "F", "GM", "XOM", "CVX", "JPM", "BAC", "C", "GS", "WMT", "COST", "HD", "MRNA", "PFE", "LLY", "AVGO", "QCOM", "SMCI", "ARM"]
+    steps:
+      - uses: actions/checkout@v4
+      - run: cd fx-kiroku/kenkyu/beikabu && python3 ashi.py ${{ matrix.sym }}
+      - uses: actions/upload-artifact@v4
+        with: {name: 'ashi-${{ matrix.sym }}', path: 'fx-kiroku/kenkyu/beikabu/*.csv.gz', if-no-files-found: ignore}
+  matome:
+    needs: [kessan, ashi]
+    if: always()
+    runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
-      - run: cd fx-kiroku/kenkyu/beikabu && python3 kessan.py TSLA NVDA AMD META NFLX AMZN AAPL MSFT GOOGL INTC MU PYPL SHOP SQ UBER SNAP TWTR BABA NIO PLTR COIN ROKU ZM CRM ADBE ORCL BA DIS NKE SBUX F GM XOM CVX JPM BAC C GS WMT COST HD MRNA PFE LLY AVGO QCOM SMCI ARM && python3 ashi.py TSLA NVDA AMD META NFLX AMZN AAPL MSFT GOOGL INTC MU PYPL SHOP SQ UBER SNAP TWTR BABA NIO PLTR COIN ROKU ZM CRM ADBE ORCL BA DIS NKE SBUX F GM XOM CVX JPM BAC C GS WMT COST HD MRNA PFE LLY AVGO QCOM SMCI ARM
+      - uses: actions/download-artifact@v4
+        with: {path: out, merge-multiple: true}
       - run: |
-          cd fx-kiroku/kenkyu/beikabu && mkdir out && mv *.csv.gz kessan.csv out/ && cd out
+          cd out && ls -la
           git init -q -b kenkyu-beikabu
           git config user.name "github-actions"; git config user.email "github-actions@users.noreply.github.com"
           git add -A && git commit -qm "研究用データ（米国株）"

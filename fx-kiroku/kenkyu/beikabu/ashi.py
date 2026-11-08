@@ -4,14 +4,14 @@ import csv,datetime as dt,gzip,lzma,struct,sys,time,urllib.request
 from concurrent.futures import ThreadPoolExecutor
 def month(sym,y,m):
     url='https://datafeed.dukascopy.com/datafeed/%sUSUSD/%d/%02d/BID_candles_hour_1.bi5'%(sym,y,m-1)
-    for i in range(5):
+    for i in range(3):
         try:
-            with urllib.request.urlopen(url,timeout=60) as r: raw=r.read()
+            with urllib.request.urlopen(url,timeout=20) as r: raw=r.read()
             break
         except urllib.error.HTTPError as e:
             if e.code==404: return []
-            time.sleep(5*(i+1))
-        except Exception: time.sleep(5*(i+1))
+            time.sleep(3)
+        except Exception: time.sleep(3)
     else: return None
     if not raw: return []
     b=lzma.decompress(raw); base=dt.datetime(y,m,1); out=[]
