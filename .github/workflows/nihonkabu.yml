@@ -1,0 +1,27 @@
+name: nihonkabu
+# 研究用：J-Quants（Freeプラン）で日本株の日足・決算を取り、データ専用の枝 kenkyu-jp に置く（mainやサイトは変えない）
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'fx-kiroku/kenkyu/nihonkabu/go.txt'
+permissions:
+  contents: read
+jobs:
+  get:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - run: cd fx-kiroku/kenkyu/nihonkabu && python3 jq.py
+        env:
+          JQUANTS_API_KEY: ${{ secrets.JQUANTS_API_KEY }}
+      - if: always()
+        run: |
+          cd fx-kiroku/kenkyu/nihonkabu && mkdir out && mv master.json bars.jsonl.gz fins.jsonl.gz out/ && cd out
+          git init -q -b kenkyu-jp
+          git config user.name "github-actions"; git config user.email "github-actions@users.noreply.github.com"
+          git add -A && git commit -qm "研究用データ（日本株・J-Quants）"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" kenkyu-jp
