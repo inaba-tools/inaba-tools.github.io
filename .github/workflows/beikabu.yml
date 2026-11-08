@@ -1,0 +1,24 @@
+name: beikabu
+# 研究用：米国株の1時間足と決算日を作り、データ専用の枝 kenkyu-beikabu に置く（mainやサイトは変えない）
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'fx-kiroku/kenkyu/beikabu/go.txt'
+permissions:
+  contents: read
+jobs:
+  get:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - run: cd fx-kiroku/kenkyu/beikabu && python3 kessan.py TSLA NVDA AMD META NFLX AMZN AAPL MSFT GOOGL INTC MU PYPL SHOP SQ UBER SNAP TWTR BABA NIO PLTR COIN ROKU ZM CRM ADBE ORCL BA DIS NKE SBUX F GM XOM CVX JPM BAC C GS WMT COST HD MRNA PFE LLY AVGO QCOM SMCI ARM && python3 ashi.py TSLA NVDA AMD META NFLX AMZN AAPL MSFT GOOGL INTC MU PYPL SHOP SQ UBER SNAP TWTR BABA NIO PLTR COIN ROKU ZM CRM ADBE ORCL BA DIS NKE SBUX F GM XOM CVX JPM BAC C GS WMT COST HD MRNA PFE LLY AVGO QCOM SMCI ARM
+      - run: |
+          cd fx-kiroku/kenkyu/beikabu && mkdir out && mv *.csv.gz kessan.csv out/ && cd out
+          git init -q -b kenkyu-beikabu
+          git config user.name "github-actions"; git config user.email "github-actions@users.noreply.github.com"
+          git add -A && git commit -qm "研究用データ（米国株）"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" kenkyu-beikabu
