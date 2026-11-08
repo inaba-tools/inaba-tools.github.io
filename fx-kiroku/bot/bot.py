@@ -949,7 +949,6 @@ def main():
     if os.environ.get('TEST_NOW'):  # 動作確認用に時刻をずらす
         now = dt.datetime.fromisoformat(os.environ['TEST_NOW']).replace(tzinfo=JST)
     fix_crontab()
-    fix_crontab3()
     try:
         reconcile(st, now)
     except Exception:
