@@ -1,0 +1,55 @@
+name: kin-nikkei
+# 研究用：金・日経225の5分足と日本株の日足を作り、データ専用の枝 kenkyu-data に置く（mainやサイトは変えない）
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'fx-kiroku/kenkyu/kin/go.txt'
+permissions:
+  contents: read
+jobs:
+  ashi:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        pair: [XAUUSD, JPNIDXJPY]
+        year: [2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+    steps:
+      - uses: actions/checkout@v4
+      - run: cd fx-kiroku/kenkyu/kin && python3 ashi.py ${{ matrix.pair }} ${{ matrix.year }} 1000
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ashi-${{ matrix.pair }}-${{ matrix.year }}
+          path: fx-kiroku/kenkyu/kin/ashi_*.csv.gz
+          retention-days: 3
+  kabu:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cd fx-kiroku/kenkyu/kin && python3 kabu.py 1321 1306 8306 8316 8411 2914 9432 9433 9434 8058 8031 8001 8053 5401 7203 8766 4502 1605 5020 8591 8725 6301 6758 9984 4063 8035 7267 8604 9101 9104
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kabu
+          path: fx-kiroku/kenkyu/kin/kabu_*.csv
+          retention-days: 3
+  matome:
+    needs: [ashi, kabu]
+    if: always()
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: out
+          merge-multiple: true
+      - run: |
+          ls out | head -50
+          cd out
+          git init -q -b kenkyu-data
+          git config user.name "github-actions"; git config user.email "github-actions@users.noreply.github.com"
+          git add -A && git commit -qm "研究用データ（金・日経225・日本株）"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" kenkyu-data
