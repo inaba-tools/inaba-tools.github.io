@@ -1892,6 +1892,10 @@ async function loadFX(){try{const r=await fetch('data/fx_today.json?'+Date.now()
 function fxFold(key,title,body,def,rt=''){const o=key in fxOpen?fxOpen[key]:def;return`<details class="box fxfold" data-fold="${key}" ${o?'open':''}><summary><h3>${title}</h3>${rt?`<span class="fxrt">${rt}</span>`:''}</summary>${body}</details>`}
 function fxDays(){const f=FXD||{};let days=(f.days||[]).filter(d=>(d.items||[]).some(x=>!x.c)).map(d=>({d:d.d,items:d.items.filter(x=>!x.c)}));
   if(f.d&&!days.some(x=>x.d===f.d))days.push({d:f.d,items:[]});  // 今日に取引がなくても1枚出す
+  // 取引がなかった日（土日・条件に合わない日）も、最初の記録の日から今日まで1日1枚ずつ出す
+  if(days.length){const iso=t=>t.toISOString().slice(0,10),have=new Set(days.map(x=>x.d));
+    const first=days.map(x=>x.d).sort()[0],end=iso(todayJ());
+    for(let t=new Date(first+'T00:00:00Z');iso(t)<=end;t=new Date(t.getTime()+864e5)){const k=iso(t);if(!have.has(k))days.push({d:k,items:[]})}}
   return days.sort((a,b)=>b.d.localeCompare(a.d))}
 function renderFX(){if(!FXD)return;const el=$('#fxBody');const f=FXD,days=fxDays(),b=f.bot||{};
   if(!days.length){el.innerHTML='<div class="box" style="color:var(--sub)">まだ記録がありません。</div>';return}
@@ -1900,12 +1904,15 @@ function renderFX(){if(!FXD)return;const el=$('#fxBody');const f=FXD,days=fxDays
   const wd=d=>'日月火水木金土'[new Date(d+'T00:00:00').getDay()];const md=d=>{const a=d.split('-');return (+a[1])+'/'+(+a[2])};
   const mon=D.d.slice(0,7);const all=days.filter(x=>x.d<=D.d);
   const mTot=sum(all.filter(x=>x.d.startsWith(mon)).flatMap(x=>x.items)),aTot=sum(all.flatMap(x=>x.items));
-  const isNew=fxI===0&&D.d===f.d;
+  const isNew=fxI===0&&D.d===f.d;  // 「最新」は成績が届いた日だけ
   const rows=D.items.length?D.items.map(x=>`<div class="fxdr"><span>${esc(x.t)}<small>${esc(x.side||'')}</small></span><b class="${x.p>=0?'up':'dn'}">${pm(x.p)}</b></div>`).join(''):'<div class="fxdr"><span style="color:var(--sub)">条件に合わず、取引はありませんでした。</span></div>';
   const pos=tot>=0;const n=D.items.length;
   const card=`<div class="fxday ${n?(pos?'p':'m'):'z'}"><div class="in ${fxDir<0?'r':fxDir>0?'l':''}">
     <div class="hd"><span class="dt">${md(D.d)}<small>（${wd(D.d)}）</small></span>${isNew?'<span class="nw">最新</span>':''}</div>
-    <div class="mid">${n?`<div class="fxbig2 ${pos?'up':'dn'}"><i>${pos?'+':'−'}</i>${yen(Math.abs(tot))}<i>円</i></div><div class="cap">${n}件の決済</div>`:`<div class="fxbig2 nz">取引なし</div><div class="cap">条件に合わず、取引はありませんでした。</div>`}</div>
+    <div class="mid">${n?`<div class="fxbig2 ${pos?'up':'dn'}"><i>${pos?'+':'−'}</i>${yen(Math.abs(tot))}<i>円</i></div><div class="cap">${n}件の決済</div>`:(()=>{const w=new Date(D.d+'T00:00:00').getDay(),td=D.d===todayJ().toISOString().slice(0,10);
+      return w===0||w===6?`<div class="fxbig2 nz">お休み</div><div class="cap">土日は相場がお休みです。</div>`
+        :td?`<div class="fxbig2 nz">まだ取引なし</div><div class="cap">今日の取引はこれから。<br>決済したらここに出ます。</div>`
+        :`<div class="fxbig2 nz">取引なし</div><div class="cap">条件に合わず、取引はありませんでした。</div>`})()}</div>
     <div class="rows">${D.items.map(x=>`<div class="fxdr"><span>${esc(x.t)}<small>${esc(x.side||'')}</small></span><b class="${x.p>=0?'up':'dn'}">${pm(x.p)}</b></div>`).join('')}</div>
     <div class="acc"><div><small>${(+mon.slice(5))}月の合計</small><b class="${mTot>=0?'up':'dn'}">${pm(mTot)}</b></div><div><small>これまで</small><b class="${aTot>=0?'up':'dn'}">${pm(aTot)}</b></div></div>
   </div>
