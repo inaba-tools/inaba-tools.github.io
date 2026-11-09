@@ -1799,13 +1799,15 @@ function recSum(o,A,mode){const hasS=A.some(a=>a.b.id==='sbi');const nm=A.length
   const low=judge(o)==='bad'?'利益が出にくい予想':'人気は低め';
   if(mode==='sbi')return hasS?['SBIだけ100株',`${rk}で、${low}です。<br>SBIだけ、ポイントを貯める目的で申し込みます。<br>当選しても、公募割れしそうなら購入しなくて大丈夫です。`]:['今回は申し込まない',`${rk}で、${low}です。<br>今回は申し込まなくて大丈夫です。`];
   return[`${nm}で100株${A.length>1?'ずつ':''}`,`${rk}で、利益が出そうな予想です。<br>${A.length}社で申し込むと、抽選に${A.length}回参加できます。${hasS?'<br>SBIは、外れてもポイントが貯まります。':''}`]}
-const APPLY_URL={rakuten:RAKUTEN};
+// 「申し込む」は口座を持っている人向けなので、紹介リンクではなく各社のログイン画面へ飛ばし、ログイン後の押す場所を添える
+const APPLY_URL={rakuten:'https://www.rakuten-sec.co.jp/ITS/V_ACT_Login.html',sbi:'https://site1.sbisec.co.jp/ETGate/',matsui:'https://www.deal.matsui.co.jp/ITS/login/MemberLogin.jsp',dmm:'https://kabu.dmm.com/'};
+const APPLY_STEP={rakuten:'ログイン後：国内株式 → IPO・PO → 申込',sbi:'ログイン後：国内株式 → IPO・PO → ブックビルディング → 申込',matsui:'ログイン後：日本株 → 需要申告 → 申告する',dmm:'アプリかWebでログイン後：IPO → 申込'};
 function applyBox(o,pre){const A=ownAccs(o);const acc=(o.r&&o.r.acc)||{};const mode=recMode(o);const need=needAccs(o);const n=need.filter(a=>acc[a.b.id]).length;
   if(!A.length){const q=undecided().length;return`<div class="apl pre"><div class="h">おすすめの申込</div><div class="f">${q?`証券会社がまだ選ばれていません。<b>設定 → 証券口座</b>で、使う会社を選んでね。`:'使う証券会社で「口座あり」がまだありません。<b>設定 → 証券口座</b>で選んでね。'}</div></div>`}
   const [st,why]=recSum(o,A,mode);const rows=A.map(({b})=>({b,rc:recRow(o,b,mode)}));const tot=rows.reduce((a,x)=>a+x.rc.money,0);
   const open=APLOPEN.has(o.id);
   const row=({b,rc})=>{const on=!!acc[b.id];return`<div class="ap2 ${on?'on':''} ${rc.skip&&!on?'sk':''}">${pre?`<span class="ck"><span class="lg" style="background:${b.color}">${b.short}</span></span>`:`<button class="ck" data-act="ac:${b.id}" aria-label="${b.name}の申込チェック"><span class="lg" style="background:${b.color}">${b.short}</span><i>✓</i></button>`}
-    <div class="tx"><div class="t1"><b>${bshort(b)}</b>${b.id==='sbi'?'<span class="ptg">ポイント用</span>':''}<span class="l1">${on?'申込済み ✓':rc.l1}</span></div>${on||rc.skip?'':`${rc.l3?`<div class="l3">${rc.l3}</div>`:''}<div class="l2">${rc.l2}</div>`}</div>${pre||on||rc.skip?'':`<a class="go" href="${APPLY_URL[b.id]||b.aff||b.url}" target="_blank" rel="noopener">申し込む</a>`}</div>`};
+    <div class="tx"><div class="t1"><b>${bshort(b)}</b>${b.id==='sbi'?'<span class="ptg">ポイント用</span>':''}<span class="l1">${on?'申込済み ✓':rc.l1}</span></div>${on||rc.skip?'':`${rc.l3?`<div class="l3">${rc.l3}</div>`:''}<div class="l2">${rc.l2}</div>${pre||!APPLY_STEP[b.id]?'':`<div class="l3" style="opacity:.75">${APPLY_STEP[b.id]}</div>`}`}</div>${pre||on||rc.skip?'':`<a class="go" href="${APPLY_URL[b.id]||b.aff||b.url}" target="_blank" rel="noopener">申し込む</a>`}</div>`};
   return`<details class="apl ${pre?'pre':''}" data-oid="${esc(o.id)}" ${open?'open':''}><summary><span class="h osb">おすすめ</span><span class="st">${st}</span>${pre?'':`<span class="ct ${n?'':'zero'}">${n}/${need.length}</span>`}<i class="cv"></i></summary>
   <div class="apin"><p class="why">${why}</p>
   ${tot?`<div class="money"><div><small>必要なお金</small><b>${man(tot)}</b></div><div class="ms"><b>落選の場合、支払いは不要</b><small>お金は口座に残ります <a href="#" data-qa="qa-back">詳しく ›</a></small></div></div>`:''}
