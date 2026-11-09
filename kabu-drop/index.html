@@ -1913,7 +1913,7 @@ function renderFX(){if(!FXD)return;const el=$('#fxBody');const f=FXD,days=fxDays
       return w===0||w===6?`<div class="fxbig2 nz">お休み</div><div class="cap">土日は相場がお休みです。</div>`
         :td?`<div class="fxbig2 nz">まだ取引なし</div><div class="cap">今日の取引はこれから。<br>決済したらここに出ます。</div>`
         :`<div class="fxbig2 nz">取引なし</div><div class="cap">条件に合わず、取引はありませんでした。</div>`})()}</div>
-    <div class="rows">${D.items.map(x=>`<div class="fxdr"><span>${esc(x.t)}<small>${esc(x.side||'')}</small></span><b class="${x.p>=0?'up':'dn'}">${pm(x.p)}</b></div>`).join('')}</div>
+    <div class="rows">${D.items.map(x=>`<div class="fxdr"><span>${esc(x.t)}<small>${esc(x.side||'')}${x.i||x.o?`　${esc(x.i||'?')}→${esc(x.o||'?')}`:''}</small></span><b class="${x.p>=0?'up':'dn'}">${pm(x.p)}</b></div>`).join('')}</div>
     <div class="acc"><div><small>${(+mon.slice(5))}月の合計</small><b class="${mTot>=0?'up':'dn'}">${pm(mTot)}</b></div><div><small>これまで</small><b class="${aTot>=0?'up':'dn'}">${pm(aTot)}</b></div></div>
   </div>
   <div class="nav"><button data-fd="1" ${fxI>=days.length-1?'disabled':''} aria-label="前の日">‹</button><div class="dots">${days.map((x,i)=>Math.abs(i-fxI)<=4?`<i class="${i===fxI?'on':''}"></i>`:'').reverse().join('')}</div><button data-fd="-1" ${fxI<=0?'disabled':''} aria-label="次の日">›</button></div></div>`;
