@@ -1046,6 +1046,12 @@ html.dark .gico{box-shadow:inset 0 0 0 1px #2f3732}
 <body>
 <script>(function(){var t='auto';try{t=(JSON.parse(localStorage.getItem('kd_set')||'{}').theme)||'auto'}catch(e){}
 var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches);if(d)document.documentElement.classList.add('dark')})()</script>
+<script>(function(){/* ダークモードのときはアイコンも暗い版に切り替える */
+function sw(){var d=document.documentElement.classList.contains('dark');
+document.querySelectorAll('.top img').forEach(function(i){i.src=d?'icon-192-dark.png':'icon-192.png'});
+var f=document.querySelector('link[rel=icon]');if(f)f.href=d?'favicon-dark.png':'favicon.png';}
+new MutationObserver(sw).observe(document.documentElement,{attributes:true,attributeFilter:['class']});
+document.addEventListener('DOMContentLoaded',sw);sw();})()</script>
 <div class="splash" id="splash"><div class="wrap">
 <svg viewBox="0 0 200 200">
 <defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe56b"/><stop offset="1" stop-color="#c98d0c"/></linearGradient>
