@@ -1800,8 +1800,8 @@ function recSum(o,A,mode){const hasS=A.some(a=>a.b.id==='sbi');const nm=A.length
   if(mode==='sbi')return hasS?['SBIだけ100株',`${rk}で、${low}です。<br>SBIだけ、ポイントを貯める目的で申し込みます。<br>当選しても、公募割れしそうなら購入しなくて大丈夫です。`]:['今回は申し込まない',`${rk}で、${low}です。<br>今回は申し込まなくて大丈夫です。`];
   return[`${nm}で100株${A.length>1?'ずつ':''}`,`${rk}で、利益が出そうな予想です。<br>${A.length}社で申し込むと、抽選に${A.length}回参加できます。${hasS?'<br>SBIは、外れてもポイントが貯まります。':''}`]}
 // 「申し込む」は口座を持っている人向けなので、紹介リンクではなく各社のログイン画面へ飛ばし、ログイン後の押す場所を添える
-const APPLY_URL={rakuten:'https://www.rakuten-sec.co.jp/ITS/V_ACT_Login.html',sbi:'https://site1.sbisec.co.jp/ETGate/',matsui:'https://www.deal.matsui.co.jp/ITS/login/MemberLogin.jsp',dmm:'https://kabu.dmm.com/'};
-const APPLY_STEP={rakuten:'ログイン後：国内株式 → IPO・PO → 申込',sbi:'ログイン後：国内株式 → IPO・PO → ブックビルディング → 申込',matsui:'ログイン後：日本株 → 需要申告 → 申告する',dmm:'アプリかWebでログイン後：IPO → 申込'};
+const APPLY_URL={rakuten:'https://www.rakuten-sec.co.jp/ITS/V_ACT_Login.html',sbi:'https://site1.sbisec.co.jp/ETGate/?OutSide=on&_ControlID=WPLETsmR001Control&_DataStoreID=DSWPLETsmR001Control&sw_page=Offer&cat1=home&cat2=none&getFlg=on&sw_param1=21&sw_param2=',matsui:'https://www.deal.matsui.co.jp/ITS/login/MemberLogin.jsp',dmm:'https://kabu.dmm.com/'};
+const APPLY_STEP={rakuten:'ログイン後：国内株式 → IPO・PO → 申込',sbi:'IPOの申込一覧が開きます（ログインしていなければログイン後）→ 申込',matsui:'ログイン後：日本株 → 需要申告 → 申告する',dmm:'アプリかWebでログイン後：IPO → 申込'};
 function applyBox(o,pre){const A=ownAccs(o);const acc=(o.r&&o.r.acc)||{};const mode=recMode(o);const need=needAccs(o);const n=need.filter(a=>acc[a.b.id]).length;
   if(!A.length){const q=undecided().length;return`<div class="apl pre"><div class="h">おすすめの申込</div><div class="f">${q?`証券会社がまだ選ばれていません。<b>設定 → 証券口座</b>で、使う会社を選んでね。`:'使う証券会社で「口座あり」がまだありません。<b>設定 → 証券口座</b>で選んでね。'}</div></div>`}
   const [st,why]=recSum(o,A,mode);const rows=A.map(({b})=>({b,rc:recRow(o,b,mode)}));const tot=rows.reduce((a,x)=>a+x.rc.money,0);
