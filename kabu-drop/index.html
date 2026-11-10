@@ -874,9 +874,9 @@ html.dark .bk .kv2 i{background:#2a302c;color:#a3aaa3}
 .bigd small{font-size:11px}
 /* 展開した時：評価を左端に大きく */
 .m3meta{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
-.m3meta .rkx{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;width:52px;height:60px;border-radius:13px;padding:0}
+.m3meta .rkx{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;width:58px;height:auto;min-height:78px;border-radius:14px;padding:8px 0;box-sizing:border-box}
 .m3meta .rkx small{font:800 10px "Noto Sans JP";line-height:1}
-.m3meta .rkx b{font:900 30px/1 Inter;margin-top:3px}
+.m3meta .rkx b{font:900 30px/1 Inter;margin:0}
 .pastd>summary{list-style:none;cursor:pointer;display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px}
 .pastd>summary::-webkit-details-marker{display:none}
 .pastd>summary h3{margin:0;flex:1}
@@ -1421,7 +1421,7 @@ const IPO={kind:'ipo',cur:'can',last:{},
       const fund=o.need?`<b>${md(x.data15)}の18時まで</b>に 約${yen(o.need)}円 を口座に入れておこう。`:'';
       memo=dd<0?`当落が出ています。楽天証券で確認して、下のボタンで記録しよう。`:dd===0?`今日が抽選日。${fund}結果は夕方に出ます。`:`抽選は <b>${md(x.data15)}（${wd(x.data15)}）</b>。${fund}`;
       {const acc=(o.r&&o.r.acc)||{};const L=ownAccs(o).filter(a=>acc[a.b.id]).map(a=>a.b.name.replace(/証券|證券/,''));if(L.length)memo+=`<br>申し込んだ口座：<b>${L.join('・')}</b>`}
-      btns=`<div class="row2"><button class="btn red" data-act="go:win">当選した！</button><button class="btn ghost" data-act="lost">落選</button></div>`;
+      btns=`<div class="row2"><button class="btn ghost" data-act="lost">落選</button><button class="btn red" data-act="go:win">当選した</button></div>`;
     }else if(o.k==='win'){
       cls='win';const to=o.ls?days(o.ls,todayJ()):null;tag=`<span class="tag red ${to<=1?'pulse':''}">${to>0?'売る日まで'+to+'日':to===0?'今日が売る日':'売った？'}</span>`;
       memo=`当選おめでとう。<b>${md(x.data11)}〜${md(x.data13)}</b>に、当たった証券会社で「購入」を押す（押さないと無効）。公募割れしそうなら買わない（辞退する）こともできます。<b>${md(x.data18)}（${wd(x.data18)}）の朝</b>に売るのが基本。`;
@@ -1532,7 +1532,7 @@ const BUN={kind:'bunbai',cur:'can',last:{},skipLabel:'見送った分売',
     }else if(o.k==='done'){
       const d=days(o.date,todayJ());tag=`<span class="tag blue">${d>0?'結果まで'+d+'日':'結果を確認'}</span>`;
       memo=d>0?`<b>${mdD(o.date)}（${wdD(o.date)}）の朝</b>に当たったか分かります。`:`<b>${mdD(o.date)}の朝</b>に結果が出ています。楽天証券で確認して記録しよう。`;
-      btns=`<div class="row2"><button class="btn red" data-act="go:win">当選した！</button><button class="btn ghost" data-act="lost">落選</button></div>`;
+      btns=`<div class="row2"><button class="btn ghost" data-act="lost">落選</button><button class="btn red" data-act="go:win">当選した</button></div>`;
     }else if(o.k==='win'){
       cls='win';tag=`<span class="tag red pulse">売った？</span>`;
       memo=x.open?`この日の始値は <b>${yen(x.open)}円</b>。始値で売っていたら <b>${pm((x.open-o.price)*o.unit)}</b>（${o.unit}株）。`:`当日の朝9時から売れます。<b>寄り付き（始値）で売る</b>のが基本。`;
