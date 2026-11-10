@@ -29,6 +29,7 @@ jobs:
       - name: 通知を送る
         env:
           VAPID_PRIVATE: ${{ secrets.VAPID_PRIVATE }}
+          KD_NOTIFY_KEY: ${{ secrets.KD_NOTIFY_KEY }}
         run: python3 kabu-drop/tools/notify.py || true
       - name: Commit if changed
         run: |

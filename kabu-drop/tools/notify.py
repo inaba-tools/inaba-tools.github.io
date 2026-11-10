@@ -4,6 +4,7 @@ import datetime as dt
 import json
 import os
 import sys
+import urllib.parse
 import urllib.request
 
 BASE = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data')
@@ -149,7 +150,8 @@ SEEN_KEY = '_seen'
 
 def state():
     # 全員分の記録を、アカウント（g＝伏せた番号。ログインしていない人は ''）ごとに分ける
-    req = urllib.request.Request(API + '?action=all', headers={'User-Agent': 'Mozilla/5.0'})
+    # 全員分の記録は合言葉（GitHubの金庫 KD_NOTIFY_KEY）を付けたときだけ読める
+    req = urllib.request.Request(API + '?action=all&k=' + urllib.parse.quote(os.environ.get('KD_NOTIFY_KEY', '')), headers={'User-Agent': 'Mozilla/5.0'})
     with urllib.request.urlopen(req, timeout=60) as r:
         logs = json.loads(r.read()).get('state', {}).get('logs', [])
     groups = {}
