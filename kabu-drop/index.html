@@ -671,10 +671,6 @@ html.dark .card.now{box-shadow:0 0 0 2px var(--c-can),0 12px 28px rgba(31,157,10
 .ask.on{transform:translate(-50%,0);opacity:1;pointer-events:auto}
 .ask span{flex:1;line-height:1.5}.ask button{border:0;border-radius:12px;padding:9px 12px;font:800 13px "Noto Sans JP";cursor:pointer;white-space:nowrap}
 .ask .y{background:#2b6fd6;color:#fff}.ask .n{background:#3a403c;color:#ddd}
-.qsbi{display:flex;flex-direction:column;align-items:center;gap:2px;margin:10px 0 6px;padding:11px 12px;border-radius:14px;background:#2b6fd6;color:#fff;text-decoration:none;font:800 15px "Noto Sans JP";box-shadow:0 6px 16px rgba(43,111,214,.25);-webkit-tap-highlight-color:transparent}
-.qsbi small{font:600 11px "Noto Sans JP";opacity:.85}.qsbi:active{transform:scale(.98)}
-.qsbi.ok{background:#e6eefb;color:#2b6fd6;box-shadow:none;font-size:13px;padding:8px}
-html.dark .qsbi.ok{background:#18233a;color:#8fb3ef}
 .undo.on{transform:translate(-50%,0);opacity:1;pointer-events:auto}
 .undo span{flex:1;line-height:1.45}
 .undo button{border:0;background:#e8b923;color:#2a2205;font:900 13px "Noto Sans JP";padding:9px 13px;border-radius:11px;flex:none}
@@ -1439,7 +1435,7 @@ const IPO={kind:'ipo',cur:'can',last:{},
     }
     const priceTxt=o.price?`${yen(o.price)}円`:(x.data3&&x.data3!=='-'?esc(x.data3):'—');
     const yoso='';
-    return slot(o,i,cls,`<div class="hd"><div class="nm"><div class="t tco" data-co="${esc(o.id)}">${esc(o.name.slice(0,-1))}<span style="white-space:nowrap">${esc(o.name.slice(-1))}<i class="coi">i</i></span></div><div class="m">${x.code} ・ <span data-tip="mkt" style="text-decoration:underline dotted">${esc(o.mkt)}</span></div></div>${tag}</div>${ipoSum(o)}${quickSbi(o)}`,`${yosoBox(o)}
+    return slot(o,i,cls,`<div class="hd"><div class="nm"><div class="t tco" data-co="${esc(o.id)}">${esc(o.name.slice(0,-1))}<span style="white-space:nowrap">${esc(o.name.slice(-1))}<i class="coi">i</i></span></div><div class="m">${x.code} ・ <span data-tip="mkt" style="text-decoration:underline dotted">${esc(o.mkt)}</span></div></div>${tag}</div>${ipoSum(o)}`,`${yosoBox(o)}
     <div class="kv">
      <div><div class="k">申込期間</div><div class="v">${md(x.data4)} 〜 ${md(x.data6)}${x.data7&&x.data7!=='0:00'?`<small>${x.data7}まで</small>`:''}</div></div>
      <div><div class="k">購入申込（当選したら）</div><div class="v">${md(x.data11)} 〜 ${md(x.data13)}</div></div>
@@ -2100,11 +2096,6 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 window.addEventListener('focus',()=>setTimeout(askCheck,500));
 $('#askY').onclick=()=>{let p=null;try{p=JSON.parse(localStorage.getItem('kd_pend')||'null');localStorage.removeItem('kd_pend')}catch(_){}$('#ask').classList.remove('on');const o=p&&B.ipo.find(p.oid);if(o&&!((o.r&&o.r.acc)||{})[p.bid])toggleAcc(o,p.bid)};
 $('#askN').onclick=()=>{try{localStorage.removeItem('kd_pend')}catch(_){}$('#ask').classList.remove('on')};
-
-// カードの表に「SBIで申し込む」を出す（申込できる状態・SBIの口座あり・まだチェックしていない時）
-function quickSbi(o){if(o.k!=='can')return'';const s=ownAccs(o).find(a=>a.b.id==='sbi');if(!s)return'';const acc=(o.r&&o.r.acc)||{};
-  if(acc.sbi)return`<div class="qsbi ok">SBI 申込済み ✓</div>`;
-  return`<a class="qsbi" href="${APPLY_URL.sbi}" target="_blank" rel="noopener" data-goapl="${esc(o.id)}|sbi" onclick="event.stopPropagation()"><b>SBIで申し込む</b><small>${o.unit||100}株・ストライクプライス・コード ${esc(o.x.code)}</small></a>`}
 </script>
 </body>
 </html>
