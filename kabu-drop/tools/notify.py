@@ -210,6 +210,10 @@ def cross(r, px, L, m, rates):
     return E, X, (lend + tax) if lend is not None else None, val
 
 
+# まだ申し込めない「新しく出た」お知らせは送らない（申込できる日になってから通知する）
+NOTIFY_NEW = False
+
+
 # ---------- 通知の中身をつくる ----------
 def build(rec, sent):
     out = []  # (キー, 通知の種類, タイトル, 本文, タブ)
@@ -239,7 +243,7 @@ def build(rec, sent):
         k = 'ipo:' + c
         if k not in seen and be and be >= TODAY:
             new_seen.add(k)
-            if not first_run:
+            if NOTIFY_NEW and not first_run:
                 add('new:' + k, 'ipo_new', '新しいIPO：' + name,
                     '申込は%s〜%s。%s' % (md(bs), md(be), pred_txt or '値段はこれから決まります'), 'ipo')
         if SLOT == 'morning' and bs == TODAY and not st:
@@ -271,7 +275,7 @@ def build(rec, sent):
         k = 'bun:' + i
         if x.get('kind') != 'past' and date and date >= TODAY and k not in seen:
             new_seen.add(k)
-            if not first_run:
+            if NOTIFY_NEW and not first_run:
                 when = md(date) if x.get('date') else '%s〜%s' % (md(pd(x.get('start'))), md(pd(x.get('end'))))
                 add('new:' + k, 'bun_new', '分売の予定：' + name, '実施日 %s。値段は前の日の夕方に決まります' % when, 'bunbai')
         if x.get('kind') == 'now' and date and not st:
