@@ -2096,6 +2096,12 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 window.addEventListener('focus',()=>setTimeout(askCheck,500));
 $('#askY').onclick=()=>{let p=null;try{p=JSON.parse(localStorage.getItem('kd_pend')||'null');localStorage.removeItem('kd_pend')}catch(_){}$('#ask').classList.remove('on');const o=p&&B.ipo.find(p.oid);if(o&&!((o.r&&o.r.acc)||{})[p.bid])toggleAcc(o,p.bid)};
 $('#askN').onclick=()=>{try{localStorage.removeItem('kd_pend')}catch(_){}$('#ask').classList.remove('on')};
+
+// ホーム画面アプリ（iPhone）では外部リンクがアプリ内の小さいブラウザで開くので、Safari本体で開く（ログインが保たれる）
+(function(){const ios=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  const sa=window.navigator.standalone===true||matchMedia('(display-mode: standalone)').matches;if(!ios||!sa)return;
+  document.addEventListener('click',e=>{if(e.defaultPrevented)return;const a=e.target.closest('a[href]');if(!a)return;const h=a.getAttribute('href')||'';
+    if(!/^https?:\/\//.test(h)||h.startsWith(location.origin))return;e.preventDefault();location.href='x-safari-'+h},false)})();
 </script>
 </body>
 </html>
