@@ -666,6 +666,11 @@ html.dark .card.now{box-shadow:0 0 0 2px var(--c-can),0 12px 28px rgba(31,157,10
 .demo .dseg div:first-child{background:var(--c-can)}
 /* ---- 元に戻す ---- */
 .undo{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 78px);transform:translate(-50%,30px);opacity:0;pointer-events:none;width:min(440px,calc(100% - 24px));background:#1f2421;color:#fff;border-radius:16px;padding:10px 10px 10px 16px;display:flex;align-items:center;gap:10px;font:700 13px "Noto Sans JP";box-shadow:0 12px 30px rgba(0,0,0,.25);z-index:40;transition:transform .35s cubic-bezier(.2,1.3,.3,1),opacity .25s;overflow:hidden}
+.ap2 .inp{margin-top:4px;padding:6px 8px;border-radius:10px;background:rgba(43,111,214,.1);font:600 12px "Noto Sans JP";line-height:1.6}
+.ask{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 78px);transform:translate(-50%,30px);opacity:0;pointer-events:none;width:min(440px,calc(100% - 24px));background:#1f2421;color:#fff;border-radius:16px;padding:12px 12px 12px 16px;display:flex;align-items:center;gap:8px;font:700 13px "Noto Sans JP";box-shadow:0 12px 30px rgba(0,0,0,.25);z-index:41;transition:transform .35s cubic-bezier(.2,1.3,.3,1),opacity .25s;box-sizing:border-box}
+.ask.on{transform:translate(-50%,0);opacity:1;pointer-events:auto}
+.ask span{flex:1;line-height:1.5}.ask button{border:0;border-radius:12px;padding:9px 12px;font:800 13px "Noto Sans JP";cursor:pointer;white-space:nowrap}
+.ask .y{background:#2b6fd6;color:#fff}.ask .n{background:#3a403c;color:#ddd}
 .undo.on{transform:translate(-50%,0);opacity:1;pointer-events:auto}
 .undo span{flex:1;line-height:1.45}
 .undo button{border:0;background:#e8b923;color:#2a2205;font:900 13px "Noto Sans JP";padding:9px 13px;border-radius:11px;flex:none}
@@ -1301,6 +1306,7 @@ var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matche
 </div>
 <div class="tour" id="tour"><div class="spot" id="spot"></div><div class="tip" id="tip"><div class="tc" id="tc"></div><h4 id="tt"></h4><p id="tb"></p><div class="tbtn"><button id="tskip">閉じる</button><button id="tnext">次へ</button></div></div></div>
 <div class="pop" id="pop"></div>
+<div class="ask" id="ask"><span id="askT"></span><button class="n" id="askN">まだ</button><button class="y" id="askY">申し込んだ</button></div>
 <div class="undo" id="undo"><span id="undoT"></span><button id="undoB">元に戻す</button><i></i></div>
 <div class="toast" id="toast"><img src="icon-192.png" alt=""><span id="toastT"></span></div>
 <div class="sheet-bg" id="sbg"></div>
@@ -1807,7 +1813,7 @@ function applyBox(o,pre){const A=ownAccs(o);const acc=(o.r&&o.r.acc)||{};const m
   const [st,why]=recSum(o,A,mode);const rows=A.map(({b})=>({b,rc:recRow(o,b,mode)}));const tot=rows.reduce((a,x)=>a+x.rc.money,0);
   const open=APLOPEN.has(o.id);
   const row=({b,rc})=>{const on=!!acc[b.id];return`<div class="ap2 ${on?'on':''} ${rc.skip&&!on?'sk':''}">${pre?`<span class="ck"><span class="lg" style="background:${b.color}">${b.short}</span></span>`:`<button class="ck" data-act="ac:${b.id}" aria-label="${b.name}の申込チェック"><span class="lg" style="background:${b.color}">${b.short}</span><i>✓</i></button>`}
-    <div class="tx"><div class="t1"><b>${bshort(b)}</b>${b.id==='sbi'?'<span class="ptg">ポイント用</span>':''}<span class="l1">${on?'申込済み ✓':rc.l1}</span></div>${on||rc.skip?'':`${rc.l3?`<div class="l3">${rc.l3}</div>`:''}<div class="l2">${rc.l2}</div>${pre||!APPLY_STEP[b.id]?'':`<div class="l3" style="opacity:.75">${APPLY_STEP[b.id]}</div>`}`}</div>${pre||on||rc.skip?'':`<a class="go" href="${APPLY_URL[b.id]||b.aff||b.url}" target="_blank" rel="noopener">申し込む</a>`}</div>`};
+    <div class="tx"><div class="t1"><b>${bshort(b)}</b>${b.id==='sbi'?'<span class="ptg">ポイント用</span>':''}<span class="l1">${on?'申込済み ✓':rc.l1}</span></div>${on||rc.skip?'':`${rc.l3?`<div class="l3">${rc.l3}</div>`:''}<div class="l2">${rc.l2}</div>${pre||!APPLY_STEP[b.id]?'':`<div class="l3" style="opacity:.75">${APPLY_STEP[b.id]}</div><div class="inp">入力：<b>${o.unit||100}株</b>・<b>ストライクプライス</b><br>銘柄コード <b>${esc(o.x.code)}</b>（申し込むを押すとコピー）</div>`}`}</div>${pre||on||rc.skip?'':`<a class="go" href="${APPLY_URL[b.id]||b.aff||b.url}" target="_blank" rel="noopener" data-goapl="${esc(o.id)}|${b.id}">申し込む</a>`}</div>`};
   return`<details class="apl ${pre?'pre':''}" data-oid="${esc(o.id)}" ${open?'open':''}><summary><span class="h osb">おすすめ</span><span class="st">${st}</span>${pre?'':`<span class="ct ${n?'':'zero'}">${n}/${need.length}</span>`}<i class="cv"></i></summary>
   <div class="apin"><p class="why">${why}</p>
   ${tot?`<div class="money"><div><small>必要なお金</small><b>${man(tot)}</b></div><div class="ms"><b>落選の場合、支払いは不要</b><small>お金は口座に残ります <a href="#" data-qa="qa-back">詳しく ›</a></small></div></div>`:''}
@@ -2076,6 +2082,20 @@ if(firstTime)setTimeout(introOpen,2150);else setTimeout(()=>{const cur=document.
 if(qTab&&qTab!=='ipo'){const b=document.querySelector(`.tab[data-p="${qTab}"]`);if(b)b.click()}
 setTimeout(()=>$('#splash').classList.add('off'),2100);
 load();setTimeout(loadNames,4000);
+
+// 「申し込む」を押したら銘柄コードをコピーし、アプリに戻った時に「申し込んだ？」と聞いて1タップで申込済みにする
+document.addEventListener('click',e=>{const a=e.target.closest('[data-goapl]');if(!a)return;const [oid,bid]=a.dataset.goapl.split('|');const o=B.ipo.find(oid);if(!o)return;
+  try{navigator.clipboard&&navigator.clipboard.writeText(String(o.x.code)).catch(()=>{})}catch(_){}
+  try{localStorage.setItem('kd_pend',JSON.stringify({oid,bid,t:Date.now()}))}catch(_){}},true);
+function askCheck(){let p=null;try{p=JSON.parse(localStorage.getItem('kd_pend')||'null')}catch(_){}
+  if(!p)return;if(Date.now()-p.t>3*3600e3){try{localStorage.removeItem('kd_pend')}catch(_){}return}
+  const o=B.ipo.find(p.oid);const bk=(brokers||[]).find(x=>x.id===p.bid);
+  if(!o||((o.r&&o.r.acc)||{})[p.bid]){try{localStorage.removeItem('kd_pend')}catch(_){}return}
+  $('#askT').textContent=`${o.name}を${bk?bshort(bk):'証券会社'}で申し込んだ？`;$('#ask').classList.add('on')}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')setTimeout(askCheck,500)});
+window.addEventListener('focus',()=>setTimeout(askCheck,500));
+$('#askY').onclick=()=>{let p=null;try{p=JSON.parse(localStorage.getItem('kd_pend')||'null');localStorage.removeItem('kd_pend')}catch(_){}$('#ask').classList.remove('on');const o=p&&B.ipo.find(p.oid);if(o&&!((o.r&&o.r.acc)||{})[p.bid])toggleAcc(o,p.bid)};
+$('#askN').onclick=()=>{try{localStorage.removeItem('kd_pend')}catch(_){}$('#ask').classList.remove('on')};
 </script>
 </body>
 </html>
