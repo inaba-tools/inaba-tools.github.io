@@ -2,6 +2,7 @@ User-agent: *
 Allow: /
 Disallow: /care-sagashi/
 Disallow: /yt-test/
+Disallow: /yl/
 
 Sitemap: https://inaba-tools.github.io/applist/sitemap.xml
 Sitemap: https://inaba-tools.github.io/fukidashi-txt/sitemap.xml

@@ -1,0 +1,33 @@
+name: yl render
+on:
+  push:
+    paths: ['yl/talks/**', 'yl/kit/**', 'yl/render.py']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: yl-render
+  cancel-in-progress: false
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fonts and tools
+        run: |
+          for i in 1 2 3; do sudo apt-get update -qq && sudo apt-get install -y -qq fonts-noto-cjk && break; sleep 20; done
+          for i in 1 2 3; do pip install -q playwright && break; sleep 20; done
+          mkdir -p yl/kit/font/inter && cd yl/kit/font/inter
+          for i in 1 2 3; do npm pack @fontsource/inter@5 --silent && break; sleep 20; done
+          tar xzf fontsource-inter-*.tgz
+      - name: Render
+        run: |
+          for i in 1 2; do python3 yl/render.py && break; sleep 15; done
+      - name: Commit
+        run: |
+          git config user.name "yl-bot"
+          git config user.email "noreply@anthropic.com"
+          git add yl/img
+          git diff --cached --quiet && exit 0
+          git commit -q -m "yl: images"
+          for i in 1 2 3; do git pull -q --rebase && git push -q && break; sleep 10; done
