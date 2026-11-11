@@ -289,12 +289,47 @@ def build(rec, sent):
             add('res:%s' % k, 'bun_result', '分売の結果が出ています：' + name,
                 '当たっていたら、寄り付き（始値）で売るのが基本です', 'bunbai')
 
+    # まとめ日：分売の申込が始まる夕方に、その夜申し込めるIPOもまとめて1回で知らせる（アプリの「やること」と同じ決め方）
+    bun = [x for x in load('bunbai.json', {}).get('items', []) if x.get('kind') == 'now' and pd(x.get('date')) and pd(x.get('date')) >= TODAY]
+    eves = sorted({add_biz(pd(x['date']), -1) for x in bun if not (rec['bunbai'].get(x['id']) or {}).get('st')})
+    ev_list, mo_list = [], []
+    for x in bun:
+        if (rec['bunbai'].get(x['id']) or {}).get('st'):
+            continue
+        d = pd(x['date'])
+        if add_biz(d, -1) == TODAY:
+            ev_list.append('分売 ' + clean(x.get('name')))
+        if d == TODAY:
+            mo_list.append('分売 ' + clean(x.get('name')))
+    for x in load('ipo.json', []):
+        c = x.get('code')
+        st = (rec['ipo'].get(c) or {}).get('st')
+        bs, be = pd(x.get('data4')), pd(x.get('data6'))
+        if st or not bs or not be or be < TODAY:
+            continue
+        last = add_biz(be, -1)
+        e = next((d for d in eves if bs <= d <= last and d >= TODAY), None)
+        if e is None:
+            e = last if (last >= bs and last >= TODAY) else None
+        name = 'IPO ' + clean(x.get('data1'))
+        if e == TODAY:
+            ev_list.append(name)
+        if be == TODAY:
+            mo_list.append(name)
+    if SLOT == 'evening' and ev_list and NOW.hour * 60 + NOW.minute >= 17 * 60 + 15:
+        add('matome:e:%s' % TODAY, 'matome', '今夜まとめて申込：%d件' % len(ev_list),
+            '・'.join(ev_list) + '。「やること」で証券会社ごとにまとめて申し込めます', 'todo')
+    if SLOT == 'morning' and mo_list and NOW.hour < 8:
+        add('matome:m:%s' % TODAY, 'matome', 'まだ申し込んでいないもの：%d件（今日まで）' % len(mo_list),
+            '・'.join(mo_list) + '。分売は8:20まで', 'todo')
+
     sent[SEEN_KEY] = sorted(new_seen)
     return out
 
 
-DEFAULT_ON = {'ipo_new', 'ipo_open', 'ipo_fund', 'ipo_last', 'ipo_draw', 'ipo_buy', 'ipo_sell',
-              'bun_new', 'bun_open', 'bun_result'}
+# 申込の知らせは「まとめ」1回にした（ipo_open・ipo_last・bun_open は、設定でオンにした人だけ）
+DEFAULT_ON = {'matome', 'ipo_new', 'ipo_fund', 'ipo_draw', 'ipo_buy', 'ipo_sell',
+              'bun_new', 'bun_result'}
 PRICES = load('prices.json', {})
 RATES = {}
 

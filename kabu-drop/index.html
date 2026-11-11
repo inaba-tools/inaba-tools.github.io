@@ -39,6 +39,7 @@ button{font-family:inherit}
 .td .tt{flex:1;min-width:0}.td .t1{font-weight:900;font-size:14.5px;line-height:1.35}.td .t2{font-size:12px;color:var(--sub);font-weight:700;margin-top:2px;line-height:1.45}
 .td .gn{flex:none;text-align:right;font:900 15px Inter,"Noto Sans JP";color:var(--green)}.td .gn small{display:block;font:700 10px "Noto Sans JP";color:var(--sub)}.td .gn.dn{color:var(--red)}
 .td .go2{flex:none;font:800 12px "Noto Sans JP";color:#fff;background:#1f9d6b;border-radius:10px;padding:8px 10px;text-decoration:none;border:0}
+.tdg{background:var(--card);border-radius:18px;padding:6px 6px 2px;margin-bottom:12px;box-shadow:0 1px 0 rgba(0,0,0,.03),0 8px 22px rgba(40,44,30,.06)}.tdg .td{box-shadow:none;background:transparent;margin-bottom:4px;padding:10px 8px}.tdgh{display:flex;align-items:center;gap:8px;padding:8px 8px 4px;font-size:14px}.tdgh .lg{width:22px;height:22px;font:900 12px/22px Inter;border-radius:7px;color:#fff;text-align:center}.tdgh .n{margin-left:auto;font:800 12px "Noto Sans JP";color:#fff;background:#e5483d;border-radius:9px;padding:3px 9px}.tdgh .n.z{background:#1f9d6b}
 .td.ok{opacity:.5}.td.ok .t1{text-decoration:line-through}
 .td .lg{display:inline-block;width:16px;height:16px;border-radius:5px;color:#fff;font:900 10px/16px Inter;text-align:center;margin-right:4px;vertical-align:-2px}
 .top{padding:calc(env(safe-area-inset-top) + 22px) 18px 4px;display:flex;align-items:center;gap:10px}
@@ -1631,35 +1632,48 @@ function renderAll(){const a=render('ipo'),c=render('bunbai');if(window.setSums)
   renderTodo();
   $('#sumbox').innerHTML=['IPO','分売','合計'].map((n,i)=>`<div>${n}<b class="${tot[i]>0?'up':''}">${pm(tot[i])}</b></div>`).join('')}
 
-// ---- やること：今やる事を1件ずつ、当たればいくら得かと並べる ----
+// ---- やること：証券会社ごとにまとめて、1回のログインで全部申し込む ----
 function ipoGain(o){const y=yosoData[o.id]||{};const base=o.price||o.hiP||y.sotei;const p=y.first||y.last||y.bb||y.reader;return p&&base?(p-base)*o.unit:null}
-function renderTodo(){const el=$('#list-todo');if(!el)return;const now=[],sell=[],next=[];
-  const IP=IPO.all(),BB=BUN.all();
-  IP.filter(o=>o.k==='can'||o.k==='done').forEach(o=>{if(!o.open)return;const acc=(o.r&&o.r.acc)||{};const mode=recMode(o);if(mode==='wait'&&o.k!=='can')return;const g=ipoGain(o);
-    needAccs(o).forEach(({b})=>{const rc=recRow(o,b,mode);if(rc.skip)return;const ok=!!acc[b.id];
-      now.push({ok,dl:o.be,t1:`IPO ${o.name}`,t2:`<span class="lg" style="background:${b.color}">${b.short}</span>${bshort(b)}で100株申込${mode==='sbi'?'（ポイント用）':''}・${mdD(o.be)}（${wdD(o.be)}）まで`,g,act:`ipo|${o.id}|${b.id}`,url:applyUrl(b.id,o)||b.url,ap:`${esc(o.id)}|${b.id}`})})});
-  BB.filter(o=>(o.k==='can'||o.k==='done')&&o.decided&&!(o.w&&o.w.after)).forEach(o=>{const L=(brokers||[]).filter(b=>BUNBAI_URL[b.id]&&isUse(b.id)&&hasAcc(b.id));const nm=(L.length?L:[{name:'楽天証券'}]).map(b=>bshort(b)||b.name).join('・');
-    const it={ok:o.k==='done',dl:o.date,t1:`分売 ${o.name}`,g:o.save,act:`bb|${o.id}`,url:(L[0]?BUNBAI_URL[L[0].id]:BUNBAI_URL.rakuten)};
-    if(o.w&&o.w.open){it.t2=`${nm}で申込・${days(o.date,todayJ())===0?'今朝':'明日の朝'}8:20まで`;now.push(it)}
-    else if(o.w&&o.w.before){it.t2=`${mdD(o.w.prev)}（${wdD(o.w.prev)}）17:15から申込`;it.url=null;next.push(it)}});
-  IP.filter(o=>o.k==='win').forEach(o=>sell.push({dl:o.ls,t1:`IPO ${o.name}`,t2:`上場日 ${mdD(o.ls)}（${wdD(o.ls)}）に売る`,g:ipoGain(o),tab:'ipo'}));
-  BB.filter(o=>o.k==='win').forEach(o=>sell.push({dl:o.date,t1:`分売 ${o.name}`,t2:`${mdD(o.date)}（${wdD(o.date)}）朝9時に売る`,g:o.save,tab:'bunbai'}));
-  IP.filter(o=>o.k==='plan'&&o.until!=null&&o.until<=7).forEach(o=>next.push({dl:o.bs,t1:`IPO ${o.name}`,t2:`${mdD(o.bs)}（${wdD(o.bs)}）から申込`,g:ipoGain(o)}));
-  BB.filter(o=>o.k==='plan'||(o.k==='can'&&!o.decided)).forEach(o=>next.push({dl:o.date,t1:`分売 ${o.name}`,t2:`${mdD(o.date)}〜${mdD(o.endD)}のどれかで実施（前の日の夕方に決定）`,g:null}));
-  const by=(a,b)=>(a.dl||0)-(b.dl||0);now.sort((a,b)=>(a.ok-b.ok)||by(a,b));sell.sort(by);next.sort(by);
-  const left=now.filter(x=>!x.ok);const tot=left.reduce((a,x)=>a+(x.g>0?x.g:0),0);
+// まとめ日：分売の申込が始まる夕方があれば、その夜に申し込めるIPOもまとめる。無ければIPOの締切の前の日の夜（初日が締切なら当日の朝）
+function matomeEves(){const t=todayJ();return BUN.all().filter(o=>o.decided&&o.w&&!o.w.after&&(o.k==='can'||o.k==='plan')&&!(o.r&&o.r.st)).map(o=>o.w.prev).filter(d=>d>=t).sort((a,b)=>a-b)}
+function ipoMatome(o,E){const t=todayJ();if(!o.bs||!o.be)return null;const last=prevBizBefore(o.be);
+  const e=E.find(d=>d>=o.bs&&d<=last&&d>=t);if(e)return{d:e,ev:true};
+  if(last>=o.bs){return last>=t?{d:last,ev:true}:{d:o.be,ev:false}}return{d:o.be,ev:false}}
+function prevBizBefore(d){let x=new Date(d.getTime()-864e5);while(!isBiz(x))x=new Date(x.getTime()-864e5);return x}
+const mdW=d=>`${mdD(d)}（${wdD(d)}）`;
+function bunBrokers(){const L=(brokers||[]).filter(b=>BUNBAI_URL[b.id]&&isUse(b.id)&&hasAcc(b.id));return L.length?L:(brokers||[]).filter(b=>b.id==='rakuten')}
+function renderTodo(){const el=$('#list-todo');if(!el)return;const t=todayJ();const E=matomeEves();
+  const items=[];// {b,kind,id,o,name,g,ok,url,ap,when}
+  IPO.all().filter(o=>o.k==='can'||o.k==='done'||o.k==='plan').forEach(o=>{if(o.k==='plan'&&(o.until==null||o.until>10))return;const mode=recMode(o);const acc=(o.r&&o.r.acc)||{};const m=ipoMatome(o,E);if(!m)return;
+    needAccs(o).forEach(({b})=>{const rc=recRow(o,b,mode);if(rc.skip)return;items.push({b,kind:'ipo',id:o.id,name:o.name,g:ipoGain(o),ok:!!acc[b.id],open:!!o.open,url:applyUrl(b.id,o)||b.url,ap:`${esc(o.id)}|${b.id}`,m,
+      note:`IPO・${mdW(o.be)}まで${mode==='sbi'&&b.id==='sbi'?'・ポイント用':''}`})})});
+  BUN.all().filter(o=>(o.k==='can'||o.k==='done')&&o.decided&&o.w&&!o.w.after).forEach(o=>{const acc=(o.r&&o.r.acc)||{};const done=o.k==='done';
+    bunBrokers().forEach(b=>items.push({b,kind:'bb',id:o.id,name:o.name,g:o.save,ok:done||!!acc[b.id],open:!!o.w.open,url:BUNBAI_URL[b.id],m:{d:o.w.prev,ev:true},note:`分売・${o.w.open?(days(o.date,t)===0?'今朝':'明日の朝')+'8:20まで':mdW(o.w.prev)+'17:15から'}`}))});
+  const due=items.filter(x=>x.m.d<=t),later=items.filter(x=>x.m.d>t);
+  const left=due.filter(x=>!x.ok);const tot=left.reduce((a,x)=>a+(x.g>0?x.g:0),0);
+  const sell=[];IPO.all().filter(o=>o.k==='win').forEach(o=>sell.push({dl:o.ls,t1:`IPO ${o.name}`,t2:`上場日 ${mdW(o.ls)}に売る`,g:ipoGain(o),tab:'ipo'}));
+  BUN.all().filter(o=>o.k==='win').forEach(o=>sell.push({dl:o.date,t1:`分売 ${o.name}`,t2:`${mdW(o.date)}に売る（寄成なら朝・引成なら15:30）`,g:o.save,tab:'bunbai'}));
   const bd=$('#bdg-todo');if(bd){bd.textContent=left.length+sell.length;bd.classList.toggle('on',!!(left.length+sell.length))}
-  $('#lead-todo').innerHTML=left.length?`今日やることは <span class="g">${left.length}件</span>`:sell.length?`売る予定が <span class="r">${sell.length}件</span> あります`:'今日やることは全部済みです';
-  const gv=g=>g==null?'<div class="gn"><small>当たれば</small>—</div>':`<div class="gn ${g<0?'dn':''}"><small>当たれば</small>${pm(g)}</div>`;
-  const row=(x,i,chk)=>`<div class="td ${x.ok?'ok':''}" style="animation-delay:${Math.min(i,8)*50}ms">${chk?`<button class="cb" data-td="${x.act}" aria-label="済みにする">${x.ok?'✓':''}</button>`:''}<div class="tt"><div class="t1">${esc(x.t1)}</div><div class="t2">${x.t2}</div></div>${gv(x.g)}${chk&&!x.ok&&x.url?`<a class="go2" href="${x.url}" target="_blank" rel="noopener" ${x.ap?`data-goapl="${x.ap}"`:''}>開く</a>`:''}${x.tab?`<button class="go2" data-totab="${x.tab}">記録</button>`:''}</div>`;
+  const gv=(g,small)=>g==null?'':`<div class="gn ${g<0?'dn':''}">${small?'':'<small>当たれば</small>'}${pm(g)}</div>`;
+  const grp=L=>{const by={};L.forEach(x=>{(by[x.b.id]=by[x.b.id]||{b:x.b,L:[]}).L.push(x)});return Object.values(by)};
+  const row=(x,i)=>`<div class="td ${x.ok?'ok':''}" style="animation-delay:${Math.min(i,8)*40}ms"><button class="cb" data-td="${x.kind}|${esc(x.id)}|${x.b.id}" aria-label="済みにする">${x.ok?'✓':''}</button><div class="tt"><div class="t1">${esc(x.name)}</div><div class="t2">${x.note}</div></div>${gv(x.g)}${!x.ok&&x.open&&x.url?`<a class="go2" href="${x.url}" target="_blank" rel="noopener" ${x.ap?`data-goapl="${x.ap}"`:''}>開く</a>`:''}</div>`;
+  const box=(G,i)=>{const n=G.L.filter(x=>!x.ok).length;return`<div class="tdg"><div class="tdgh"><span class="lg" style="background:${G.b.color}">${G.b.short}</span><b>${esc(G.b.name)}</b><span class="n ${n?'':'z'}">${n?n+'件':'済み ✓'}</span></div>${G.L.map(row).join('')}</div>`};
+  $('#lead-todo').innerHTML=left.length?`今日まとめて申し込むのは <span class="g">${left.length}件</span>`:sell.length?`売る予定が <span class="r">${sell.length}件</span> あります`:'今日やることはありません';
   let h='';
-  if(left.length)h+=`<div class="tdsum">全部申し込んで当たれば<b>最大 ${pm(tot)}</b>「開く」で申込画面へ。<br>終わったら左の丸をタップ。</div>`;
-  h+=`<div class="tdh">今日やること</div>`+(now.length?now.map((x,i)=>row(x,i,true)).join(''):`<div class="empty">今申し込めるものはありません。<br>申込が始まるとここに出ます。</div>`);
-  if(sell.length)h+=`<div class="tdh">当選したので売る</div>`+sell.map((x,i)=>row(x,i,false)).join('');
-  if(next.length)h+=`<div class="tdh">これからの予定</div>`+next.map((x,i)=>row(x,i,false)).join('');
+  if(left.length)h+=`<div class="tdsum">${tot>0?`全部申し込んで当たれば<b>最大 ${pm(tot)}</b>`:''}証券会社ごとに、1回ログインしてまとめて申込。<br>終わったら丸をタップ。</div>`;
+  if(due.length)h+=`<div class="tdh">今日まとめて申し込む</div>`+grp(due).map(box).join('');
+  else h+=`<div class="empty" style="padding:24px 20px">今日まとめて申し込むものはありません。</div>`;
+  if(sell.length)h+=`<div class="tdh">当選したので売る</div>`+sell.sort((a,b)=>(a.dl||0)-(b.dl||0)).map((x,i)=>`<div class="td"><div class="tt"><div class="t1">${esc(x.t1)}</div><div class="t2">${x.t2}</div></div>${gv(x.g)}<button class="go2" data-totab="${x.tab}">記録</button></div>`).join('');
+  const days2={};later.forEach(x=>{const k=iso(x.m.d)+(x.m.ev?'e':'m');(days2[k]=days2[k]||{m:x.m,L:[]}).L.push(x)});
+  Object.keys(days2).sort().forEach(k=>{const D=days2[k];const names=[...new Set(D.L.map(x=>(x.kind==='ipo'?'IPO ':'分売 ')+x.name))];
+    h+=`<div class="tdh">${mdW(D.m.d)}の${D.m.ev?'夜':'朝'}にまとめて（${names.length}件）</div><div class="td"><div class="tt"><div class="t1" style="font-size:13.5px">${names.map(esc).join('<br>')}</div><div class="t2">${grp(D.L).map(G=>G.b.name.replace(/証券|證券/,'')+' '+G.L.length+'件').join('・')}</div></div></div>`});
+  const pl=BUN.all().filter(o=>o.k==='plan'||(o.k==='can'&&!o.decided));
+  if(pl.length)h+=`<div class="tdh">分売の予定（日にち未定）</div>`+pl.map(o=>`<div class="td"><div class="tt"><div class="t1">分売 ${esc(o.name)}</div><div class="t2">${mdD(o.date)}〜${mdD(o.endD)}のどれか。<br>決まったら、その前の夜がまとめ日になります。</div></div></div>`).join('');
   el.innerHTML=h}
 document.addEventListener('click',e=>{const c=e.target.closest('[data-td]');if(c){const [k,id,bid]=c.dataset.td.split('|');
-    if(k==='ipo'){const o=IPO.find(id);if(!o)return;const acc={...((o.r&&o.r.acc)||{})};if(o.k==='done'&&acc[bid]){acc[bid]=false;setRec('ipo',id,null);setRec('ipo',id,{acc});renderAll();toast('チェックを外しました')}else toggleAcc(o,bid)}else{const o=BUN.find(id);if(o){setRec('bunbai',id,o.r.st==='applied'?null:{st:'applied'});renderAll();toast(o.name+'：申込済みにしました')}}return}
+    if(k==='ipo'){const o=IPO.find(id);if(!o)return;const acc={...((o.r&&o.r.acc)||{})};if(o.k==='done'&&acc[bid]){acc[bid]=false;setRec('ipo',id,null);setRec('ipo',id,{acc});renderAll();toast('チェックを外しました')}else toggleAcc(o,bid);return}
+    const o=BUN.find(id);if(!o)return;const acc={...((o.r&&o.r.acc)||{})};const was=o.k==='done'?true:!!acc[bid];acc[bid]=!was;
+    const all=bunBrokers().every(b=>acc[b.id]);setRec('bunbai',id,null);setRec('bunbai',id,all?{st:'applied',acc}:{acc});renderAll();toast(acc[bid]?'申込済みにチェックしました':'チェックを外しました');return}
   const t=e.target.closest('[data-totab]');if(t){const b=document.querySelector(`.tab[data-p="${t.dataset.totab}"]`);if(b)b.click()}});
 
 function toast(t){$('#toastT').textContent=t;const el=$('#toast');el.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('on'),2000)}
@@ -1752,7 +1766,7 @@ function back(d){d.card.style.transition='transform .45s cubic-bezier(.2,1.5,.4,
 
 // ---- 通知（Web Push） ----
 const VAPID='BB-VNadIELVCIZ58O4WvglYbtSIJm5NgUe-djLQozp8LYwZGHAgbqoQYx4tUAFAvVYCHPuLFSQDv_MgNWrcdhWg';
-const NTF=[['IPO',[['ipo_new','新しいIPOが出た時','申込期間と初値予想をお知らせ'],['ipo_open','申込が始まる日の朝','初値予想と予想利益つき'],['ipo_fund','抽選日の朝（お金の準備）','申し込んだIPOだけ。18時までに必要な金額'],['ipo_last','申込締切の日の朝','まだ申し込んでいない時だけ'],['ipo_draw','抽選結果が出た日の夕方','申し込んだIPOだけ'],['ipo_buy','「購入」締切の日の朝','当選したIPOだけ（押し忘れ防止）'],['ipo_sell','上場日（売る日）の朝','当選したIPOだけ']]],
+const NTF=[['まとめ',[['matome','まとめて申し込む日','その日に申し込むIPO・分売を、夕方（締切の日は朝）に1回でお知らせ']]],['IPO',[['ipo_new','新しいIPOが出た時','申込期間と初値予想をお知らせ'],['ipo_open','申込が始まる日の朝','初値予想と予想利益つき'],['ipo_fund','抽選日の朝（お金の準備）','申し込んだIPOだけ。18時までに必要な金額'],['ipo_last','申込締切の日の朝','まだ申し込んでいない時だけ'],['ipo_draw','抽選結果が出た日の夕方','申し込んだIPOだけ'],['ipo_buy','「購入」締切の日の朝','当選したIPOだけ（押し忘れ防止）'],['ipo_sell','上場日（売る日）の朝','当選したIPOだけ']]],
  ['分売',[['bun_new','新しい分売の予定が出た時','実施日をお知らせ'],['bun_open','申込受付が始まった夕方・締切前の朝','値段と、前の日よりいくら安いか'],['bun_result','結果が出た日の朝','申し込んだ分売だけ']]]];
 SET.ntf=SET.ntf||{};
 const NTF_OFF=['fx_daily'];const ntfOn=k=>NTF_OFF.includes(k)?SET.ntf[k]===true:SET.ntf[k]!==false;
