@@ -177,7 +177,7 @@ html.dark .tab .bdg{color:#3b1d1c}
 .sub{position:fixed;inset:0;z-index:50;background:var(--bg);transform:translateX(100%);transition:transform .34s cubic-bezier(.2,.9,.2,1);overflow-y:auto;overscroll-behavior:contain}
 .sub.on{transform:none}
 .sub .in{max-width:560px;margin:0 auto;padding-bottom:calc(30px + env(safe-area-inset-bottom))}
-.subtop{position:sticky;top:0;z-index:2;background:var(--bg);display:flex;align-items:center;padding:calc(env(safe-area-inset-top) + 6px) 8px 6px;min-height:52px}
+.subtop{position:sticky;top:0;z-index:2;background:var(--bg);display:flex;align-items:center;padding:calc(env(safe-area-inset-top) + 30px) 8px 6px;min-height:52px}
 .back{border:0;background:none;color:var(--blue);font-size:16px;font-weight:500;display:flex;align-items:center;gap:2px;padding:8px}
 .back b{font-size:28px;font-weight:400;line-height:.8;margin-top:-3px}
 .subtop h2{position:absolute;left:0;right:0;text-align:center;margin:0;font-size:17px;font-weight:700;pointer-events:none}
@@ -316,7 +316,7 @@ html,body{height:100%;overflow:hidden}
 .app{height:100dvh;overflow:hidden;padding-bottom:0!important;min-height:0!important}
 .page.on{display:flex;flex-direction:column;height:calc(100dvh - 64px - env(safe-area-inset-bottom))}
 .page>div:last-child{flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column}
-.hdr{padding:calc(env(safe-area-inset-top) + 10px) 20px 2px}.hdr h1{font-size:28px}
+.hdr{padding:calc(env(safe-area-inset-top) + 34px) 20px 2px}.hdr h1{font-size:28px}
 .hero{margin:8px 16px 0;padding:14px 18px}.hero .big{font-size:38px;margin-top:2px}.hero .s{margin-top:4px}
 .hero.hz{display:flex;align-items:center;gap:14px;justify-content:space-between}.hero.hz .s{text-align:right;margin:0;font-size:13px}
 .hero .bigck{width:48px;height:48px;margin:0;flex:none}.hero .bigck svg{width:28px;height:28px}
@@ -483,7 +483,7 @@ new MutationObserver(sw).observe(document.documentElement,{attributes:true,attri
 
 <script src="budoux.js"></script>
 <script>
-const BUILD='1794415000';
+const BUILD='1794416000';
 // 新しい版が出ていたら、自動で読み込み直す（ホーム画面アプリでもすぐ反映）
 (async()=>{try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const BUILD='(\d+)'/);if(m&&m[1]!==BUILD&&!sessionStorage.getItem('kd_rl'+m[1])){sessionStorage.setItem('kd_rl'+m[1],'1');location.replace('./?v='+m[1]+location.hash)}}catch(e){}})();
 const API='https://script.google.com/macros/s/AKfycbxp2NJyQCnSduboXEaXFN0kndza6-0-zqrJN_0W9tLhBymhxRO8mLlT-dcZgI5lcvLr0A/exec';
