@@ -373,6 +373,31 @@ html.dark .task .no{color:#111}
 .pw .amt{display:none}
 .pw{display:flex;align-items:center;border-top:1px solid var(--line)}.pw:first-child{border-top:0}.pw .pi{flex:1;min-width:0;border-top:0}.pw .back2{margin-right:12px;background:var(--surf)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.wk{margin:4px 16px 0;display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.wk .h{font-size:11px;color:var(--sub);text-align:center;font-weight:700}.wk .h.su{color:var(--dn)}.wk .h.sa{color:var(--blue)}
+.wk .c{background:var(--surf);border-radius:11px;text-align:center;padding:6px 0 3px;font-size:15px;font-weight:700;font-variant-numeric:tabular-nums}
+.wk .c.past{color:var(--mute);background:none}.wk .c.tdy{box-shadow:inset 0 0 0 2px var(--ink)}
+.wk .c.ap{background:var(--blue);color:var(--onblue)}
+.wk .c i{display:block;width:5px;height:5px;border-radius:50%;margin:2px auto 0;background:var(--blue)}.wk .c i.no{background:none}.wk .c.ap i{background:#fff}.wk .c.ap i.no{background:none}
+.wkl{margin:6px 20px 0;font-size:11px;color:var(--sub);display:flex;align-items:center;gap:4px}
+.wkl .sq{width:10px;height:10px;border-radius:3px;background:var(--blue)}.wkl .dt2{width:6px;height:6px;border-radius:50%;background:var(--blue);margin-left:10px}
+.nx2{margin:10px 16px 0;background:var(--surf);border-radius:18px;padding:12px 14px;display:flex;gap:12px;align-items:center}
+.nx2 .bx{width:54px;height:54px;border-radius:14px;background:var(--blue);color:var(--onblue);display:grid;place-items:center;text-align:center;font-weight:800;font-size:12.5px;line-height:1.25;flex:none}
+.nx2.fin .bx{background:var(--up)}.nx2.red .bx{background:var(--dn);font-size:15px}
+.nx2 .t{font-size:16px;font-weight:800;line-height:1.35}.nx2 .s{font-size:12.5px;color:var(--sub);margin-top:3px;line-height:1.5}
+.sech{margin:14px 20px -4px;font-size:14px;font-weight:800}
+.pcs{margin:10px 16px 0;display:flex;flex-direction:column;gap:8px}
+.pc{display:block;width:100%;text-align:left;border:0;background:var(--surf);border-radius:16px;padding:11px 14px;color:inherit;font:inherit;cursor:pointer}
+.pc .r1{display:flex;align-items:center;gap:8px}.pc .ki{width:26px;height:26px;font-size:9px}
+.pc .nm{font-size:15px;font-weight:700;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pc .nl{font-size:12.5px;font-weight:700;color:var(--blue);flex:none}.pc .nl.due{color:var(--dn)}
+.pc.skip{opacity:.55}.pc.skip .nl{color:var(--sub)}
+.stp{display:flex;gap:4px;margin-top:9px}
+.stp div{flex:1;font-size:10.5px;color:var(--mute);font-weight:700;text-align:center}
+.stp div:before{content:"";display:block;height:5px;border-radius:3px;background:var(--line);margin-bottom:4px}
+.stp .ok{color:var(--up)}.stp .ok:before{background:var(--up)}
+.stp .nw2{color:var(--blue)}.stp .nw2:before{background:var(--blue)}
+.stp .now{color:var(--dn)}.stp .now:before{background:var(--dn)}
 </style>
 </head>
 <body>
@@ -385,7 +410,7 @@ new MutationObserver(sw).observe(document.documentElement,{attributes:true,attri
 <div class="app">
 <!-- 今日 -->
 <section class="page on" id="p-today">
-<div class="hdr"><div><div class="dt" id="todayDate"></div><h1>やること</h1></div>
+<div class="hdr"><div><div class="dt" id="todayDate"></div><h1>KABU DROP</h1></div>
 <button class="gear" id="gearBtn" aria-label="設定"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l2-1.6-2-3.4-2.4 1a7.5 7.5 0 0 0-2.6-1.5L14 2.5h-4l-.4 2.5A7.5 7.5 0 0 0 7 6.5l-2.4-1-2 3.4 2 1.6a7.6 7.6 0 0 0 0 3l-2 1.6 2 3.4 2.4-1a7.5 7.5 0 0 0 2.6 1.5l.4 2.5h4l.4-2.5a7.5 7.5 0 0 0 2.6-1.5l2.4 1 2-3.4z"/></svg><span class="dotb" id="gearDot"></span></button></div>
 <div id="todayBody"><div class="empty">読み込み中…</div></div>
 </section>
@@ -402,13 +427,13 @@ new MutationObserver(sw).observe(document.documentElement,{attributes:true,attri
 </div>
 
 <nav class="tabs" id="tabs">
-<button class="tab on" data-p="today"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4M9 14.5l2 2 4-4"/></svg>やること<span class="bdg" id="bdgToday"></span></button>
-<button class="tab" data-p="plan"><svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1.3"/><circle cx="4.5" cy="12" r="1.3"/><circle cx="4.5" cy="18" r="1.3"/></svg>予定</button>
+<button class="tab on" data-p="today"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4M9 14.5l2 2 4-4"/></svg>ホーム<span class="bdg" id="bdgToday"></span></button>
+
 <button class="tab" data-p="rec"><svg viewBox="0 0 24 24"><path d="M4 20h16"/><rect x="5.5" y="12" width="3.2" height="6" rx="1"/><rect x="10.4" y="8" width="3.2" height="10" rx="1"/><rect x="15.3" y="4.5" width="3.2" height="13.5" rx="1"/></svg>実績</button>
 </nav>
 
 <!-- 設定 -->
-<div class="sub" id="sub-set"><div class="in"><div class="subtop"><button class="back"><b>‹</b>やること</button></div>
+<div class="sub" id="sub-set"><div class="in"><div class="subtop"><button class="back"><b>‹</b>ホーム</button></div>
 <div class="subh">設定</div>
 <div class="menu">
 <button class="mi" data-sub="acct"><span class="ic" style="background:#0b57d0"><svg viewBox="0 0 24 24"><path d="M3 10l9-6 9 6M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20h18"/></svg></span><span class="tx">証券口座<small id="bkSum">—</small></span><span class="bd" id="acctBdg"></span><i>›</i></button>
@@ -712,20 +737,24 @@ function sellRow(o){const t=todayJ();const buy=o.kind==='ipo'?pd(o.x.data13):nul
   return`<div class="row">${kic(o.kind)}<div class="tt" data-open="${o.kind}|${esc(o.id)}"><div class="t1">${esc(o.name)}</div><div class="t2">${sellWhen(o)}${buy&&buy>=t?`<br>購入の手続き ${mdW(buy)}まで`:''}</div></div><button class="go" data-sell="${o.kind}|${esc(o.id)}">売った</button></div>`}
 
 let TSEG='now';
+/* ============ ホーム（カレンダー＋次にやること＋進み具合） ============ */
+function stepsOf(o){const t=todayJ();const N=o.kind==='ipo'?['申込','抽選','購入','売る']:['申込','結果','売る'];let i;
+  if(o.k==='pre')i=0;else if(o.k==='done')i=1;else if(o.k==='win'){if(o.kind==='ipo'){const b=pd(o.x.data13);i=b&&b>=t?2:3}else i=2}else i=N.length;
+  const nx=nextOf(o);const due=nx.d&&nx.d<=t;
+  return N.map((n,j)=>`<div class="${j<i?'ok':j===i?(due?'now':'nw2'):''}">${n}</div>`).join('')}
+function nextOf(o){const t=todayJ();
+  if(o.k==='pre'){if(o.kind==='ipo'?!o.mt:(o.decided&&!bunIn(o)))return{l:'見送り',skip:true};
+    if(o.kind==='ipo')return{d:o.mt.d,l:'申込',ap:true};return o.decided?{d:o.w.prev,l:'申込',ap:true}:{l:`${dSh(o.date)}ごろ`}}
+  if(o.k==='done')return{d:o.kind==='ipo'?o.draw:o.date,l:'結果'};
+  if(o.k==='win'){if(o.kind==='ipo'){const b=pd(o.x.data13);if(b&&b>=t)return{d:b,l:'購入'}}return{d:o.ev,l:'売る'}}
+  return{}}
+const dLab=d=>`${d.getUTCMonth()!==todayJ().getUTCMonth()?(d.getUTCMonth()+1)+'月':''}${d.getUTCDate()}日（${wdD(d)}）`;
+const dSh=d=>`${d.getUTCMonth()!==todayJ().getUTCMonth()?(d.getUTCMonth()+1)+'月':''}${d.getUTCDate()}日`;
 function renderToday(){const box=$('#todayBody');const D=todayData();const t=todayJ();
-  const all=[...IPO.all(),...BUN.all()];const Gd=all.filter(o=>o.k==='done').sort((a,b)=>(a.key||0)-(b.key||0)),Gw=all.filter(o=>o.k==='win').sort((a,b)=>(a.key||0)-(b.key||0));
-  const nNow=D.results.length+D.sell.filter(o=>o.ev&&o.ev<=t).length+D.left.length;
-  box.innerHTML=`<div class="seg3"><button class="${TSEG==='now'?'on':''} s-pre" data-tseg="now">今日<b>${nNow}</b></button><button class="${TSEG==='done'?'on':''} s-done" data-tseg="done">申込済み<b>${Gd.length}</b></button><button class="${TSEG==='win'?'on':''} s-win" data-tseg="win">当選<b>${Gw.length}</b></button></div><div id="tdBox"></div>`;
-  const el=$('#tdBox');
-  if(TSEG!=='now'){const L=TSEG==='done'?Gd:Gw;$('#todayDate').textContent=`${t.getUTCMonth()+1}月${t.getUTCDate()}日（${wdD(t)}）`;
-    const bd=$('#bdgToday');bd.textContent=nNow;bd.classList.toggle('on',nNow>0);
-    const H=availH(el,170);const per=Math.max(2,Math.floor((H-56-60)/63));
-    const row=o=>TSEG==='done'?`<div class="pw">${itemRow(o)}<button class="b2 back2" data-unapply="${o.kind}|${esc(o.id)}">戻す</button></div>`:`<div class="pw">${itemRow(o)}<button class="b2 g back2" data-sell="${o.kind}|${esc(o.id)}">売った</button></div>`;
-    const R=listRows('tl'+TSEG,L,per,row);
-    el.innerHTML=`<p class="note" style="margin:8px 20px 6px">${TSEG==='done'?'申し込んだもの（結果待ち）。<br>間違えた時は「戻す」。':'当たったもの。<br>売ったら「売った」を押して値段を入れます。'}</p>`+(L.length?`<div class="pl">${R.html}</div>`:`<div class="empty">${TSEG==='done'?'申込済みのものはありません。':'当選したものはありません。'}</div>`)+pager('tl'+TSEG,L.length?R.n:1);return}
-
   $('#todayDate').textContent=`${t.getUTCMonth()+1}月${t.getUTCDate()}日（${wdD(t)}）`;
-  // やること（上から順に）
+  const all=[...IPO.all(),...BUN.all()];
+  const live=all.filter(o=>o.k!=='end').map(o=>({o,n:nextOf(o)}));
+  // やること（今日）
   const T=[];
   D.results.forEach(o=>T.push({h:`<div class="t1">結果を入れる</div><div class="t2">${o.kind==='ipo'?'IPO':'分売'} ${esc(o.name)}</div>`,o,
     b:`<button class="b2" data-res="${o.kind}|${esc(o.id)}|lost">外れた</button><button class="b2 g" data-res="${o.kind}|${esc(o.id)}|won">当たった</button>`}));
@@ -734,26 +763,42 @@ function renderToday(){const box=$('#todayBody');const D=todayData();const t=tod
   D.left.forEach(x=>T.push({h:`<div class="t1">${esc(bshort(x.b))}で申し込む</div><div class="t2">${x.kind==='ipo'?'IPO':'分売'} ${esc(x.name)}${x.g!=null&&x.g>0?`・当たれば ${pm(x.g)}`:''}</div>`,o:x.o,lg:x.b,
     b:(x.open?`<a class="b2 p" href="${x.url}" target="_blank" rel="noopener" data-goapl="${x.kind}|${esc(x.o.id)}|${x.b.id}">開く</a>`:`<span class="b2 off">${x.kind==='bunbai'?'17:15から':'まだ'}</span>`)+`<button class="b2 g" data-ck="${x.kind}|${esc(x.o.id)}|${x.b.id}">済んだ</button>`}));
   const done=D.due.filter(x=>x.ok);
-  const tot=D.left.reduce((a,x)=>a+(x.g>0?x.g:0),0);
-  const badge=T.length;const bd=$('#bdgToday');bd.textContent=badge;bd.classList.toggle('on',badge>0);
-  const N=D.next[0];let h='';
-  if(T.length)h+=`<div class="hero blue hz"><div><div class="k">今日のやること</div><div class="big num">${T.length}<small>個</small></div></div><div class="s">上から順に。<br>終わったら「済んだ」</div></div>`;
-  else if(done.length)h+=`<div class="hero fin hz"><div class="bigck"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div><div style="flex:1"><div class="big" style="font-size:24px">今日は全部終わり</div><div class="s">${N?`次は ${mdW(N.m.d)}${N.m.ev?'の夜':'の朝'}`:'お疲れさまでした。'}</div></div></div>`;
-  else h+=`<div class="hero"><div class="k">今日やることはありません</div>${N?`<div class="big num">${mdD(N.m.d)}<small>（${wdD(N.m.d)}）${N.m.ev?'の夜':'の朝'}</small></div><div class="s">次にやる日です。</div>`:`<div class="s">新しいIPOや分売が決まると、自動で入ります。</div>`}</div>`;
-  el.innerHTML=h+'<div id="tdRest"></div>';
-  const rest=$('#tdRest');const lines=(D.money.length&&T.length?1:0)+(N?1:0)+(!ownAccs().length&&brokers.length?1:0);
-  const H=availH(rest,260);const per=Math.max(2,Math.floor((H-lines*60-(done.length?44:0)-56)/66));
-  const n=Math.max(1,Math.ceil(T.length/per));PG.today=Math.min(PG.today||0,n-1);const st=PG.today*per;
-  let r='';
-  if(T.length)r+=`<div class="tasks">${T.slice(st,st+per).map((k,i)=>`<div class="task"><span class="no">${st+i+1}</span>${k.lg?lg(k.lg):kic(k.o.kind)}<div class="tt" data-open="${k.o.kind}|${esc(k.o.id)}">${k.h}</div><div class="bb2">${k.b}</div></div>`).join('')}</div>`;
-  if(done.length)r+=`<button class="donebar" data-list="done"><span class="st fin"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>済んだ</span>${done.length}個<i class="cv">›</i></button>`;
-  let L='';
-  if(D.money.length&&T.length){const all=D.money.reduce((a,m)=>a+m.tot,0);L+=lnRow(li('yen','#e37400'),'入れておくお金',`${D.money.length}社`,`<div class="amt"><b class="num">約${man(all)}</b></div>`,`data-list="money"`)}
-  if(N&&(T.length||done.length))L+=lnRow(li('cal','#0b57d0'),'次にやる日',`${mdW(N.m.d)}${N.m.ev?'の夜':'の朝'}・${new Set(N.L.map(x=>x.o.id)).size}件`,'',`data-list="next"`);
-  else if(N)L+=lnRow(li('cal','#0b57d0'),'その日にやること',`${new Set(N.L.map(x=>x.o.id)).size}件・タップで見る`,'',`data-list="next"`);
-  if(!ownAccs().length&&brokers.length)L+=lnRow(li('bank','#5f6368'),'証券口座を選ぶ','使う会社を選ぶと、申込先が出ます','',`data-sub="acct"`);
-  if(L)r+=`<div class="lns">${L}</div>`;
-  r+=pager('today',T.length?n:1);rest.innerHTML=r}
+  const bd=$('#bdgToday');bd.textContent=T.length;bd.classList.toggle('on',T.length>0);
+  // カレンダー（今週と来週・日曜始まり）
+  const sun=new Date(t.getTime()-t.getUTCDay()*864e5);const ev={};
+  live.forEach(({n})=>{if(!n.d)return;const k=iso(n.d);ev[k]=ev[k]||{};n.ap?ev[k].ap=1:ev[k].o=1});
+  D.next.forEach(N=>{const k=iso(N.m.d);(ev[k]=ev[k]||{}).ap=1});if(D.left.length)(ev[iso(t)]=ev[iso(t)]||{}).ap=1;
+  let cal='<div class="wk">'+['日','月','火','水','木','金','土'].map((w,i)=>`<div class="h ${i===0?'su':i===6?'sa':''}">${w}</div>`).join('');
+  for(let i=0;i<14;i++){const d=new Date(sun.getTime()+i*864e5);const e=ev[iso(d)]||{};const past=d<t;
+    cal+=`<div class="c ${past?'past':''} ${+d===+t?'tdy':''} ${e.ap&&!past?'ap':''}">${d.getUTCDate()}${e.o&&!past?'<i></i>':'<i class="no"></i>'}</div>`}
+  cal+='</div><div class="wkl"><span class="sq"></span>申し込む日<span class="dt2"></span>結果・購入・売る日</div>';
+  // 次にやること
+  let nx;
+  if(T.length)nx=`<div class="nx2 red"><div class="bx">今日</div><div><div class="t">今日やることが ${T.length}個</div><div class="s">上から順に。<br>終わったら「済んだ」を押す。</div></div></div>`;
+  else{const F=live.filter(x=>x.n.d&&x.n.d>=t&&!x.n.skip).sort((a,b)=>a.n.d-b.n.d);
+    if(F.length){const d0=F[0].n.d;const S=F.filter(x=>+x.n.d===+d0);const dd=days(d0,t);const A=S.filter(x=>x.n.ap);
+      const N=D.next.find(N=>+N.m.d===+d0);const bk=N?[...new Set(N.L.map(x=>bshort(x.b)))].join('と'):'';
+      const title=A.length?`${dLab(d0)}の${N&&!N.m.ev?'朝':'夜'}に${A.length}件申込`:`${dLab(d0)} ${esc(S[0].o.name)}の${S[0].n.l}${S.length>1?`ほか${S.length-1}件`:''}`;
+      const sub=(A.length&&bk?`${bk}で、まとめて申し込みます。<br>`:'')+(done.length?'今日の分は全部終わりました。':'今日は何もしなくて大丈夫。');
+      nx=`<div class="nx2 ${done.length?'fin':''}"><div class="bx">${dd>0?`あと<br>${dd}日`:'今日'}</div><div><div class="t">${title}</div><div class="s">${sub}</div></div></div>`}
+    else nx=`<div class="nx2 ${done.length?'fin':''}"><div class="bx">−</div><div><div class="t">${done.length?'今日は全部終わり':'今は予定がありません'}</div><div class="s">新しいIPOや分売が決まると、<br>自動で入ります。</div></div></div>`}
+  box.innerHTML=cal+nx+'<div id="tdRest"></div>';
+  // 下の一覧（高さを見てページに分ける）
+  const B=[];
+  if(T.length){B.push({h:42,s:`<div class="sech">今日やること</div>`});T.forEach((k,i)=>B.push({h:70,s:`<div class="task"><span class="no">${i+1}</span>${k.lg?lg(k.lg):kic(k.o.kind)}<div class="tt" data-open="${k.o.kind}|${esc(k.o.id)}">${k.h}</div><div class="bb2">${k.b}</div></div>`,w:'tasks'}))}
+  if(done.length)B.push({h:56,s:`<button class="donebar" data-list="done"><span class="st fin"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>済んだ</span>${done.length}個<i class="cv">›</i></button>`});
+  if(D.money.length&&T.length){const m=D.money.reduce((a,x)=>a+x.tot,0);B.push({h:66,s:`<div class="lns">${lnRow(li('yen','#e37400'),'入れておくお金',`${D.money.length}社`,`<div class="amt"><b class="num">約${man(m)}</b></div>`,`data-list="money"`)}</div>`})}
+  if(!ownAccs().length&&brokers.length)B.push({h:66,s:`<div class="lns">${lnRow(li('bank','#5f6368'),'証券口座を選ぶ','使う会社を選ぶと、申込先が出ます','',`data-sub="acct"`)}</div>`});
+  const P=live.slice().sort((a,b)=>(a.n.skip?1:0)-(b.n.skip?1:0)||(a.n.d?+a.n.d:9e15)-(b.n.d?+b.n.d:9e15));
+  if(P.length){B.push({h:42,s:`<div class="sech">銘柄ごとの進み具合</div>`});
+    P.forEach(({o,n})=>{const due=n.d&&n.d<=t;B.push({h:86,w:'pcs',s:`<button class="pc ${n.skip?'skip':''}" data-open="${o.kind}|${esc(o.id)}"><div class="r1">${kic(o.kind)}<span class="nm">${esc(o.name)}</span><span class="nl ${due?'due':''}">${n.d?(due&&+n.d===+t?'今日':dSh(n.d))+' '+n.l:n.l}</span></div>${n.skip?'':`<div class="stp">${stepsOf(o)}</div>`}</button>`})})}
+  const nEnd=all.filter(o=>o.k==='end'&&o.ev&&days(t,o.ev)<=60).length;
+  if(nEnd)B.push({h:70,s:`<div class="lns">${lnRow(li('past','#5f6368'),'終わったもの',`直近60日・${nEnd}件`,'',`data-list="ended"`)}</div>`});
+  const rest=$('#tdRest');const H=availH(rest,330)-56;const pages=[[]];let used=0;
+  B.forEach(b=>{if(used+b.h>H&&pages[pages.length-1].length){pages.push([]);used=0}pages[pages.length-1].push(b);used+=b.h});
+  PG.today=Math.min(PG.today||0,pages.length-1);
+  let r='',w=null;pages[PG.today].forEach(b=>{if(b.w!==w){if(w)r+='</div>';if(b.w)r+=`<div class="${b.w}">`;w=b.w}r+=b.s});if(w)r+='</div>';
+  if(!B.length)r='';rest.innerHTML=r+pager('today',pages.length)}
 
 // 下から出る一覧
 const LISTS={
@@ -1139,7 +1184,7 @@ async function load(){
   renderAll();loadRemote()}
 // 通知から開いたとき
 const qTab=new URLSearchParams(location.search).get('tab');
-if(qTab==='plan'||qTab==='rec')goTab(qTab);
+if(qTab==='rec')goTab(qTab);
 else if(qTab==='fx'||qTab==='set')setTimeout(()=>{openSub('set');if(qTab==='fx'&&FXON)openSub('fx')},800);
 gaccRender();load();
 </script>
