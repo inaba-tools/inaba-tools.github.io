@@ -24,12 +24,27 @@ jobs:
           python-version: "3.12"
           cache: pip
           cache-dependency-path: care-sagashi/tools/requirements.txt
-      - run: pip install -r care-sagashi/tools/requirements.txt
+      - run: pip install -r care-sagashi/tools/requirements.txt || (sleep 30 && pip install -r care-sagashi/tools/requirements.txt)
       - uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ hashFiles('care-sagashi/tools/requirements.txt') }}
-      - run: python -m playwright install --with-deps chromium
+      - name: ブラウザの準備（一時的なネット障害は自動でやり直す）
+        id: browser
+        run: |
+          for i in 1 2 3; do
+            if timeout 300 python -m playwright install --with-deps chromium; then
+              echo "ok=true" >> "$GITHUB_OUTPUT"; exit 0
+            fi
+            echo "準備に失敗（${i}回目）。60秒後にやり直します"; sleep 60
+          done
+          # 部品なしでもブラウザ本体だけ入れて続行を試す
+          if python -m playwright install chromium; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::ネット障害のため今回の巡回はスキップ（次の回で再開）"
+          fi
       - name: 確認ずみの出品の記録
         uses: actions/cache@v4
         with:
@@ -37,6 +52,7 @@ jobs:
           key: seen-${{ github.run_id }}
           restore-keys: seen-
       - name: 巡回してシリアルを読む
+        if: steps.browser.outputs.ok == 'true'
         run: python scan.py
         working-directory: care-sagashi/tools
         continue-on-error: true   # 一時的なエラーで失敗メールを出さない
