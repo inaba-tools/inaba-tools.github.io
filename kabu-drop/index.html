@@ -1327,6 +1327,12 @@ const API='https://script.google.com/macros/s/AKfycbxp2NJyQCnSduboXEaXFN0kndza6-
 const RAKUTEN='https://www.rakuten-sec.co.jp/web/domestic/ipo/';
 const R_BUNBAI='https://www.rakuten-sec.co.jp/web/domestic/off_auction/';
 const R_TOP='https://www.rakuten-sec.co.jp/';
+// 分売の「申し込む」：使っている証券会社ごとに、分売の申込画面（ログイン画面）へ飛ぶ。DMM株は分売の取扱がないので出さない
+const BUNBAI_URL={rakuten:'https://www.rakuten-sec.co.jp/ITS/V_ACT_Login.html',sbi:'https://www.sbisec.co.jp/ETGate',matsui:'https://www.deal.matsui.co.jp/ITS/login/MemberLogin.jsp',esmart:'https://s20.si1.kabu.co.jp/members/'};
+const BUNBAI_STEP={rakuten:'ログイン後：国内株式 → 注文 → 立会外分売',sbi:'ログイン後：国内株式 → 立会外分売',matsui:'ログイン後：株式取引 → 立会外分売',esmart:'ログイン後：株式 → 立会外分売'};
+function bunbaiBtns(){const L=(typeof brokers!=='undefined'&&brokers||[]).filter(b=>BUNBAI_URL[b.id]&&isUse(b.id)&&hasAcc(b.id));
+  const A=L.length?L:[{id:'rakuten',name:'楽天証券'}];
+  return A.map(b=>`<a class="btn" href="${BUNBAI_URL[b.id]}" target="_blank" rel="noopener">${esc(b.name)}で申し込む</a><div style="font-size:12px;opacity:.7;margin:-2px 0 8px;text-align:center">${BUNBAI_STEP[b.id]}</div>`).join('')+(A.length>1?'<div style="font-size:12px;opacity:.7;margin:0 0 8px;text-align:center">銘柄によっては扱っていない会社もあります。</div>':'')}
 const $=s=>document.querySelector(s);
 const yen=n=>Math.round(n).toLocaleString('ja-JP');
 const pm=n=>(n>=0?'+':'−')+yen(Math.abs(n))+'円';
@@ -1532,9 +1538,9 @@ const BUN={kind:'bunbai',cur:'can',last:{},skipLabel:'見送った分売',
     else if(o.k==='can'||o.k==='plan'){
       if(!o.decided){tag=`<span class="tag purple">${mdD(o.date)}〜${mdD(o.endD)}のどれか</span>`;memo='日にちと値段は、実施の前の日の夕方に決まります。決まったらここに出ます。'}
       else if(o.open){cls='now';const today=days(o.date,todayJ())===0;tag=`<span class="tag green pulse">受付中・${today?'今朝':'明日'}8:20まで</span>`;
-        btns=`<a class="btn" href="${R_TOP}" target="_blank" rel="noopener">楽天証券で申し込む</a><button class="btn ghost" data-act="go:done">申し込んだ（→ 右スワイプでもOK）</button>`}
+        btns=`${bunbaiBtns()}<button class="btn ghost" data-act="go:done">申し込んだ（→ 右スワイプでもOK）</button>`}
       else{const d0=days(o.w.prev,todayJ());tag=`<span class="tag purple">${d0===0?'今日17:15から':mdD(o.w.prev)+' 17:15から'}</span>`}
-      if(o.decided&&o.price)memo=`申込に必要なお金 <b>約${yen(o.price*o.unit)}円</b>（${o.unit}株）。ハズレたら全額そのまま。楽天は「国内株式 → 注文 → 立会外分売」から。`;
+      if(o.decided&&o.price)memo=`申込に必要なお金 <b>約${yen(o.price*o.unit)}円</b>（${o.unit}株）。ハズレたら全額そのまま。<br>いくつもの証券会社で申し込むと、当たりやすくなります。`;
     }else if(o.k==='done'){
       const d=days(o.date,todayJ());tag=`<span class="tag blue">${d>0?'結果まで'+d+'日':'結果を確認'}</span>`;
       memo=d>0?`<b>${mdD(o.date)}（${wdD(o.date)}）の朝</b>に当たったか分かります。`:`<b>${mdD(o.date)}の朝</b>に結果が出ています。楽天証券で確認して記録しよう。`;
