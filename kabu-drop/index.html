@@ -351,6 +351,19 @@ html,body{height:100%;overflow:hidden}
 .st.sm{font-size:11px;padding:1px 7px;margin-right:6px;vertical-align:1px}
 .row.yetb{background:color-mix(in srgb,var(--dnbg) 55%,var(--card))}
 .tile .tt b{font-size:15px}
+#tdRest{flex:1;min-height:0;display:flex;flex-direction:column}
+.tasks{margin:10px 16px 0;display:flex;flex-direction:column;gap:8px}
+.task{display:flex;align-items:center;gap:10px;min-height:62px;padding:8px 10px 8px 8px;border-radius:16px;background:var(--dnbg);border:2px solid var(--dn);animation:fin .3s ease both}
+.task .no{width:24px;height:24px;border-radius:50%;background:var(--dn);color:#fff;font-size:13px;font-weight:800;display:grid;place-items:center;flex:none}
+html.dark .task .no{color:#111}
+.task .lg{width:30px;height:30px}
+.task .ki{width:30px;height:30px;font-size:9.5px}
+.task .tt{flex:1;min-width:0}.task .t1{font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.task .t2{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bb2{display:flex;gap:6px;flex:none}
+.b2{padding:9px 12px;border-radius:12px;border:0;font-size:13.5px;font-weight:700;background:var(--card);color:var(--ink);text-decoration:none;white-space:nowrap}
+.b2.p{background:var(--blue);color:var(--onblue)}.b2.g{background:var(--up);color:#fff}html.dark .b2.g{color:#0c2614}.b2.off{background:transparent;color:var(--sub);font-size:12px;padding:9px 4px}
+.donebar{display:flex;align-items:center;gap:10px;margin:8px 16px 0;padding:10px 14px;border-radius:14px;border:2px solid var(--up);background:var(--upbg);color:var(--up);font-size:14px;font-weight:700;text-align:left}
+.donebar .cv{margin-left:auto}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -462,7 +475,7 @@ new MutationObserver(sw).observe(document.documentElement,{attributes:true,attri
 
 <script src="budoux.js"></script>
 <script>
-const BUILD='1794409000';
+const BUILD='1794412000';
 // 新しい版が出ていたら、自動で読み込み直す（ホーム画面アプリでもすぐ反映）
 (async()=>{try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const BUILD='(\d+)'/);if(m&&m[1]!==BUILD&&!sessionStorage.getItem('kd_rl'+m[1])){sessionStorage.setItem('kd_rl'+m[1],'1');location.replace('./?v='+m[1]+location.hash)}}catch(e){}})();
 const API='https://script.google.com/macros/s/AKfycbxp2NJyQCnSduboXEaXFN0kndza6-0-zqrJN_0W9tLhBymhxRO8mLlT-dcZgI5lcvLr0A/exec';
@@ -673,7 +686,7 @@ const kic=(kind,o)=>{o=o||{};const t=o.ck?'button':'span';return`<${t} class="ki
 const lg=b=>`<span class="lg" style="background:${b.color}">${esc(b.short)}</span>`;
 function amt(g,lab){return g==null?'':`<div class="amt"><b class="${g<0?'dn':g>0?'up':''}">${pm(g)}</b><small>${lab}</small></div>`}
 /* ============ 1画面に収める ============ */
-const PG={plan:0,rec:0};
+const PG={plan:0,rec:0,today:0};
 // ページの中で使える高さ（下のタブの上まで）
 function availH(el,fallTop){const tab=$('#tabs').getBoundingClientRect().top||innerHeight-62;const r=el.getBoundingClientRect();const top=r.height||r.top?r.top:fallTop;return tab-top-6}
 const ICO={yen:'<svg viewBox="0 0 24 24"><path d="M6 4l6 8 6-8M12 12v8M7 13h10M7 17h10"/></svg>',cal:'<svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>',res:'<svg viewBox="0 0 24 24"><path d="M12 7v6M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>',sell:'<svg viewBox="0 0 24 24"><path d="M4 17l6-6 4 4 6-7M15 8h5v5"/></svg>',past:'<svg viewBox="0 0 24 24"><path d="M4 20h16"/><rect x="6" y="11" width="3" height="6" rx="1"/><rect x="11" y="7" width="3" height="10" rx="1"/><rect x="16" y="4" width="3" height="13" rx="1"/></svg>',bank:'<svg viewBox="0 0 24 24"><path d="M3 10l9-6 9 6M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20h18"/></svg>'};
@@ -692,36 +705,39 @@ function sellRow(o){const t=todayJ();const buy=o.kind==='ipo'?pd(o.x.data13):nul
 
 function renderToday(){const el=$('#todayBody');const D=todayData();const t=todayJ();
   $('#todayDate').textContent=`${t.getUTCMonth()+1}月${t.getUTCDate()}日（${wdD(t)}）`;
+  // やること（上から順に）
+  const T=[];
+  D.results.forEach(o=>T.push({h:`<div class="t1">結果を入れる</div><div class="t2">${o.kind==='ipo'?'IPO':'分売'} ${esc(o.name)}</div>`,o,
+    b:`<button class="b2" data-res="${o.kind}|${esc(o.id)}|lost">外れた</button><button class="b2 g" data-res="${o.kind}|${esc(o.id)}|won">当たった</button>`}));
+  D.sell.filter(o=>o.ev&&o.ev<=t).forEach(o=>T.push({h:`<div class="t1">売る</div><div class="t2">${o.kind==='ipo'?'IPO':'分売'} ${esc(o.name)}・${sellWhen(o)}</div>`,o,
+    b:`<button class="b2 p" data-sell="${o.kind}|${esc(o.id)}">売った</button>`}));
+  D.left.forEach(x=>T.push({h:`<div class="t1">${esc(bshort(x.b))}で申し込む</div><div class="t2">${x.kind==='ipo'?'IPO':'分売'} ${esc(x.name)}${x.g!=null&&x.g>0?`・当たれば ${pm(x.g)}`:''}</div>`,o:x.o,lg:x.b,
+    b:(x.open?`<a class="b2 p" href="${x.url}" target="_blank" rel="noopener" data-goapl="${x.kind}|${esc(x.o.id)}|${x.b.id}">開く</a>`:`<span class="b2 off">${x.kind==='bunbai'?'17:15から':'まだ'}</span>`)+`<button class="b2 g" data-ck="${x.kind}|${esc(x.o.id)}|${x.b.id}">済んだ</button>`}));
+  const done=D.due.filter(x=>x.ok);
   const tot=D.left.reduce((a,x)=>a+(x.g>0?x.g:0),0);
-  const sellNow=D.sell.filter(o=>o.ev&&o.ev<=t);
-  const badge=D.left.length+sellNow.length+D.results.length;const bd=$('#bdgToday');bd.textContent=badge;bd.classList.toggle('on',badge>0);
+  const badge=T.length;const bd=$('#bdgToday');bd.textContent=badge;bd.classList.toggle('on',badge>0);
   const N=D.next[0];let h='';
-  if(D.left.length){const nIpo=new Set(D.left.filter(x=>x.kind==='ipo').map(x=>x.o.id)).size,nBb=new Set(D.left.filter(x=>x.kind==='bunbai').map(x=>x.o.id)).size;
-    h+=`<div class="hero blue hz"><div><div class="k">今日まとめて申し込む</div><div class="big num" data-cu="${D.left.length}">${D.left.length}<small>件</small></div></div><div class="s">${[nIpo?`IPO ${nIpo}社`:'',nBb?`分売 ${nBb}社`:''].filter(Boolean).join('・')}${tot>0?`<br>当たれば最大<br><b>${pm(tot)}</b>`:''}</div></div>`}
-  else if(D.due.length)h+=`<div class="hero fin hz"><div class="bigck"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div><div style="flex:1"><div class="big" style="font-size:24px">今日の申込は全部済み</div><div class="s">${N?`次は ${mdW(N.m.d)}${N.m.ev?'の夜':''}`:'お疲れさまでした。'}</div></div></div>`;
-  else h+=`<div class="hero"><div class="k">${N?'次のまとめ日':'今日まとめて申し込むものはありません'}</div>${N?`<div class="big num">${mdD(N.m.d)}<small>（${wdD(N.m.d)}）${N.m.ev?'の夜':'の朝'}</small></div><div class="s">${new Set(N.L.map(x=>x.o.id)).size}件をまとめて申し込みます。</div>`:`<div class="s">新しいIPOや分売が決まると、自動で入ります。</div>`}</div>`;
-  // 証券会社ごと（タイル。タップで中身）
-  if(D.due.length){const Gs=groupDue(D).map(G=>({...G,n:G.L.filter(x=>!x.ok).length}));const Y=Gs.filter(G=>G.n),Z=Gs.filter(G=>!G.n);
-    const tile=G=>G.n?`<button class="tile yet" data-list="bk:${G.b.id}">${lg(G.b)}<span class="tt"><b>${esc(bshort(G.b))}</b><small>${G.n}件</small></span><span class="st yet">まだ</span></button>`
-      :`<button class="tile fin" data-list="bk:${G.b.id}">${lg(G.b)}<span class="tt"><b>${esc(bshort(G.b))}</b></span><span class="st fin"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>済み</span></button>`;
-    if(Y.length)h+=`<div class="sh2 yet"><span>● まだ申し込んでいない</span><b>${Y.length}社</b></div><div class="tiles">${Y.map(tile).join('')}</div>`;
-    if(Z.length)h+=`<div class="sh2 fin"><span>✓ 申し込み済み</span><b>${Z.length}社</b></div><div class="tiles">${Z.map(tile).join('')}</div>`}
-  // 1行ずつ（タップで詳しく）
+  if(T.length)h+=`<div class="hero blue hz"><div><div class="k">今日のやること</div><div class="big num">${T.length}<small>個</small></div></div><div class="s">上から順に。<br>終わったら「済んだ」</div></div>`;
+  else if(done.length)h+=`<div class="hero fin hz"><div class="bigck"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div><div style="flex:1"><div class="big" style="font-size:24px">今日は全部終わり</div><div class="s">${N?`次は ${mdW(N.m.d)}${N.m.ev?'の夜':'の朝'}`:'お疲れさまでした。'}</div></div></div>`;
+  else h+=`<div class="hero"><div class="k">今日やることはありません</div>${N?`<div class="big num">${mdD(N.m.d)}<small>（${wdD(N.m.d)}）${N.m.ev?'の夜':'の朝'}</small></div><div class="s">次にやる日です。</div>`:`<div class="s">新しいIPOや分売が決まると、自動で入ります。</div>`}</div>`;
+  el.innerHTML=h+'<div id="tdRest"></div>';
+  const rest=$('#tdRest');const lines=(D.money.length&&T.length?1:0)+(N?1:0)+(!ownAccs().length&&brokers.length?1:0);
+  const H=availH(rest,260);const per=Math.max(2,Math.floor((H-lines*60-(done.length?44:0)-56)/66));
+  const n=Math.max(1,Math.ceil(T.length/per));PG.today=Math.min(PG.today||0,n-1);const st=PG.today*per;
+  let r='';
+  if(T.length)r+=`<div class="tasks">${T.slice(st,st+per).map((k,i)=>`<div class="task"><span class="no">${st+i+1}</span>${k.lg?lg(k.lg):kic(k.o.kind)}<div class="tt" data-open="${k.o.kind}|${esc(k.o.id)}">${k.h}</div><div class="bb2">${k.b}</div></div>`).join('')}</div>`;
+  if(done.length)r+=`<button class="donebar" data-list="done"><span class="st fin"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>済んだ</span>${done.length}個<i class="cv">›</i></button>`;
   let L='';
-  if(D.results.length)L+=D.results.length===1?resRow(D.results[0]):lnRow(li('res','#c5221f'),'結果を入れる',`${D.results.length}件・当たったか外れたか`,'',`data-list="res"`);
-  if(D.sell.length)L+=D.sell.length===1?sellRow(D.sell[0]):lnRow(li('sell','#137333'),'売る日',`${D.sell.length}件・${sellWhen(D.sell[0])}`,'',`data-list="sell"`);
-  if(D.money.length){const all=D.money.reduce((a,m)=>a+m.tot,0);const m0=[...D.money].sort((a,b)=>(a.L[0].dl||0)-(b.L[0].dl||0))[0];
-    L+=lnRow(li('yen','#e37400'),'入れておくお金',`${D.money.length}社・期限 ${mdW(m0.L[0].dl)}から`,`<div class="amt"><b class="num">約${man(all)}</b></div>`,`data-list="money"`)}
-  if(N&&D.left.length+D.results.length+D.sell.length>0||N&&D.due.length)L+=lnRow(li('cal','#0b57d0'),'次のまとめ日',`${mdW(N.m.d)}${N.m.ev?'の夜':'の朝'}・${new Set(N.L.map(x=>x.o.id)).size}件`,'',`data-list="next"`);
-  else if(N)L+=lnRow(li('cal','#0b57d0'),'申し込むもの',`${new Set(N.L.map(x=>x.o.id)).size}件・タップで見る`,'',`data-list="next"`);
+  if(D.money.length&&T.length){const all=D.money.reduce((a,m)=>a+m.tot,0);L+=lnRow(li('yen','#e37400'),'入れておくお金',`${D.money.length}社`,`<div class="amt"><b class="num">約${man(all)}</b></div>`,`data-list="money"`)}
+  if(N&&(T.length||done.length))L+=lnRow(li('cal','#0b57d0'),'次にやる日',`${mdW(N.m.d)}${N.m.ev?'の夜':'の朝'}・${new Set(N.L.map(x=>x.o.id)).size}件`,'',`data-list="next"`);
+  else if(N)L+=lnRow(li('cal','#0b57d0'),'その日にやること',`${new Set(N.L.map(x=>x.o.id)).size}件・タップで見る`,'',`data-list="next"`);
   if(!ownAccs().length&&brokers.length)L+=lnRow(li('bank','#5f6368'),'証券口座を選ぶ','使う会社を選ぶと、申込先が出ます','',`data-sub="acct"`);
-  if(L)h+=`<div class="lns">${L}</div>`;
-  el.innerHTML=h;countUp(el);
-  // それでも入らない時は小さくする
-  const pg=$('#p-today');pg.classList.remove('tight');if(pg.classList.contains('on')&&el.scrollHeight>el.clientHeight+2)pg.classList.add('tight')}
+  if(L)r+=`<div class="lns">${L}</div>`;
+  r+=pager('today',T.length?n:1);rest.innerHTML=r}
 
 // 下から出る一覧
 const LISTS={
+  done(){const D=todayData();const L=D.due.filter(x=>x.ok);if(!L.length)return null;return`<h3>今日済んだもの</h3><p class="why">間違えて押した時は「戻す」。</p><div class="sbox">${L.map(x=>`<div class="row okb">${lg(x.b)}<div class="tt"><div class="t1">${esc(x.b.name)}</div><div class="t2">${x.kind==='ipo'?'IPO':'分売'} ${esc(x.name)}</div></div><button class="b2" data-ck="${x.kind}|${esc(x.o.id)}|${x.b.id}">戻す</button></div>`).join('')}</div>`},
   bk(id){const D=todayData();const G=groupDue(D).find(g=>g.b.id===id);if(!G)return null;const n=G.L.filter(x=>!x.ok).length;
     return`<div class="lh">${lg(G.b)}<h3>${esc(G.b.name)}</h3><span class="n2 ${n?'':'z'}">${n?`まだ ${n}件`:'✓ 済み'}</span></div><p class="why">1回ログインして、まとめて申し込みます。<br>終わったら左の丸をタップ。</p><div class="sbox">${G.L.map(dueRow).join('')}</div>`},
   res(){const D=todayData();if(!D.results.length)return null;return`<h3>結果を入れる</h3><div class="sbox" style="margin-top:12px">${D.results.map(resRow).join('')}</div>`},
@@ -796,7 +812,7 @@ function countUp(root){root.querySelectorAll('[data-cu]').forEach(el=>{const to=
 
 function renderAll(){renderToday();renderPlan();renderRec();setSums();if(SHEET)(SHEET.kind==='list'?openList(SHEET.id,true):openDetail(SHEET.kind,SHEET.id,true))}
 document.addEventListener('click',e=>{const l=e.target.closest('[data-list]');if(l){openList(l.dataset.list);return}
-  const g=e.target.closest('[data-pg]');if(g){const [k,d]=g.dataset.pg.split('|');PG[k]+=+d;k==='plan'?renderPlan():renderRec()}});
+  const g=e.target.closest('[data-pg]');if(g){const [k,d]=g.dataset.pg.split('|');PG[k]+=+d;k==='plan'?renderPlan():k==='rec'?renderRec():renderToday()}});
 let rsT=0;addEventListener('resize',()=>{clearTimeout(rsT);rsT=setTimeout(renderAll,150)});
 
 /* ============ 詳しく（下から出るシート） ============ */
