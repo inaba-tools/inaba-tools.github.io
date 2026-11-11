@@ -1345,9 +1345,9 @@ const API='https://script.google.com/macros/s/AKfycbxp2NJyQCnSduboXEaXFN0kndza6-
 const RAKUTEN='https://www.rakuten-sec.co.jp/web/domestic/ipo/';
 const R_BUNBAI='https://www.rakuten-sec.co.jp/web/domestic/off_auction/';
 const R_TOP='https://www.rakuten-sec.co.jp/';
-// 分売の「申し込む」：使っている証券会社ごとに、分売の申込画面（ログイン画面）へ飛ぶ。DMM株は分売の取扱がないので出さない
-const BUNBAI_URL={rakuten:'https://www.rakuten-sec.co.jp/ITS/V_ACT_Login.html',sbi:'https://www.sbisec.co.jp/ETGate',matsui:'https://www.deal.matsui.co.jp/ITS/login/MemberLogin.jsp',esmart:'https://s20.si1.kabu.co.jp/members/'};
-const BUNBAI_STEP={rakuten:'ログイン後：国内株式 → 注文 → 立会外分売',sbi:'ログイン後：国内株式 → 立会外分売',matsui:'ログイン後：株式取引 → 立会外分売',esmart:'ログイン後：株式 → 立会外分売'};
+// 分売の「申し込む」：使っている証券会社ごとに、分売の申込画面（ログイン画面）へ飛ぶ。DMM株・三菱UFJ eスマートは分売の取扱がないので出さない
+const BUNBAI_URL={rakuten:'https://www.rakuten-sec.co.jp/ITS/V_ACT_Login.html',sbi:'https://www.sbisec.co.jp/ETGate',matsui:'https://www.deal.matsui.co.jp/ITS/login/MemberLogin.jsp'};
+const BUNBAI_STEP={rakuten:'ログイン後：国内株式 → 注文 → 立会外分売',sbi:'ログイン後：国内株式 → 立会外分売',matsui:'ログイン後：株式取引 → 立会外分売'};
 function bunbaiBtns(){const L=(typeof brokers!=='undefined'&&brokers||[]).filter(b=>BUNBAI_URL[b.id]&&isUse(b.id)&&hasAcc(b.id));
   const A=L.length?L:[{id:'rakuten',name:'楽天証券'}];
   return A.map(b=>`<a class="btn" href="${BUNBAI_URL[b.id]}" target="_blank" rel="noopener">${esc(b.name)}で申し込む</a><div style="font-size:12px;opacity:.7;margin:-2px 0 8px;text-align:center">${BUNBAI_STEP[b.id]}</div>`).join('')+(A.length>1?'<div style="font-size:12px;opacity:.7;margin:0 0 8px;text-align:center">銘柄によっては扱っていない会社もあります。</div>':'')}
