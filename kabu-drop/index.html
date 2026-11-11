@@ -398,6 +398,7 @@ html.dark .task .no{color:#111}
 .stp .ok{color:var(--up)}.stp .ok:before{background:var(--up)}
 .stp .nw2{color:var(--blue)}.stp .nw2:before{background:var(--blue)}
 .stp .now{color:var(--dn)}.stp .now:before{background:var(--dn)}
+.nx2.tap{cursor:pointer}.nx2 .cv{margin-left:auto;color:var(--mute);font-style:normal;font-size:22px}.wk .c[data-list]{cursor:pointer}
 </style>
 </head>
 <body>
@@ -654,11 +655,14 @@ function bunBrokers(){const L=(brokers||[]).filter(b=>BUNBAI_URL[b.id]&&isUse(b.
 // 火曜に間に合わないIPOは、評価S・Aのときだけ締切の前の夜（無理なら締切の朝）。それ以外は見送り
 const TUE=2;
 function tueIn(a,b){const t=todayJ();let d=new Date(Math.max(a,t));while(d<b){if(d.getUTCDay()===TUE)return d;d=new Date(d.getTime()+864e5)}return null}
+function lateNight(o){const t=todayJ();if(o.be<t||(+o.be===+t&&hourJ()>=11))return null;const last=prevBizBefore(o.be);if(last>=o.bs&&last>=t)return{d:last,ev:true,late:true};if(t<o.be)return{d:t,ev:true,late:true};return{d:o.be,ev:false,late:true}}
+function missedTue(a,b){const t=todayJ();let d=new Date(a.getTime());while(d<b&&d<t){if(d.getUTCDay()===TUE)return true;d=new Date(d.getTime()+864e5)}return false}
 function ipoMatome(o){if(!o.bs||!o.be)return null;const e=tueIn(o.bs,o.be);if(e)return{d:e,ev:true};
+  if(o.r&&o.r.force||missedTue(o.bs,o.be)){const L=lateNight(o);if(L)return L}
   const y=yosoData[o.id]||{};if(y.rank!=='S'&&y.rank!=='A')return null;const t=todayJ();const last=prevBizBefore(o.be);
   if(last>=o.bs&&last>=t)return{d:last,ev:true,ex:true};if(o.be>=t)return{d:o.be,ev:false,ex:true};return null}
 // 分売は、申込の夜が火曜のものだけ
-const bunIn=o=>!!(o.decided&&o.w&&o.w.prev.getUTCDay()===TUE);
+const bunIn=o=>!!(o.decided&&o.w&&(o.w.prev.getUTCDay()===TUE||(o.r&&o.r.force)));
 // 分売を申し込む会社：同じ夜にIPOもあれば全部、分売だけの夜は楽天だけ（ログイン1回）
 function bunNeed(o){const L=bunBrokers();if(!bunIn(o))return L;const night=+o.w.prev;
   const ipoSame=IPO.all().some(i=>(i.k==='pre'||i.k==='done')&&(m=>m&&m.ev&&+m.d===night)(ipoMatome(i)));
@@ -770,7 +774,7 @@ function renderToday(){const box=$('#todayBody');const D=todayData();const t=tod
   D.next.forEach(N=>{const k=iso(N.m.d);(ev[k]=ev[k]||{}).ap=1});if(D.left.length)(ev[iso(t)]=ev[iso(t)]||{}).ap=1;
   let cal='<div class="wk">'+['日','月','火','水','木','金','土'].map((w,i)=>`<div class="h ${i===0?'su':i===6?'sa':''}">${w}</div>`).join('');
   for(let i=0;i<14;i++){const d=new Date(sun.getTime()+i*864e5);const e=ev[iso(d)]||{};const past=d<t;
-    cal+=`<div class="c ${past?'past':''} ${+d===+t?'tdy':''} ${e.ap&&!past?'ap':''}">${d.getUTCDate()}${e.o&&!past?'<i></i>':'<i class="no"></i>'}</div>`}
+    cal+=`<div class="c ${past?'past':''} ${+d===+t?'tdy':''} ${e.ap&&!past?'ap':''}" ${(e.ap||e.o)&&!past?`data-list="day:${iso(d)}"`:''}>${d.getUTCDate()}${e.o&&!past?'<i></i>':'<i class="no"></i>'}</div>`}
   cal+='</div><div class="wkl"><span class="sq"></span>申し込む日<span class="dt2"></span>結果・購入・売る日</div>';
   // 次にやること
   let nx;
@@ -779,8 +783,8 @@ function renderToday(){const box=$('#todayBody');const D=todayData();const t=tod
     if(F.length){const d0=F[0].n.d;const S=F.filter(x=>+x.n.d===+d0);const dd=days(d0,t);const A=S.filter(x=>x.n.ap);
       const N=D.next.find(N=>+N.m.d===+d0);const bk=N?[...new Set(N.L.map(x=>bshort(x.b)))].join('と'):'';
       const title=A.length?`${dLab(d0)}の${N&&!N.m.ev?'朝':'夜'}に${A.length}件申込`:`${dLab(d0)} ${esc(S[0].o.name)}の${S[0].n.l}${S.length>1?`ほか${S.length-1}件`:''}`;
-      const sub=(A.length&&bk?`${bk}で、まとめて申し込みます。<br>`:'')+(done.length?'今日の分は全部終わりました。':'今日は何もしなくて大丈夫。');
-      nx=`<div class="nx2 ${done.length?'fin':''}"><div class="bx">${dd>0?`あと<br>${dd}日`:'今日'}</div><div><div class="t">${title}</div><div class="s">${sub}</div></div></div>`}
+      const sub=(A.length&&bk?`${bk}で、まとめて申し込みます。<br>`:'')+(done.length?'今日の分は全部終わりました。':dd===0?'タップすると、詳しく見られます。':'今日は何もしなくて大丈夫。');
+      nx=`<div class="nx2 tap ${done.length?'fin':''}" data-list="day:${iso(d0)}"><div class="bx">${dd>0?`あと<br>${dd}日`:'今日'}</div><div><div class="t">${title}</div><div class="s">${sub}</div></div><i class="cv">›</i></div>`}
     else nx=`<div class="nx2 ${done.length?'fin':''}"><div class="bx">−</div><div><div class="t">${done.length?'今日は全部終わり':'今は予定がありません'}</div><div class="s">新しいIPOや分売が決まると、<br>自動で入ります。</div></div></div>`}
   box.innerHTML=cal+nx+'<div id="tdRest"></div>';
   // 下の一覧（高さを見てページに分ける）
@@ -789,9 +793,10 @@ function renderToday(){const box=$('#todayBody');const D=todayData();const t=tod
   if(done.length)B.push({h:56,s:`<button class="donebar" data-list="done"><span class="st fin"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>済んだ</span>${done.length}個<i class="cv">›</i></button>`});
   if(D.money.length&&T.length){const m=D.money.reduce((a,x)=>a+x.tot,0);B.push({h:66,s:`<div class="lns">${lnRow(li('yen','#e37400'),'入れておくお金',`${D.money.length}社`,`<div class="amt"><b class="num">約${man(m)}</b></div>`,`data-list="money"`)}</div>`})}
   if(!ownAccs().length&&brokers.length)B.push({h:66,s:`<div class="lns">${lnRow(li('bank','#5f6368'),'証券口座を選ぶ','使う会社を選ぶと、申込先が出ます','',`data-sub="acct"`)}</div>`});
-  const P=live.slice().sort((a,b)=>(a.n.skip?1:0)-(b.n.skip?1:0)||(a.n.d?+a.n.d:9e15)-(b.n.d?+b.n.d:9e15));
-  if(P.length){B.push({h:42,s:`<div class="sech">銘柄ごとの進み具合</div>`});
+  const P=live.filter(x=>x.o.k!=='pre').sort((a,b)=>(a.n.skip?1:0)-(b.n.skip?1:0)||(a.n.d?+a.n.d:9e15)-(b.n.d?+b.n.d:9e15));
+  if(P.length){B.push({h:42,s:`<div class="sech">申し込んだものの進み具合</div>`});
     P.forEach(({o,n})=>{const due=n.d&&n.d<=t;B.push({h:86,w:'pcs',s:`<button class="pc ${n.skip?'skip':''}" data-open="${o.kind}|${esc(o.id)}"><div class="r1">${kic(o.kind)}<span class="nm">${esc(o.name)}</span><span class="nl ${due?'due':''}">${n.d?(due&&+n.d===+t?'今日':dSh(n.d))+' '+n.l:n.l}</span></div>${n.skip?'':`<div class="stp">${stepsOf(o)}</div>`}</button>`})})}
+  const SK=skipList();if(SK.length)B.push({h:70,s:`<div class="lns">${lnRow(li('res','#9a5b00'),'見送りにしたもの',`${SK.length}件・理由を見る／申し込む`,'',`data-list="skip"`)}</div>`});
   const nEnd=all.filter(o=>o.k==='end'&&o.ev&&days(t,o.ev)<=60).length;
   if(nEnd)B.push({h:70,s:`<div class="lns">${lnRow(li('past','#5f6368'),'終わったもの',`直近60日・${nEnd}件`,'',`data-list="ended"`)}</div>`});
   const rest=$('#tdRest');const H=availH(rest,330)-56;const pages=[[]];let used=0;
@@ -801,7 +806,22 @@ function renderToday(){const box=$('#todayBody');const D=todayData();const t=tod
   if(!B.length)r='';rest.innerHTML=r+pager('today',pages.length)}
 
 // 下から出る一覧
+function skipList(){return [...IPO.all(),...BUN.all()].filter(o=>o.k==='pre'&&nextOf(o).skip)}
+function skipWhy(o){if(o.kind==='ipo'){const y=yosoData[o.id]||{};return`申込 ${mdD(o.bs)}〜${mdD(o.be)}。<br>${missedTue(o.bs,o.be)?'火曜の夜を過ぎて、受付も終わった':`この間に火曜の夜がない${y.rank?`（評価${y.rank}）`:''}`}`}
+  return`申込の夜が${mdW(o.w.prev)}。<br>火曜の夜ではない`}
+const canForce=o=>o.kind==='ipo'?!!(o.be&&(o.be>todayJ()||(+o.be===+todayJ()&&hourJ()<11))):!!(o.w&&!o.w.after);
 const LISTS={
+  skip(){const L=skipList();if(!L.length)return null;return`<h3>見送りにしたもの</h3><p class="why">火曜の夜に申し込めないので、見送りにしたものです。<br>申し込みたい時は「申し込む」を押すと、やることに入ります。</p><div class="sbox">${L.map(o=>`<div class="row">${kic(o.kind)}<div class="tt" data-open="${o.kind}|${esc(o.id)}"><div class="t1">${esc(o.name)}</div><div class="t2">${skipWhy(o)}</div></div>${canForce(o)?`<button class="b2 p" data-force="${o.kind}|${esc(o.id)}">申し込む</button>`:'<span class="b2 off">終了</span>'}</div>`).join('')}</div>`},
+  day(k){const d=pd(k);const t=todayJ();const all=[...IPO.all(),...BUN.all()].filter(o=>o.k!=='end').map(o=>({o,n:nextOf(o)})).filter(x=>x.n.d&&+x.n.d===+d&&!x.n.skip);if(!all.length)return null;
+    const D=todayData();const N=D.next.find(N=>+N.m.d===+d);const src=N?N.L:+d===+t?D.due:[];
+    const ap=all.filter(x=>x.n.ap),ot=all.filter(x=>!x.n.ap);const by={};src.forEach(x=>{(by[x.b.id]=by[x.b.id]||{b:x.b,n:0}).n++});
+    const note=id=>{const x=src.find(x=>x.o.id===id);return x?x.note:''};
+    let h=`<h3>${mdW(d)}にやること</h3>`;
+    if(ap.length){h+=`<div class="sec-t">${N&&!N.m.ev?'朝':'夜'}に申し込む ${ap.length}件</div><div class="sbox">${ap.map(({o})=>`<div class="row">${kic(o.kind)}<div class="tt" data-open="${o.kind}|${esc(o.id)}"><div class="t1">${esc(o.name)}</div><div class="t2">${note(o.id)||(o.kind==='ipo'?'IPO':'分売')}${o.mt&&o.mt.late?'<br>火曜を過ぎたけど、まだ間に合う':''}</div></div>${amt(o.kind==='ipo'?o.gain:o.save,o.kind==='ipo'?'予想利益':'安く買える分')}</div>`).join('')}</div>`;
+      if(Object.keys(by).length)h+=`<p class="why">${Object.values(by).map(G=>`${esc(G.b.name)}で${G.n}件`).join('、')}。<br>当日になると、ホームに「開く」ボタンが出ます。</p>`;
+      else if(!ownAccs().length)h+=`<p class="why">設定で使う証券会社を選ぶと、申込先が出ます。</p>`}
+    if(ot.length)h+=`<div class="sec-t">ほかにやること</div><div class="sbox">${ot.map(({o,n})=>`<div class="row">${kic(o.kind)}<div class="tt" data-open="${o.kind}|${esc(o.id)}"><div class="t1">${esc(o.name)}</div><div class="t2">${n.l==='結果'?'抽選の結果が出る':n.l==='購入'?'購入の手続きの締切':'売る日'}</div></div></div>`).join('')}</div>`;
+    return h},
   done(){const D=todayData();const L=D.due.filter(x=>x.ok);if(!L.length)return null;return`<h3>今日済んだもの</h3><p class="why">間違えて押した時は「戻す」。</p><div class="sbox">${L.map(x=>`<div class="row okb">${lg(x.b)}<div class="tt"><div class="t1">${esc(x.b.name)}</div><div class="t2">${x.kind==='ipo'?'IPO':'分売'} ${esc(x.name)}</div></div><button class="b2" data-ck="${x.kind}|${esc(x.o.id)}|${x.b.id}">戻す</button></div>`).join('')}</div>`},
   bk(id){const D=todayData();const G=groupDue(D).find(g=>g.b.id===id);if(!G)return null;const n=G.L.filter(x=>!x.ok).length;
     return`<div class="lh">${lg(G.b)}<h3>${esc(G.b.name)}</h3><span class="n2 ${n?'':'z'}">${n?`まだ ${n}件`:'✓ 済み'}</span></div><p class="why">1回ログインして、まとめて申し込みます。<br>終わったら左の丸をタップ。</p><div class="sbox">${G.L.map(dueRow).join('')}</div>`},
@@ -877,6 +897,7 @@ function countUp(root){root.querySelectorAll('[data-cu]').forEach(el=>{const to=
 function renderAll(){renderToday();renderPlan();renderRec();setSums();if(SHEET)(SHEET.kind==='list'?openList(SHEET.id,true):openDetail(SHEET.kind,SHEET.id,true))}
 document.addEventListener('click',e=>{const l=e.target.closest('[data-list]');if(l){openList(l.dataset.list);return}
   const g=e.target.closest('[data-pg]');if(g){const [k,d]=g.dataset.pg.split('|');PG[k]=(PG[k]||0)+(+d);k==='plan'?renderPlan():k==='rec'?renderRec():renderToday()}});
+document.addEventListener('click',e=>{const f=e.target.closest('[data-force]');if(!f)return;const [k,id]=f.dataset.force.split('|');const o=findO(k,id);if(!o)return;const prev=snap(k,id);putRec(k,id,{...o.r,force:true});closeSheet();renderAll();toastUndo(`${o.name}：やることに入れました`,k,id,prev)});
 document.addEventListener('click',e=>{const b=e.target.closest('[data-tseg]');if(!b)return;TSEG=b.dataset.tseg;renderToday()});
 let rsT=0;addEventListener('resize',()=>{clearTimeout(rsT);rsT=setTimeout(renderAll,150)});
 
