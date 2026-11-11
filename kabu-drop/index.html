@@ -323,7 +323,7 @@ html,body{height:100%;overflow:hidden}
 .hero2{margin-top:8px}.hero2>div{padding:12px 14px}.hero2 .v{font-size:21px}
 .hero2 .k{display:flex;align-items:center;gap:6px}.ki.mini{width:22px;height:22px;font-size:8.5px}
 .sh2{display:flex;justify-content:space-between;align-items:baseline;margin:14px 20px 6px;font-size:13px;color:var(--sub);font-weight:700}.sh2 b{font-weight:700}
-.tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 16px}
+.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0 16px}
 .tile{display:flex;align-items:center;gap:10px;height:58px;padding:0 12px;border-radius:16px;border:1px solid var(--line);background:var(--card);text-align:left}
 .tile .tt{display:flex;flex-direction:column;min-width:0}.tile b{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tile small{font-size:12.5px;font-weight:700;color:var(--dn)}
 .tile.fin{background:var(--upbg);border-color:color-mix(in srgb,var(--up) 40%,var(--line))}.tile.fin small{color:var(--up)}
@@ -341,6 +341,16 @@ html,body{height:100%;overflow:hidden}
 .sbox.mx{margin:0 16px;background:var(--card)}.yrow{min-height:60px;padding:8px 14px}
 .lh{display:flex;align-items:center;gap:10px}.lh h3{flex:1;margin:0}.n2{font-size:13px;font-weight:700;color:#fff;background:var(--dn);padding:4px 10px;border-radius:14px}.n2.z{background:var(--up)}
 .tight .hero .s{display:none}.tight .hero .big{font-size:30px}.tight .tile{height:50px}.tight .ln{min-height:50px}.tight .sh2{margin-top:10px}
+.sh2.yet{color:var(--dn)}.sh2.fin{color:var(--up)}
+.tile.yet{background:var(--dnbg);border:2px solid var(--dn)}
+.tile.fin{background:var(--upbg);border:2px solid var(--up)}
+.tile .tt{flex:1;min-width:0}.tile{gap:8px;padding:0 10px;min-width:0}.tile .st{font-size:12px;padding:4px 8px}.tile.yet small{color:var(--dn)}
+.st{display:inline-flex;align-items:center;gap:3px;flex:none;font-size:13px;font-weight:800;padding:5px 10px;border-radius:12px;color:#fff}
+.st.yet{background:var(--dn)}.st.fin{background:var(--up)}html.dark .st{color:#111}
+.st svg{width:14px;height:14px;stroke:currentColor;stroke-width:3.4;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.st.sm{font-size:11px;padding:1px 7px;margin-right:6px;vertical-align:1px}
+.row.yetb{background:color-mix(in srgb,var(--dnbg) 55%,var(--card))}
+.tile .tt b{font-size:15px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -452,7 +462,7 @@ new MutationObserver(sw).observe(document.documentElement,{attributes:true,attri
 
 <script src="budoux.js"></script>
 <script>
-const BUILD='1794406000';
+const BUILD='1794409000';
 // 新しい版が出ていたら、自動で読み込み直す（ホーム画面アプリでもすぐ反映）
 (async()=>{try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const BUILD='(\d+)'/);if(m&&m[1]!==BUILD&&!sessionStorage.getItem('kd_rl'+m[1])){sessionStorage.setItem('kd_rl'+m[1],'1');location.replace('./?v='+m[1]+location.hash)}}catch(e){}})();
 const API='https://script.google.com/macros/s/AKfycbxp2NJyQCnSduboXEaXFN0kndza6-0-zqrJN_0W9tLhBymhxRO8mLlT-dcZgI5lcvLr0A/exec';
@@ -670,8 +680,8 @@ const ICO={yen:'<svg viewBox="0 0 24 24"><path d="M6 4l6 8 6-8M12 12v8M7 13h10M7
 const li=(k,c)=>`<span class="li" style="background:${c}">${ICO[k]}</span>`;
 const lnRow=(icon,t1,t2,right,attrs)=>`<button class="ln" ${attrs||''}>${icon}<div class="tt"><div class="t1">${t1}</div>${t2?`<div class="t2">${t2}</div>`:''}</div>${right||''}<i class="cv">›</i></button>`;
 function groupDue(D){const by={};D.due.forEach(x=>{(by[x.b.id]=by[x.b.id]||{b:x.b,L:[]}).L.push(x)});return Object.values(by)}
-function dueRow(x){return`<div class="row ${x.ok?'okb':''}">${kic(x.kind,{ok:x.ok,red:!x.ok,lock:!x.ok&&!x.open,ck:`${x.kind}|${esc(x.o.id)}|${x.b.id}`})}
-  <div class="tt" data-open="${x.kind}|${esc(x.o.id)}"><div class="t1">${esc(x.name)}</div><div class="t2">${x.ok?'済み':x.note}${!x.ok&&x.g!=null?`<br>${x.kind==='ipo'?'予想':'安く買える分'} ${pm(x.g)}`:''}</div></div>
+function dueRow(x){return`<div class="row ${x.ok?'okb':'yetb'}">${kic(x.kind,{ok:x.ok,red:!x.ok,lock:!x.ok&&!x.open,ck:`${x.kind}|${esc(x.o.id)}|${x.b.id}`})}
+  <div class="tt" data-open="${x.kind}|${esc(x.o.id)}"><div class="t1">${esc(x.name)}</div><div class="t2">${x.ok?'<span class="st fin sm">✓ 済み</span>':`<span class="st yet sm">まだ</span>${x.note}`}${!x.ok&&x.g!=null?`<br>${x.kind==='ipo'?'予想':'安く買える分'} ${pm(x.g)}`:''}</div></div>
   ${x.ok?'':x.open?`<a class="go" href="${x.url}" target="_blank" rel="noopener" data-goapl="${x.kind}|${esc(x.o.id)}|${x.b.id}">開く</a>`:''}</div>`}
 function resRow(o){return`<div class="row">${kic(o.kind)}<div class="tt" data-open="${o.kind}|${esc(o.id)}"><div class="t1">${esc(o.name)}</div><div class="t2">${o.kind==='ipo'?`抽選 ${mdW(o.draw)}`:`結果 ${mdW(o.date)}の朝`}</div></div>
   <div class="pill2"><button data-res="${o.kind}|${esc(o.id)}|lost">外れた</button><button class="w" data-res="${o.kind}|${esc(o.id)}|won">当たった</button></div></div>`}
@@ -691,8 +701,11 @@ function renderToday(){const el=$('#todayBody');const D=todayData();const t=toda
   else if(D.due.length)h+=`<div class="hero fin hz"><div class="bigck"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div><div style="flex:1"><div class="big" style="font-size:24px">今日の申込は全部済み</div><div class="s">${N?`次は ${mdW(N.m.d)}${N.m.ev?'の夜':''}`:'お疲れさまでした。'}</div></div></div>`;
   else h+=`<div class="hero"><div class="k">${N?'次のまとめ日':'今日まとめて申し込むものはありません'}</div>${N?`<div class="big num">${mdD(N.m.d)}<small>（${wdD(N.m.d)}）${N.m.ev?'の夜':'の朝'}</small></div><div class="s">${new Set(N.L.map(x=>x.o.id)).size}件をまとめて申し込みます。</div>`:`<div class="s">新しいIPOや分売が決まると、自動で入ります。</div>`}</div>`;
   // 証券会社ごと（タイル。タップで中身）
-  if(D.due.length){h+=`<div class="sh2"><span>証券会社ごとに申し込む</span><b>${D.due.length-D.left.length}/${D.due.length} 済み</b></div><div class="tiles">`+groupDue(D).map(G=>{const n=G.L.filter(x=>!x.ok).length;
-      return`<button class="tile ${n?'':'fin'}" data-list="bk:${G.b.id}"><span class="lgw">${lg(G.b)}${n?'<i class="rd"></i>':''}</span><span class="tt"><b>${esc(bshort(G.b))}</b><small>${n?`未 ${n}件`:'✓ 済み'}</small></span></button>`}).join('')+'</div>'}
+  if(D.due.length){const Gs=groupDue(D).map(G=>({...G,n:G.L.filter(x=>!x.ok).length}));const Y=Gs.filter(G=>G.n),Z=Gs.filter(G=>!G.n);
+    const tile=G=>G.n?`<button class="tile yet" data-list="bk:${G.b.id}">${lg(G.b)}<span class="tt"><b>${esc(bshort(G.b))}</b><small>${G.n}件</small></span><span class="st yet">まだ</span></button>`
+      :`<button class="tile fin" data-list="bk:${G.b.id}">${lg(G.b)}<span class="tt"><b>${esc(bshort(G.b))}</b></span><span class="st fin"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>済み</span></button>`;
+    if(Y.length)h+=`<div class="sh2 yet"><span>● まだ申し込んでいない</span><b>${Y.length}社</b></div><div class="tiles">${Y.map(tile).join('')}</div>`;
+    if(Z.length)h+=`<div class="sh2 fin"><span>✓ 申し込み済み</span><b>${Z.length}社</b></div><div class="tiles">${Z.map(tile).join('')}</div>`}
   // 1行ずつ（タップで詳しく）
   let L='';
   if(D.results.length)L+=D.results.length===1?resRow(D.results[0]):lnRow(li('res','#c5221f'),'結果を入れる',`${D.results.length}件・当たったか外れたか`,'',`data-list="res"`);
@@ -710,7 +723,7 @@ function renderToday(){const el=$('#todayBody');const D=todayData();const t=toda
 // 下から出る一覧
 const LISTS={
   bk(id){const D=todayData();const G=groupDue(D).find(g=>g.b.id===id);if(!G)return null;const n=G.L.filter(x=>!x.ok).length;
-    return`<div class="lh">${lg(G.b)}<h3>${esc(G.b.name)}</h3><span class="n2 ${n?'':'z'}">${n?`未 ${n}件`:'✓ 済み'}</span></div><p class="why">1回ログインして、まとめて申し込みます。<br>終わったら左の丸をタップ。</p><div class="sbox">${G.L.map(dueRow).join('')}</div>`},
+    return`<div class="lh">${lg(G.b)}<h3>${esc(G.b.name)}</h3><span class="n2 ${n?'':'z'}">${n?`まだ ${n}件`:'✓ 済み'}</span></div><p class="why">1回ログインして、まとめて申し込みます。<br>終わったら左の丸をタップ。</p><div class="sbox">${G.L.map(dueRow).join('')}</div>`},
   res(){const D=todayData();if(!D.results.length)return null;return`<h3>結果を入れる</h3><div class="sbox" style="margin-top:12px">${D.results.map(resRow).join('')}</div>`},
   sell(){const D=todayData();if(!D.sell.length)return null;return`<h3>売る日</h3><div class="sbox" style="margin-top:12px">${D.sell.map(sellRow).join('')}</div>`},
   money(){const D=todayData();if(!D.money.length)return null;const all=D.money.reduce((a,m)=>a+m.tot,0);
@@ -734,7 +747,7 @@ function nextTxt(o){const t=todayJ();
   if(o.k==='pre')return!o.decided?`${mdD(o.date)}〜${mdD(o.endD)}のどれか`:!bunIn(o)?'火曜の夜ではない':o.open?'受付中・朝8:20まで':'この夜に申込';
   if(o.k==='done')return`結果 ${mdW(o.date)}の朝`;if(o.k==='win')return`${mdW(o.date)} 9時から売れる`;
   return o.r.st==='sold'?'売りました':o.r.st==='lost'?'外れ':`実施 ${mdW(o.date)}`}
-function chipOf(o){if(o.k==='pre'&&(o.kind==='ipo'?!o.mt:(o.decided&&!bunIn(o))))return`<span class="chip lost">見送り</span>`;const c=o.k==='pre'&&o.open?'now':o.k==='end'&&o.r.st==='lost'?'lost':o.k;const l=o.k==='pre'&&o.open?'申込中':o.k==='end'&&o.r.st==='sold'?'売却済み':o.k==='end'&&o.r.st==='lost'?(o.r.dec?'辞退':'外れ'):STL[o.k];
+function chipOf(o){if(o.k==='pre'&&(o.kind==='ipo'?!o.mt:(o.decided&&!bunIn(o))))return`<span class="chip lost">見送り</span>`;if(o.k==='done')return`<span class="chip done">✓ 申込済み</span>`;if(o.k==='pre'&&o.mt&&o.mt.d<=todayJ()||o.k==='pre'&&o.kind==='bunbai'&&bunIn(o)&&o.w.prev<=todayJ())return`<span class="chip now">まだ</span>`;const c=o.k==='pre'&&o.open?'now':o.k==='end'&&o.r.st==='lost'?'lost':o.k;const l=o.k==='pre'&&o.open?'申込中':o.k==='end'&&o.r.st==='sold'?'売却済み':o.k==='end'&&o.r.st==='lost'?(o.r.dec?'辞退':'外れ'):STL[o.k];
   return`<span class="chip ${c}">${l}</span>`}
 function rightOf(o){if(o.k==='end'&&o.r.st==='sold')return amt(o.pl,'利益');if(o.k==='end'&&o.r.st==='lost')return'';
   if(o.kind==='ipo')return o.gain!=null?amt(o.gain,o.x&&yosoData[o.id]&&yosoData[o.id].first?'初値なら':'予想利益'):`<div class="amt"><small>予想待ち</small></div>`;
