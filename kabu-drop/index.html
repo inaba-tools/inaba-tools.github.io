@@ -364,6 +364,14 @@ html.dark .task .no{color:#111}
 .b2.p{background:var(--blue);color:var(--onblue)}.b2.g{background:var(--up);color:#fff}html.dark .b2.g{color:#0c2614}.b2.off{background:transparent;color:var(--sub);font-size:12px;padding:9px 4px}
 .donebar{display:flex;align-items:center;gap:10px;margin:8px 16px 0;padding:10px 14px;border-radius:14px;border:2px solid var(--up);background:var(--upbg);color:var(--up);font-size:14px;font-weight:700;text-align:left}
 .donebar .cv{margin-left:auto}
+#plRest{flex:1;min-height:0;display:flex;flex-direction:column}
+.seg3{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin:8px 16px 0;padding:4px;border-radius:14px;background:var(--surf)}
+.seg3 button{border:0;background:none;border-radius:11px;padding:9px 0;font-size:14px;font-weight:700;color:var(--sub);display:flex;justify-content:center;align-items:center;gap:6px}
+.seg3 button b{font-size:12px;min-width:20px;height:20px;border-radius:10px;display:grid;place-items:center;background:var(--line);color:var(--ink);padding:0 6px}
+.seg3 button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.seg3 .s-done.on b{background:var(--up);color:#fff}.seg3 .s-win.on b{background:#e8a600;color:#fff}.seg3 .s-pre.on b{background:var(--blue);color:var(--onblue)}
+.pw .amt{display:none}
+.pw{display:flex;align-items:center;border-top:1px solid var(--line)}.pw:first-child{border-top:0}.pw .pi{flex:1;min-width:0;border-top:0}.pw .back2{margin-right:12px;background:var(--surf)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -475,7 +483,7 @@ new MutationObserver(sw).observe(document.documentElement,{attributes:true,attri
 
 <script src="budoux.js"></script>
 <script>
-const BUILD='1794412000';
+const BUILD='1794415000';
 // 新しい版が出ていたら、自動で読み込み直す（ホーム画面アプリでもすぐ反映）
 (async()=>{try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const BUILD='(\d+)'/);if(m&&m[1]!==BUILD&&!sessionStorage.getItem('kd_rl'+m[1])){sessionStorage.setItem('kd_rl'+m[1],'1');location.replace('./?v='+m[1]+location.hash)}}catch(e){}})();
 const API='https://script.google.com/macros/s/AKfycbxp2NJyQCnSduboXEaXFN0kndza6-0-zqrJN_0W9tLhBymhxRO8mLlT-dcZgI5lcvLr0A/exec';
@@ -771,16 +779,22 @@ function rightOf(o){if(o.k==='end'&&o.r.st==='sold')return amt(o.pl,'利益');if
 function itemRow(o,i){const d=o.key;return`<button class="pi" data-open="${o.kind}|${esc(o.id)}" style="animation-delay:${Math.min(i||0,10)*25}ms"><div class="dd"><b>${d?mdD(d):'—'}</b><small>${d?wdD(d):''}${o.kind==='bunbai'&&!o.decided?' ごろ':''}</small></div>
   <div class="tt"><div class="t1"><span class="tp ${o.kind==='ipo'?'':'bb'}">${o.kind==='ipo'?'IPO':'分売'}</span>${esc(o.name)}</div><div class="t2">${chipOf(o)}${nextTxt(o)}</div></div>${rightOf(o)}</button>`}
 function pager(k,n){if(n<=1)return'';const i=PG[k];return`<div class="pager"><button data-pg="${k}|-1" ${i<=0?'disabled':''} aria-label="前へ">‹</button><span>${i+1} / ${n}</span><button data-pg="${k}|1" ${i>=n-1?'disabled':''} aria-label="次へ">›</button></div>`}
+let PSEG='pre';
 function renderPlan(){const el=$('#planBody');const t=todayJ();const all=[...IPO.all(),...BUN.all()];
-  const live=all.filter(o=>o.k!=='end').sort((a,b)=>(a.key||0)-(b.key||0));
+  const G={pre:all.filter(o=>o.k==='pre'),done:all.filter(o=>o.k==='done'),win:all.filter(o=>o.k==='win')};
+  Object.values(G).forEach(L=>L.sort((a,b)=>(a.key||0)-(b.key||0)));
   const nEnd=all.filter(o=>o.k==='end'&&o.ev&&days(t,o.ev)<=60).length;
-  const H=availH(el,120);const per=Math.max(3,Math.floor((H-(nEnd?66:0)-56)/63));
-  const n=Math.max(1,Math.ceil(live.length/per));PG.plan=Math.min(PG.plan,n-1);
-  let h='';
-  if(!live.length)h+=`<div class="empty" style="margin-top:4px">今は予定がありません。<br>新しいIPOや分売が決まると、自動で入ります。</div>`;
-  else h+=`<div class="pl">${live.slice(PG.plan*per,PG.plan*per+per).map(itemRow).join('')}</div>`;
-  if(nEnd)h+=`<div class="lns">${lnRow(li('past','#5f6368'),'終わったもの',`直近60日・${nEnd}件`,'',`data-list="ended"`)}</div>`;
-  h+=pager('plan',live.length?n:1);el.innerHTML=h}
+  const lab={pre:'これから',done:'申込済み',win:'当選'};
+  let h=`<div class="seg3">${Object.keys(lab).map(k=>`<button class="${PSEG===k?'on':''} s-${k}" data-seg="${k}">${lab[k]}<b>${G[k].length}</b></button>`).join('')}</div><div id="plRest"></div>`;
+  el.innerHTML=h;const rest=$('#plRest');const L=G[PSEG];
+  const H=availH(rest,170);const per=Math.max(2,Math.floor((H-(nEnd?66:0)-56-24)/63));
+  const n=Math.max(1,Math.ceil(L.length/per));PG.plan=Math.min(PG.plan,n-1);
+  const row=o=>PSEG==='done'?`<div class="pw">${itemRow(o)}<button class="b2 back2" data-unapply="${o.kind}|${esc(o.id)}">戻す</button></div>`:itemRow(o);
+  let r=`<p class="note" style="margin:8px 20px 6px">${{pre:'まだ申し込んでいないもの。<br>申し込む日になると「今日」に出ます。',done:'申し込んだもの（結果待ち）。<br>間違えた時は「戻す」。',win:'当たったもの。<br>売ったら、タップして値段を入れます。'}[PSEG]}</p>`;
+  r+=L.length?`<div class="pl">${L.slice(PG.plan*per,PG.plan*per+per).map(row).join('')}</div>`:`<div class="empty">${{pre:'今は予定がありません。<br>新しいIPOや分売が決まると、自動で入ります。',done:'申込済みのものはありません。',win:'当選したものはありません。'}[PSEG]}</div>`;
+  if(nEnd)r+=`<div class="lns">${lnRow(li('past','#5f6368'),'終わったもの',`直近60日・${nEnd}件`,'',`data-list="ended"`)}</div>`;
+  r+=pager('plan',L.length?n:1);rest.innerHTML=r}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-seg]');if(!b)return;PSEG=b.dataset.seg;PG.plan=0;renderPlan()});
 
 /* ============ 実績 ============ */
 const yrOf=o=>{const d=o.ev;return d?d.getUTCFullYear():new Date(o.r.at||0).getUTCFullYear()};
@@ -849,7 +863,7 @@ function ipoDetail(o){const x=o.x,y=yosoData[o.id]||{};const base=basePrice(o);c
   else if(o.k==='done'){const acc=o.r.acc||{};const L=ownAccs().filter(a=>acc[a.b.id]).map(a=>bshort(a.b));
     h+=`<div class="sec-t">結果</div><p class="why">${o.draw&&o.draw>t?`抽選は ${mdW(o.draw)}。<br>結果は夕方に出ます。`:'結果が出ています。<br>証券会社で確認して、どちらかを押してください。'}${L.length?`<br>申し込んだ会社：${L.join('・')}`:''}</p>
     <div class="btn2"><button class="btn sec" data-res="ipo|${esc(o.id)}|lost">外れた</button><button class="btn ok" data-res="ipo|${esc(o.id)}|won">当たった</button></div>
-    <button class="tl" data-unapply="ipo|${esc(o.id)}">申込前に戻す</button>`}
+    <button class="btn sec" data-unapply="ipo|${esc(o.id)}">申込済みを取り消す（まだにする）</button>`}
   else if(o.k==='win'){const acc=o.r.acc||{};const T=ownAccs().filter(a=>acc[a.b.id]);
     h+=`<div class="sec-t">当選おめでとう</div><p class="why"><b style="color:var(--ink)">${mdD(pd(x.data11))}〜${mdW(pd(x.data13))}</b>に、当たった証券会社で「購入」を押します（押さないと無効）。<br>上場日 <b style="color:var(--ink)">${mdW(o.ls)}の朝</b>に売るのが基本です。</p>
     ${T.length?`<div class="sbox">${T.map(({b})=>`<div class="row">${lg(b)}<div class="tt"><div class="t1">${esc(b.name)}</div><div class="t2">購入の手続き・売る</div></div><a class="go sec" href="${APPLY_URL[b.id]||bkUrl(b)}" target="_blank" rel="noopener">開く</a></div>`).join('')}</div>`:''}
@@ -877,7 +891,7 @@ function bunDetail(o){const x=o.x;const t=todayJ();
       <p class="why">${o.open?`受付中です（${days(o.date,t)===0?'今朝':'明日の朝'}8:20まで）。<br>申し込んだら丸をタップ。`:`申込は ${mdW(o.w.prev)} の17:15ごろからです。`}${L.length>1?'<br>銘柄によっては扱っていない会社もあります。':''}</p>`}}
   else if(o.k==='done'){h+=`<div class="sec-t">結果</div><p class="why">${o.date>t||(+o.date===+t&&hourJ()<8.5)?`${mdW(o.date)}の朝に結果が出ます。`:'結果が出ています。<br>証券会社で確認して、どちらかを押してください。'}</p>
     <div class="btn2"><button class="btn sec" data-res="bunbai|${esc(o.id)}|lost">外れた</button><button class="btn ok" data-res="bunbai|${esc(o.id)}|won">当たった</button></div>
-    <button class="tl" data-unapply="bunbai|${esc(o.id)}">申込前に戻す</button>`}
+    <button class="btn sec" data-unapply="bunbai|${esc(o.id)}">申込済みを取り消す（まだにする）</button>`}
   else if(o.k==='win'){h+=`<div class="sec-t">当選おめでとう</div><p class="why">${mdW(o.date)}の朝9時から売れます。<br>寄り付き（始値）で売るのが基本です。${x.open?`<br>この日の始値は ${yen(x.open)}円でした。`:''}</p><button class="btn" data-sell="bunbai|${esc(o.id)}">売った（値段を入れる）</button>`}
   else if(o.r.st){h+=`<button class="btn sec" data-undo="bunbai|${esc(o.id)}" style="margin-top:16px">記録を取り消す</button>`}
   return h}
@@ -899,7 +913,7 @@ document.addEventListener('click',e=>{
   const ck=e.target.closest('[data-ck]');if(ck){const [k,id,bid]=ck.dataset.ck.split('|');const o=findO(k,id);if(!o)return;if(navigator.vibrate)navigator.vibrate(10);k==='ipo'?ipoToggle(o,bid):bunToggle(o,bid);return}
   const rs=e.target.closest('[data-res]');if(rs){const [k,id,v]=rs.dataset.res.split('|');const o=findO(k,id);if(!o)return;if(v==='dec')setResult(o,'lost',{dec:true});else setResult(o,v);return}
   const sl=e.target.closest('[data-sell]');if(sl){const [k,id]=sl.dataset.sell.split('|');openSell(k,id);return}
-  const ua=e.target.closest('[data-unapply]');if(ua){const [k,id]=ua.dataset.unapply.split('|');const o=findO(k,id);if(!o)return;const prev=snap(k,id);putRec(k,id,null);renderAll();toastUndo(`${o.name}：申込前に戻しました`,k,id,prev);return}
+  const ua=e.target.closest('[data-unapply]');if(ua){const [k,id]=ua.dataset.unapply.split('|');const o=findO(k,id);if(!o)return;const prev=snap(k,id);putRec(k,id,null);renderAll();toastUndo(`${o.name}：まだ申し込んでいない、に戻しました`,k,id,prev);return}
   const ud=e.target.closest('[data-undo]');if(ud){const [k,id]=ud.dataset.undo.split('|');const o=findO(k,id);if(!o)return;const prev=snap(k,id);putRec(k,id,null);renderAll();toastUndo('記録を取り消しました',k,id,prev);return}
   const op=e.target.closest('[data-open]');if(op&&!e.target.closest('a,button:not([data-open])')){const [k,id]=op.dataset.open.split('|');openDetail(k,id);return}
   const sb=e.target.closest('[data-sub]');if(sb){closeSheet();if(!$('#sub-set').classList.contains('on'))openSub('set');openSub(sb.dataset.sub);return}
