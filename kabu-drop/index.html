@@ -1627,7 +1627,7 @@ function ipoGain(o){const y=yosoData[o.id]||{};const base=o.price||o.hiP||y.sote
 function renderTodo(){const el=$('#list-todo');if(!el)return;const now=[],sell=[],next=[];
   const IP=IPO.all(),BB=BUN.all();
   IP.filter(o=>o.k==='can'||o.k==='done').forEach(o=>{if(!o.open)return;const acc=(o.r&&o.r.acc)||{};const mode=recMode(o);if(mode==='wait'&&o.k!=='can')return;const g=ipoGain(o);
-    needAccs(o).forEach(({b})=>{const rc=recRow(o,b,mode);if(rc.skip)return;const ok=!!acc[b.id];if(o.k==='done'&&!ok)return;
+    needAccs(o).forEach(({b})=>{const rc=recRow(o,b,mode);if(rc.skip)return;const ok=!!acc[b.id];
       now.push({ok,dl:o.be,t1:`IPO ${o.name}`,t2:`<span class="lg" style="background:${b.color}">${b.short}</span>${bshort(b)}で100株申込${mode==='sbi'?'（ポイント用）':''}・${mdD(o.be)}（${wdD(o.be)}）まで`,g,act:`ipo|${o.id}|${b.id}`,url:applyUrl(b.id,o)||b.url,ap:`${esc(o.id)}|${b.id}`})})});
   BB.filter(o=>(o.k==='can'||o.k==='done')&&o.decided&&!(o.w&&o.w.after)).forEach(o=>{const L=(brokers||[]).filter(b=>BUNBAI_URL[b.id]&&isUse(b.id)&&hasAcc(b.id));const nm=(L.length?L:[{name:'楽天証券'}]).map(b=>bshort(b)||b.name).join('・');
     const it={ok:o.k==='done',dl:o.date,t1:`分売 ${o.name}`,g:o.save,act:`bb|${o.id}`,url:(L[0]?BUNBAI_URL[L[0].id]:BUNBAI_URL.rakuten)};
@@ -1650,7 +1650,7 @@ function renderTodo(){const el=$('#list-todo');if(!el)return;const now=[],sell=[
   if(next.length)h+=`<div class="tdh">これからの予定</div>`+next.map((x,i)=>row(x,i,false)).join('');
   el.innerHTML=h}
 document.addEventListener('click',e=>{const c=e.target.closest('[data-td]');if(c){const [k,id,bid]=c.dataset.td.split('|');
-    if(k==='ipo'){const o=IPO.find(id);if(o)toggleAcc(o,bid)}else{const o=BUN.find(id);if(o){setRec('bunbai',id,o.r.st==='applied'?null:{st:'applied'});renderAll();toast(o.name+'：申込済みにしました')}}return}
+    if(k==='ipo'){const o=IPO.find(id);if(!o)return;const acc={...((o.r&&o.r.acc)||{})};if(o.k==='done'&&acc[bid]){acc[bid]=false;setRec('ipo',id,null);setRec('ipo',id,{acc});renderAll();toast('チェックを外しました')}else toggleAcc(o,bid)}else{const o=BUN.find(id);if(o){setRec('bunbai',id,o.r.st==='applied'?null:{st:'applied'});renderAll();toast(o.name+'：申込済みにしました')}}return}
   const t=e.target.closest('[data-totab]');if(t){const b=document.querySelector(`.tab[data-p="${t.dataset.totab}"]`);if(b)b.click()}});
 
 function toast(t){$('#toastT').textContent=t;const el=$('#toast');el.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('on'),2000)}
