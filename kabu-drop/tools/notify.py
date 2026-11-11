@@ -301,11 +301,22 @@ def build(rec, sent):
     ev_list, mo_list = [], []
     for x in load('ipo.json', []):
         c = x.get('code')
-        st = (rec['ipo'].get(c) or {}).get('st')
+        r0 = rec['ipo'].get(c) or {}
+        st = r0.get('st')
         bs, be = pd(x.get('data4')), pd(x.get('data6'))
         if st or not bs or not be or be < TODAY:
             continue
         e, ev = tue_in(bs, be), True
+        # 期間中の火曜を過ぎてしまった／アプリで「申し込む」を押した → 締切までに知らせる（見送りにしない）
+        missed = any((bs + dt.timedelta(days=i)).weekday() == 1 for i in range((min(be, TODAY) - bs).days) if bs + dt.timedelta(days=i) < TODAY)
+        if e is None and (missed or r0.get('force')):
+            last = add_biz(be, -1)
+            if last >= bs and last >= TODAY:
+                e = last
+            elif TODAY < be:
+                e = TODAY
+            else:
+                e, ev = be, False
         if e is None:
             if (yoso.get(c) or {}).get('rank') not in ('S', 'A'):
                 continue
@@ -317,17 +328,17 @@ def build(rec, sent):
         name = 'IPO ' + clean(x.get('data1'))
         if e == TODAY:
             (ev_list if ev else mo_list).append(name)
-    if TODAY.weekday() == 1:
-        for x in load('bunbai.json', {}).get('items', []):
-            d = pd(x.get('date'))
-            if x.get('kind') == 'now' and d and d > TODAY and add_biz(d, -1) == TODAY and not (rec['bunbai'].get(x['id']) or {}).get('st'):
-                ev_list.append('分売 ' + clean(x.get('name')))
+    for x in load('bunbai.json', {}).get('items', []):
+        d = pd(x.get('date'))
+        r0 = rec['bunbai'].get(x['id']) or {}
+        if (TODAY.weekday() == 1 or r0.get('force')) and x.get('kind') == 'now' and d and d > TODAY and add_biz(d, -1) == TODAY and not r0.get('st'):
+            ev_list.append('分売 ' + clean(x.get('name')))
     if SLOT == 'evening' and ev_list and NOW.hour * 60 + NOW.minute >= 17 * 60 + 15:
         add('matome:e:%s' % TODAY, 'matome', '今夜まとめて申込：%d件' % len(ev_list),
-            '・'.join(ev_list) + '。「今日」で証券会社ごとにまとめて申し込めます', 'todo')
+            '・'.join(ev_list) + '。ホームの「今日やること」から申し込めます', 'todo')
     if SLOT == 'morning' and mo_list and NOW.hour < 8:
         add('matome:m:%s' % TODAY, 'matome', '今日が締切の人気IPO：%d件' % len(mo_list),
-            '・'.join(mo_list) + '。「今日」から申し込めます', 'todo')
+            '・'.join(mo_list) + '。ホームの「今日やること」から申し込めます', 'todo')
 
     sent[SEEN_KEY] = sorted(new_seen)
     return out
