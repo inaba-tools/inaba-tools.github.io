@@ -384,7 +384,7 @@ new MutationObserver(sw).observe(document.documentElement,{attributes:true,attri
 
 <div class="sub" id="sub-qa"><div class="in"><div class="subtop"><button class="back"><b>‹</b>設定</button><h2>よくある質問</h2></div>
 <div class="qag">使い方</div>
-<details class="qa"><summary>「まとめ日」って何？</summary><div class="a">IPOと分売を、<b>証券会社ごとに1回ログインしてまとめて申し込む日</b>です。<br>分売の申込が始まる夜（前の営業日の17:15〜）があれば、その夜に申し込めるIPOも一緒にまとめます。<br>分売が無いときは、IPOの締切の前の夜にまとめます。</div></details>
+<details class="qa"><summary>「まとめ日」って何？</summary><div class="a"><b>申し込むのは毎週火曜の夜だけ</b>です。<br>その夜に申し込めるIPOと分売を、証券会社ごとにまとめて申し込みます。<br>分売だけの夜は、楽天だけ（ログイン1回）にしています。<br>火曜に間に合わないものは見送りです。<br>ただし評価S・Aの人気IPOだけは、締切の前の夜にお知らせします。</div></details><details hidden><summary></summary><div class="a">IPOと分売を、<b>証券会社ごとに1回ログインしてまとめて申し込む日</b>です。<br>分売の申込が始まる夜（前の営業日の17:15〜）があれば、その夜に申し込めるIPOも一緒にまとめます。<br>分売が無いときは、IPOの締切の前の夜にまとめます。</div></details>
 <details class="qa"><summary>申し込んだら何をする？</summary><div class="a">「今日」の一覧で、申し込んだ証券会社の<b>丸をタップ</b>するだけです。<br>全部の会社が済むと、自動で「申込済み」になります。</div></details>
 <details class="qa"><summary>結果が出たら？</summary><div class="a">「当たった」か「外れた」を押すだけです。<br>当たったら「今日」に売る日が出ます。<br>売ったら、売った値段を入れると「実績」に入ります。</div></details>
 <details class="qa"><summary>状態はどう変わる？</summary><div class="a"><b>申込前 → 申込済み → 当選 → 終了</b>の順に、自動で進みます。<br>申込期間が終わると、申し込まなかったものは「終了」に入ります。</div></details>
@@ -412,7 +412,7 @@ new MutationObserver(sw).observe(document.documentElement,{attributes:true,attri
 
 <script src="budoux.js"></script>
 <script>
-const BUILD='1794398000';
+const BUILD='1794400000';
 // 新しい版が出ていたら、自動で読み込み直す（ホーム画面アプリでもすぐ反映）
 (async()=>{try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const BUILD='(\d+)'/);if(m&&m[1]!==BUILD&&!sessionStorage.getItem('kd_rl'+m[1])){sessionStorage.setItem('kd_rl'+m[1],'1');location.replace('./?v='+m[1]+location.hash)}}catch(e){}})();
 const API='https://script.google.com/macros/s/AKfycbxp2NJyQCnSduboXEaXFN0kndza6-0-zqrJN_0W9tLhBymhxRO8mLlT-dcZgI5lcvLr0A/exec';
@@ -511,7 +511,7 @@ const IPO={
     else o.k='pre';
     o.gain=ipoGain(o);
     o.pl=r.st==='sold'?(r.sell-(r.buy||o.price||0))*(r.sh||o.unit):0;
-    o.key=o.k==='pre'?(o.open?o.be:o.bs):o.k==='done'?o.draw:o.k==='win'?o.ls:(o.ls||o.be);
+    o.mt=o.k==='pre'?ipoMatome(o):null;o.key=o.k==='pre'?(o.mt?o.mt.d:(o.open?o.be:o.bs)):o.k==='done'?o.draw:o.k==='win'?o.ls:(o.ls||o.be);
     o.ev=o.k==='end'?(o.ls||o.be):o.key;
     return o}};
 // 申し込む会社：all＝全部の口座で100株／sbi＝SBIだけ（ポイント用）／wait＝予想が出るまで
@@ -554,11 +554,19 @@ const BUN={
 function bunBrokers(){const L=(brokers||[]).filter(b=>BUNBAI_URL[b.id]&&isUse(b.id)&&hasAcc(b.id));return L.length?L:(brokers||[]).filter(b=>b.id==='rakuten')}
 
 /* ============ まとめ日 ============ */
-// 分売の申込が始まる夕方があれば、その夜に申し込めるIPOもまとめる。無ければIPOの締切の前の夜（初日が締切なら当日）
-function matomeEves(){const t=todayJ();return BUN.all().filter(o=>o.decided&&o.w&&!o.w.after&&(o.k==='pre')&&!o.r.st).map(o=>o.w.prev).filter(d=>d>=t).sort((a,b)=>a-b)}
-function ipoMatome(o,E){const t=todayJ();if(!o.bs||!o.be)return null;const last=prevBizBefore(o.be);
-  const e=E.find(d=>d>=o.bs&&d<=last&&d>=t);if(e)return{d:e,ev:true};
-  if(last>=o.bs){return last>=t?{d:last,ev:true}:{d:o.be,ev:false}}return{d:o.be,ev:false}}
+// 申し込むのは毎週火曜の夜だけ。その夜に申し込めるIPOと分売をまとめる
+// 火曜に間に合わないIPOは、評価S・Aのときだけ締切の前の夜（無理なら締切の朝）。それ以外は見送り
+const TUE=2;
+function tueIn(a,b){const t=todayJ();let d=new Date(Math.max(a,t));while(d<b){if(d.getUTCDay()===TUE)return d;d=new Date(d.getTime()+864e5)}return null}
+function ipoMatome(o){if(!o.bs||!o.be)return null;const e=tueIn(o.bs,o.be);if(e)return{d:e,ev:true};
+  const y=yosoData[o.id]||{};if(y.rank!=='S'&&y.rank!=='A')return null;const t=todayJ();const last=prevBizBefore(o.be);
+  if(last>=o.bs&&last>=t)return{d:last,ev:true,ex:true};if(o.be>=t)return{d:o.be,ev:false,ex:true};return null}
+// 分売は、申込の夜が火曜のものだけ
+const bunIn=o=>!!(o.decided&&o.w&&o.w.prev.getUTCDay()===TUE);
+// 分売を申し込む会社：同じ夜にIPOもあれば全部、分売だけの夜は楽天だけ（ログイン1回）
+function bunNeed(o){const L=bunBrokers();if(!bunIn(o))return L;const night=+o.w.prev;
+  const ipoSame=IPO.all().some(i=>(i.k==='pre'||i.k==='done')&&(m=>m&&m.ev&&+m.d===night)(ipoMatome(i)));
+  if(ipoSame)return L;const r=L.filter(b=>b.id==='rakuten');return r.length?r:L.slice(0,1)}
 
 // 申込の丸（IPO）：全部済むと自動で申込済み
 function ipoToggle(o,bid){const acc={...(o.r.acc||{})};
@@ -569,7 +577,7 @@ function ipoToggle(o,bid){const acc={...(o.r.acc||{})};
   if(!REC.ipo[o.id].st)delete REC.ipo[o.id].st;
   renderAll();if(all&&o.k==='pre')toast(`${o.name}：全部申し込みました`);}
 // 申込の丸（分売）
-function bunToggle(o,bid){const L=bunBrokers();const acc={...(o.r.acc||{})};if(o.k==='done'&&!o.r.acc)L.forEach(b=>acc[b.id]=true);
+function bunToggle(o,bid){const L=bunNeed(o);const acc={...(o.r.acc||{})};if(o.k==='done'&&!o.r.acc)L.forEach(b=>acc[b.id]=true);
   if(!acc[bid]&&o.k==='pre'){if(!o.decided){toast('まだ日にちと値段が決まっていません');return}if(o.w&&o.w.before){toast(`申込は${mdD(o.w.prev)}の17:15ごろからです`);return}}
   acc[bid]=!acc[bid];const all=L.every(b=>acc[b.id]);
   putRec('bunbai',o.id,all?{st:'applied',acc}:{acc});renderAll();if(all)toast(`${o.name}：全部申し込みました`)}
@@ -578,16 +586,16 @@ function setResult(o,st,extra){const prev=snap(o.kind,o.id);putRec(o.kind,o.id,{
   toastUndo({won:`当選おめでとう！ ${o.name}`,lost:extra&&extra.dec?`${o.name}：買わなかったことにしました`:`${o.name}：外れを記録しました`}[st]||'記録しました',o.kind,o.id,prev)}
 
 /* ============ 今日 ============ */
-function todayData(){const t=todayJ();const E=matomeEves();const items=[];
+function todayData(){const t=todayJ();const items=[];
   IPO.all().filter(o=>o.k==='pre'||o.k==='done').forEach(o=>{if(o.be&&o.be<t)return;if(o.k==='pre'&&!o.open&&(o.until==null||o.until>14))return;
-    const mode=recMode(o);const acc=o.r.acc||{};const m=ipoMatome(o,E);if(!m)return;
+    const mode=recMode(o);const acc=o.r.acc||{};const m=ipoMatome(o);if(!m)return;
     needAccs(o).forEach(({b})=>{if(recRow(o,b,mode).skip&&!acc[b.id])return;
       items.push({b,o,kind:'ipo',name:o.name,g:o.gain,ok:!!acc[b.id],open:o.open,url:applyUrl(b.id,o)||bkUrl(b),m,
-        note:`IPO・締切 ${mdW(o.be)}${mode==='sbi'&&b.id==='sbi'?'・ポイント用':''}`})})});
-  BUN.all().filter(o=>(o.k==='pre'||o.k==='done')&&o.decided&&o.w&&!o.w.after).forEach(o=>{const acc=o.r.acc||{};const done=o.k==='done';
-    bunBrokers().forEach(b=>items.push({b,o,kind:'bunbai',name:o.name,g:o.save,ok:done&&!o.r.acc?true:!!acc[b.id],open:o.open,url:BUNBAI_URL[b.id],m:{d:o.w.prev,ev:true},
+        note:`IPO・締切 ${mdW(o.be)}${mode==='sbi'&&b.id==='sbi'?'・ポイント用':''}${m.ex?'・人気なので別の日':''}`})})});
+  BUN.all().filter(o=>(o.k==='pre'||o.k==='done')&&bunIn(o)&&!o.w.after).forEach(o=>{const acc=o.r.acc||{};const done=o.k==='done';
+    bunNeed(o).forEach(b=>items.push({b,o,kind:'bunbai',name:o.name,g:o.save,ok:done&&!o.r.acc?true:!!acc[b.id],open:o.open,url:BUNBAI_URL[b.id],m:{d:o.w.prev,ev:true},
       note:`分売・${o.open?(days(o.date,t)===0?'今朝':'明日の朝')+'8:20まで':mdD(o.w.prev)+' 17:15から'}`}))});
-  const due=items.filter(x=>x.m.d<=t),later=items.filter(x=>x.m.d>t);
+  const due=items.filter(x=>x.m.d<=t),later=items.filter(x=>x.m.d>t&&!x.ok);
   const left=due.filter(x=>!x.ok);
   // 結果を入れるもの
   const h=hourJ();const results=[];
@@ -602,8 +610,8 @@ function todayData(){const t=todayJ();const E=matomeEves();const items=[];
     if(o.k==='win')Object.keys(acc).filter(k=>acc[k]).forEach(id=>{const b=bkOf(id);if(b&&b.fundWhen==='win'){const d=pd(o.x.data13);add(b,v,d,`購入の締切 ${mdW(d)}まで`,o)}})});
   left.filter(x=>x.kind==='ipo'&&x.b.fundWhen==='draw'&&x.o.draw).forEach(x=>{const p=basePrice(x.o);if(p)add(x.b,p*x.o.unit,x.o.draw,x.b.id==='rakuten'?`${mdW(x.o.draw)} 18時まで`:`${mdW(x.o.draw)}まで`,x.o)});
   left.filter(x=>x.kind==='ipo'&&x.b.fundWhen==='apply').forEach(x=>{const p=basePrice(x.o);if(p)add(x.b,p*x.o.unit,t,'申し込む時',x.o)});
-  BUN.all().filter(o=>o.price&&((o.k==='pre'&&o.decided&&o.w&&!o.w.after&&o.w.prev<=t)||(o.k==='done'&&o.date>=t))).forEach(o=>{const acc=o.r.acc||{};
-    bunBrokers().forEach(b=>{if(o.k==='done'&&o.r.acc&&!acc[b.id])return;add(b,o.price*o.unit,o.date,o.k==='done'?`${mdW(o.date)}の朝まで`:'申し込む時',o)})});
+  BUN.all().filter(o=>o.price&&((o.k==='pre'&&bunIn(o)&&!o.w.after&&o.w.prev<=t)||(o.k==='done'&&o.date>=t))).forEach(o=>{const acc=o.r.acc||{};
+    bunNeed(o).forEach(b=>{if(o.k==='done'&&o.r.acc&&!acc[b.id])return;add(b,o.price*o.unit,o.date,o.k==='done'?`${mdW(o.date)}の朝まで`:'申し込む時',o)})});
   const M=Object.values(money).map(m=>{const same=/同じお金/.test(m.b.fund||'');const tot=same?Math.max(...m.L.map(x=>x.v)):m.L.reduce((a,x)=>a+x.v,0);m.L.sort((a,b)=>(a.dl||0)-(b.dl||0));return{...m,tot,same,dl:m.L[0].txt}});
   // 次のまとめ日
   const byDay={};later.forEach(x=>{const k=iso(x.m.d)+(x.m.ev?'e':'m');(byDay[k]=byDay[k]||{m:x.m,L:[]}).L.push(x)});
@@ -655,12 +663,12 @@ function renderToday(){const el=$('#todayBody');const D=todayData();const t=toda
 /* ============ 予定 ============ */
 const STL={pre:'申込前',done:'申込済み',win:'当選',end:'終了'};
 function nextTxt(o){const t=todayJ();
-  if(o.kind==='ipo'){if(o.k==='pre')return o.open?`申込 ${mdW(o.be)}まで`:`申込 ${mdW(o.bs)}から`;if(o.k==='done')return o.draw&&o.draw>=t?`抽選 ${mdW(o.draw)}`:'結果を入れてね';if(o.k==='win')return`上場 ${mdW(o.ls)}（売る日）`;
+  if(o.kind==='ipo'){if(o.k==='pre')return o.mt?(o.mt.ex?`人気なので${o.mt.ev?'この夜':'この朝'}に申し込む`:'この夜にまとめて申し込む'):'火曜に間に合わない';if(o.k==='done')return o.draw&&o.draw>=t?`抽選 ${mdW(o.draw)}`:'結果を入れてね';if(o.k==='win')return`上場 ${mdW(o.ls)}（売る日）`;
     return o.r.st==='sold'?'売りました':o.r.st==='lost'?(o.r.dec?'買わなかった':'外れ'):`上場 ${mdW(o.ls)}`}
-  if(o.k==='pre')return!o.decided?`${mdD(o.date)}〜${mdD(o.endD)}のどれか`:o.open?'申込受付中・朝8:20まで':`申込 ${mdW(o.w.prev)} 17:15から`;
+  if(o.k==='pre')return!o.decided?`${mdD(o.date)}〜${mdD(o.endD)}のどれか`:!bunIn(o)?'火曜の夜ではない':o.open?'申込受付中・朝8:20まで':'この夜にまとめて申し込む';
   if(o.k==='done')return`結果 ${mdW(o.date)}の朝`;if(o.k==='win')return`${mdW(o.date)} 9時から売れる`;
   return o.r.st==='sold'?'売りました':o.r.st==='lost'?'外れ':`実施 ${mdW(o.date)}`}
-function chipOf(o){const c=o.k==='pre'&&o.open?'now':o.k==='end'&&o.r.st==='lost'?'lost':o.k;const l=o.k==='pre'&&o.open?'申込中':o.k==='end'&&o.r.st==='sold'?'売却済み':o.k==='end'&&o.r.st==='lost'?(o.r.dec?'辞退':'外れ'):STL[o.k];
+function chipOf(o){if(o.k==='pre'&&(o.kind==='ipo'?!o.mt:(o.decided&&!bunIn(o))))return`<span class="chip lost">見送り</span>`;const c=o.k==='pre'&&o.open?'now':o.k==='end'&&o.r.st==='lost'?'lost':o.k;const l=o.k==='pre'&&o.open?'申込中':o.k==='end'&&o.r.st==='sold'?'売却済み':o.k==='end'&&o.r.st==='lost'?(o.r.dec?'辞退':'外れ'):STL[o.k];
   return`<span class="chip ${c}">${l}</span>`}
 function rightOf(o){if(o.k==='end'&&o.r.st==='sold')return amt(o.pl,'利益');if(o.k==='end'&&o.r.st==='lost')return'';
   if(o.kind==='ipo')return o.gain!=null?amt(o.gain,o.x&&yosoData[o.id]&&yosoData[o.id].first?'初値なら':'予想利益'):`<div class="amt"><small>予想待ち</small></div>`;
@@ -676,7 +684,7 @@ function renderPlan(){const el=$('#planBody');const t=todayJ();const all=[...IPO
     if(m!==cur){if(open)h+='</div>';cur=m;h+=`<div class="mh">${d?(d.getUTCFullYear()!==t.getUTCFullYear()?d.getUTCFullYear()+'年':'')+(d.getUTCMonth()+1)+'月':'日にち未定'}</div><div class="pl">`;open=true}
     h+=itemRow(o,i++)});if(open)h+='</div>'}
   if(ended.length){const was=!!document.querySelector('#planBody details.endb[open]');h+=`<details class="endb" ${was?'open':''}><summary><span>終わったもの（${ended.length}件）</span><i></i></summary><div class="pl">${ended.map(itemRow).join('')}</div></details>`}
-  h+=`<p class="note" style="margin:16px 24px;text-align:center">タップで詳しく見られます。<br>状態は、申込前 → 申込済み → 当選 → 終了 と自動で進みます。</p>`;
+  h+=`<p class="note" style="margin:16px 24px;text-align:center">タップで詳しく見られます。</p>`;
   el.innerHTML=h}
 
 /* ============ 実績 ============ */
@@ -735,7 +743,8 @@ function ipoDetail(o){const x=o.x,y=yosoData[o.id]||{};const base=basePrice(o);c
   const j=judge(o);if(o.k==='pre'||o.k==='done'||o.k==='win'){const w=o.k==='win';if(j==='good')h+=`<div class="judge"><i>👍</i><span>${w?'買ってよさそうです。':'申し込んでよさそうです。'}<br>評価がDではなく、予想利益がプラスです。</span></div>`;else if(j==='bad')h+=`<div class="judge bad"><i>✋</i><span>${w?'買わないほうがよさそうです。':'見送りがよさそうです。'}<br>評価がD、または予想利益が0円以下です。</span></div>`}
   // 状態ごとの操作
   if(o.k==='pre'){const A=ownAccs();const acc=o.r.acc||{};const mode=recMode(o);
-    h+=`<div class="sec-t">申し込む証券会社</div>`;
+    h+=`<div class="sec-t">申し込む証券会社</div>`;const mt=ipoMatome(o);
+    h+=mt?`<p class="why"><b style="color:var(--ink)">${mdW(mt.d)}の${mt.ev?'夜':'朝'}にまとめて申し込みます。</b>${mt.ex?'<br>火曜に間に合わないけれど、評価が高いので別の日にしました。':''}</p>`:`<p class="why"><b style="color:var(--ink)">火曜の夜に間に合わないので見送りです。</b><br>申し込むなら、下から申し込めます。</p>`;
     if(!A.length)h+=`<div class="box" style="margin:0">使う証券会社がまだありません。<button class="btn" data-sub="acct">証券口座を選ぶ</button></div>`;
     else{const [s1,why]=recSum(o,A,mode);const rows=A.map(({b})=>({b,rc:recRow(o,b,mode)})).filter(r=>!r.rc.skip||acc[r.b.id]);
       h+=`<p class="why"><b style="color:var(--ink)">${s1}</b><br>${why}</p>`;
@@ -764,10 +773,11 @@ function bunDetail(o){const x=o.x;const t=todayJ();
     <div><small>実施日（売れる日）</small><b>${mdW(o.date)}</b><em>${o.decided?'':`〜 ${mdD(o.endD)}のどれか`}</em></div>
     <div><small>必要なお金</small><b>${o.price?man(o.price*o.unit):'—'}</b><em>${yen(o.unit)}株${x.cap?`（上限 ${yen(x.cap)}株）`:''}</em></div></div>`;
   if(o.k!=='end'&&o.good!=null)h+=o.good?`<div class="judge"><i>👍</i><span>申し込んでよさそうです。<br>東証の分売は、2026年は26件中22件が始値で売って得でした。</span></div>`:`<div class="judge bad"><i>✋</i><span>見送りがよさそうです。<br>地方市場の分売は、2026年は7件中2件しか得していません。</span></div>`;
-  if(o.k==='pre'){const L=bunBrokers();const acc=o.r.acc||{};
+  if(o.k==='pre'){const L=bunNeed(o);const acc=o.r.acc||{};
     h+=`<div class="sec-t">申し込む証券会社</div>`;
     if(!o.decided)h+=`<p class="why">日にちと値段は、実施の前の日の夕方に決まります。<br>決まると、その夜がまとめ日になります。</p>`;
-    else{h+=`<div class="sbox">${L.map(b=>{const on=!!acc[b.id];return`<div class="row"><button class="ck ${on?'on':''} ${!on&&!o.open?'lock':''}" data-ck="bunbai|${esc(o.id)}|${b.id}">${CK}</button>${lg(b)}<div class="tt"><div class="t1">${esc(bshort(b))}</div><div class="t2">${on?'申込済み':`${yen(o.unit)}株`}</div>${!on&&o.open?`<div class="step">${BUNBAI_STEP[b.id]||''}</div>`:''}</div>${!on&&o.open?`<a class="go" href="${BUNBAI_URL[b.id]}" target="_blank" rel="noopener" data-goapl="bunbai|${esc(o.id)}|${b.id}">開く</a>`:''}</div>`}).join('')}</div>
+    else{h+=bunIn(o)?`<p class="why"><b style="color:var(--ink)">${mdW(o.w.prev)}の夜にまとめて申し込みます。</b>${L.length===1&&bunBrokers().length>1?'<br>分売だけの夜なので、楽天だけにしています。':''}</p>`:`<p class="why"><b style="color:var(--ink)">火曜の夜ではないので見送りです。</b><br>申し込むなら、下から申し込めます。</p>`;
+      h+=`<div class="sbox">${L.map(b=>{const on=!!acc[b.id];return`<div class="row"><button class="ck ${on?'on':''} ${!on&&!o.open?'lock':''}" data-ck="bunbai|${esc(o.id)}|${b.id}">${CK}</button>${lg(b)}<div class="tt"><div class="t1">${esc(bshort(b))}</div><div class="t2">${on?'申込済み':`${yen(o.unit)}株`}</div>${!on&&o.open?`<div class="step">${BUNBAI_STEP[b.id]||''}</div>`:''}</div>${!on&&o.open?`<a class="go" href="${BUNBAI_URL[b.id]}" target="_blank" rel="noopener" data-goapl="bunbai|${esc(o.id)}|${b.id}">開く</a>`:''}</div>`}).join('')}</div>
       <p class="why">${o.open?`受付中です（${days(o.date,t)===0?'今朝':'明日の朝'}8:20まで）。<br>申し込んだら丸をタップ。`:`申込は ${mdW(o.w.prev)} の17:15ごろからです。`}${L.length>1?'<br>銘柄によっては扱っていない会社もあります。':''}</p>`}}
   else if(o.k==='done'){h+=`<div class="sec-t">結果</div><p class="why">${o.date>t||(+o.date===+t&&hourJ()<8.5)?`${mdW(o.date)}の朝に結果が出ます。`:'結果が出ています。<br>証券会社で確認して、どちらかを押してください。'}</p>
     <div class="btn2"><button class="btn sec" data-res="bunbai|${esc(o.id)}|lost">外れた</button><button class="btn ok" data-res="bunbai|${esc(o.id)}|won">当たった</button></div>

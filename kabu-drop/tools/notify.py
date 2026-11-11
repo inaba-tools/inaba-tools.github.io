@@ -289,39 +289,45 @@ def build(rec, sent):
             add('res:%s' % k, 'bun_result', '分売の結果が出ています：' + name,
                 '当たっていたら、寄り付き（始値）で売るのが基本です', 'bunbai')
 
-    # まとめ日：分売の申込が始まる夕方に、その夜申し込めるIPOもまとめて1回で知らせる（アプリの「やること」と同じ決め方）
-    bun = [x for x in load('bunbai.json', {}).get('items', []) if x.get('kind') == 'now' and pd(x.get('date')) and pd(x.get('date')) >= TODAY]
-    eves = sorted({add_biz(pd(x['date']), -1) for x in bun if not (rec['bunbai'].get(x['id']) or {}).get('st')})
+    # まとめ日：毎週火曜の夜だけ。その夜に申し込めるIPOと分売をまとめて1回で知らせる（アプリの「今日」と同じ決め方）
+    # 火曜に間に合わないIPOは、評価S・Aのときだけ締切の前の夜（無理なら締切の朝）に知らせる。それ以外は見送り
+    def tue_in(a, b):
+        d = max(a, TODAY)
+        while d < b:
+            if d.weekday() == 1:
+                return d
+            d += dt.timedelta(days=1)
+        return None
     ev_list, mo_list = [], []
-    for x in bun:
-        if (rec['bunbai'].get(x['id']) or {}).get('st'):
-            continue
-        d = pd(x['date'])
-        if add_biz(d, -1) == TODAY:
-            ev_list.append('分売 ' + clean(x.get('name')))
-        if d == TODAY:
-            mo_list.append('分売 ' + clean(x.get('name')))
     for x in load('ipo.json', []):
         c = x.get('code')
         st = (rec['ipo'].get(c) or {}).get('st')
         bs, be = pd(x.get('data4')), pd(x.get('data6'))
         if st or not bs or not be or be < TODAY:
             continue
-        last = add_biz(be, -1)
-        e = next((d for d in eves if bs <= d <= last and d >= TODAY), None)
+        e, ev = tue_in(bs, be), True
         if e is None:
-            e = last if (last >= bs and last >= TODAY) else None
+            if (yoso.get(c) or {}).get('rank') not in ('S', 'A'):
+                continue
+            last = add_biz(be, -1)
+            if last >= bs and last >= TODAY:
+                e = last
+            else:
+                e, ev = be, False
         name = 'IPO ' + clean(x.get('data1'))
         if e == TODAY:
-            ev_list.append(name)
-        if be == TODAY:
-            mo_list.append(name)
+            (ev_list if ev else mo_list).append(name)
+    if TODAY.weekday() == 1:
+        for x in load('bunbai.json', {}).get('items', []):
+            d = pd(x.get('date'))
+            if x.get('kind') == 'now' and d and d > TODAY and add_biz(d, -1) == TODAY and not (rec['bunbai'].get(x['id']) or {}).get('st'):
+                ev_list.append('分売 ' + clean(x.get('name')))
     if SLOT == 'evening' and ev_list and NOW.hour * 60 + NOW.minute >= 17 * 60 + 15:
         add('matome:e:%s' % TODAY, 'matome', '今夜まとめて申込：%d件' % len(ev_list),
             '・'.join(ev_list) + '。「今日」で証券会社ごとにまとめて申し込めます', 'todo')
     if SLOT == 'morning' and mo_list and NOW.hour < 8:
-        add('matome:m:%s' % TODAY, 'matome', 'まだ申し込んでいないもの：%d件（今日まで）' % len(mo_list),
-            '・'.join(mo_list) + '。分売は8:20まで', 'todo')
+        add('matome:m:%s' % TODAY, 'matome', '今日が締切の人気IPO：%d件' % len(mo_list),
+            '・'.join(mo_list) + '。「今日」から申し込めます', 'todo')
 
     sent[SEEN_KEY] = sorted(new_seen)
     return out
