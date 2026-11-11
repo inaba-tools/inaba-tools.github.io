@@ -318,7 +318,7 @@ def build(rec, sent):
             mo_list.append(name)
     if SLOT == 'evening' and ev_list and NOW.hour * 60 + NOW.minute >= 17 * 60 + 15:
         add('matome:e:%s' % TODAY, 'matome', '今夜まとめて申込：%d件' % len(ev_list),
-            '・'.join(ev_list) + '。「やること」で証券会社ごとにまとめて申し込めます', 'todo')
+            '・'.join(ev_list) + '。「今日」で証券会社ごとにまとめて申し込めます', 'todo')
     if SLOT == 'morning' and mo_list and NOW.hour < 8:
         add('matome:m:%s' % TODAY, 'matome', 'まだ申し込んでいないもの：%d件（今日まで）' % len(mo_list),
             '・'.join(mo_list) + '。分売は8:20まで', 'todo')
@@ -328,8 +328,7 @@ def build(rec, sent):
 
 
 # 申込の知らせは「まとめ」1回にした（ipo_open・ipo_last・bun_open は、設定でオンにした人だけ）
-DEFAULT_ON = {'matome', 'ipo_new', 'ipo_fund', 'ipo_draw', 'ipo_buy', 'ipo_sell',
-              'bun_new', 'bun_result'}
+DEFAULT_ON = {'matome', 'ipo_fund', 'ipo_buy', 'ipo_sell', 'bun_result'}
 PRICES = load('prices.json', {})
 RATES = {}
 
@@ -361,7 +360,7 @@ def send_group(key, rec, sent):
             hk = dev[:12] + '|hello'
             if hk not in sent:
                 try:
-                    webpush(subscription_info=m['sub'], data=json.dumps({'title': 'KABU DROP の通知がつながりました', 'body': 'これから締切や売る日をお知らせします。種類は設定タブで選べます', 'tab': 'set', 'tag': 'hello'}, ensure_ascii=False),
+                    webpush(subscription_info=m['sub'], data=json.dumps({'title': 'KABU DROP の通知がつながりました', 'body': 'これから締切や売る日をお知らせします。種類は設定で選べます', 'tab': 'set', 'tag': 'hello'}, ensure_ascii=False),
                             vapid_private_key=key, vapid_claims={'sub': 'https://inaba-tools.github.io'}, ttl=6 * 3600)
                     sent[hk] = TODAY.isoformat()
                     print('sent hello')
