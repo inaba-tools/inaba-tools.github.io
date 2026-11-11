@@ -321,6 +321,7 @@ button{font-family:inherit}
 .subpage{position:fixed;inset:0;z-index:8;background:var(--bg);overflow-y:auto;transform:translateX(100%);transition:transform .38s cubic-bezier(.2,1,.3,1);padding-bottom:110px;visibility:hidden}
 .subpage.on{transform:none;visibility:visible}
 .subpage .in{max-width:460px;margin:0 auto}
+.subpage{overflow-x:hidden;overscroll-behavior-x:none}.subpage .in{overflow-x:hidden}#sub-acct{touch-action:pan-y}
 .subtop{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:6px;padding:calc(env(safe-area-inset-top) + 14px) 10px 10px;background:rgba(243,241,234,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 .subtop .back{border:0;background:none;font:800 16px "Noto Sans JP";color:var(--green);padding:8px 6px;display:flex;align-items:center;gap:2px}
 .subtop .back b{font:400 28px Inter;line-height:0;margin-top:-3px}
@@ -1193,7 +1194,7 @@ document.addEventListener('DOMContentLoaded',sw);sw();})()</script>
 <div id="bkList"></div>
 <div class="box"><h3>手数料</h3><p>楽天証券は<b>ゼロコース（0円）</b>で計算しています。</p><p style="color:var(--sub)">IPOは同じ会社に口座を2つ作ることはできませんが、<b>別の証券会社なら、その数だけ抽選に参加</b>できます。</p></div></div></div>
 <div class="subpage" id="sub-data"><div class="in"><div class="subtop"><button class="back"><b>‹</b>設定</button><h2>データについて</h2></div>
-<div class="box"><p>IPOと分売の日程は<b>楽天証券</b>の公開ページ、初値予想は<b>96ut.com</b>、分売の株価は<b>Yahoo!ファイナンス</b>から、3時間ごとに自動で取り込んでいます。</p><p>申込・当選の記録は、この端末とスプレッドシート「決算チェッカー」のログに保存されます。</p><p class="upd" style="color:var(--sub)"></p></div>
+<div class="box"><p>IPOと分売の日程は<b>楽天証券</b>の公開ページ、初値予想は<b>96ut.com</b>、分売の株価は<b>Yahoo!ファイナンス</b>から、3時間ごとに自動で取り込んでいます。</p><p>申込・当選の記録と設定（証券口座・通知など）は、この端末と、ログインしたGoogleアカウントに保存されます。</p><p class="upd" style="color:var(--sub)"></p></div>
 </div></div>
 <div class="subshade" id="subshade"></div>
 <nav class="tabs" id="tabs">
@@ -1380,7 +1381,12 @@ const prevBiz=d=>{let x=new Date(d);while(!isBiz(x))x=new Date(x.getTime()-864e5
 // ---- 設定 ----
 let SET={rateS:3.9,rateL:1.1};
 try{Object.assign(SET,JSON.parse(localStorage.getItem('kd_set')||'{}'))}catch(e){}
-const saveSet=()=>{try{localStorage.setItem('kd_set',JSON.stringify(SET))}catch(e){}};
+const saveSetLocal=()=>{try{localStorage.setItem('kd_set',JSON.stringify(SET))}catch(e){}};
+// 設定（証券口座・SBIのポイント・通知・デザインなど）もGoogleアカウントに保存する。通知の受け取りオン／オフ（pushOn）だけは端末ごと
+const SET_LOCAL=['pushOn','_at'];
+function setPayload(){const o={};Object.keys(SET).forEach(k=>{if(!SET_LOCAL.includes(k))o[k]=SET[k]});o.at=SET._at||Date.now();return o}
+function syncSet(){if(typeof SES==='undefined'||!SES)return;clearTimeout(syncSet.t);syncSet.t=setTimeout(()=>{try{fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'log',s:SES,kind:'set',code:'all',xp:0,memo:setPayload()})}).catch(()=>{})}catch(e){}},800)}
+const saveSet=()=>{SET._at=Date.now();saveSetLocal();syncSet()};
 
 // ---- 記録（端末 + スプレッドシート） ----
 const KINDS=['ipo','bunbai'];
@@ -1400,6 +1406,9 @@ async function loadRemote(){try{const r=await fetch(API+'?action=state'+(SES?'&s
   KINDS.forEach(kind=>{const L=logs.filter(l=>l.kind===kind);if(!L.length)return;const m={};
     L.forEach(l=>{let v=l.memo;if(typeof v==='string'){try{v=JSON.parse(v)}catch(e){v=null}}if(v)m[String(l.code)]=v.st==='clear'?null:v});
     Object.keys(m).forEach(k=>{if(m[k])REC[kind][k]=m[k];else delete REC[kind][k]});saveLocal(kind)});
+  const SL=logs.filter(l=>l.kind==='set');if(SL.length){let v=SL[SL.length-1].memo;if(typeof v==='string'){try{v=JSON.parse(v)}catch(e){v=null}}
+    if(v&&v.at&&v.at>(SET._at||0)){Object.keys(v).forEach(k=>{if(k!=='at'&&!SET_LOCAL.includes(k))SET[k]=v[k]});SET._at=v.at;saveSetLocal();if(window.applyTheme)applyTheme();if(window.renderBrokers)renderBrokers()}
+    else if((SET._at||0)>(v&&v.at||0))syncSet()}else if(SET._at)syncSet();
   renderAll()}catch(e){}}
 
 // ---- データ ----
@@ -1935,7 +1944,7 @@ function gaccRender(){if(window.fxGate)fxGate();
     <p style="color:var(--sub);font-size:12.5px;line-height:1.6;margin:0 0 14px">別のスマホやPCでも、同じGoogleアカウントでログインすれば、申込・当選・見送りの記録が同じになります。</p>
     <button class="btn ghost" id="gOut">ログアウト</button>`;$('#gOut').onclick=gLogout;return}
   bx.innerHTML=`<div class="gav"><div>${PERSON}</div></div><h3>Googleでログイン</h3><div class="em">パスワード不要・1回だけ</div>
-    <ul><li>機種変更しても、申込・当選の記録が消えない</li><li>iPhoneとPCで、同じ記録を見られる</li><li>通知の設定もアカウントに保存</li></ul>
+    <ul><li>機種変更しても、申込・当選の記録が消えない</li><li>iPhoneとPCで、同じ記録を見られる</li><li>証券口座・通知などの設定もアカウントに保存</li></ul>
     <div class="gbtnw" id="gBtn"><span style="color:var(--sub);font-size:12px">読み込み中…</span></div>`;
   loadGsi().then(()=>{try{google.accounts.id.initialize({client_id:GCID,callback:gLogin,ux_mode:'popup',auto_select:false,itp_support:true,use_fedcm_for_prompt:true});
     const w=Math.min(300,Math.max(200,bx.clientWidth-36));google.accounts.id.renderButton($('#gBtn'),{theme:document.documentElement.classList.contains('dark')?'filled_black':'outline',size:'large',shape:'pill',text:'signin_with',locale:'ja',width:w,logo_alignment:'left'})}catch(e){$('#gBtn').textContent='Googleのログインを読み込めませんでした'}})
@@ -1947,6 +1956,7 @@ async function gLogin(resp){
     setSes(j.session,j.user);
     // この端末の記録をアカウントに引っ越し
     KINDS.forEach(k=>Object.keys(REC[k]||{}).forEach(id=>sync(k,id)));
+    if(SET._at)syncSet();
     try{const sub=await curSub();if(sub&&SET.pushOn)await pushSync(sub)}catch(e){}
     toast('ログインしました');setTimeout(loadRemote,1500)}
   catch(e){toast('ログインできませんでした（'+String(e.message||e).slice(0,30)+'）')}}
