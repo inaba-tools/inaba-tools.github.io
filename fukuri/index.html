@@ -138,10 +138,10 @@ main{position:relative;z-index:1;min-height:100dvh;
 nav.glass{position:fixed;z-index:5;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 14px);
   display:flex;gap:4px;padding:6px;border-radius:999px}
 nav button{position:relative;z-index:1;border:0;background:none;color:var(--sub);display:flex;flex-direction:column;align-items:center;gap:2px;
-  width:84px;padding:8px 0 6px;font:700 11px/1 inherit;border-radius:999px;transition:color .25s}
+  width:72px;padding:8px 0 6px;font:700 11px/1 inherit;border-radius:999px;transition:color .25s}
 nav button svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 nav button.on{color:var(--blue)}
-nav .blob{position:absolute;z-index:0;top:6px;bottom:6px;width:84px;border-radius:999px;background:var(--glass2);
+nav .blob{position:absolute;z-index:0;top:6px;bottom:6px;width:72px;border-radius:999px;background:var(--glass2);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 2px 10px rgba(0,0,0,.08);transition:transform .45s cubic-bezier(.3,1.4,.4,1)}
 .topbtn{position:fixed;z-index:4;right:16px;top:calc(env(safe-area-inset-top) + 12px);width:40px;height:40px;border-radius:50%;
   display:grid;place-items:center;border:1px solid var(--edge)}
@@ -155,12 +155,20 @@ nav .blob{position:absolute;z-index:0;top:6px;bottom:6px;width:84px;border-radiu
 .toast{position:fixed;z-index:8;left:50%;top:calc(env(safe-area-inset-top) + 14px);transform:translate(-50%,-80px);transition:transform .35s;
   padding:10px 16px;border-radius:999px;font-size:13px;font-weight:700}
 .toast.on{transform:translate(-50%,0)}
+/* 設定 */
+.set .row+.row{border-top:1px solid var(--line);margin-top:12px;padding-top:12px}
+.set .t{font-size:15px;font-weight:700}.set .s{font-size:12.5px;color:var(--sub);margin-top:3px;line-height:1.55}
+.btn{border:0;border-radius:14px;padding:11px 16px;font:700 14px/1 inherit;background:var(--blue);color:#fff;white-space:nowrap}
+.btn.sub{background:var(--line);color:var(--ink)}
+.btn.g{display:inline-flex;align-items:center;gap:8px;background:#fff;color:#1f1f1f;border:1px solid #dadce0}
+.btn.g svg{width:18px;height:18px}
+.gate .btn{margin-top:14px}
 </style>
 </head>
 <body>
 <div class="sky"><i></i><i></i><i></i></div>
 <div class="fadeT"></div><div class="fadeB"></div>
-<div class="gate glass" id="gate"><div><img src="icon-512.png" alt=""><h2>フクリ</h2><p class="cap">合い鍵の入ったリンクから開いてください。<br>自分専用のアプリです。</p></div></div>
+<div class="gate glass" id="gate"><div><img src="icon-512.png" alt=""><h2>フクリ</h2><p class="cap" id="gmsg">合い鍵の入ったリンクから開いてください。<br>自分専用のアプリです。</p><div id="gbtn"></div></div></div>
 <button class="topbtn glass bell" id="bell" aria-label="通知"><svg viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15zM10 20a2 2 0 0 0 4 0"/></svg></button>
 <button class="topbtn glass" id="reload" aria-label="更新"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"/></svg></button>
 <div class="toast glass" id="toast"></div>
@@ -168,15 +176,18 @@ nav .blob{position:absolute;z-index:0;top:6px;bottom:6px;width:84px;border-radiu
   <section class="page on" id="p-ipo"></section>
   <section class="page" id="p-plan"></section>
   <section class="page" id="p-fx"></section>
+  <section class="page" id="p-set"></section>
 </main>
 <nav class="glass" id="nav">
   <div class="blob" id="blob"></div>
   <button data-p="ipo" class="on"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/><circle cx="19" cy="17" r="2"/></svg>申込</button>
   <button data-p="plan"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg>予定</button>
   <button data-p="fx"><svg viewBox="0 0 24 24"><path d="M3 17l5-5 4 3 8-8M15 7h5v5"/></svg>FX</button>
+  <button data-p="set"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M2.5 12h3M18.5 12h3M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/></svg>設定</button>
 </nav>
 <script>
-const VERSION='3';
+const VERSION='4';
+const CLIENT_ID='';  // GoogleログインのクライアントID（公開してよい値）
 const VAPID='BFPiiQbgaxGzyfVZaA--hO4tmo7iamPgNVKypX8MHbwrcy3IF3d3544WBQX1cVLJmfDnfnRuZaPrTR9KNwHJlyc';
 const API='https://script.google.com/macros/s/AKfycbwTnqvwT5kAsd0AKqWztPr5yxcw4FKEM4ISuuMwrtFsUGmYTjdeAzXfhypG1TIj_B7d/exec';
 const KD='../kabu-drop/data/';
@@ -189,11 +200,37 @@ const W='日月火水木金土';
 const store={get(k){try{return localStorage.getItem(k)}catch(_){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(_){}}};
 
 // 合い鍵：リンクの #k=… から受け取り、そのままURLに残す（ホーム画面に追加しても使える）
-let KEY=(location.hash.match(/k=([A-Za-z0-9-]+)/)||[])[1]||store.get('fk_key')||'';
-if(KEY){store.set('fk_key',KEY);if(!location.hash.includes('k='))history.replaceState(null,'','#k='+KEY)}
+let KEY=(location.hash.match(/(?:^#|&)k=([A-Za-z0-9-]+)/)||[])[1]||store.get('fk_key')||'';
+if(KEY){store.set('fk_key',KEY);if(!location.hash.includes('k=')&&!location.hash.includes('id_token'))history.replaceState(null,'','#k='+KEY)}
 if(!KEY)$('#gate').classList.add('on');
 
-let D=null,KDD={ipo:[],yoso:{},bun:{items:[]}},TAB=store.get('fk_tab')||'ipo',FXR=store.get('fk_fxr')||'all';
+// Googleログイン：ログイン後に窓口がくれる「通行証」を保存して、毎回いっしょに送る
+let SESS=store.get('fk_sess')||'',GMAIL=store.get('fk_gmail')||'';
+const GICON='<svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.5l6.7-6.7C35.6 2.4 30.2 0 24 0 14.6 0 6.6 5.4 2.6 13.2l7.8 6C12.3 13.4 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 6.9l7.5 5.8c4.4-4 6.8-10 6.8-17.2z"/><path fill="#FBBC05" d="M10.4 28.8c-.5-1.4-.8-3-.8-4.8s.3-3.3.8-4.8l-7.8-6C1 16.5 0 20.1 0 24s1 7.5 2.6 10.8l7.8-6z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.8-5.8l-7.5-5.8c-2.1 1.4-4.8 2.3-8.3 2.3-6.3 0-11.7-3.9-13.6-9.6l-7.8 6C6.6 42.6 14.6 48 24 48z"/></svg>';
+function gLogin(){
+  if(!CLIENT_ID){toast('Googleログインはまだ準備中です');return}
+  const n=crypto.getRandomValues(new Uint32Array(4)).join('');store.set('fk_nonce',n);
+  const u=new URL('https://accounts.google.com/o/oauth2/v2/auth');
+  Object.entries({client_id:CLIENT_ID,response_type:'id_token',scope:'openid email',redirect_uri:location.origin+location.pathname,nonce:n,state:n,prompt:'select_account'}).forEach(([k,v])=>u.searchParams.set(k,v));
+  location.href=u.toString();
+}
+function gLogout(){fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({kind:'logout',key:KEY,sess:SESS})}).catch(()=>{});
+  SESS='';GMAIL='';store.set('fk_sess','');store.set('fk_gmail','');store.set('fk_cache','');renderSet();toast('ログアウトしました');load()}
+function needLogin(){$('#gmsg').innerHTML='Googleでログインしてください。<br>自分のアカウントだけが開けます。';
+  $('#gbtn').innerHTML=`<button class="btn g" onclick="gLogin()">${GICON}Googleでログイン</button>`;$('#gate').classList.add('on')}
+// Googleから戻ってきたとき
+async function gReturn(){
+  const h=new URLSearchParams(location.hash.slice(1));const idt=h.get('id_token');if(!idt&&!h.get('error'))return;
+  history.replaceState(null,'',location.pathname+(KEY?'#k='+KEY:''));
+  if(!idt){toast('ログインを中止しました');return}
+  if(h.get('state')!==store.get('fk_nonce')){toast('ログインに失敗しました');return}
+  try{const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({kind:'login',key:KEY,idt,nonce:store.get('fk_nonce')})}).then(r=>r.json());
+    if(!r.ok){toast(r.err==='who'?'このアカウントでは開けません':'ログインに失敗しました');return}
+    SESS=r.sess;GMAIL=r.email;store.set('fk_sess',SESS);store.set('fk_gmail',GMAIL);$('#gate').classList.remove('on');toast('ログインしました');go('set');
+  }catch(_){toast('ログインに失敗しました')}
+}
+
+let GON=false,D=null,KDD={ipo:[],yoso:{},bun:{items:[]}},TAB=store.get('fk_tab')||'ipo',FXR=store.get('fk_fxr')||'all';
 
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('on'),2200)}
 
@@ -202,11 +239,12 @@ async function load(force){
   $('#reload').classList.add('spin');
   try{
     const [a,b,c,d]=await Promise.all([
-      fetch(API+'?key='+KEY+'&t='+Date.now()).then(r=>r.json()),
+      fetch(API+'?key='+KEY+'&s='+SESS+'&t='+Date.now()).then(r=>r.json()),
       fetch(KD+'ipo.json?t='+Date.now(),{cache:'no-store'}).then(r=>r.json()).catch(()=>[]),
       fetch(KD+'yoso.json?t='+Date.now(),{cache:'no-store'}).then(r=>r.json()).catch(()=>({})),
       fetch(KD+'bunbai.json?t='+Date.now(),{cache:'no-store'}).then(r=>r.json()).catch(()=>({items:[]}))]);
-    if(!a.ok){if(a.err==='key'){$('#gate').classList.add('on')}throw 0}
+    if(!a.ok){if(a.err==='key'){$('#gate').classList.add('on')}if(a.err==='login'){SESS='';store.set('fk_sess','');needLogin()}throw 0}
+    GON=!!a.google;
     D=a;KDD={ipo:b,yoso:c,bun:d};
     store.set('fk_cache',JSON.stringify({D,KDD}));
     render();if(force)toast('最新にしました');
@@ -364,11 +402,23 @@ function drawChart(R){
 }
 
 // ---------- 画面の切り替え ----------
-function render(){renderIPO();renderPlan();renderFX()}
+function renderSet(){
+  const el=$('#p-set');if(!el)return;
+  const g=SESS?`<div class="t">ログイン中<span class="tag g">ON</span></div><div class="s">${esc(GMAIL)}<br>合い鍵＋Googleログインの二重で守っています。</div>`
+    :`<div class="t">Googleログイン<span class="tag n">${GON?'必要':'未設定'}</span></div><div class="s">ログインすると、合い鍵だけでは開けなくなります。<br>自分のアカウントだけが開けるようになります。</div>`;
+  el.innerHTML=`<div class="hd"><div class="eyebrow">フクリ</div><h1>設定</h1></div>
+   <div class="sec">アカウント</div>
+   <div class="card glass set"><div class="row"><div>${g}</div></div>
+    <div style="margin-top:14px">${SESS?'<button class="btn sub" onclick="gLogout()">ログアウト</button>':`<button class="btn g" onclick="gLogin()">${GICON}Googleでログイン</button>`}</div></div>
+   <div class="sec">通知</div>
+   <div class="card glass set"><div class="row"><div><div class="t">アプリへの通知</div><div class="s">右上のベルから登録します。<br>ホーム画面に追加したフクリで押してください。</div></div></div></div>
+   <div class="foot">版 ${VERSION}</div>`;
+}
+function render(){renderIPO();renderPlan();renderFX();renderSet()}
 function go(p){TAB=p;store.set('fk_tab',p);
   document.querySelectorAll('.page').forEach(e=>e.classList.toggle('on',e.id==='p-'+p));
   const bs=[...document.querySelectorAll('nav button')];bs.forEach(b=>b.classList.toggle('on',b.dataset.p===p));
-  const i=bs.findIndex(b=>b.dataset.p===p);$('#blob').style.transform=`translateX(${i*88}px)`;window.scrollTo(0,0);
+  const i=bs.findIndex(b=>b.dataset.p===p);$('#blob').style.transform=`translateX(${i*76}px)`;window.scrollTo(0,0);
   if(p==='fx'&&D)drawChart(trades().filter(x=>x.d>=new Date(Date.now()-({'7':7,'30':30,'all':99999}[FXR])*864e5).toISOString().slice(0,10)))}
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(b.dataset.p));
 $('#reload').onclick=()=>load(true);
@@ -386,7 +436,7 @@ $('#bell').onclick=async()=>{
     if(await Notification.requestPermission()!=='granted'){toast('通知が許可されませんでした');return}
     const r=swReg||await navigator.serviceWorker.ready;let sub=await r.pushManager.getSubscription();
     if(!sub)sub=await r.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64(VAPID)});
-    const res=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({kind:'sub',key:KEY,sub:sub.toJSON()})}).then(r=>r.json());
+    const res=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({kind:'sub',key:KEY,sess:SESS,sub:sub.toJSON()})}).then(r=>r.json());
     if(!res.ok)throw 0;toast('通知がつながりました');bellState();
   }catch(e){toast('通知の登録に失敗しました')}
 };
@@ -394,7 +444,7 @@ $('#bell').onclick=async()=>{
 
 // 前回の中身をすぐ出してから最新を読む
 try{const c=JSON.parse(store.get('fk_cache')||'null');if(c){D=c.D;KDD=c.KDD;render()}}catch(_){}
-go(TAB);load();
+renderSet();go(TAB);gReturn().then(()=>load());
 setInterval(()=>{if(!document.hidden&&TAB==='fx')load()},60000);
 // 更新の自動反映：新しい版が出ていたら読み直す
 async function checkVer(){try{const v=(await fetch('version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.text())).trim();if(v&&v!==VERSION)location.reload()}catch(_){}}

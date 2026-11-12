@@ -33,6 +33,44 @@ const ss_ = () => SpreadsheetApp.openById(P.getProperty('SHEET'));
 const out_ = o => ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON);
 // 「=」「+」「-」「@」で始まる文字が数式にならないよう、先頭に ' を付ける
 const safe_ = r => r.map(v => (typeof v === 'string' && /^[=+\-@]/.test(v)) ? "'" + v : v);
+// ---------- Googleログイン（合い鍵＋Googleの二重） ----------
+// スクリプトプロパティ：GOOGLE_CLIENT_ID（クライアントID）、ALLOW_EMAIL（開けるアカウント。最初にログインしたアカウントが自動で入る）
+// 一度ログインすると GOOGLE_ON=1 になり、それ以降は通行証（sess）がないと読めない
+const hash_ = t => Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, String(t)));
+const sessOk_ = t => {
+  if (!t) return false;
+  const m = JSON.parse(P.getProperty('SESS') || '{}'); const e = m[hash_(t)];
+  return !!e && e > Date.now();
+};
+const googleOn_ = () => P.getProperty('GOOGLE_ON') === '1';
+function login_(d) {
+  const cid = P.getProperty('GOOGLE_CLIENT_ID');
+  if (!cid || !d.idt) return { ok: false, err: 'setup' };
+  const r = UrlFetchApp.fetch('https://oauth2.googleapis.com/tokeninfo?id_token=' + encodeURIComponent(d.idt), { muteHttpExceptions: true });
+  if (r.getResponseCode() !== 200) return { ok: false, err: 'token' };
+  const t = JSON.parse(r.getContentText());
+  if (t.aud !== cid || String(t.email_verified) !== 'true' || !t.email || (d.nonce && t.nonce !== d.nonce)) return { ok: false, err: 'token' };
+  const email = String(t.email).toLowerCase();
+  const allow = (P.getProperty('ALLOW_EMAIL') || '').toLowerCase();
+  if (allow && allow !== email) { alert_('別のGoogleアカウントでログインしようとしました'); return { ok: false, err: 'who' }; }
+  if (!allow) P.setProperty('ALLOW_EMAIL', email);
+  const sess = Utilities.getUuid().replace(/-/g, '') + Utilities.getUuid().replace(/-/g, '');
+  const m = JSON.parse(P.getProperty('SESS') || '{}'); const now = Date.now();
+  Object.keys(m).forEach(k => { if (m[k] < now) delete m[k]; });
+  m[hash_(sess)] = now + 180 * 864e5;   // 180日有効
+  const keep = Object.entries(m).sort((a, b) => b[1] - a[1]).slice(0, 10);
+  P.setProperty('SESS', JSON.stringify(Object.fromEntries(keep)));
+  P.setProperty('GOOGLE_ON', '1');
+  return { ok: true, sess: sess, email: email.replace(/^(.{2}).*(@.*)$/, '$1***$2') };
+}
+// 不審なアクセスの記録（緊急通知はこのあと追加）
+function alert_(msg) {
+  try {
+    const sh = ss_().getSheetByName('実行記録');
+    sh.insertRowAfter(1); sh.getRange(2, 1, 1, 3).setValues([[new Date(), '警告', msg]]);
+  } catch (_) {}
+}
+
 const rows_ = sh => { const v = sh.getDataRange().getValues(); const h = v.shift(); return v.filter(r => r.join('') !== '').map(r => r); };
 
 function doPost(e) {
@@ -40,7 +78,16 @@ function doPost(e) {
   try { d = JSON.parse(e.postData.contents); } catch (_) { return out_({ ok: false, err: 'json' }); }
   // 通知の登録は本物の通知サーバー（Apple・Google・Mozilla・Microsoft）だけ
   const PUSH_OK = /^https:\/\/(web\.push\.apple\.com|fcm\.googleapis\.com|updates\.push\.services\.mozilla\.com|[a-z0-9-]+\.notify\.windows\.com)\//;
-  if (d.kind === 'sub' && d.key === P.getProperty('KEY_R') && d.sub && PUSH_OK.test(d.sub.endpoint || '')) {
+  if (d.kind === 'login') {
+    if (d.key !== P.getProperty('KEY_R')) return out_({ ok: false, err: 'key' });
+    const lockL = LockService.getScriptLock(); lockL.waitLock(20000);
+    try { return out_(login_(d)); } finally { lockL.releaseLock(); }
+  }
+  if (d.kind === 'logout') {
+    const m = JSON.parse(P.getProperty('SESS') || '{}'); delete m[hash_(d.sess || '')];
+    P.setProperty('SESS', JSON.stringify(m)); return out_({ ok: true });
+  }
+  if (d.kind === 'sub' && d.key === P.getProperty('KEY_R') && (!googleOn_() || sessOk_(d.sess)) && d.sub && PUSH_OK.test(d.sub.endpoint || '')) {
     const lock0 = LockService.getScriptLock(); lock0.waitLock(20000);
     try {
       let subs = JSON.parse(P.getProperty('SUBS') || '[]').filter(s => s.endpoint !== d.sub.endpoint);
@@ -82,6 +129,7 @@ function doPost(e) {
 function doGet(e) {
   if (e.parameter.subs && e.parameter.key === P.getProperty('KEY_W')) return out_({ ok: true, subs: JSON.parse(P.getProperty('SUBS') || '[]') });
   if ((e.parameter.key || '') !== P.getProperty('KEY_R')) return out_({ ok: false, err: 'key' });
+  if (googleOn_() && !sessOk_(e.parameter.s)) return out_({ ok: false, err: 'login', google: true });
   const ss = ss_();
   const ipo = rows_(ss.getSheetByName('IPO'));
   const runs = rows_(ss.getSheetByName('実行記録')).slice(0, 30);
@@ -90,7 +138,7 @@ function doGet(e) {
   let now = {}; try { now = JSON.parse(fn[1] || '{}'); } catch (_) {}
   const iso = v => v instanceof Date ? Utilities.formatDate(v, 'Asia/Tokyo', "yyyy-MM-dd'T'HH:mm:ss") : String(v);
   return out_({
-    ok: true, at: iso(new Date()), ipoAt: P.getProperty('IPO_AT') || '',
+    ok: true, google: googleOn_(), at: iso(new Date()), ipoAt: P.getProperty('IPO_AT') || '',
     ipo: ipo.map(r => r.map(iso)), runs: runs.map(r => r.map(iso)),
     fx: { at: fn[0] ? iso(fn[0]) : '', now: now, trades: trades.map(r => r.map(iso)) }
   });
