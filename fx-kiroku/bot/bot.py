@@ -311,6 +311,9 @@ def kata_a(st, now):
     mid = (bid + ask) / 2
     o = s.get('open')
     if o:
+        # 比較の記録用：持っている間に一番得した値段（決済する側の値段）を覚えておく（売買には使わない）
+        ex = bid if o['side'] == 'BUY' else ask
+        o['best'] = max(o.get('best', ex), ex) if o['side'] == 'BUY' else min(o.get('best', ex), ex)
         # 練習モードの損切り判定（本番は取引所に置いた逆指値が動く）
         if DRY and ((o['side'] == 'BUY' and bid <= o['stop']) or (o['side'] == 'SELL' and ask >= o['stop'])):
             close_a(s, now, '損切り（50銭）', px=bid if o['side'] == 'BUY' else ask)
@@ -364,7 +367,35 @@ def close_a(s, now, why, px=None, already=False):
         why += '（入る時のスプレッド %s）' % spread_txt('USD_JPY', o['spread'])
     record(o['day'], '型A ドル円', o['side'], o['price'], o['time'], px, now.strftime('%H:%M'), why,
            pnl('USD_JPY', o['side'], o['price'], px, SIZE_A))
+    try:
+        tp_compare(o, px, now)
+    except Exception as e:
+        log('型A 利確の比較の記録で失敗: %s' % e)
     s['open'] = None
+
+
+# 比べるための記録だけ（本物の注文は出さない）：「途中で○円得したら、その時点で決済していたら」
+TP_LEVELS = (1.0, 2.0, 3.0)
+
+
+def tp_compare(o, px, now):
+    best = o.get('best')
+    for lv in TP_LEVELS:
+        gain = -1 if best is None else (best - o['price']) if o['side'] == 'BUY' else (o['price'] - best)
+        if gain >= lv:
+            xout, why = round(o['price'] + lv if o['side'] == 'BUY' else o['price'] - lv, 3), '%d円得した時点で決済したことにする' % lv
+        else:
+            xout, why = round(px, 3), '%d円に届かず本番と同じ決済' % lv
+        row = [o['day'], '型A 利確%d円（比較）' % lv, '買い' if o['side'] == 'BUY' else '売り', o['time'], o['price'],
+               now.strftime('%H:%M'), xout, why, round(pnl('USD_JPY', o['side'], o['price'], xout, SIZE_A)), '比較']
+        with open(KIROKU, 'a', newline='', encoding='utf-8') as f:
+            csv.writer(f).writerow(row)
+        log('記録 %s' % row)
+        if SHEET_URL:
+            try:
+                requests.post(SHEET_URL, json={'row': row}, timeout=20)
+            except Exception as e:
+                log('スプレッドシートへ送れず: %s' % e)
 
 
 # ---------- 型A（逆指値方式）… 比べるための記録だけ（本物の注文は出さない） ----------
