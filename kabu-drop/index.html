@@ -500,7 +500,7 @@ new MutationObserver(sw).observe(document.documentElement,{attributes:true,attri
 
 <script src="budoux.js"></script>
 <script>
-const BUILD='1794419000';
+const BUILD='1794481354';
 // 新しい版が出ていたら、自動で読み込み直す（ホーム画面アプリでもすぐ反映）
 (async()=>{try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const BUILD='(\d+)'/);if(m&&m[1]!==BUILD&&!sessionStorage.getItem('kd_rl'+m[1])){sessionStorage.setItem('kd_rl'+m[1],'1');location.replace('./?v='+m[1]+location.hash)}}catch(e){}})();
 const API='https://script.google.com/macros/s/AKfycbxp2NJyQCnSduboXEaXFN0kndza6-0-zqrJN_0W9tLhBymhxRO8mLlT-dcZgI5lcvLr0A/exec';
@@ -1184,9 +1184,9 @@ phrase(document.body);phObs.observe(document.body,{childList:true,subtree:true,c
 // ---- 読み込み ----
 async function getJSON(u,def){try{const r=await fetch(u+'?'+Date.now());if(!r.ok)return def;return await r.json()}catch(e){return def}}
 async function load(){
-  [ipos,bunbai,prices,yosoData]=await Promise.all([getJSON('data/ipo.json',[]),getJSON('data/bunbai.json',{items:[],past:[]}),getJSON('data/prices.json',{}),getJSON('data/yoso.json',{})]);
+  [ipos,bunbai,prices,yosoData]=await Promise.all([getJSON('../kabu-data/ipo.json',[]),getJSON('../kabu-data/bunbai.json',{items:[],past:[]}),getJSON('../kabu-data/prices.json',{}),getJSON('../kabu-data/yoso.json',{})]);
   // 楽天から消えた古いIPOも残す＋上場したIPOの実際の初値・終値
-  const [hist,fst,bk]=await Promise.all([getJSON('data/ipo_hist.json',{}),getJSON('data/ipo_first.json',{}),getJSON('data/brokers.json',{items:[]})]);
+  const [hist,fst,bk]=await Promise.all([getJSON('../kabu-data/ipo_hist.json',{}),getJSON('../kabu-data/ipo_first.json',{}),getJSON('data/brokers.json',{items:[]})]);
   const have=new Set(ipos.map(x=>x.code));Object.values(hist||{}).forEach(x=>{if(x&&x.code&&!have.has(x.code))ipos.push(x)});
   Object.entries(fst||{}).forEach(([c,f])=>{const y=Object.assign({},yosoData[c]||{});if(!y.first&&f.open)y.first=f.open;if(f.close)y.close=f.close;yosoData[c]=y});
   brokers=(bk&&bk.items)||[];

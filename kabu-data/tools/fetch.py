@@ -1,4 +1,4 @@
-# KABU DROP のデータ取得（GitHub Actions から3時間ごとに実行）
+# 株データの大元（kabu-data）— KABU DROP・フクリが読みにいく。GitHub Actions から3時間ごとに実行
 #  - 立会外分売：楽天証券の公開ページ（申込受付中・実施予定・過去実績）
 #  - 株価・配当：Yahoo!ファイナンスの公開チャートデータ（優待・分売の銘柄だけ）
 #  - 会社名：東証（JPX）の上場銘柄一覧（7日に1回）
@@ -13,9 +13,8 @@ import time
 import unicodedata
 import urllib.request
 
-BASE = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data')
+BASE = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 UA = {'User-Agent': 'Mozilla/5.0'}
-API = 'https://script.google.com/macros/s/AKfycbxp2NJyQCnSduboXEaXFN0kndza6-0-zqrJN_0W9tLhBymhxRO8mLlT-dcZgI5lcvLr0A/exec'
 JST = dt.timezone(dt.timedelta(hours=9))
 TODAY = dt.datetime.now(JST).date()
 
@@ -222,27 +221,6 @@ def fetch_names():
 
 
 # ---------- 株価・配当 ----------
-def yutai_codes():
-    try:
-        j = json.loads(get(API + '?action=state', timeout=60))
-        logs = j.get('state', {}).get('logs', [])
-    except Exception as e:
-        print('state error', e, file=sys.stderr)
-        return None
-    last = {}
-    for l in logs:
-        if l.get('kind') != 'yutai':
-            continue
-        m = l.get('memo')
-        if isinstance(m, str):
-            try:
-                m = json.loads(m)
-            except Exception:
-                m = None
-        last[str(l.get('code'))] = m
-    return {c for c, m in last.items() if m and m.get('st') != 'clear'}
-
-
 def fetch_prices(codes):
     old = load('prices.json', {})
     out = {}

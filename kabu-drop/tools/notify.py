@@ -82,9 +82,14 @@ def clean(s):
     return str(s or '').replace('株式会社', '').replace('（株）', '').strip()
 
 
+# 株データは大元（kabu-data）から読む。KABU DROP自身の記録（sent.json等）は data/ に置く
+HUB = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'kabu-data')
+OWN = ('sent.json', 'fx_today.json', 'brokers.json')
+
+
 def load(name, default):
     try:
-        with open(os.path.join(BASE, name), encoding='utf-8') as f:
+        with open(os.path.join(BASE if name in OWN else HUB, name), encoding='utf-8') as f:
             return json.load(f)
     except Exception:
         return default
