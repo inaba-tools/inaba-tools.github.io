@@ -10,7 +10,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="フクリ">
-<meta name="theme-color" content="#1c2430">
+<meta name="theme-color" content="#0b0b0c">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=1">
 <link rel="apple-touch-icon" media="(prefers-color-scheme: dark)" href="apple-touch-icon-dark.png?v=1">
 <link rel="icon" href="icon-192.png?v=1">
@@ -167,37 +167,36 @@ body.lock main,body.lock nav,body.lock .topbtn,body.lock .fadeB{display:none!imp
 .btn.g svg{width:18px;height:18px}
 .gate .btn{margin-top:14px}
 
-/* ===== テーマE：紺×アイボリー（明るい・くっきり） ===== */
-:root,:root:not(#x){--bg:#f3efe7;--bg2:#f3efe7;--ink:#1c2430;--sub:#6f6b63;--mute:#9a958b;
-  --glass:#fbf9f4;--glass2:#ffffff;--edge:#e4ddd0;--line:#e4ddd0;
-  --up:#1f6b50;--dn:#b3412f;--gold:#b07d0a;--blue:#1c2430;--warn:#b86e00;--navy:#1c2430;--ivory:#f3efe7;--shadow:none}
-@media (prefers-color-scheme:dark){:root{--bg:#f3efe7;--bg2:#f3efe7;--ink:#1c2430;--sub:#6f6b63;--mute:#9a958b;
-  --glass:#fbf9f4;--glass2:#ffffff;--edge:#e4ddd0;--line:#e4ddd0;--up:#1f6b50;--dn:#b3412f;--gold:#b07d0a;--blue:#1c2430;--warn:#b86e00;--shadow:none}}
+/* ===== テーマD：黒×金（上のぼかしも黒でなじむ） ===== */
+:root,:root:not(#x){--bg:#0b0b0c;--bg2:#0b0b0c;--ink:#f2efe8;--sub:#9a958c;--mute:#6e6a63;
+  --glass:#161618;--glass2:#1f1f22;--edge:#26262a;--line:#2a2a2e;
+  --up:#4ccf8a;--dn:#ff6b5e;--gold:#d6b26a;--blue:#d6b26a;--warn:#e0a040;--shadow:none}
+@media (prefers-color-scheme:light){:root{--bg:#0b0b0c;--bg2:#0b0b0c;--ink:#f2efe8;--sub:#9a958c;--mute:#6e6a63;
+  --glass:#161618;--glass2:#1f1f22;--edge:#26262a;--line:#2a2a2e;--up:#4ccf8a;--dn:#ff6b5e;--gold:#d6b26a;--blue:#d6b26a;--warn:#e0a040;--shadow:none}}
+html,body{background:#0b0b0c!important;color-scheme:dark}
 .sky{display:none}
-.glass{background:var(--glass);-webkit-backdrop-filter:none;backdrop-filter:none;border:1px solid var(--edge);box-shadow:none;border-radius:12px}
+.glass{background:var(--glass);-webkit-backdrop-filter:none;backdrop-filter:none;border:1px solid var(--edge);box-shadow:none;border-radius:14px}
 .glass::before{display:none}
-main{padding-top:0}
-.hd{background:var(--navy);color:var(--ivory);padding:calc(max(env(safe-area-inset-top),44px) + 22px) 22px 24px;margin-bottom:14px}
-.hd .eyebrow{color:rgba(243,239,231,.62);letter-spacing:.2em;font-size:11.5px}
+main{padding:calc(max(env(safe-area-inset-top),59px) + 8px) 0 calc(env(safe-area-inset-bottom) + 96px)}
+.hd{padding:6px 22px 10px}
+.hd .eyebrow{color:var(--sub);letter-spacing:.12em;font-size:12px}
 .hd h1{font-size:30px}
-.hd .cap,.hd .d{color:rgba(243,239,231,.72)}
-.hd .big.up,.hd .up{color:#8fd4b2}.hd .big.dn,.hd .dn{color:#f2a191}
-.hd .today{color:#f3d48a}
-.st .glass{border-radius:10px}
-.card{border-radius:12px}
-.chip.on{background:var(--navy);color:var(--ivory)}
-.seg button.on{background:var(--navy);color:var(--ivory);box-shadow:none}
-.fadeT{height:max(env(safe-area-inset-top),44px);background:var(--navy)}
-.fadeB{background:linear-gradient(rgba(243,239,231,0),var(--bg) 70%)}
-nav.glass{background:#fbf9f4;border:1px solid var(--edge);box-shadow:0 6px 24px rgba(28,36,48,.12);border-radius:999px}
-nav .blob{background:var(--navy);box-shadow:none}
-nav button{color:var(--sub)}nav button.on{color:var(--ivory)}
-.topbtn{background:rgba(255,255,255,.1)!important;border:1px solid rgba(243,239,231,.25)!important;border-radius:50%!important}
-.topbtn svg{stroke:var(--ivory)}
-.toast{background:var(--navy)!important;color:var(--ivory);border:0!important}
-.gate{background:var(--bg)!important}
-.btn{background:var(--navy);color:var(--ivory)}.btn.sub{background:var(--line);color:var(--ink)}
-.sp.now i{box-shadow:0 0 0 4px rgba(28,36,48,.14)}
+.chip.on,.seg button.on{background:var(--glass2);color:var(--gold);box-shadow:none}
+.sp.now i{background:var(--gold);color:#111;box-shadow:0 0 0 4px rgba(214,178,106,.18)}.sp.now span{color:var(--gold)}
+.fadeT{height:max(env(safe-area-inset-top),59px);background:#0b0b0c}
+.fadeB{display:none}
+/* 下のタブ：画面の下にぴったり付くバー */
+nav.glass{left:0;right:0;transform:none;bottom:0;border-radius:0;border:0;border-top:1px solid var(--line);background:rgba(11,11,12,.96);
+  padding:6px 0 calc(env(safe-area-inset-bottom) + 4px);justify-content:space-around;gap:0}
+nav .blob{display:none}
+nav button{width:25%;padding:6px 0 4px;color:var(--mute);font-size:11px}
+nav button.on{color:var(--gold)}
+nav button svg{width:26px;height:26px}
+.topbtn{top:calc(max(env(safe-area-inset-top),59px) + 10px);background:var(--glass)!important;border:1px solid var(--edge)!important;border-radius:50%!important}
+.topbtn svg{stroke:var(--ink)}
+.toast{background:var(--glass2)!important;color:var(--ink);border:1px solid var(--edge)!important}
+.gate{background:#0b0b0c!important}
+.btn{background:var(--gold);color:#111}.btn.sub{background:var(--glass2);color:var(--ink)}
 </style>
 </head>
 <body>
@@ -220,7 +219,7 @@ nav button{color:var(--sub)}nav button.on{color:var(--ivory)}
   <button data-p="set"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M2.5 12h3M18.5 12h3M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/></svg>設定</button>
 </nav>
 <script>
-const VERSION='7';
+const VERSION='8';
 const CLIENT_ID='187861904258-0eilchk073j1hbginl1hncskf7jpp4ja.apps.googleusercontent.com';  // GoogleログインのクライアントID（公開してよい値）
 const VAPID='BFPiiQbgaxGzyfVZaA--hO4tmo7iamPgNVKypX8MHbwrcy3IF3d3544WBQX1cVLJmfDnfnRuZaPrTR9KNwHJlyc';
 const API='https://script.google.com/macros/s/AKfycbwTnqvwT5kAsd0AKqWztPr5yxcw4FKEM4ISuuMwrtFsUGmYTjdeAzXfhypG1TIj_B7d/exec';
