@@ -223,6 +223,11 @@ main{position:fixed;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-s
 .trr .pp{font-weight:800;font-size:13.5px}
 .trr .side{font-size:10px;padding:1px 5px;margin-right:4px}
 /* 申込：細いリスト */
+.mini .br{grid-template-columns:34px 1fr;gap:6px;padding:5px 0 0;margin-top:5px;border-top:0}
+.mini .br .bn{font-size:10.5px}
+.mini .sp{min-width:40px;gap:2px}.mini .sp i{width:17px;height:17px;font-size:10px}.mini .sp span{font-size:9.5px}
+.mini .ln{margin:0 -4px 13px;min-width:8px}
+.mini .memo{font-size:11px;margin-top:2px}
 .ir{padding:9px 0;border-top:1px solid var(--line)}.ir:first-child{border-top:0}
 .ir .in{display:flex;align-items:baseline;gap:6px;min-width:0}
 .ir .nm{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%}
@@ -290,7 +295,7 @@ nav button.on svg{animation:pop .4s cubic-bezier(.3,1.6,.5,1)}
   <button data-p="set"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M2.5 12h3M18.5 12h3M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/></svg>設定</button>
 </nav>
 <script>
-const VERSION='18';
+const VERSION='19';
 const CLIENT_ID='187861904258-0eilchk073j1hbginl1hncskf7jpp4ja.apps.googleusercontent.com';  // GoogleログインのクライアントID（公開してよい値）
 const VAPID='BFPiiQbgaxGzyfVZaA--hO4tmo7iamPgNVKypX8MHbwrcy3IF3d3544WBQX1cVLJmfDnfnRuZaPrTR9KNwHJlyc';
 const API='https://script.google.com/macros/s/AKfycbwTnqvwT5kAsd0AKqWztPr5yxcw4FKEM4ISuuMwrtFsUGmYTjdeAzXfhypG1TIj_B7d/exec';
@@ -385,9 +390,8 @@ function renderIPO(){
     h+=`<div class="sec"><span>銘柄ごとの進み具合</span><span>${list.length}銘柄</span></div>`;
     h+=`<div class="glass trl">${list.map(x=>{const J=judge(x.code);const o=KDD.ipo.find(i=>i.code===x.code)||{};
       const tag=J.j==='good'?`<span class="tg g">得${J.gain?' +'+yen(J.gain):''}</span>`:J.j==='bad'?'<span class="tg b">損</span>':'';
-      const chips=Object.entries(x.br).sort((a,b)=>BRS.indexOf(a[0])-BRS.indexOf(b[0])).map(([b,v])=>{const t=stLabel(v);
-        return `<span class="bc ${t[1]}">${esc(b)} ${esc(t[0])}</span>`}).join('');
-      return `<div class="ir"><div class="in"><span class="nm">${esc(x.name||x.code)}</span>${tag}<span class="cd">${esc(x.code)}${o.data15?' ・抽選 '+md(o.data15):''}</span></div><div class="bcs">${chips}</div></div>`}).join('')}</div>`;
+      const chips=Object.entries(x.br).sort((a,b)=>BRS.indexOf(a[0])-BRS.indexOf(b[0])).map(([b,v])=>brRow(b,v)).join('');
+      return `<div class="ir"><div class="in"><span class="nm">${esc(x.name||x.code)}</span>${tag}<span class="cd">${esc(x.code)}${o.data15?' ・抽選 '+md(o.data15):''}</span></div><div class="mini">${chips}</div></div>`}).join('')}</div>`;
   }
   const byM={};rows.filter(r=>r[8]==='購入済').forEach(r=>{const g=judge(r[1]).gain;if(g==null)return;const m=String(r[9]||'').slice(0,7)||'不明';byM[m]=(byM[m]||0)+g});
   const ms=Object.keys(byM).sort().reverse();
