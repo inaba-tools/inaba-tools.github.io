@@ -205,7 +205,7 @@ nav button svg{width:26px;height:26px}
 .sw.on{background:var(--gold)}.sw.on::after{transform:translateX(20px)}
 .todo .it{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 0;border-top:1px solid var(--line)}
 .todo .it:first-of-type{border-top:0;padding-top:4px}
-.todo .tt{font-size:15px;font-weight:700;line-height:1.4}.todo .ts{font-size:12.5px;color:var(--sub);margin-top:2px;line-height:1.55}
+.todo .tt{font-size:15px;font-weight:700;line-height:1.4}.todo .ts{font-size:12px;word-break:auto-phrase;color:var(--sub);margin-top:2px;line-height:1.55}
 .todo .w .tt{color:var(--warn)}
 .btn.s{padding:9px 12px;font-size:13px;border-radius:12px;text-decoration:none;display:inline-block}
 .cash .it{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-top:1px solid var(--line)}
@@ -235,6 +235,8 @@ main{position:fixed;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-s
 .mv{font-size:46px;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums;margin:6px 0 2px}
 .ms{font-size:12.5px;color:var(--sub)}
 .mk{font-size:13px;color:var(--sub);margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}.mk b{font-size:15px}
+.trbox{margin:0!important;padding:0!important;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+#fxtr{margin-bottom:0}
 .mdots{text-align:center;font-size:11px;color:var(--mute);margin:8px 0 0}
 .ir{padding:9px 0;border-top:1px solid var(--line)}.ir:first-child{border-top:0}
 .ir .in{display:flex;align-items:baseline;gap:6px;min-width:0}
@@ -303,7 +305,7 @@ nav button.on svg{animation:pop .4s cubic-bezier(.3,1.6,.5,1)}
   <button data-p="set"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M2.5 12h3M18.5 12h3M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/></svg>設定</button>
 </nav>
 <script>
-const VERSION='23';
+const VERSION='24';
 const CLIENT_ID='187861904258-0eilchk073j1hbginl1hncskf7jpp4ja.apps.googleusercontent.com';  // GoogleログインのクライアントID（公開してよい値）
 const VAPID='BFPiiQbgaxGzyfVZaA--hO4tmo7iamPgNVKypX8MHbwrcy3IF3d3544WBQX1cVLJmfDnfnRuZaPrTR9KNwHJlyc';
 const API='https://script.google.com/macros/s/AKfycbwTnqvwT5kAsd0AKqWztPr5yxcw4FKEM4ISuuMwrtFsUGmYTjdeAzXfhypG1TIj_B7d/exec';
@@ -419,7 +421,9 @@ function todoCard(rows){
   if(!S.at){const run=((D&&D.runs)||[]).find(r=>r[1]!=='警告')||[];
     if(run[2]&&/【入金が必要】/.test(run[2])&&Date.now()-new Date(run[0])<2*864e5)money=String(run[2]).split('【入金が必要】')[1].split('／')}
   money.forEach(m=>{const b=(m.match(/^(SBI|楽天|DMM)/)||[])[1];
-    it.push({w:1,t:'入金してください',s:m,b:b&&DEP[b]?`<a class="btn s" href="${DEP[b]}" target="_blank" rel="noopener">${b}で入金</a>`:''})});
+    const z=String(m).normalize('NFKC'),q=z.match(/あと([\d,]+)円.*?(\d+\/\d+) ?18時の抽選に([\d,]+)円必要です[（(]今 ?([\d,]+)円[）)].*?[:：](.*)$/);
+    const nm=q?q[5].replace(/\(株\)|株式会社/g,'').replace(/\s+/g,' ').trim():'';
+    it.push({w:1,t:q?`${b}に${q[1]}円 入金`:'入金してください',s:q?`${q[2]} 18時の抽選まで（今 ${q[4]}円）。${nm}`:m,b:b&&DEP[b]?`<a class="btn s" href="${DEP[b]}" target="_blank" rel="noopener">${b}で入金</a>`:''})});
   rows.filter(r=>r[8]==='要対応').forEach(r=>it.push({w:1,t:`${r[0]} ${r[2]}を手で購入`,s:r[10]||'',b:DEP[r[0]]?`<a class="btn s" href="${DEP[r[0]]}" target="_blank" rel="noopener">開く</a>`:''}));
   // これからの抽選（3日以内・自分が申し込んだもの）
   const now=new Date(),t0=new Date(now.getFullYear(),now.getMonth(),now.getDate());
@@ -508,23 +512,26 @@ function renderFX(){
       <div class="mv ${v>=0?'up':'dn'}">${pm(v)}</div><div class="ms">${n.length?`${n.length}回の取引で${w}勝${n.length-w}敗`:'取引なし'}</div>
       <div class="mk">累計 <b class="${cums[m]>=0?'up':'dn'}">${pm(cums[m])}</b></div></div>`}).join('')}</div>
    <div class="mdots">← 左右に振ると、ほかの月が見られます →</div>
-   <div class="card glass set" id="fxtr"></div>
-   <div class="foot">練習モードは本物のお金を使わない記録です。<br>1万通貨・手数料込みの金額です。</div>`;
+   <div class="card glass" id="fxtr"></div>`;
   el.innerHTML=h;fxTrades();
   const c=$('#mcar');if(c){requestAnimationFrame(fxScroll);
-    let tm0;c.onscroll=()=>{clearTimeout(tm0);tm0=setTimeout(()=>{const w=c.children[0].offsetWidth+12;const i=Math.round(c.scrollLeft/w);
-      const m=months[Math.max(0,Math.min(months.length-1,i))];if(m!==SELM){SELM=m;fxTrades()}},90)}}
+    let rq=0;c.onscroll=()=>{if(rq)return;rq=requestAnimationFrame(()=>{rq=0;const w=c.children[0].offsetWidth+12;const i=Math.round(c.scrollLeft/w);
+      const m=months[Math.max(0,Math.min(months.length-1,i))];if(m!==SELM){SELM=m;fxTrades()}})}}
 }
 let FXM={T:[],months:[]},SELM='',TROPEN=false;
 // 選んでいる月（最初は今月）のカードを表示する。FXタブが隠れている間は位置が測れないので、開いた時にもう一度呼ぶ
-function fxScroll(){const c=$('#mcar');if(!c||!c.children.length||!c.offsetWidth)return;
+function fxScroll(){fitTr();const c=$('#mcar');if(!c||!c.children.length||!c.offsetWidth)return;
   const i=Math.max(0,FXM.months.indexOf(SELM));c.scrollLeft=c.children[i].offsetLeft-c.children[0].offsetLeft}
 function fxTrades(){
   const el=$('#fxtr');if(!el)return;const L=FXM.T.filter(x=>x.d.startsWith(SELM)).slice().reverse();
-  el.innerHTML=`<button class="acc ${TROPEN?'on':''}" onclick="TROPEN=!TROPEN;this.classList.toggle('on');this.nextElementSibling.classList.toggle('on')"><span class="t">${+SELM.slice(5)}月の取引</span><span class="s" style="margin:0">${L.length}件</span><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
-   <div class="accb ${TROPEN?'on':''}"><div><div class="trl" style="margin:10px 0 0;padding:0">${L.length?L.map(x=>{const dd=new Date(x.d+'T00:00:00');
-    return `<div class="trr"><span class="dt">${dd.getMonth()+1}/${dd.getDate()} ${esc(tm(x.ot))}</span><span class="nm"><span class="side ${x.side==='買い'?'buy':'sell'}">${x.side==='買い'?'買':'売'}</span>${esc(x.t)}</span><span class="pp ${x.p>=0?'up':'dn'}">${pm(x.p)}</span></div>`}).join(''):'<div class="ts" style="padding:6px 0;color:var(--sub);font-size:13px">この月の取引はありません。</div>'}</div></div></div>`;
+  el.innerHTML=`<div class="row" style="margin-bottom:6px"><b style="font-size:15px">${+SELM.slice(5)}月の取引</b><span style="font-size:12.5px;color:var(--sub)">${L.length}件・練習</span></div>
+   <div class="trl trbox" id="trbox">${L.length?L.map(x=>{const dd=new Date(x.d+'T00:00:00');
+    return `<div class="trr"><span class="dt">${dd.getMonth()+1}/${dd.getDate()} ${esc(tm(x.ot))}</span><span class="nm"><span class="side ${x.side==='買い'?'buy':'sell'}">${x.side==='買い'?'買':'売'}</span>${esc(x.t)}</span><span class="pp ${x.p>=0?'up':'dn'}">${pm(x.p)}</span></div>`}).join(''):'<div style="padding:6px 0;color:var(--sub);font-size:13px">この月の取引はありません。</div>'}</div>`;
+  fitTr();
 }
+// 取引の欄を、下のタブの上までの高さにする（画面全体はスクロールさせない）
+function fitTr(){const b=$('#trbox'),n=$('#nav');if(!b||!n||!b.offsetParent)return;
+  const top=b.getBoundingClientRect().top,bottom=n.getBoundingClientRect().top-22;b.style.maxHeight=Math.max(80,bottom-top)+'px'}
 function fmtPx(v){v=+v;if(!v)return'—';return v<10?v.toFixed(5):v.toFixed(3)}
 function drawChart(R){
   const svg=$('#cs');if(!svg)return;const w=svg.clientWidth||340,h=180,pad=14;
@@ -596,7 +603,7 @@ function fixNav(){const n=$('#nav');if(!n)return;window.scrollTo(0,0);
   // ホーム画面から開いたアプリは画面全体を使うので、端末の画面の高さを基準にする（戻った直後のinnerHeightは狂うことがある）
   const sa=navigator.standalone||matchMedia('(display-mode: standalone)').matches,port=matchMedia('(orientation: portrait)').matches;
   const H=(sa&&port&&screen.height)?Math.max(screen.height,window.innerHeight):window.innerHeight;n.style.bottom='auto';n.style.top=(H-n.offsetHeight)+'px';
-  document.documentElement.style.setProperty('--vh',H+'px');$('#main').style.height=H+'px'}
+  document.documentElement.style.setProperty('--vh',H+'px');$('#main').style.height=H+'px';if(window.fitTr)fitTr()}
 ['load','pageshow','orientationchange','resize','focus'].forEach(ev=>addEventListener(ev,()=>[0,80,300,800].forEach(t=>setTimeout(fixNav,t))));
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)[0,80,300,800].forEach(t=>setTimeout(fixNav,t))});
 if(window.visualViewport)visualViewport.addEventListener('resize',fixNav);
