@@ -30,6 +30,7 @@ import hashlib
 import hmac
 import json
 import os
+import signal
 import sys
 import time
 import traceback
@@ -717,6 +718,7 @@ def kouho_main():
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except OSError:
         return
+    signal.alarm(55)  # 2026-11-13 通信などで固まっても、1分以内に自分で終わる（固まったままだと次の回が動けない）
     now = dt.datetime.now(JST)
     if os.environ.get('TEST_NOW'):
         now = dt.datetime.fromisoformat(os.environ['TEST_NOW']).replace(tzinfo=JST)
@@ -831,6 +833,24 @@ def fix_crontab():
         log('自動更新の設定と、回収よけ（busy）を入れました')
     except Exception as e:
         log('cronの設定を直せず: %s' % e)
+
+
+KOUHO_LINE = '* * * * * cd {d} && /usr/bin/python3 bot.py kouho >> cron.log 2>&1'
+
+
+def ensure_kouho_cron(now):
+    """2026-11-13 候補の記録（bot.py kouho）が予定表から消えていたら入れ直す（10分に1回だけ確認）"""
+    if now.minute % 10:
+        return
+    try:
+        cur = subprocess.run(['crontab', '-l'], capture_output=True, text=True, timeout=10).stdout
+        if 'bot.py kouho' in cur:
+            return
+        lines = [l for l in cur.splitlines() if l.strip()] + [KOUHO_LINE.format(d=HERE)]
+        subprocess.run(['crontab', '-'], input='\n'.join(lines) + '\n', text=True, check=True, timeout=10)
+        log('候補の記録（kouho）が予定表に無かったので入れ直しました')
+    except Exception as e:
+        log('候補の記録の予定を直せず: %s' % e)
 
 
 # ---------- Oracleの回収よけ ----------
@@ -1090,6 +1110,7 @@ def main():
     if os.environ.get('TEST_NOW'):  # 動作確認用に時刻をずらす
         now = dt.datetime.fromisoformat(os.environ['TEST_NOW']).replace(tzinfo=JST)
     fix_crontab()
+    ensure_kouho_cron(now)
     try:
         reconcile(st, now)
     except Exception:
