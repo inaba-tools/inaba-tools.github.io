@@ -303,7 +303,7 @@ nav button.on svg{animation:pop .4s cubic-bezier(.3,1.6,.5,1)}
   <button data-p="set"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M2.5 12h3M18.5 12h3M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/></svg>設定</button>
 </nav>
 <script>
-const VERSION='22';
+const VERSION='23';
 const CLIENT_ID='187861904258-0eilchk073j1hbginl1hncskf7jpp4ja.apps.googleusercontent.com';  // GoogleログインのクライアントID（公開してよい値）
 const VAPID='BFPiiQbgaxGzyfVZaA--hO4tmo7iamPgNVKypX8MHbwrcy3IF3d3544WBQX1cVLJmfDnfnRuZaPrTR9KNwHJlyc';
 const API='https://script.google.com/macros/s/AKfycbwTnqvwT5kAsd0AKqWztPr5yxcw4FKEM4ISuuMwrtFsUGmYTjdeAzXfhypG1TIj_B7d/exec';
@@ -511,11 +511,14 @@ function renderFX(){
    <div class="card glass set" id="fxtr"></div>
    <div class="foot">練習モードは本物のお金を使わない記録です。<br>1万通貨・手数料込みの金額です。</div>`;
   el.innerHTML=h;fxTrades();
-  const c=$('#mcar');if(c){requestAnimationFrame(()=>{const i=months.indexOf(SELM);c.scrollLeft=c.children[i].offsetLeft-16});
+  const c=$('#mcar');if(c){requestAnimationFrame(fxScroll);
     let tm0;c.onscroll=()=>{clearTimeout(tm0);tm0=setTimeout(()=>{const w=c.children[0].offsetWidth+12;const i=Math.round(c.scrollLeft/w);
       const m=months[Math.max(0,Math.min(months.length-1,i))];if(m!==SELM){SELM=m;fxTrades()}},90)}}
 }
 let FXM={T:[],months:[]},SELM='',TROPEN=false;
+// 選んでいる月（最初は今月）のカードを表示する。FXタブが隠れている間は位置が測れないので、開いた時にもう一度呼ぶ
+function fxScroll(){const c=$('#mcar');if(!c||!c.children.length||!c.offsetWidth)return;
+  const i=Math.max(0,FXM.months.indexOf(SELM));c.scrollLeft=c.children[i].offsetLeft-c.children[0].offsetLeft}
 function fxTrades(){
   const el=$('#fxtr');if(!el)return;const L=FXM.T.filter(x=>x.d.startsWith(SELM)).slice().reverse();
   el.innerHTML=`<button class="acc ${TROPEN?'on':''}" onclick="TROPEN=!TROPEN;this.classList.toggle('on');this.nextElementSibling.classList.toggle('on')"><span class="t">${+SELM.slice(5)}月の取引</span><span class="s" style="margin:0">${L.length}件</span><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
@@ -584,7 +587,8 @@ function go(p){TAB=p;store.set('fk_tab',p);
   document.querySelectorAll('.page').forEach(e=>e.classList.toggle('on',e.id==='p-'+p));
   const bs=[...document.querySelectorAll('nav button')];bs.forEach(b=>b.classList.toggle('on',b.dataset.p===p));
   const i=bs.findIndex(b=>b.dataset.p===p);$('#blob').style.transform=`translateX(${i*76}px)`;$('#main').scrollTop=0;
-  if(p==='fx'&&D)drawChart(trades().filter(x=>x.d>=new Date(Date.now()-({'7':7,'30':30,'all':99999}[FXR])*864e5).toISOString().slice(0,10)))}
+  if(p==='fx')requestAnimationFrame(fxScroll);
+  if(false)drawChart(trades().filter(x=>x.d>=new Date(Date.now()-({'7':7,'30':30,'all':99999}[FXR])*864e5).toISOString().slice(0,10)))}
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(b.dataset.p));
 // 開いた直後に画面の高さがずれることがあるので、少し後に位置を戻す
 // ほかのアプリから戻った時も、下のタブを画面の一番下に置き直す（iPhoneの高さのずれ対策）
