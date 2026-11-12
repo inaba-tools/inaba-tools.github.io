@@ -775,14 +775,15 @@ def kouho_live(st, now):
         log('自動 %s %s で入った' % (n, f['price']))
 
 
-SAFE_UPDATE = ('0 3 * * 0 cd {d} && curl -fsSL {raw}/bot.py -o bot.py.new && python3 -m py_compile bot.py.new '
+# 自動更新は練習モード（DRY_RUN=1）の間だけ。本番になったら自動では入れ替えない（乗っ取り対策）
+SAFE_UPDATE = ('0 3 * * 0 cd {d} && grep -q "^DRY_RUN=1" .env && curl -fsSL {raw}/bot.py -o bot.py.new && python3 -m py_compile bot.py.new '
                '&& grep -q "def main" bot.py.new && mv bot.py.new bot.py')
 BUSY_LINE = '* * * * * cd {d} && nice -n 19 /usr/bin/python3 bot.py busy >/dev/null 2>&1'
 
 
 def fix_crontab():
     """自動更新を安全な書き方に・回収よけ（busy）を足す。1回だけ"""
-    flag = os.path.join(HERE, '.cron-v2')
+    flag = os.path.join(HERE, '.cron-v3')
     if os.path.exists(flag):
         return
     try:
@@ -995,17 +996,18 @@ def fukuri_push(st, now):
         log('フクリへ送れず: %s' % ex)
 
 
+MINIPUSH_SHA256 = '37ac1a1078f85952c8413ee17747c1f2c8593000747d9e0f208e1d45c8eda3f8'
+
+
 def _minipush():
     """フクリの通知の部品（なければ取ってくる。暗号の部品がなければ入れる）"""
     f = os.path.join(HERE, 'minipush.py')
-    if not os.path.exists(f):
+    if not os.path.exists(f) or hashlib.sha256(open(f, 'rb').read()).hexdigest() != MINIPUSH_SHA256:
         r = requests.get('https://raw.githubusercontent.com/inaba-tools/inaba-tools.github.io/main/fukuri/tools/minipush.py', timeout=30)
         r.raise_for_status()
-        open(f, 'w', encoding='utf-8').write(r.text)
-    try:
-        import cryptography  # noqa
-    except ImportError:
-        os.system('sudo apt-get install -y -qq python3-cryptography >/dev/null 2>&1')
+        if hashlib.sha256(r.content).hexdigest() != MINIPUSH_SHA256:  # 中身が書き換えられていたら使わない
+            raise RuntimeError('minipush.py の中身が想定と違うので使いません')
+        open(f, 'wb').write(r.content)
     if HERE not in sys.path:
         sys.path.insert(0, HERE)
     import minipush

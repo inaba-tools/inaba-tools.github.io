@@ -4,7 +4,7 @@
 set -e
 DIR=$HOME/fx-bot
 RAW=https://raw.githubusercontent.com/inaba-tools/inaba-tools.github.io/main/fx-kiroku/bot
-sudo apt-get update -qq && sudo apt-get install -y -qq python3-requests >/dev/null
+sudo apt-get update -qq && sudo apt-get install -y -qq python3-requests python3-cryptography >/dev/null
 mkdir -p $DIR && cd $DIR
 curl -fsSL $RAW/bot.py -o bot.py
 if [ ! -f .env ]; then
@@ -23,5 +23,5 @@ fi
 ( crontab -l 2>/dev/null | grep -v 'fx-bot/bot.py'; echo "* * * * * cd $DIR && /usr/bin/python3 bot.py >> cron.log 2>&1" ) | crontab -
 # 毎週日曜の昼に bot.py を最新にする
 #   取得に失敗したとき・中身が壊れているときは入れ替えない
-( crontab -l | grep -v 'bot.py.new'; echo "0 3 * * 0 cd $DIR && curl -fsSL $RAW/bot.py -o bot.py.new && python3 -m py_compile bot.py.new && grep -q \"def main\" bot.py.new && mv bot.py.new bot.py" ) | crontab -
+( crontab -l | grep -v 'bot.py.new'; echo "0 3 * * 0 cd $DIR && grep -q \"^DRY_RUN=1\" .env && curl -fsSL $RAW/bot.py -o bot.py.new && python3 -m py_compile bot.py.new && grep -q \"def main\" bot.py.new && mv bot.py.new bot.py" ) | crontab -
 echo "準備できました（練習モードで1分ごとに動きます）。記録は $DIR/kiroku.csv、動きは $DIR/bot.log"

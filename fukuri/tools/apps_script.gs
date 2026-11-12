@@ -31,12 +31,16 @@ function setup() {   // 最初に1回だけ実行
 
 const ss_ = () => SpreadsheetApp.openById(P.getProperty('SHEET'));
 const out_ = o => ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON);
+// 「=」「+」「-」「@」で始まる文字が数式にならないよう、先頭に ' を付ける
+const safe_ = r => r.map(v => (typeof v === 'string' && /^[=+\-@]/.test(v)) ? "'" + v : v);
 const rows_ = sh => { const v = sh.getDataRange().getValues(); const h = v.shift(); return v.filter(r => r.join('') !== '').map(r => r); };
 
 function doPost(e) {
   let d;
   try { d = JSON.parse(e.postData.contents); } catch (_) { return out_({ ok: false, err: 'json' }); }
-  if (d.kind === 'sub' && d.key === P.getProperty('KEY_R') && d.sub && /^https:\/\/[a-z0-9.-]+\//.test(d.sub.endpoint || '')) {
+  // 通知の登録は本物の通知サーバー（Apple・Google・Mozilla・Microsoft）だけ
+  const PUSH_OK = /^https:\/\/(web\.push\.apple\.com|fcm\.googleapis\.com|updates\.push\.services\.mozilla\.com|[a-z0-9-]+\.notify\.windows\.com)\//;
+  if (d.kind === 'sub' && d.key === P.getProperty('KEY_R') && d.sub && PUSH_OK.test(d.sub.endpoint || '')) {
     const lock0 = LockService.getScriptLock(); lock0.waitLock(20000);
     try {
       let subs = JSON.parse(P.getProperty('SUBS') || '[]').filter(s => s.endpoint !== d.sub.endpoint);
@@ -56,10 +60,10 @@ function doPost(e) {
     if (d.kind === 'ipo') {
       const sh = ss.getSheetByName('IPO');
       if (sh.getLastRow() > 1) sh.getRange(2, 1, sh.getLastRow() - 1, sh.getLastColumn()).clearContent();
-      if (d.rows && d.rows.length) sh.getRange(2, 1, d.rows.length, d.rows[0].length).setValues(d.rows);
+      if (d.rows && d.rows.length) sh.getRange(2, 1, d.rows.length, d.rows[0].length).setValues(d.rows.map(safe_));
       if (d.run) {
         const r = ss.getSheetByName('実行記録');
-        r.insertRowAfter(1); r.getRange(2, 1, 1, 3).setValues([d.run]);
+        r.insertRowAfter(1); r.getRange(2, 1, 1, 3).setValues([safe_(d.run)]);
         if (r.getLastRow() > 301) r.deleteRows(302, r.getLastRow() - 301);
       }
       P.setProperty('IPO_AT', new Date().toISOString());
@@ -67,7 +71,7 @@ function doPost(e) {
       if (d.trades) {
         const sh = ss.getSheetByName('FX取引');
         if (sh.getLastRow() > 1) sh.getRange(2, 1, sh.getLastRow() - 1, 10).clearContent();
-        if (d.trades.length) sh.getRange(2, 1, d.trades.length, 10).setValues(d.trades.map(r => r.slice(0, 10).concat(Array(10).fill('')).slice(0, 10)));
+        if (d.trades.length) sh.getRange(2, 1, d.trades.length, 10).setValues(d.trades.map(r => safe_(r.slice(0, 10).concat(Array(10).fill('')).slice(0, 10))));
       }
       ss.getSheetByName('FXいま').getRange(2, 1, 1, 2).setValues([[new Date(), JSON.stringify(d.now || {})]]);
     }

@@ -2,11 +2,7 @@
 import base64, json, os, struct, subprocess, sys, time, urllib.request
 from urllib.parse import urlparse
 
-try:
-    from cryptography.hazmat.primitives.asymmetric import ec
-except ImportError:  # 初回だけ入れる
-    subprocess.run([sys.executable, "-m", "pip", "install", "-q", "cryptography"], check=False)
-    from cryptography.hazmat.primitives.asymmetric import ec
+from cryptography.hazmat.primitives.asymmetric import ec  # 実行中に部品を入れることはしない
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
