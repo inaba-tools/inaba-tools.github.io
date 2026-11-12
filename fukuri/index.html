@@ -42,11 +42,11 @@ body{min-height:100dvh}
 .sky i:nth-child(3){width:80vw;height:80vw;left:0;bottom:-35vw;background:radial-gradient(closest-side,var(--b3),transparent);animation-delay:-14s}
 /* 上（時計の所）と下（タブの裏）を背景色でなじませる */
 .fadeT,.fadeB{position:fixed;left:0;right:0;z-index:3;pointer-events:none}
-.fadeT{top:0;height:calc(max(env(safe-area-inset-top),44px) + 6px);background:linear-gradient(var(--bg2) 70%,transparent)}
+.fadeT{top:0;height:max(env(safe-area-inset-top),44px);background:var(--bg2)}
 .fadeB{bottom:0;height:calc(env(safe-area-inset-bottom) + 90px);background:linear-gradient(transparent,var(--bg) 75%)}
 @keyframes drift{to{transform:translate(8vw,6vh) scale(1.12)}}
 main{position:relative;z-index:1;min-height:100dvh;
-  padding:calc(max(env(safe-area-inset-top),44px) + 22px) 0 calc(env(safe-area-inset-bottom) + 120px)}
+  padding:calc(max(env(safe-area-inset-top),44px) + 48px) 0 calc(env(safe-area-inset-bottom) + 120px)}
 .page{display:none;animation:in .35s cubic-bezier(.2,.8,.2,1)}
 .page.on{display:block}
 @keyframes in{from{opacity:0}to{opacity:1}}
@@ -177,7 +177,7 @@ html,body{background:#0b0b0c!important;color-scheme:dark}
 .sky{display:none}
 .glass{background:var(--glass);-webkit-backdrop-filter:none;backdrop-filter:none;border:1px solid var(--edge);box-shadow:none;border-radius:14px}
 .glass::before{display:none}
-main{padding:calc(max(env(safe-area-inset-top),59px) + 8px) 0 calc(env(safe-area-inset-bottom) + 96px)}
+main{padding:calc(max(env(safe-area-inset-top),59px) + 34px) 0 calc(env(safe-area-inset-bottom) + 96px)}
 .hd{padding:6px 22px 10px}
 .hd .eyebrow{color:var(--sub);letter-spacing:.12em;font-size:12px}
 .hd h1{font-size:30px}
@@ -192,7 +192,7 @@ nav .blob{display:none}
 nav button{width:25%;padding:6px 0 4px;color:var(--mute);font-size:11px}
 nav button.on{color:var(--gold)}
 nav button svg{width:26px;height:26px}
-.topbtn{top:calc(max(env(safe-area-inset-top),59px) + 10px);background:var(--glass)!important;border:1px solid var(--edge)!important;border-radius:50%!important}
+.topbtn{top:calc(max(env(safe-area-inset-top),59px) + 4px);background:var(--glass)!important;border:1px solid var(--edge)!important;border-radius:50%!important}
 .topbtn svg{stroke:var(--ink)}
 .toast{background:var(--glass2)!important;color:var(--ink);border:1px solid var(--edge)!important}
 .gate{background:#0b0b0c!important}
@@ -200,6 +200,10 @@ nav button svg{width:26px;height:26px}
 #alert{display:none;position:sticky;top:0;z-index:30;margin:calc(env(safe-area-inset-top) + 8px) 12px 0;padding:14px 16px;border-radius:18px;background:#d93025;color:#fff;box-shadow:0 8px 24px rgba(217,48,37,.35)}
 #alert.on{display:block}#alert b{display:block;font-size:16px;margin-bottom:4px}#alert .m{font-size:13px;line-height:1.5;opacity:.95;margin-top:4px}
 #alert button{margin-top:10px;border:0;border-radius:12px;padding:8px 14px;background:#fff;color:#d93025;font-weight:800;font-size:13px}
+.sw{position:relative;width:51px;height:31px;flex:none;border-radius:16px;background:#3a3a3e;border:0;transition:background .2s}
+.sw::after{content:'';position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;transition:transform .2s}
+.sw.on{background:var(--gold)}.sw.on::after{transform:translateX(20px)}
+.set .row{display:flex;align-items:center;justify-content:space-between;gap:12px}
 </style>
 </head>
 <body>
@@ -223,7 +227,7 @@ nav button svg{width:26px;height:26px}
   <button data-p="set"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M2.5 12h3M18.5 12h3M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/></svg>設定</button>
 </nav>
 <script>
-const VERSION='10';
+const VERSION='11';
 const CLIENT_ID='187861904258-0eilchk073j1hbginl1hncskf7jpp4ja.apps.googleusercontent.com';  // GoogleログインのクライアントID（公開してよい値）
 const VAPID='BFPiiQbgaxGzyfVZaA--hO4tmo7iamPgNVKypX8MHbwrcy3IF3d3544WBQX1cVLJmfDnfnRuZaPrTR9KNwHJlyc';
 const API='https://script.google.com/macros/s/AKfycbwTnqvwT5kAsd0AKqWztPr5yxcw4FKEM4ISuuMwrtFsUGmYTjdeAzXfhypG1TIj_B7d/exec';
@@ -307,12 +311,14 @@ function renderIPO(){
   const cnt=k=>rows.filter(r=>k(r)).length;
   const won=cnt(r=>/当選/.test(r[6])),bought=cnt(r=>r[8]==='購入済'),applying=cnt(r=>r[4]==='申込済'&&!r[6]);
   const gainAll=list.reduce((s,x)=>s+Object.values(x.br).filter(v=>v.bu==='購入済').length*((judge(x.code).gain)||0),0);
-  const run=(D&&D.runs&&D.runs[0])||[];
+  const run=((D&&D.runs)||[]).find(r=>r[1]!=='警告')||[];
   let h=`<div class="hd"><div class="eyebrow">自動化IPO・分売</div><h1>申込</h1>
    <div class="big">${applying}<small>件 抽選待ち</small></div>
    <div class="cap">${run[0]?`前回の自動実行：${esc(run[0].slice(5,16).replace('-','/').replace('T',' '))}（${esc(run[1])}）`:'まだ記録がありません。'}</div></div>
    <div class="st"><div class="glass"><small>当選</small><b class="${won?'up':''}">${won}</b></div><div class="glass"><small>購入済</small><b>${bought}</b></div>
    <div class="glass"><small>見込みの利益</small><b class="${gainAll>0?'up':''}" style="font-size:20px">${gainAll?pm(gainAll):'—'}</b></div></div>`;
+  const money=(run[2]&&/【入金が必要】/.test(run[2])&&Date.now()-new Date(run[0])<2*864e5)?String(run[2]).split('【入金が必要】')[1].split('／'):[];
+  if(money.length)h+=`<div class="glass card" style="border-color:var(--warn)"><div style="font-weight:800;color:var(--warn)">入金が必要です</div>${money.map(m=>`<div class="memo">${brk(m)}</div>`).join('')}</div>`;
   const need=rows.filter(r=>r[8]==='要対応');
   if(need.length)h+=`<div class="glass card" style="border-color:var(--warn)"><div style="font-weight:800;color:var(--warn)">手で対応が必要</div>${need.map(r=>`<div class="memo">${esc(r[0])} ${esc(r[2])}：${brk(r[10])}</div>`).join('')}</div>`;
   if(!list.length)h+=`<div class="empty">まだ申込の記録がありません。<br>毎日21時に自動で申し込みます。</div>`;
@@ -448,8 +454,7 @@ function renderSet(){
    <div class="card glass set"><div class="row"><div>${g}</div></div>
     <div style="margin-top:14px">${SESS?'<button class="btn sub" onclick="gLogout()">ログアウト</button>':`<button class="btn g" onclick="gLogin()">${GICON}Googleでログイン</button>`}</div></div>
    <div class="sec">通知</div>
-   <div class="card glass set"><div class="row"><div><div class="t">アプリへの通知<span class="tag ${BELL?'g':'n'}">${BELL?'ON':'OFF'}</span></div><div class="s">${BELL?'当選や購入の知らせがこのiPhoneに届きます。':'ホーム画面に追加したフクリで押してください。'}</div></div></div>
-    ${BELL?'':'<div style="margin-top:14px"><button class="btn" onclick="bellOn()">通知をつなぐ</button></div>'}</div>
+   <div class="card glass set"><div class="row"><div><div class="t">アプリへの通知</div><div class="s">${BELL?'当選・購入・入金不足などの知らせが届きます。':'オフです。<br>ホーム画面に追加したフクリでオンにしてください。'}</div></div><button class="sw ${BELL?'on':''}" aria-label="通知のオンオフ" onclick="${BELL?'bellOff()':'bellOn()'}"></button></div></div>
    <div class="foot">ver.${VERSION}</div>`;
 }
 function renderAlert(){
@@ -474,6 +479,10 @@ const b64=s=>{const p='='.repeat((4-s.length%4)%4);const r=atob((s+p).replace(/-
 async function bellState(){let on=false;try{const r=swReg||await navigator.serviceWorker.getRegistration();on=!!(r&&await r.pushManager.getSubscription())&&Notification.permission==='granted'}catch(_){}BELL=on;renderSet();return on}
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').then(r=>{swReg=r;bellState()}).catch(()=>{});
 navigator.serviceWorker&&navigator.serviceWorker.addEventListener('message',e=>{if(e.data&&e.data.tab)go(e.data.tab)});
+async function bellOff(){
+  try{const r=swReg||await navigator.serviceWorker.getRegistration();const sub=r&&await r.pushManager.getSubscription();if(sub)await sub.unsubscribe();toast('通知をオフにしました')}catch(_){toast('オフにできませんでした')}
+  bellState();
+}
 async function bellOn(){
   const sa=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;
   if(!('PushManager' in window)||!sa){toast('ホーム画面に追加したフクリから押してください');return}
