@@ -442,9 +442,6 @@ new MutationObserver(sw).observe(document.documentElement,{attributes:true,attri
 <button class="mi" data-sub="gacc"><span class="ic" id="gIco" style="background:#5f6368"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="3.6"/><path d="M5 20c1.2-3.6 3.8-5.2 7-5.2s5.8 1.6 7 5.2"/></svg></span><span class="tx">アカウント<small id="gSum">ログインしていません</small></span><i>›</i></button>
 <button class="mi" data-sub="thm"><span class="ic" style="background:#3c4043"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 0 0 16z" fill="#fff"/></svg></span><span class="tx">デザイン<small id="thmSum">端末に合わせる</small></span><i>›</i></button>
 </div>
-<div class="menu" id="fxMenu" hidden>
-<button class="mi" data-sub="fx"><span class="ic" style="background:#137333"><svg viewBox="0 0 24 24"><path d="M3 17l5-5 4 3 8-8M15 7h5v5"/></svg></span><span class="tx">FX（自分だけ）<small id="fxSum">練習botの記録</small></span><i>›</i></button>
-</div>
 <div class="foot"><button data-sub="qa">よくある質問</button>・<a href="privacy.html">プライバシーポリシー</a>・<button id="copyLink">アプリのリンクをコピー</button><br><span class="upd"></span></div>
 </div></div>
 
@@ -471,12 +468,6 @@ new MutationObserver(sw).observe(document.documentElement,{attributes:true,attri
 <button data-t="auto"><div class="pv a"><i></i><i></i><i></i></div>端末に合わせる</button>
 </div>
 <p class="note" style="margin:8px 24px">ホーム画面のアイコンは変わりません。</p>
-</div></div>
-
-<div class="sub" id="sub-fx"><div class="in"><div class="subtop"><button class="back"><b>‹</b>設定</button><h2>FX</h2></div>
-<div id="fxUpd"></div>
-<div id="fxBody"><div class="empty">読み込み中…</div></div>
-<div class="menu"><div class="nrow"><div class="tx">毎朝の成績を通知<small>9:30ごろ、合計とbotの状態を1行で</small></div><button class="sw" id="fxNtf" aria-label="毎朝の成績を通知"></button></div></div>
 </div></div>
 
 <div class="sub" id="sub-qa"><div class="in"><div class="subtop"><button class="back"><b>‹</b>設定</button><h2>よくある質問</h2></div>
@@ -1046,7 +1037,7 @@ const VAPID='BB-VNadIELVCIZ58O4WvglYbtSIJm5NgUe-djLQozp8LYwZGHAgbqoQYx4tUAFAvVYC
 const NTF=[['matome','まとめて申し込む日','その日に申し込むIPO・分売を、夕方に1回（締切の日は朝）'],['fund','お金の準備','抽選日の朝、入れておく金額をお知らせ'],['sell','売る日','当選したら、購入の締切と売る日の朝にお知らせ']];
 const ntfOn=k=>SET.ntf2[k]!==false;
 // 通知を送る仕組み（tools/notify.py）の種類に置きかえる
-function pushPrefs(){const m=ntfOn('matome'),f=ntfOn('fund'),s=ntfOn('sell');return{matome:m,ipo_fund:f,ipo_buy:s,ipo_sell:s,bun_result:s,ipo_new:false,ipo_open:false,ipo_last:false,ipo_draw:false,bun_new:false,bun_open:false,fx_daily:SET.ntf.fx_daily===true}}
+function pushPrefs(){const m=ntfOn('matome'),f=ntfOn('fund'),s=ntfOn('sell');return{matome:m,ipo_fund:f,ipo_buy:s,ipo_sell:s,bun_result:s,ipo_new:false,ipo_open:false,ipo_last:false,ipo_draw:false,bun_new:false,bun_open:false,fx_daily:false}}
 const devId=(()=>{try{let d=localStorage.getItem('kd_dev');if(!d){d='d'+Math.random().toString(36).slice(2,12)+Date.now().toString(36);localStorage.setItem('kd_dev',d)}return d}catch(e){return'dx'}})();
 const devIOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),devAnd=/Android/i.test(navigator.userAgent);
 const standalone=()=>window.navigator.standalone===true||matchMedia('(display-mode: standalone)').matches;
@@ -1077,7 +1068,7 @@ function ntfRender(){const st=$('#nState'),box=$('#nBox');if(!st)return;
   const t=$('#nTest');if(t)t.onclick=async()=>{const r=swReg||await navigator.serviceWorker.ready;r.showNotification('KABU DROP（テスト）',{body:'通知がつながっています',icon:'icon-192.png',tag:'kd-test'})};
   setSums()}
 $('#nBox').addEventListener('click',async e=>{const b=e.target.closest('[data-n]');if(!b)return;const k=b.dataset.n;const v=!ntfOn(k);SET.ntf2[k]=v;saveSet();b.classList.toggle('on',v);setSums();const s=await curSub();if(s)pushSync(s)});
-$('#fxNtf').onclick=async()=>{SET.ntf.fx_daily=!(SET.ntf.fx_daily===true);saveSet();$('#fxNtf').classList.toggle('on',SET.ntf.fx_daily);toast(SET.ntf.fx_daily?'毎朝の成績を通知します':'毎朝の成績の通知をやめました');const s=await curSub();if(s)pushSync(s)};
+// FXはフクリへ移しました
 
 // ---- アカウント ----
 const GCID='501244398820-60rrt8sau8h0s1ucm7hoh0avkjfl5glp.apps.googleusercontent.com';
@@ -1112,9 +1103,7 @@ async function gLogout(){const s=SES;try{if(SET.pushOn)await pushSync(null)}catc
 // ---- FX（運営者がログインしたときだけ。メールアドレスそのものは載せず、ハッシュで照合） ----
 var FXOWN='60abadef75514b34ef667842e5a1513d26fd3cc53aea0bf0d71a243ceb46ff2b',FXON=false,FXLOADED=false;
 let FXD=null,fxI=0,fxDir=0;
-async function fxGate(){let ok=false;try{const e=(USER&&USER.email||'').trim().toLowerCase();if(e&&crypto.subtle){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(e));ok=[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')===FXOWN}}catch(_){}
-  FXON=ok;$('#fxMenu').hidden=!ok;$('#fxNtf').classList.toggle('on',SET.ntf.fx_daily===true);if(ok&&!FXLOADED){FXLOADED=true;loadFX()}
-  if(!ok&&STACK.includes('fx'))closeAllSubs()}
+function fxGate(){FXON=false}  // FXはフクリへ移しました
 async function loadFX(){try{const r=await fetch('data/fx_today.json?'+Date.now(),{cache:'no-store'});if(!r.ok)throw 0;FXD=await r.json();fxI=0;renderFX()}
   catch(e){$('#fxBody').innerHTML='<div class="empty">記録を読み込めませんでした。<br>少しして開き直してね。</div>'}}
 function fxDays(){const f=FXD||{};let D=(f.days||[]).filter(d=>(d.items||[]).some(x=>!x.c)).map(d=>({d:d.d,items:d.items.filter(x=>!x.c)}));

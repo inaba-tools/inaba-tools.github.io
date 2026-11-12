@@ -931,6 +931,70 @@ def health(st, now, force=False):
         alert('健康診断で問題：' + '・'.join(ng))
 
 
+# ---------- フクリ（iPhoneのアプリ）へ今の状態を送る（2分ごと） ----------
+FUKURI_URL = env('FUKURI_URL')
+FUKURI_KEY = env('FUKURI_KEY')
+
+
+def fukuri_push(st, now):
+    if not (FUKURI_URL and FUKURI_KEY) or now.minute % 2:
+        return
+    px, pos, wait = {}, [], []
+    for sym in ('USD_JPY', 'EUR_USD'):
+        try:
+            tk = ticker(sym)
+            px[sym] = {'bid': float(tk['bid']), 'ask': float(tk['ask']), 'open': market_open(tk)}
+        except Exception:
+            pass
+    uj = (px.get('USD_JPY') or {}).get('bid') or 150.0
+    a, e = st.get('A') or {}, st.get('EU') or {}
+    today = now.date().isoformat()
+    stopped = os.path.exists(os.path.join(HERE, 'STOP'))
+    o = a.get('open')
+    if o:
+        q = px.get('USD_JPY') or {}
+        cur = q.get('bid') if o['side'] == 'BUY' else q.get('ask')
+        pos.append({'t': '型A ドル円', 'side': '買い' if o['side'] == 'BUY' else '売り', 'in': o['price'], 'at': o['time'],
+                    'stop': o.get('stop'), 'cur': cur, 'out': '23:58',
+                    'p': round(pnl('USD_JPY', o['side'], o['price'], cur, SIZE_A)) if cur else None})
+    else:
+        lv = a.get('level') or {}
+        if now.weekday() >= 5:
+            w = '土日は相場がお休み'
+        elif a.get('done') == today:
+            w = '今日の取引は終わり。次は明日9時から'
+        elif now.hour < 9:
+            w = '9時から、前の平日の高値・安値を抜けるのを待つ'
+        elif lv.get('day') == today:
+            w = '%.3f円を上に抜けたら買い・%.3f円を下に抜けたら売り' % (lv['H'], lv['L'])
+        else:
+            w = '前の平日の高値・安値を抜けるのを待つ'
+        wait.append({'t': '型A ドル円', 'w': w, 'H': lv.get('H'), 'L': lv.get('L')})
+    o = e.get('open')
+    if o:
+        cur = (px.get('EUR_USD') or {}).get('bid')
+        pos.append({'t': 'ユーロドル 2時買い', 'side': '買い', 'in': o['price'], 'at': o['time'], 'stop': o.get('stop'),
+                    'cur': cur, 'out': '9:01', 'p': round(pnl('EUR_USD', 'BUY', o['price'], cur, SIZE_EU, uj)) if cur else None})
+    else:
+        nd = now + dt.timedelta(days=1) if now.hour >= 2 else now
+        while nd.weekday() not in (1, 2, 3, 4):
+            nd += dt.timedelta(days=1)
+        wait.append({'t': 'ユーロドル 2時買い', 'w': '%d/%d（%s）2:00に買い → 9:01に売り' % (nd.month, nd.day, '月火水木金土日'[nd.weekday()])})
+    body = {'key': FUKURI_KEY, 'kind': 'fx', 'now': {
+        'at': now.strftime('%Y-%m-%dT%H:%M'), 'mode': '練習' if DRY else '本番', 'stop': stopped,
+        'pos': pos, 'wait': wait, 'px': px}}
+    mt = os.path.getmtime(KIROKU) if os.path.exists(KIROKU) else 0
+    if mt != st.get('fukuri_mt') or now.minute % 30 == 0:
+        rows = list(csv.reader(open(KIROKU, encoding='utf-8')))[1:] if mt else []
+        body['trades'] = rows[-500:]
+    try:
+        r = requests.post(FUKURI_URL, json=body, timeout=30)
+        if r.ok and '"ok":true' in r.text.replace(' ', ''):
+            st['fukuri_mt'] = mt
+    except Exception as ex:
+        log('フクリへ送れず: %s' % ex)
+
+
 def main():
     if sys.argv[1:] == ['busy']:
         return busy()
@@ -965,6 +1029,12 @@ def main():
     err_count(st, now, had_error)
     json.dump(st, open(STATE + '.tmp', 'w'), ensure_ascii=False, indent=1)
     os.replace(STATE + '.tmp', STATE)
+    try:
+        fukuri_push(st, now)
+        json.dump(st, open(STATE + '.tmp', 'w'), ensure_ascii=False, indent=1)
+        os.replace(STATE + '.tmp', STATE)
+    except Exception:
+        log('フクリ送信でエラー\n%s' % traceback.format_exc(limit=2))
     # 30分ごとに「動いている」合図をスプレッドシートへ送る（朝の報告で止まっていないか確かめる用）
     if SHEET_URL and now.minute % 30 == 0:
         try:

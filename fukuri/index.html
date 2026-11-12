@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="referrer" content="no-referrer">
+<title>フクリ</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="フクリ">
+<meta name="theme-color" content="#0b1622">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=1">
+<link rel="apple-touch-icon" media="(prefers-color-scheme: dark)" href="apple-touch-icon-dark.png?v=1">
+<link rel="icon" href="icon-192.png?v=1">
+<style>
+:root{
+  --bg:#eef2f7;--bg2:#dfe7f1;--ink:#0d1520;--sub:#5d6b7c;--mute:#8b97a6;
+  --glass:rgba(255,255,255,.55);--glass2:rgba(255,255,255,.72);--edge:rgba(255,255,255,.85);--line:rgba(15,30,50,.08);
+  --up:#0a9b62;--dn:#e0453a;--gold:#c9920f;--blue:#0a6cff;--warn:#e08a00;
+  --b1:#7cc7ff;--b2:#ffd76a;--b3:#9fe3c9;
+  --shadow:0 10px 30px rgba(20,40,70,.12),0 1px 2px rgba(20,40,70,.06);
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#060b12;--bg2:#0b1622;--ink:#f2f6fb;--sub:#9aa8b8;--mute:#6c7a8a;
+  --glass:rgba(255,255,255,.07);--glass2:rgba(255,255,255,.11);--edge:rgba(255,255,255,.16);--line:rgba(255,255,255,.08);
+  --up:#3ddc97;--dn:#ff6b5e;--gold:#f3c54a;--blue:#4a9dff;--warn:#ffb340;
+  --b1:#1e5f99;--b2:#7a5a10;--b3:#14634a;
+  --shadow:0 12px 34px rgba(0,0,0,.45);
+}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Hiragino Sans","Hiragino Kaku Gothic ProN",sans-serif;
+  -webkit-font-smoothing:antialiased;overscroll-behavior:none}
+body{overflow:hidden}
+.sky{position:fixed;inset:0;z-index:0;overflow:hidden;background:linear-gradient(180deg,var(--bg2),var(--bg))}
+.sky i{position:absolute;border-radius:50%;filter:blur(60px);opacity:.75;animation:drift 22s ease-in-out infinite alternate}
+.sky i:nth-child(1){width:70vw;height:70vw;left:-20vw;top:-10vw;background:var(--b1)}
+.sky i:nth-child(2){width:60vw;height:60vw;right:-25vw;top:30vh;background:var(--b2);animation-delay:-8s}
+.sky i:nth-child(3){width:60vw;height:60vw;left:10vw;bottom:-25vw;background:var(--b3);animation-delay:-14s}
+@keyframes drift{to{transform:translate(8vw,6vh) scale(1.12)}}
+main{position:relative;z-index:1;height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding:calc(env(safe-area-inset-top) + 18px) 0 calc(env(safe-area-inset-bottom) + 110px)}
+.page{display:none;animation:in .35s cubic-bezier(.2,.8,.2,1)}
+.page.on{display:block}
+@keyframes in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.hd{padding:6px 22px 4px}
+.hd .eyebrow{font-size:13px;font-weight:600;color:var(--sub);letter-spacing:.02em;display:flex;align-items:center;gap:6px}
+.hd h1{margin:2px 0 0;font-size:34px;font-weight:800;letter-spacing:-.02em}
+.big{font-size:58px;font-weight:800;letter-spacing:-.045em;line-height:1.02;font-variant-numeric:tabular-nums;margin:6px 0 2px}
+.big small{font-size:.42em;font-weight:700;margin-left:2px;letter-spacing:0}
+.big .sg{font-size:.6em;margin-right:2px}
+.big.up{color:var(--up)}.big.dn{color:var(--dn)}
+.cap{font-size:13.5px;color:var(--sub);line-height:1.6}
+.glass{background:var(--glass);border:1px solid var(--edge);border-radius:26px;
+  -webkit-backdrop-filter:blur(26px) saturate(180%);backdrop-filter:blur(26px) saturate(180%);
+  box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,.35);position:relative;overflow:hidden}
+.glass::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(135deg,rgba(255,255,255,.28),rgba(255,255,255,0) 45%)}
+.card{margin:12px 16px;padding:16px 18px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.chips{display:flex;gap:8px;padding:10px 16px 2px;overflow-x:auto;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;padding:8px 14px;border-radius:999px;font-size:13.5px;font-weight:700;color:var(--sub)}
+.chip.on{color:var(--ink);background:var(--glass2)}
+.chip b{font-variant-numeric:tabular-nums;margin-left:4px}
+.st{display:flex;gap:10px;margin:0 16px}
+.st .glass{flex:1;padding:12px 14px;border-radius:20px}
+.st small{display:block;font-size:12px;color:var(--sub);font-weight:600}
+.st b{font-size:26px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.sec{margin:22px 22px 6px;font-size:13px;font-weight:700;color:var(--sub);display:flex;justify-content:space-between}
+/* IPOカード */
+.ipo .nm{font-size:17px;font-weight:700;line-height:1.35}
+.ipo .cd{font-size:12.5px;color:var(--mute);font-weight:600}
+.br{display:grid;grid-template-columns:44px 1fr;align-items:center;gap:10px;padding:10px 0 2px;border-top:1px solid var(--line);margin-top:10px}
+.br .bn{font-size:12px;font-weight:800;color:var(--sub)}
+.steps{display:flex;align-items:center}
+.sp{display:flex;flex-direction:column;align-items:center;gap:3px;flex:0 0 auto;min-width:54px}
+.sp i{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:13px;font-weight:800;
+  background:var(--line);color:var(--mute)}
+.sp span{font-size:11px;font-weight:700;color:var(--mute);white-space:nowrap}
+.sp.ok i{background:var(--up);color:#fff}.sp.ok span{color:var(--up)}
+.sp.ng i{background:var(--mute);color:#fff}.sp.ng span{color:var(--sub)}
+.sp.gold i{background:linear-gradient(135deg,#ffe07a,#d39a12);color:#4a3300}.sp.gold span{color:var(--gold)}
+.sp.warn i{background:var(--warn);color:#fff}.sp.warn span{color:var(--warn)}
+.sp.now i{box-shadow:0 0 0 4px rgba(10,108,255,.18);background:var(--blue);color:#fff}.sp.now span{color:var(--blue)}
+.ln{flex:1;height:2px;background:var(--line);margin:0 -6px 16px;min-width:12px}
+.ln.ok{background:var(--up)}
+.memo{font-size:12px;color:var(--sub);margin-top:6px;line-height:1.5}
+.tag{display:inline-block;font-size:11px;font-weight:800;padding:2px 8px;border-radius:8px;margin-left:6px;vertical-align:2px}
+.tag.g{background:rgba(10,155,98,.15);color:var(--up)}.tag.b{background:rgba(224,69,58,.13);color:var(--dn)}.tag.n{background:var(--line);color:var(--sub)}
+.empty{text-align:center;color:var(--sub);font-size:14px;line-height:1.8;padding:30px 20px}
+/* 予定 */
+.day{margin:14px 16px 0}
+.day .dl{font-size:13px;font-weight:800;color:var(--sub);margin:0 6px 6px;display:flex;gap:8px;align-items:baseline}
+.day .dl b{font-size:22px;color:var(--ink);letter-spacing:-.02em}
+.ev{display:grid;grid-template-columns:10px 1fr auto;gap:12px;align-items:center;padding:12px 16px}
+.ev+.ev{border-top:1px solid var(--line)}
+.ev .dot{width:10px;height:10px;border-radius:50%}
+.ev .t{font-size:15px;font-weight:700;line-height:1.35}
+.ev .s{font-size:12px;color:var(--sub);font-weight:600;margin-top:1px}
+.ev .r{font-size:12.5px;font-weight:800;text-align:right;white-space:nowrap}
+.today{color:var(--blue)}
+/* FX */
+.live{padding:16px 18px}
+.pulse{width:9px;height:9px;border-radius:50%;background:var(--up);box-shadow:0 0 0 0 rgba(61,220,151,.6);animation:pl 1.8s infinite}
+.pulse.off{background:var(--mute);animation:none}
+@keyframes pl{70%{box-shadow:0 0 0 10px rgba(61,220,151,0)}100%{box-shadow:0 0 0 0 rgba(61,220,151,0)}}
+.pos{padding:12px 0;border-top:1px solid var(--line)}
+.pos:first-of-type{border-top:0}
+.pos .k{font-size:12px;font-weight:800;letter-spacing:.04em}
+.k.hold{color:var(--gold)}.k.wait{color:var(--blue)}
+.pos .t{font-size:16px;font-weight:700;margin-top:2px}
+.pos .w{font-size:13px;color:var(--sub);margin-top:3px;line-height:1.55}
+.pos .p{font-size:28px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.chart{margin:12px 16px;padding:14px 0 8px;touch-action:none;user-select:none;-webkit-user-select:none}
+.chart .top{padding:0 18px;min-height:46px}
+.chart .v{font-size:24px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.chart .d{font-size:12px;color:var(--sub);font-weight:600}
+.chart svg{display:block;width:100%;height:180px}
+.seg{display:flex;margin:4px 18px 0;padding:3px;border-radius:12px;background:var(--line)}
+.seg button{flex:1;border:0;background:none;color:var(--sub);font:700 12.5px/1 inherit;padding:8px 0;border-radius:9px}
+.seg button.on{background:var(--glass2);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.tr{margin:10px 16px;padding:14px 16px;display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center}
+.tr .a{font-size:15px;font-weight:700}
+.tr .b{font-size:12.5px;color:var(--sub);font-weight:600;font-variant-numeric:tabular-nums}
+.tr .p{grid-row:1/3;grid-column:2;font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.02em;text-align:right}
+.up{color:var(--up)}.dn{color:var(--dn)}
+.side{display:inline-block;font-size:11px;font-weight:800;padding:2px 7px;border-radius:7px;margin-right:6px;vertical-align:1px}
+.side.buy{background:rgba(10,155,98,.15);color:var(--up)}.side.sell{background:rgba(224,69,58,.13);color:var(--dn)}
+/* タブバー（液体ガラス） */
+nav.glass{position:fixed;z-index:5;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 14px);
+  display:flex;gap:4px;padding:6px;border-radius:999px}
+nav button{position:relative;z-index:1;border:0;background:none;color:var(--sub);display:flex;flex-direction:column;align-items:center;gap:2px;
+  width:84px;padding:8px 0 6px;font:700 11px/1 inherit;border-radius:999px;transition:color .25s}
+nav button svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+nav button.on{color:var(--blue)}
+nav .blob{position:absolute;z-index:0;top:6px;bottom:6px;width:84px;border-radius:999px;background:var(--glass2);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 2px 10px rgba(0,0,0,.08);transition:transform .45s cubic-bezier(.3,1.4,.4,1)}
+.topbtn{position:fixed;z-index:4;right:16px;top:calc(env(safe-area-inset-top) + 12px);width:40px;height:40px;border-radius:50%;
+  display:grid;place-items:center;border:1px solid var(--edge)}
+.topbtn svg{width:20px;height:20px;stroke:var(--ink);fill:none;stroke-width:2;stroke-linecap:round}
+.topbtn.spin svg{animation:sp 1s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
+.gate{position:fixed;inset:0;z-index:9;display:none;place-items:center;padding:30px;text-align:center}
+.gate.on{display:grid}
+.gate img{width:96px;height:96px;border-radius:22px;box-shadow:var(--shadow)}
+.foot{font-size:11.5px;color:var(--mute);text-align:center;margin:18px 20px;line-height:1.7}
+.toast{position:fixed;z-index:8;left:50%;top:calc(env(safe-area-inset-top) + 14px);transform:translate(-50%,-80px);transition:transform .35s;
+  padding:10px 16px;border-radius:999px;font-size:13px;font-weight:700}
+.toast.on{transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+<div class="sky"><i></i><i></i><i></i></div>
+<div class="gate glass" id="gate"><div><img src="icon-512.png" alt=""><h2>フクリ</h2><p class="cap">合い鍵の入ったリンクから開いてください。<br>自分専用のアプリです。</p></div></div>
+<button class="topbtn glass" id="reload" aria-label="更新"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"/></svg></button>
+<div class="toast glass" id="toast"></div>
+<main id="main">
+  <section class="page on" id="p-ipo"></section>
+  <section class="page" id="p-plan"></section>
+  <section class="page" id="p-fx"></section>
+</main>
+<nav class="glass" id="nav">
+  <div class="blob" id="blob"></div>
+  <button data-p="ipo" class="on"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/><circle cx="19" cy="17" r="2"/></svg>申込</button>
+  <button data-p="plan"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg>予定</button>
+  <button data-p="fx"><svg viewBox="0 0 24 24"><path d="M3 17l5-5 4 3 8-8M15 7h5v5"/></svg>FX</button>
+</nav>
+<script>
+const VERSION='1';
+const API='__GAS_URL__';
+const KD='../kabu-drop/data/';
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const yen=v=>Math.abs(Math.round(v)).toLocaleString('ja-JP');
+const pm=v=>(v>=0?'+':'−')+yen(v)+'円';
+const brk=s=>esc(s).replace(/。(?!$)/g,'。<br>');
+const W='日月火水木金土';
+const store={get(k){try{return localStorage.getItem(k)}catch(_){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(_){}}};
+
+// 合い鍵：リンクの #k=… から受け取り、そのままURLに残す（ホーム画面に追加しても使える）
+let KEY=(location.hash.match(/k=([A-Za-z0-9-]+)/)||[])[1]||store.get('fk_key')||'';
+if(KEY){store.set('fk_key',KEY);if(!location.hash.includes('k='))history.replaceState(null,'','#k='+KEY)}
+if(!KEY)$('#gate').classList.add('on');
+
+let D=null,KDD={ipo:[],yoso:{},bun:{items:[]}},TAB=store.get('fk_tab')||'ipo',FXR=store.get('fk_fxr')||'all';
+
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('on'),2200)}
+
+async function load(force){
+  if(!KEY)return;
+  $('#reload').classList.add('spin');
+  try{
+    const [a,b,c,d]=await Promise.all([
+      fetch(API+'?key='+KEY+'&t='+Date.now()).then(r=>r.json()),
+      fetch(KD+'ipo.json?t='+Date.now(),{cache:'no-store'}).then(r=>r.json()).catch(()=>[]),
+      fetch(KD+'yoso.json?t='+Date.now(),{cache:'no-store'}).then(r=>r.json()).catch(()=>({})),
+      fetch(KD+'bunbai.json?t='+Date.now(),{cache:'no-store'}).then(r=>r.json()).catch(()=>({items:[]}))]);
+    if(!a.ok){if(a.err==='key'){$('#gate').classList.add('on')}throw 0}
+    D=a;KDD={ipo:b,yoso:c,bun:d};
+    store.set('fk_cache',JSON.stringify({D,KDD}));
+    render();if(force)toast('最新にしました');
+  }catch(e){if(force)toast('読み込めませんでした')}
+  $('#reload').classList.remove('spin');
+}
+
+// ---------- 申込 ----------
+const BRS=['SBI','楽天','DMM'];
+function judge(code){
+  const o=KDD.ipo.find(x=>x.code===code)||{};const y=KDD.yoso[code]||{};
+  const num=s=>{const v=parseFloat(String(s||'').replace(/[,円]/g,''));return isNaN(v)?null:v};
+  let hi=null;if(o.data3&&o.data3.includes('～'))hi=num(o.data3.split('～')[1]);
+  const base=num(o.data10)||hi||y.sotei;const p=y.last||y.bb||y.reader;
+  if(y.rank==='D')return{j:'bad',rank:y.rank};
+  if(!p||!base)return{j:null,rank:y.rank};
+  return{j:p>base?'good':'bad',rank:y.rank,gain:Math.round((p-base)*100)};
+}
+function renderIPO(){
+  const el=$('#p-ipo');const rows=(D&&D.ipo)||[];
+  const g={};rows.forEach(r=>{const[b,code,name,kind,a,at,l,lt,bu,bt,m]=r;(g[code]=g[code]||{code,name,kind,br:{}}).br[b]={a,at,l,lt,bu,bt,m};if(name)g[code].name=name});
+  const list=Object.values(g).filter(x=>Object.values(x.br).some(v=>v.a&&v.a!=='見送り'||v.l||v.bu));
+  const cnt=k=>rows.filter(r=>k(r)).length;
+  const won=cnt(r=>/当選/.test(r[6])),bought=cnt(r=>r[8]==='購入済'),applying=cnt(r=>r[4]==='申込済'&&!r[6]);
+  const gainAll=list.reduce((s,x)=>s+Object.values(x.br).filter(v=>v.bu==='購入済').length*((judge(x.code).gain)||0),0);
+  const run=(D&&D.runs&&D.runs[0])||[];
+  let h=`<div class="hd"><div class="eyebrow">自動化IPO・分売</div><h1>申込</h1>
+   <div class="big">${applying}<small>件 抽選待ち</small></div>
+   <div class="cap">${run[0]?`前回の自動実行：${esc(run[0].slice(5,16).replace('-','/').replace('T',' '))}（${esc(run[1])}）`:'まだ記録がありません。'}</div></div>
+   <div class="st"><div class="glass"><small>当選</small><b class="${won?'up':''}">${won}</b></div><div class="glass"><small>購入済</small><b>${bought}</b></div>
+   <div class="glass"><small>見込みの利益</small><b class="${gainAll>0?'up':''}" style="font-size:20px">${gainAll?pm(gainAll):'—'}</b></div></div>`;
+  const need=rows.filter(r=>r[8]==='要対応');
+  if(need.length)h+=`<div class="glass card" style="border-color:var(--warn)"><div style="font-weight:800;color:var(--warn)">手で対応が必要</div>${need.map(r=>`<div class="memo">${esc(r[0])} ${esc(r[2])}：${brk(r[10])}</div>`).join('')}</div>`;
+  if(!list.length)h+=`<div class="empty">まだ申込の記録がありません。<br>毎日21時に自動で申し込みます。</div>`;
+  else{
+    list.sort((a,b)=>stage(b)-stage(a));
+    h+=`<div class="sec"><span>銘柄ごとの進み具合</span><span>${list.length}銘柄</span></div>`;
+    h+=list.map(x=>{const J=judge(x.code);const o=KDD.ipo.find(i=>i.code===x.code)||{};
+      const tag=J.j==='good'?`<span class="tag g">得 ${J.gain?'+'+yen(J.gain)+'円':''}</span>`:J.j==='bad'?'<span class="tag b">損の予想</span>':'<span class="tag n">予想なし</span>';
+      const sub=[x.code,o.data15?'抽選 '+md(o.data15):'',o.data18?'上場 '+md(o.data18):''].filter(Boolean).join('・');
+      return `<div class="glass card ipo"><div class="nm">${esc(x.name||x.code)}${tag}</div><div class="cd">${esc(sub)}</div>
+        ${Object.entries(x.br).sort((a,b)=>BRS.indexOf(a[0])-BRS.indexOf(b[0])).map(([b,v])=>brRow(b,v)).join('')}</div>`}).join('');
+  }
+  h+=`<div class="foot">SBI・楽天は全部のIPOに申し込み、当選したら「得」の予想のときだけ購入します。<br>DMMは「得」の予想だけ申し込みます。</div>`;
+  el.innerHTML=h;
+}
+function stage(x){return Math.max(...Object.values(x.br).map(v=>v.bu==='要対応'?9:/当選/.test(v.l)&&!v.bu?8:v.bu==='購入済'?6:v.a==='申込済'&&!v.l?5:v.l?2:1))}
+function md(s){const m=String(s).match(/(\d+)\/(\d+)\/(\d+)/);return m?`${+m[2]}/${+m[3]}`:s}
+function brRow(b,v){
+  const s1=v.a==='申込済'||v.a==='試運転'?'ok':v.a==='見送り'?'ng':'';
+  const s2=/当選/.test(v.l)?'gold':v.l?'ng':s1==='ok'?'now':'';
+  const s3=v.bu==='購入済'?'ok':v.bu==='辞退'?'ng':v.bu==='要対応'?'warn':/当選/.test(v.l)?'now':'';
+  const t1=v.a||'申込',t2=v.l||'抽選',t3=v.bu||'購入';
+  const ic=(s,n)=>s==='ok'||s==='gold'?'✓':s==='ng'?'–':s==='warn'?'!':n;
+  return `<div class="br"><div class="bn">${esc(b)}</div><div><div class="steps">
+    <div class="sp ${s1}"><i>${ic(s1,1)}</i><span>${esc(t1)}</span></div><div class="ln ${s1==='ok'&&v.l?'ok':''}"></div>
+    <div class="sp ${s2}"><i>${s2==='gold'?'★':ic(s2,2)}</i><span>${esc(t2)}</span></div><div class="ln ${v.bu?'ok':''}"></div>
+    <div class="sp ${s3}"><i>${ic(s3,3)}</i><span>${esc(t3)}</span></div></div>
+    ${v.m&&v.a!=='申込済'?`<div class="memo">${brk(v.m)}</div>`:''}</div></div>`;
+}
+
+// ---------- 予定 ----------
+function renderPlan(){
+  const el=$('#p-plan');const ev=[];const now=new Date();const t0=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  const P=s=>{const m=String(s||'').match(/(\d+)[\/-](\d+)[\/-](\d+)/);return m?new Date(+m[1],m[2]-1,+m[3]):null};
+  const mine=new Set(((D&&D.ipo)||[]).filter(r=>r[4]==='申込済').map(r=>r[1]));
+  KDD.ipo.forEach(o=>{const J=judge(o.code);const nm=o.data1||o.code;const j=J.j==='good'?'得':J.j==='bad'?'損':'';
+    const add=(d,kind,col,extra)=>{const dt=P(d);if(dt&&dt>=t0)ev.push({dt,nm,kind,col,j,code:o.code,mine:mine.has(o.code),extra})};
+    add(o.data4,'BB開始','#0a6cff');add(o.data6,'BB締切 '+(o.data7||''),'#0a6cff');add(o.data15||o.data9,'抽選 18:00','#c9920f');
+    add(o.data11,'購入申込の開始','#0a9b62');add(o.data18,'上場','#8a5cf6')});
+  ((KDD.bun&&KDD.bun.items)||[]).filter(b=>b.kind==='plan').forEach(b=>{const dt=P(b.start);if(dt&&dt>=t0)ev.push({dt,nm:b.name,kind:'分売 '+(b.start===b.end?'':'〜'+md(b.end.replace(/-/g,'/'))),col:'#e08a00',code:b.code,j:''})});
+  ev.sort((a,b)=>a.dt-b.dt);
+  const next=ev[0];
+  let h=`<div class="hd"><div class="eyebrow">IPO・分売のこれから</div><h1>予定</h1>
+    ${next?`<div class="big" style="font-size:44px">${next.dt.getMonth()+1}/${next.dt.getDate()}<small>（${W[next.dt.getDay()]}）</small></div><div class="cap">次は「${esc(next.nm)}」の${esc(next.kind)}。</div>`:'<div class="cap">予定はまだありません。</div>'}</div>`;
+  const by={};ev.forEach(e=>{const k=e.dt.toDateString();(by[k]=by[k]||[]).push(e)});
+  h+=Object.values(by).slice(0,40).map(es=>{const d=es[0].dt;const isT=+d===+t0;
+    return `<div class="day"><div class="dl ${isT?'today':''}"><b>${d.getMonth()+1}/${d.getDate()}</b>${W[d.getDay()]}曜${isT?'・今日':''}</div>
+    <div class="glass" style="border-radius:22px">${es.map(e=>`<div class="ev"><i class="dot" style="background:${e.col}"></i>
+      <div><div class="t">${esc(e.nm)}</div><div class="s">${esc(e.kind)}${e.mine?'・申込済':''}</div></div>
+      <div class="r ${e.j==='得'?'up':e.j==='損'?'dn':''}">${e.j}</div></div>`).join('')}</div></div>`}).join('');
+  h+=`<div class="foot">日程はKABU DROPのデータから。<br>「得」「損」は初値予想と公開価格の比べです。</div>`;
+  el.innerHTML=h;
+}
+
+// ---------- FX ----------
+function trades(){
+  return ((D&&D.fx&&D.fx.trades)||[]).map(r=>({d:String(r[0]).slice(0,10),t:String(r[1]),side:String(r[2]),it:String(r[3]).slice(-8,-3)||r[3],ip:+r[4],ot:r[5],op:+r[6],why:String(r[7]||''),p:+r[8]||0,mode:r[9]}))
+    .filter(x=>x.d&&!isNaN(x.p)).sort((a,b)=>(a.d+a.ot)<(b.d+b.ot)?-1:1);
+}
+function tm(v){const s=String(v);const m=s.match(/T(\d\d:\d\d)/)||s.match(/^(\d{1,2}:\d\d)/);return m?m[1]:s}
+function renderFX(){
+  const el=$('#p-fx');const T=trades();const N=(D&&D.fx&&D.fx.now)||{};
+  const cut={'7':7,'30':30,'all':99999}[FXR];const lim=new Date(Date.now()-cut*864e5).toISOString().slice(0,10);
+  const R=T.filter(x=>x.d>=lim);const tot=R.reduce((s,x)=>s+x.p,0);
+  const win=R.filter(x=>x.p>0).length;
+  const live=N.at&&(Date.now()-new Date(N.at+':00+09:00'))<10*60e3;
+  const open=(N.pos||[]).reduce((s,x)=>s+(x.p||0),0);
+  let h=`<div class="hd"><div class="eyebrow">自動化FX・${esc(N.mode||'練習')}</div><h1>FX</h1>
+    <div class="big ${tot>=0?'up':'dn'}"><span class="sg">${tot>=0?'+':'−'}</span>${yen(tot)}<small>円</small></div>
+    <div class="cap">${R.length}回の取引で${win}勝${R.length-win}敗。<br>${FXR==='all'?'練習を始めてからの合計':'直近'+FXR+'日の合計'}です。</div></div>`;
+  h+=`<div class="seg">${[['7','7日'],['30','30日'],['all','全部']].map(([k,t])=>`<button data-r="${k}" class="${FXR===k?'on':''}">${t}</button>`).join('')}</div>`;
+  // 今の動き
+  h+=`<div class="glass card live"><div class="row"><div style="display:flex;align-items:center;gap:8px;font-weight:800">
+    <i class="pulse ${live?'':'off'}"></i>${live?'いまの動き':'botの合図が止まっています'}</div>
+    <div class="cap">${N.at?esc(N.at.slice(11,16))+' 時点':''}</div></div>`;
+  if(N.stop)h+=`<div class="memo" style="color:var(--dn)">損の上限で止まっています（新しくは入りません）。</div>`;
+  (N.pos||[]).forEach(x=>{h+=`<div class="pos"><div class="row"><div><div class="k hold">● 持っている</div>
+    <div class="t"><span class="side ${x.side==='買い'?'buy':'sell'}">${esc(x.side)}</span>${esc(x.t)}</div>
+    <div class="w">${esc(x.at)}に${fmtPx(x.in)}で入った。<br>今は${fmtPx(x.cur)}・${esc(x.out)}に決済。</div></div>
+    <div class="p ${x.p>=0?'up':'dn'}">${x.p==null?'—':pm(x.p)}</div></div></div>`});
+  (N.wait||[]).forEach(x=>{h+=`<div class="pos"><div class="k wait">○ 待っている</div><div class="t">${esc(x.t)}</div><div class="w">${brk(x.w)}</div></div>`});
+  if(!N.at)h+=`<div class="memo">botから最初の合図が届くと、ここに今の状態が出ます。</div>`;
+  if((N.pos||[]).length)h+=`<div class="memo">決済前の損益（含み）：<b class="${open>=0?'up':'dn'}">${pm(open)}</b></div>`;
+  h+=`</div>`;
+  // グラフ
+  h+=`<div class="glass chart" id="chart"><div class="top"><div class="v" id="cv"></div><div class="d" id="cd"></div></div><svg id="cs" preserveAspectRatio="none"></svg></div>`;
+  // 取引カード
+  h+=`<div class="sec"><span>取引</span><span>新しい順</span></div>`;
+  h+=R.slice().reverse().slice(0,80).map(x=>{const dd=new Date(x.d+'T00:00:00');
+    return `<div class="glass tr"><div class="a"><span class="side ${x.side==='買い'?'buy':'sell'}">${esc(x.side)}</span>${esc(x.t)}</div>
+    <div class="p ${x.p>=0?'up':'dn'}">${pm(x.p)}</div>
+    <div class="b">${dd.getMonth()+1}/${dd.getDate()}（${W[dd.getDay()]}） ${esc(tm(x.it))} ${fmtPx(x.ip)} → ${esc(tm(x.ot))} ${fmtPx(x.op)}<br>${esc(x.why.replace(/（入る時.*?）/,''))}</div></div>`}).join('')||'<div class="empty">まだ取引がありません。</div>';
+  h+=`<div class="foot">練習モードは本物のお金を使わない記録です。<br>1万通貨・手数料込みの金額です。</div>`;
+  el.innerHTML=h;
+  el.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{FXR=b.dataset.r;store.set('fk_fxr',FXR);renderFX()});
+  drawChart(R);
+}
+function fmtPx(v){v=+v;if(!v)return'—';return v<10?v.toFixed(5):v.toFixed(3)}
+function drawChart(R){
+  const svg=$('#cs');if(!svg)return;const w=svg.clientWidth||340,h=180,pad=14;
+  svg.setAttribute('viewBox',`0 0 ${w} ${h}`);
+  const pts=[{d:'',v:0}];let s=0;R.forEach(x=>{s+=x.p;pts.push({d:x.d,v:s,x})});
+  if(pts.length<2){svg.innerHTML='';$('#cv').textContent='—';$('#cd').textContent='取引がたまるとグラフが出ます。';return}
+  const vs=pts.map(p=>p.v),mx=Math.max(0,...vs),mn=Math.min(0,...vs),rg=(mx-mn)||1;
+  const X=i=>pad+(w-pad*2)*i/(pts.length-1),Y=v=>pad+(h-pad*2)*(1-(v-mn)/rg);
+  const up=s>=0,col=up?'var(--up)':'var(--dn)';
+  const d=pts.map((p,i)=>(i?'L':'M')+X(i).toFixed(1)+' '+Y(p.v).toFixed(1)).join(' ');
+  svg.innerHTML=`<defs><linearGradient id="fg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${up?'#3ddc97':'#ff6b5e'}" stop-opacity=".35"/><stop offset="1" stop-color="${up?'#3ddc97':'#ff6b5e'}" stop-opacity="0"/></linearGradient></defs>
+    <line x1="${pad}" x2="${w-pad}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--line)" stroke-width="1.5" stroke-dasharray="4 4"/>
+    <path d="${d} L${X(pts.length-1)} ${h} L${X(0)} ${h} Z" fill="url(#fg)"/>
+    <path d="${d}" fill="none" stroke="${col}" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+    <line id="cx" y1="0" y2="${h}" stroke="var(--sub)" stroke-width="1" opacity="0"/><circle id="cc" r="6" fill="${col}" stroke="#fff" stroke-width="2.5" opacity="0"/>`;
+  const show=i=>{const p=pts[i];$('#cv').innerHTML=`<span class="${p.v>=0?'up':'dn'}">${pm(p.v)}</span>`;
+    $('#cd').textContent=p.x?`${md(p.d.replace(/-/g,'/'))} ${p.x.t}（${pm(p.x.p)}）までの合計`:'はじめ';
+    const cx=$('#cx'),cc=$('#cc');cx.setAttribute('x1',X(i));cx.setAttribute('x2',X(i));cx.setAttribute('opacity',.5);cc.setAttribute('cx',X(i));cc.setAttribute('cy',Y(p.v));cc.setAttribute('opacity',1)};
+  const reset=()=>{$('#cv').innerHTML=`<span class="${s>=0?'up':'dn'}">${pm(s)}</span>`;$('#cd').textContent='指でなぞると、その時点の合計が出ます。';$('#cx').setAttribute('opacity',0);$('#cc').setAttribute('opacity',0)};
+  reset();
+  const box=$('#chart');let last=-1;
+  const mv=e=>{const r=svg.getBoundingClientRect();const cx=(e.touches?e.touches[0].clientX:e.clientX)-r.left;
+    const i=Math.max(0,Math.min(pts.length-1,Math.round((cx/r.width*w-pad)/((w-pad*2)/(pts.length-1)))));
+    if(i!==last){last=i;show(i);if(navigator.vibrate)try{navigator.vibrate(4)}catch(_){}}};
+  box.ontouchstart=e=>{mv(e)};box.ontouchmove=e=>{e.preventDefault();mv(e)};box.ontouchend=()=>{last=-1;reset()};
+  box.onpointermove=e=>{if(e.pointerType==='mouse')mv(e)};box.onpointerleave=()=>reset();
+}
+
+// ---------- 画面の切り替え ----------
+function render(){renderIPO();renderPlan();renderFX()}
+function go(p){TAB=p;store.set('fk_tab',p);
+  document.querySelectorAll('.page').forEach(e=>e.classList.toggle('on',e.id==='p-'+p));
+  const bs=[...document.querySelectorAll('nav button')];bs.forEach(b=>b.classList.toggle('on',b.dataset.p===p));
+  const i=bs.findIndex(b=>b.dataset.p===p);$('#blob').style.transform=`translateX(${i*88}px)`;$('#main').scrollTop=0;
+  if(p==='fx'&&D)drawChart(trades().filter(x=>x.d>=new Date(Date.now()-({'7':7,'30':30,'all':99999}[FXR])*864e5).toISOString().slice(0,10)))}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(b.dataset.p));
+$('#reload').onclick=()=>load(true);
+
+// 前回の中身をすぐ出してから最新を読む
+try{const c=JSON.parse(store.get('fk_cache')||'null');if(c){D=c.D;KDD=c.KDD;render()}}catch(_){}
+go(TAB);load();
+setInterval(()=>{if(!document.hidden&&TAB==='fx')load()},60000);
+// 更新の自動反映：新しい版が出ていたら読み直す
+async function checkVer(){try{const v=(await fetch('version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.text())).trim();if(v&&v!==VERSION)location.reload()}catch(_){}}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){checkVer();load()}});
+checkVer();
+</script>
+</body>
+</html>
