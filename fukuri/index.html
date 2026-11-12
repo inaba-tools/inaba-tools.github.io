@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://script.google.com https://script.googleusercontent.com; worker-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
 <meta name="robots" content="noindex,nofollow,noarchive">
 <meta name="referrer" content="no-referrer">
@@ -350,13 +351,13 @@ body{transition:none}
   <button data-p="set"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>'設定</button>
 </nav>
 <script>
-const VERSION='35';
+const VERSION='36';
 const CLIENT_ID='187861904258-0eilchk073j1hbginl1hncskf7jpp4ja.apps.googleusercontent.com';  // GoogleログインのクライアントID（公開してよい値）
 const VAPID='BFPiiQbgaxGzyfVZaA--hO4tmo7iamPgNVKypX8MHbwrcy3IF3d3544WBQX1cVLJmfDnfnRuZaPrTR9KNwHJlyc';
 const API='https://script.google.com/macros/s/AKfycbwTnqvwT5kAsd0AKqWztPr5yxcw4FKEM4ISuuMwrtFsUGmYTjdeAzXfhypG1TIj_B7d/exec';
 const KD='../kabu-data/';
 const $=s=>document.querySelector(s);
-const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const esc=s=>String(s??'').replace(/[&<>"'`]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;'}[c]));
 const yen=v=>Math.abs(Math.round(v)).toLocaleString('ja-JP');
 const pm=v=>(v>=0?'+':'−')+yen(v)+'円';
 const brk=s=>esc(s).replace(/。(?!$)/g,'。<br>');
@@ -465,7 +466,7 @@ function todoCard(rows){
   const S=(D&&D.status)||{},RS=(D&&D.resume)||[],it=[];
   Object.entries(S.paused||{}).forEach(([b,m])=>{const w=RS.includes(BKEY[b]);
     it.push({w:1,t:`${b}の自動処理が止まっています`,s:w?'再開の予約済み。次の12時か21時の実行から動きます。':'ログインに失敗したので止めました。パスワード等を確かめてから再開してください。',
-      b:w?'':`<button class="btn s" onclick="resume('${BKEY[b]}','${b}')">再開</button>`})});
+      b:w||!BKEY[b]?'':`<button class="btn s" onclick="resume('${BKEY[b]}','${{sbi:'SBI',rakuten:'楽天',dmm:'DMM'}[BKEY[b]]}')">再開</button>`})});
   let money=(S.money||[]);
   if(!S.at){const run=((D&&D.runs)||[]).find(r=>r[1]!=='警告')||[];
     if(run[2]&&/【入金が必要】/.test(run[2])&&Date.now()-new Date(run[0])<2*864e5)money=String(run[2]).split('【入金が必要】')[1].split('／')}
@@ -516,7 +517,7 @@ function sheet(title,html){
 }
 function closeSheet(){const el=$('#sheet');if(el)el.classList.remove('on')}
 function stage(x){return Math.max(...Object.values(x.br).map(v=>v.bu==='要対応'?9:/当選/.test(v.l)&&!v.bu?8:v.bu==='購入済'||v.bu==='売却済'?6:v.a==='申込済'&&!v.l?5:v.l?2:1))}
-function md(s){const m=String(s).match(/(\d+)\/(\d+)\/(\d+)/);return m?`${+m[2]}/${+m[3]}`:s}
+function md(s){const m=String(s).match(/(\d+)\/(\d+)\/(\d+)/);return m?`${+m[2]}/${+m[3]}`:esc(s)}
 function brRow(b,v,bun){
   const s1=v.a==='申込済'||v.a==='試運転'?'ok':v.a==='見送り'?'ng':'';
   const sold=v.bu==='売却済';
