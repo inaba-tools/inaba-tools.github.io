@@ -70,7 +70,7 @@ function alert_(msg, type) {
   const now = Date.now();
   try {
     const sh = ss_().getSheetByName('実行記録');
-    sh.insertRowAfter(1); sh.getRange(2, 1, 1, 3).setValues([safe_([new Date(), '警告', msg])]);
+    sh.insertRowAfter(1); sh.getRange(2, 1, 1, 3).setValues([safe_([new Date(), '警告', String(msg).slice(0, 300)])]);
   } catch (_) {}
   try {
     const list = JSON.parse(P.getProperty('ALERTS') || '[]');
@@ -87,7 +87,7 @@ function alert_(msg, type) {
     const t = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'M/d HH:mm');
     // フクリ自身の知らせ（入金・停止・動いていない）は「不審なアクセス」にしない
     const SUBJ = { money: '【フクリ】入金してください', mac: '【フクリ】自動処理を止めました', run: '【フクリ】今夜の自動申込が動いていません',
-      mail: '【フクリ緊急】証券会社から重要なメール', app: '【フクリ緊急】不審なアクセス', test: '【フクリ】テスト' };
+      mail: '【フクリ緊急】証券会社から重要なメール', notice: '【フクリ】証券会社の重要なお知らせ（中身）', app: '【フクリ緊急】不審なアクセス', test: '【フクリ】テスト' };
     const SUSPICIOUS = (type === 'mail' || type === 'app');
     GmailApp.sendEmail(to, SUBJ[type] || '【フクリ】お知らせ',
       t + '\n' + msg + '\n\n' + (SUSPICIOUS ? '心当たりがなければ、すぐにその証券会社にログインしてパスワードを変更し、出金先を確認してください。\n' : '') + 'フクリのアプリ：https://inaba-tools.github.io/fukuri/');
@@ -200,7 +200,7 @@ function doPost(e) {
     P.setProperty('SUBS', JSON.stringify(JSON.parse(P.getProperty('SUBS') || '[]').filter(s => s.endpoint !== d.endpoint)));
     return out_({ ok: true });
   }
-  if (d.kind === 'alert') { alert_(String(d.msg || '').slice(0, 300), String(d.type || 'mac').slice(0, 10)); return out_({ ok: true }); }
+  if (d.kind === 'alert') { alert_(String(d.msg || '').slice(0, 2000), String(d.type || 'mac').slice(0, 10)); return out_({ ok: true }); }
   const lock = LockService.getScriptLock(); lock.waitLock(20000);
   try {
     const ss = ss_();
