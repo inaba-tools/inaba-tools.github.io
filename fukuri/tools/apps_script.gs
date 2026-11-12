@@ -64,7 +64,7 @@ function login_(d) {
   return { ok: true, sess: sess, email: email.replace(/^(.{2}).*(@.*)$/, '$1***$2') };
 }
 // ---------- 緊急通知（不審なアクセス・証券会社の重要メール） ----------
-// 送り先は窓口の持ち主のGmail（コードにアドレスは書かない）。メールは同じ種類で30分に1通まで
+// 送り先はスクリプトプロパティ ALERT_TO（コードにアドレスは書かない）。メールは同じ種類で30分に1通まで
 function alert_(msg, type) {
   type = type || 'app';
   const now = Date.now();
@@ -81,7 +81,8 @@ function alert_(msg, type) {
     const last = JSON.parse(P.getProperty('MAIL_AT') || '{}');
     if (last[type] && now - last[type] < 30 * 60e3) return;
     last[type] = now; P.setProperty('MAIL_AT', JSON.stringify(last));
-    const to = Session.getEffectiveUser().getEmail();
+    const to = P.getProperty('ALERT_TO');   // 送り先はスクリプトプロパティ（公開コードには書かない）
+    if (!to) return;
     const t = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'M/d HH:mm');
     GmailApp.sendEmail(to, '【フクリ緊急】' + (type === 'mail' ? '証券会社から重要なメール' : '不審なアクセス'),
       t + '\n' + msg + '\n\n心当たりがなければ、すぐにその証券会社にログインしてパスワードを変更し、出金先を確認してください。\nフクリのアプリ：https://inaba-tools.github.io/fukuri/');
