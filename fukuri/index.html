@@ -211,6 +211,17 @@ nav button svg{width:26px;height:26px}
 .cash .it{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-top:1px solid var(--line)}
 .cash .it:first-of-type{border-top:0}
 .cash b{font-size:20px;font-variant-numeric:tabular-nums}
+.chart{touch-action:pan-y}
+/* 画面全体は固定し、中身だけスクロール（引っぱっても画面が動かない） */
+html,body{position:fixed;inset:0;overflow:hidden;overscroll-behavior:none;height:100%}
+main{position:fixed;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:none;min-height:0}
+/* FXの取引：1行の細いリスト */
+.trl{margin:8px 16px;padding:2px 14px}
+.trr{display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px solid var(--line);font-size:12.5px;font-variant-numeric:tabular-nums}
+.trr:first-child{border-top:0}
+.trr .dt{color:var(--sub);width:84px;flex:none;white-space:nowrap}.trr .nm{flex:1;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trr .pp{font-weight:800;font-size:13.5px}
+.trr .side{font-size:10px;padding:1px 5px;margin-right:4px}
 .set .row{display:flex;align-items:center;justify-content:space-between;gap:12px}
 </style>
 </head>
@@ -234,7 +245,7 @@ nav button svg{width:26px;height:26px}
   <button data-p="set"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M2.5 12h3M18.5 12h3M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/></svg>設定</button>
 </nav>
 <script>
-const VERSION='13';
+const VERSION='14';
 const CLIENT_ID='187861904258-0eilchk073j1hbginl1hncskf7jpp4ja.apps.googleusercontent.com';  // GoogleログインのクライアントID（公開してよい値）
 const VAPID='BFPiiQbgaxGzyfVZaA--hO4tmo7iamPgNVKypX8MHbwrcy3IF3d3544WBQX1cVLJmfDnfnRuZaPrTR9KNwHJlyc';
 const API='https://script.google.com/macros/s/AKfycbwTnqvwT5kAsd0AKqWztPr5yxcw4FKEM4ISuuMwrtFsUGmYTjdeAzXfhypG1TIj_B7d/exec';
@@ -450,10 +461,9 @@ function renderFX(){
   h+=`<div class="glass chart" id="chart"><div class="top"><div class="v" id="cv"></div><div class="d" id="cd"></div></div><svg id="cs" preserveAspectRatio="none"></svg></div>`;
   // 取引カード
   h+=`<div class="sec"><span>取引</span><span>新しい順</span></div>`;
-  h+=R.slice().reverse().slice(0,80).map(x=>{const dd=new Date(x.d+'T00:00:00');
-    return `<div class="glass tr"><div class="a"><span class="side ${x.side==='買い'?'buy':'sell'}">${esc(x.side)}</span>${esc(x.t)}</div>
-    <div class="p ${x.p>=0?'up':'dn'}">${pm(x.p)}</div>
-    <div class="b">${dd.getMonth()+1}/${dd.getDate()}（${W[dd.getDay()]}） ${esc(tm(x.it))} ${fmtPx(x.ip)} → ${esc(tm(x.ot))} ${fmtPx(x.op)}<br>${esc(x.why.replace(/（入る時.*?）/,''))}</div></div>`}).join('')||'<div class="empty">まだ取引がありません。</div>';
+  const TR=R.slice().reverse().slice(0,80);
+  h+=TR.length?`<div class="glass trl">${TR.map(x=>{const dd=new Date(x.d+'T00:00:00');
+    return `<div class="trr"><span class="dt">${dd.getMonth()+1}/${dd.getDate()} ${esc(tm(x.ot))}</span><span class="nm"><span class="side ${x.side==='買い'?'buy':'sell'}">${x.side==='買い'?'買':'売'}</span>${esc(x.t)}</span><span class="pp ${x.p>=0?'up':'dn'}">${pm(x.p)}</span></div>`}).join('')}</div>`:'<div class="empty">まだ取引がありません。</div>';
   h+=`<div class="foot">練習モードは本物のお金を使わない記録です。<br>1万通貨・手数料込みの金額です。</div>`;
   el.innerHTML=h;
   el.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{FXR=b.dataset.r;store.set('fk_fxr',FXR);renderFX()});
@@ -477,13 +487,17 @@ function drawChart(R){
   const show=i=>{const p=pts[i];$('#cv').innerHTML=`<span class="${p.v>=0?'up':'dn'}">${pm(p.v)}</span>`;
     $('#cd').textContent=p.x?`${md(p.d.replace(/-/g,'/'))} ${p.x.t}（${pm(p.x.p)}）までの合計`:'はじめ';
     const cx=$('#cx'),cc=$('#cc');cx.setAttribute('x1',X(i));cx.setAttribute('x2',X(i));cx.setAttribute('opacity',.5);cc.setAttribute('cx',X(i));cc.setAttribute('cy',Y(p.v));cc.setAttribute('opacity',1)};
-  const reset=()=>{$('#cv').innerHTML=`<span class="${s>=0?'up':'dn'}">${pm(s)}</span>`;$('#cd').textContent='指でなぞると、その時点の合計が出ます。';$('#cx').setAttribute('opacity',0);$('#cc').setAttribute('opacity',0)};
+  const reset=()=>{$('#cv').innerHTML=`<span class="${s>=0?'up':'dn'}">${pm(s)}</span>`;$('#cd').textContent='横になぞると、その時点の合計が出ます。';$('#cx').setAttribute('opacity',0);$('#cc').setAttribute('opacity',0)};
   reset();
   const box=$('#chart');let last=-1;
   const mv=e=>{const r=svg.getBoundingClientRect();const cx=(e.touches?e.touches[0].clientX:e.clientX)-r.left;
     const i=Math.max(0,Math.min(pts.length-1,Math.round((cx/r.width*w-pad)/((w-pad*2)/(pts.length-1)))));
     if(i!==last){last=i;show(i);if(navigator.vibrate)try{navigator.vibrate(4)}catch(_){}}};
-  box.ontouchstart=e=>{mv(e)};box.ontouchmove=e=>{e.preventDefault();mv(e)};box.ontouchend=()=>{last=-1;reset()};
+  let sx=0,sy=0,scrub=false;
+  box.ontouchstart=e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;scrub=false};
+  box.ontouchmove=e=>{const dx=e.touches[0].clientX-sx,dy=e.touches[0].clientY-sy;
+    if(!scrub&&Math.abs(dx)>10&&Math.abs(dx)>Math.abs(dy)*1.5)scrub=true;if(scrub){if(e.cancelable)e.preventDefault();mv(e)}};
+  box.ontouchend=()=>{last=-1;scrub=false;reset()};
   box.onpointermove=e=>{if(e.pointerType==='mouse')mv(e)};box.onpointerleave=()=>reset();
 }
 
@@ -507,7 +521,7 @@ function render(){renderIPO();renderPlan();renderFX();renderSet()}
 function go(p){TAB=p;store.set('fk_tab',p);
   document.querySelectorAll('.page').forEach(e=>e.classList.toggle('on',e.id==='p-'+p));
   const bs=[...document.querySelectorAll('nav button')];bs.forEach(b=>b.classList.toggle('on',b.dataset.p===p));
-  const i=bs.findIndex(b=>b.dataset.p===p);$('#blob').style.transform=`translateX(${i*76}px)`;window.scrollTo(0,0);
+  const i=bs.findIndex(b=>b.dataset.p===p);$('#blob').style.transform=`translateX(${i*76}px)`;$('#main').scrollTop=0;
   if(p==='fx'&&D)drawChart(trades().filter(x=>x.d>=new Date(Date.now()-({'7':7,'30':30,'all':99999}[FXR])*864e5).toISOString().slice(0,10)))}
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(b.dataset.p));
 $('#reload').onclick=()=>load(true);
