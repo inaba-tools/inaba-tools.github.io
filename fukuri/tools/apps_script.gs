@@ -22,7 +22,8 @@ function setup() {   // 最初に1回だけ実行
   mk('FXいま', ['更新', '内容（JSON）'], [140, 800]);
   mk('設定', ['項目', '値'], [140, 420]);
   const st = ss.getSheetByName('設定');
-  st.getRange(2, 1, 3, 2).setValues([['読む用の合い鍵', P.getProperty('KEY_R')], ['書く用の合い鍵', P.getProperty('KEY_W')], ['シートID', id]]);
+  // 合い鍵はシートに書かない（スクリプトプロパティだけに置く）
+  st.getRange(2, 1, 3, 2).setValues([['シートID', id], ['', ''], ['', '']]);
   const s1 = ss.getSheetByName('シート1') || ss.getSheetByName('Sheet1');
   if (s1 && ss.getSheets().length > 1) ss.deleteSheet(s1);
   ScriptApp.getProjectTriggers().filter(t => t.getHandlerFunction() !== 'watchMail').forEach(t => ScriptApp.deleteTrigger(t));
@@ -39,9 +40,12 @@ const safe_ = r => r.map(v => (typeof v === 'string' && /^[=+\-@]/.test(v)) ? "'
 const hash_ = t => Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, String(t)));
 const sessOk_ = t => {
   if (!t) return false;
-  const m = JSON.parse(P.getProperty('SESS') || '{}'); const e = m[hash_(t)];
-  return !!e && e > Date.now();
+  const m = JSON.parse(P.getProperty('SESS') || '{}'), h = hash_(t), e = m[h], now = Date.now();
+  if (!e || e <= now) return false;
+  if (e - now > SESS_DAYS * 864e5) { m[h] = now + SESS_DAYS * 864e5; P.setProperty('SESS', JSON.stringify(m)); }   // 前の180日のものも30日に縮める
+  return true;
 };
+const SESS_DAYS = 30;   // ログインの有効期限（日）
 const googleOn_ = () => P.getProperty('GOOGLE_ON') === '1';
 function login_(d) {
   const cid = P.getProperty('GOOGLE_CLIENT_ID');
@@ -57,7 +61,7 @@ function login_(d) {
   const sess = Utilities.getUuid().replace(/-/g, '') + Utilities.getUuid().replace(/-/g, '');
   const m = JSON.parse(P.getProperty('SESS') || '{}'); const now = Date.now();
   Object.keys(m).forEach(k => { if (m[k] < now) delete m[k]; });
-  m[hash_(sess)] = now + 180 * 864e5;   // 180日有効
+  m[hash_(sess)] = now + SESS_DAYS * 864e5;
   const keep = Object.entries(m).sort((a, b) => b[1] - a[1]).slice(0, 10);
   P.setProperty('SESS', JSON.stringify(Object.fromEntries(keep)));
   P.setProperty('GOOGLE_ON', '1');
@@ -164,7 +168,6 @@ function doPost(e) {
       P.setProperty('KEY_R', nk);
       const m = JSON.parse(P.getProperty('SESS') || '{}'), h = hash_(d.sess);
       P.setProperty('SESS', JSON.stringify(m[h] ? { [h]: m[h] } : {}));   // ほかの端末のログインも切る
-      try { ss_().getSheetByName('設定').getRange(2, 2).setValue(nk); } catch (_) {}
       alert_('合い鍵を作り直しました（自分の操作なら問題ありません）', 'rekey');
       return out_({ ok: true, key: nk });
     } finally { lockK.releaseLock(); }
@@ -190,7 +193,20 @@ function doPost(e) {
     const l = JSON.parse(P.getProperty('RESUME') || '[]'); if (!l.includes(d.broker)) l.push(d.broker);
     P.setProperty('RESUME', JSON.stringify(l)); return out_({ ok: true });
   }
-  if (d.key !== P.getProperty('KEY_W')) { if (d.key && d.key !== P.getProperty('KEY_R')) badKey_(); return out_({ ok: false, err: 'key' }); }
+  // 書く用の合い鍵は2本：Mac用（KEY_W、全部できる）とFX bot用（KEY_FX、FXのことだけ）
+  const isW = !!d.key && d.key === P.getProperty('KEY_W');
+  const isFX = !!d.key && !!P.getProperty('KEY_FX') && d.key === P.getProperty('KEY_FX');
+  if (!isW && !isFX) { if (d.key && d.key !== P.getProperty('KEY_R')) badKey_(); return out_({ ok: false, err: 'key' }); }
+  if (isFX && !['fx', 'unsub'].includes(d.kind)) { alert_('FX botの合い鍵でFX以外の操作がありました（' + String(d.kind).slice(0, 20) + '）'); return out_({ ok: false, err: 'key' }); }
+  if (d.kind === 'ping') return out_({ ok: true, pong: true });
+  if (d.kind === 'splitw') {   // 1回だけ：今の鍵をFX bot用にし、Macは新しい鍵に替える
+    const lockS = LockService.getScriptLock(); lockS.waitLock(20000);
+    try {
+      if (P.getProperty('KEY_FX') || !/^[A-Za-z0-9]{32,64}$/.test(d.nk || '')) return out_({ ok: false, err: 'split' });
+      P.setProperty('KEY_FX', P.getProperty('KEY_W')); P.setProperty('KEY_W', d.nk);
+      return out_({ ok: true, split: true });
+    } finally { lockS.releaseLock(); }
+  }
   if (d.kind === 'cmd') {   // Macが受け取ったら消す
     const l = JSON.parse(P.getProperty('RESUME') || '[]'); P.deleteProperty('RESUME'); return out_({ ok: true, resume: l });
   }
@@ -231,7 +247,8 @@ function doPost(e) {
 }
 
 function doGet(e) {
-  if (e.parameter.subs && e.parameter.key === P.getProperty('KEY_W')) {
+  const fxKey = !!P.getProperty('KEY_FX') && e.parameter.key === P.getProperty('KEY_FX') && (e.parameter.cat || 'fx') === 'fx';
+  if (e.parameter.subs && (e.parameter.key === P.getProperty('KEY_W') || fxKey)) {
     // 種類ごとの通知のオンオフ（cat が無いのはFX botからの通知）
     const pref = JSON.parse(P.getProperty('NOTIFY') || '{}'), cat = e.parameter.cat || 'fx';
     return out_({ ok: true, subs: pref[cat] === false ? [] : JSON.parse(P.getProperty('SUBS') || '[]') });
@@ -255,3 +272,10 @@ function doGet(e) {
 
 // 毎朝のFXの成績は、FX botのサーバーからフクリのアプリへ通知する（ここでは送らない）
 function morning() {}
+
+// 1回だけ手で実行：スプレッドシート「設定」に残っている合い鍵を消す
+function clearKeysFromSheet() {
+  const st = ss_().getSheetByName('設定'), v = st.getDataRange().getValues();
+  v.forEach((r, i) => { if (/合い鍵/.test(String(r[0]))) st.getRange(i + 1, 1, 1, 2).clearContent(); });
+  return 'OK';
+}
