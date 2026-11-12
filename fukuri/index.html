@@ -303,7 +303,7 @@ nav button.on svg{animation:pop .4s cubic-bezier(.3,1.6,.5,1)}
   <button data-p="set"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M2.5 12h3M18.5 12h3M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/></svg>設定</button>
 </nav>
 <script>
-const VERSION='21';
+const VERSION='22';
 const CLIENT_ID='187861904258-0eilchk073j1hbginl1hncskf7jpp4ja.apps.googleusercontent.com';  // GoogleログインのクライアントID（公開してよい値）
 const VAPID='BFPiiQbgaxGzyfVZaA--hO4tmo7iamPgNVKypX8MHbwrcy3IF3d3544WBQX1cVLJmfDnfnRuZaPrTR9KNwHJlyc';
 const API='https://script.google.com/macros/s/AKfycbwTnqvwT5kAsd0AKqWztPr5yxcw4FKEM4ISuuMwrtFsUGmYTjdeAzXfhypG1TIj_B7d/exec';
@@ -589,7 +589,9 @@ document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(b.dataset.p)
 // 開いた直後に画面の高さがずれることがあるので、少し後に位置を戻す
 // ほかのアプリから戻った時も、下のタブを画面の一番下に置き直す（iPhoneの高さのずれ対策）
 function fixNav(){const n=$('#nav');if(!n)return;window.scrollTo(0,0);
-  const H=window.innerHeight;n.style.bottom='auto';n.style.top=(H-n.offsetHeight)+'px';
+  // ホーム画面から開いたアプリは画面全体を使うので、端末の画面の高さを基準にする（戻った直後のinnerHeightは狂うことがある）
+  const sa=navigator.standalone||matchMedia('(display-mode: standalone)').matches,port=matchMedia('(orientation: portrait)').matches;
+  const H=(sa&&port&&screen.height)?Math.max(screen.height,window.innerHeight):window.innerHeight;n.style.bottom='auto';n.style.top=(H-n.offsetHeight)+'px';
   document.documentElement.style.setProperty('--vh',H+'px');$('#main').style.height=H+'px'}
 ['load','pageshow','orientationchange','resize','focus'].forEach(ev=>addEventListener(ev,()=>[0,80,300,800].forEach(t=>setTimeout(fixNav,t))));
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)[0,80,300,800].forEach(t=>setTimeout(fixNav,t))});
