@@ -241,7 +241,7 @@ main{position:fixed;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-s
 .ir .in{display:flex;align-items:baseline;gap:6px;min-width:0}
 .ir .nm{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%}
 .ir .cd{font-size:11px;color:var(--mute);margin-left:auto;white-space:nowrap}
-.tg{font-size:10px;font-weight:800;padding:1px 6px;border-radius:6px;flex:none}.tg.g{background:rgba(76,207,138,.15);color:var(--up)}.tg.b{background:rgba(255,107,94,.13);color:var(--dn)}
+.tg{font-size:10px;font-weight:800;padding:1px 6px;border-radius:6px;flex:none}.tg.g{background:rgba(76,207,138,.15);color:var(--up)}.tg.b{background:rgba(255,107,94,.13);color:var(--dn)}.tg.p{background:rgba(167,139,250,.16);color:#A78BFA}
 .bcs{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
 .bc{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--line);color:var(--sub)}
 .bc.now{background:rgba(214,178,106,.16);color:var(--gold)}.bc.ok{background:rgba(76,207,138,.15);color:var(--up)}
@@ -350,7 +350,7 @@ body{transition:none}
   <button data-p="set"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>'設定</button>
 </nav>
 <script>
-const VERSION='34';
+const VERSION='35';
 const CLIENT_ID='187861904258-0eilchk073j1hbginl1hncskf7jpp4ja.apps.googleusercontent.com';  // GoogleログインのクライアントID（公開してよい値）
 const VAPID='BFPiiQbgaxGzyfVZaA--hO4tmo7iamPgNVKypX8MHbwrcy3IF3d3544WBQX1cVLJmfDnfnRuZaPrTR9KNwHJlyc';
 const API='https://script.google.com/macros/s/AKfycbwTnqvwT5kAsd0AKqWztPr5yxcw4FKEM4ISuuMwrtFsUGmYTjdeAzXfhypG1TIj_B7d/exec';
@@ -427,31 +427,35 @@ function judge(code){
   if(!p||!base)return{j:null,rank:y.rank};
   return{j:p>base?'good':'bad',rank:y.rank,gain:Math.round((p-base)*100)};
 }
+function bunDay(code){const x=((KDD.bun&&KDD.bun.items)||[]).find(i=>i.code===code&&i.kind==='plan')||((KDD.bun&&KDD.bun.items)||[]).find(i=>i.code===code)||{};const m=String(x.start||x.date||'').match(/\d{4}-(\d{2})-(\d{2})/);return m?`${+m[1]}/${+m[2]}`:''}
+function ipoItem(x){const bun=x.kind==='分売';const J=bun?{}:judge(x.code);const o=bun?{}:(KDD.ipo.find(i=>i.code===x.code)||{});
+  const tag=bun?'<span class="tg p">分売</span>':J.j==='good'?`<span class="tg g">得${J.gain?' +'+yen(J.gain):''}</span>`:J.j==='bad'?'<span class="tg b">損</span>':'';
+  const day=bun?(bunDay(x.code)?' ・分売 '+bunDay(x.code):''):(o.data15?' ・抽選 '+md(o.data15):'');
+  const chips=Object.entries(x.br).sort((a,b)=>BRS.indexOf(a[0])-BRS.indexOf(b[0])).map(([b,v])=>brRow(b,v,bun)).join('');
+  return `<div class="ir"><div class="in"><span class="nm">${esc(x.name||x.code)}</span>${tag}<span class="cd">${esc(x.code)}${day}</span></div><div class="mini">${chips}</div></div>`}
 function renderIPO(){
   const el=$('#p-ipo');const rows=(D&&D.ipo)||[];
   const g={};rows.forEach(r=>{const[b,code,name,kind,a,at,l,lt,bu,bt,m]=r;(g[code]=g[code]||{code,name,kind,br:{}}).br[b]={a,at,l,lt,bu,bt,m};if(name)g[code].name=name});
   const list=Object.values(g).filter(x=>Object.values(x.br).some(v=>v.a&&v.a!=='見送り'||v.l||v.bu));
   const cnt=k=>rows.filter(r=>k(r)).length;
-  const won=cnt(r=>/当選/.test(r[6])),bought=cnt(r=>r[8]==='購入済'),applying=cnt(r=>r[4]==='申込済'&&!r[6]);
+  const won=cnt(r=>/当選/.test(r[6])),bought=cnt(r=>r[8]==='購入済'),applying=cnt(r=>r[4]==='申込済'&&!r[6]&&!r[8]);
   const gainAll=list.reduce((s,x)=>s+Object.values(x.br).filter(v=>v.bu==='購入済').length*((judge(x.code).gain)||0),0);
   const run=((D&&D.runs)||[]).find(r=>r[1]!=='警告')||[];
-  WAIT=[];list.forEach(x=>Object.entries(x.br).forEach(([b,v])=>{if(v.a==='申込済'&&!v.l)WAIT.push({b,code:x.code,name:x.name})}));
+  WAIT=[];list.forEach(x=>Object.entries(x.br).forEach(([b,v])=>{if(v.a==='申込済'&&!v.l&&!v.bu)WAIT.push({b,code:x.code,name:x.name,bun:x.kind==='分売'})}));
   let h=`<div class="hd"><div class="row"><div><div class="eyebrow">自動化IPO・分売</div><h1>申込</h1></div>
-     <button class="pill" onclick="showWait()"><b>${WAIT.length}</b>件 抽選待ち<svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button></div>
+     <button class="pill" onclick="showWait()"><b>${WAIT.length}</b>件 結果待ち<svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button></div>
    <div class="cap">${run[0]?`前回の自動実行：${esc(run[0].slice(5,16).replace('-','/').replace('T',' '))}（${esc(run[1])}）`:'まだ記録がありません。'}</div></div>`;
   if(!list.length)h+=`<div class="empty">まだ申込の記録がありません。<br>毎日21時に自動で申し込みます。</div>`;
   else{
     list.sort((a,b)=>stage(b)-stage(a));
-    h+=`<div class="sec"><span>銘柄ごとの進み具合</span><span>${list.length}銘柄</span></div>`;
-    h+=`<div class="glass trl">${list.map(x=>{const J=judge(x.code);const o=KDD.ipo.find(i=>i.code===x.code)||{};
-      const tag=J.j==='good'?`<span class="tg g">得${J.gain?' +'+yen(J.gain):''}</span>`:J.j==='bad'?'<span class="tg b">損</span>':'';
-      const chips=Object.entries(x.br).sort((a,b)=>BRS.indexOf(a[0])-BRS.indexOf(b[0])).map(([b,v])=>brRow(b,v)).join('');
-      return `<div class="ir"><div class="in"><span class="nm">${esc(x.name||x.code)}</span>${tag}<span class="cd">${esc(x.code)}${o.data15?' ・抽選 '+md(o.data15):''}</span></div><div class="mini">${chips}</div></div>`}).join('')}</div>`;
+    const iL=list.filter(x=>x.kind!=='分売'),bL=list.filter(x=>x.kind==='分売');
+    if(iL.length)h+=`<div class="sec"><span>IPO</span><span>${iL.length}銘柄</span></div><div class="glass trl">${iL.map(ipoItem).join('')}</div>`;
+    if(bL.length)h+=`<div class="sec"><span>分売</span><span>${bL.length}銘柄</span></div><div class="glass trl">${bL.map(ipoItem).join('')}</div>`;
   }
   const byM={};rows.filter(r=>r[8]==='購入済').forEach(r=>{const g=judge(r[1]).gain;if(g==null)return;const m=String(r[9]||'').slice(0,7)||'不明';byM[m]=(byM[m]||0)+g});
   const ms=Object.keys(byM).sort().reverse();
   if(ms.length){h+=`<div class="sec"><span>月ごとの利益</span><span>初値で売った場合</span></div><div class="glass card">${ms.map(m=>`<div class="row" style="display:flex;justify-content:space-between;padding:6px 0"><span>${esc(m.replace('-','年')+(m.includes('-')?'月':''))}</span><b class="${byM[m]>=0?'up':'dn'}">${pm(byM[m])}</b></div>`).join('')}<div class="row" style="display:flex;justify-content:space-between;padding:8px 0 0;border-top:1px solid var(--line);margin-top:4px"><span>合計</span><b class="${gainAll>=0?'up':'dn'}">${pm(ms.reduce((a,m)=>a+byM[m],0))}</b></div></div>`}
-  h+=`<div class="foot">SBI・楽天は全部のIPOに申し込み、当選したら「得」の予想のときだけ購入します。<br>DMMは「得」の予想だけ申し込みます。</div>`;
+  h+=`<div class="foot">SBI・楽天は全部のIPOに申し込み、当選したら「得」の予想のときだけ購入します。<br>DMMは「得」の予想だけ申し込みます。<br>分売は東証のものだけ、楽天・SBIで100株申し込みます。<br>当たったら、その日の朝に成行で売ります。</div>`;
   el.innerHTML=h;
 }
 // ---------- 次にやること・口座のお金 ----------
@@ -473,7 +477,7 @@ function todoCard(rows){
   // これからの抽選（3日以内・自分が申し込んだもの）
   const now=new Date(),t0=new Date(now.getFullYear(),now.getMonth(),now.getDate());
   const Pd=s=>{const m=String(s||'').match(/(\d+)[\/-](\d+)[\/-](\d+)/);return m?new Date(+m[1],m[2]-1,+m[3]):null};
-  const mine={};rows.filter(r=>r[4]==='申込済'&&!r[6]).forEach(r=>{(mine[r[1]]=mine[r[1]]||[]).push(r[0])});
+  const mine={};rows.filter(r=>r[4]==='申込済'&&!r[6]&&!r[8]).forEach(r=>{(mine[r[1]]=mine[r[1]]||[]).push(r[0])});
   KDD.ipo.forEach(o=>{if(!mine[o.code])return;const d=Pd(o.data15||o.data9);if(!d)return;const n=Math.round((d-t0)/864e5);
     if(n>=0&&n<=3)it.push({t:`${n===0?'今日':n===1?'明日':(d.getMonth()+1)+'/'+d.getDate()} 18時に抽選`,s:`${o.data1||o.code}（${mine[o.code].join('・')}）。当選したら自動で購入まで進めます。`})});
   const body=it.length?it.map(x=>`<div class="it ${x.w?'w':''}"><div><div class="tt">${esc(x.t)}</div><div class="ts">${brk(x.s)}</div></div>${x.b||''}</div>`).join('')
@@ -501,9 +505,9 @@ function stLabel(v){
   return[v.a||'—','ng'];
 }
 function showWait(){
-  const by={};WAIT.forEach(w=>{(by[w.code]=by[w.code]||{name:w.name,code:w.code,b:[]}).b.push(w.b)});
-  const it=Object.values(by).map(x=>{const o=KDD.ipo.find(i=>i.code===x.code)||{};return{...x,d:o.data15||o.data9||''}}).sort((a,b)=>String(a.d).localeCompare(String(b.d)));
-  sheet('抽選待ち',it.length?it.map(x=>`<div class="trr"><span class="nm">${esc(x.name||x.code)}</span><span class="dt" style="width:auto">${x.d?'抽選 '+md(x.d):''}</span><span class="pp" style="font-size:12px;color:var(--sub)">${esc(x.b.join('・'))}</span></div>`).join(''):'<div class="ts" style="padding:10px 0">抽選待ちはありません。</div>');
+  const by={};WAIT.forEach(w=>{(by[w.code]=by[w.code]||{name:(w.bun?'【分売】':'')+(w.name||w.code),code:w.code,b:[]}).b.push(w.b)});
+  const it=Object.values(by).map(x=>{const o=KDD.ipo.find(i=>i.code===x.code)||{};return{...x,d:o.data15||o.data9||'',bd:bunDay(x.code)}}).sort((a,b)=>String(a.d).localeCompare(String(b.d)));
+  sheet('結果待ち',it.length?it.map(x=>`<div class="trr"><span class="nm">${esc(x.name||x.code)}</span><span class="dt" style="width:auto">${x.bd&&!x.d?'分売 '+x.bd:x.d?'抽選 '+md(x.d):''}</span><span class="pp" style="font-size:12px;color:var(--sub)">${esc(x.b.join('・'))}</span></div>`).join(''):'<div class="ts" style="padding:10px 0">結果待ちはありません。</div>');
 }
 function sheet(title,html){
   let el=$('#sheet');if(!el){el=document.createElement('div');el.id='sheet';document.body.appendChild(el)}
@@ -511,13 +515,14 @@ function sheet(title,html){
   requestAnimationFrame(()=>el.classList.add('on'));
 }
 function closeSheet(){const el=$('#sheet');if(el)el.classList.remove('on')}
-function stage(x){return Math.max(...Object.values(x.br).map(v=>v.bu==='要対応'?9:/当選/.test(v.l)&&!v.bu?8:v.bu==='購入済'?6:v.a==='申込済'&&!v.l?5:v.l?2:1))}
+function stage(x){return Math.max(...Object.values(x.br).map(v=>v.bu==='要対応'?9:/当選/.test(v.l)&&!v.bu?8:v.bu==='購入済'||v.bu==='売却済'?6:v.a==='申込済'&&!v.l?5:v.l?2:1))}
 function md(s){const m=String(s).match(/(\d+)\/(\d+)\/(\d+)/);return m?`${+m[2]}/${+m[3]}`:s}
-function brRow(b,v){
+function brRow(b,v,bun){
   const s1=v.a==='申込済'||v.a==='試運転'?'ok':v.a==='見送り'?'ng':'';
-  const s2=/当選/.test(v.l)?'gold':v.l?'ng':s1==='ok'?'now':'';
-  const s3=v.bu==='購入済'?'ok':v.bu==='辞退'?'ng':v.bu==='要対応'?'warn':/当選/.test(v.l)?'now':'';
-  const t1=v.a||'申込',t2=v.l||'抽選',t3=v.bu||'購入';
+  const sold=v.bu==='売却済';
+  const s2=/当選/.test(v.l)||(bun&&sold)?'gold':v.l?'ng':s1==='ok'?'now':'';
+  const s3=v.bu==='購入済'||sold?'ok':v.bu==='辞退'?'ng':v.bu==='要対応'?'warn':/当選/.test(v.l)?'now':'';
+  const t1=v.a||'申込',t2=v.l||(bun?(sold?'配分あり':'配分'):'抽選'),t3=v.bu||(bun?'売却':'購入');
   const ic=(s,n)=>s==='ok'||s==='gold'?'✓':s==='ng'?'–':s==='warn'?'!':n;
   return `<div class="br"><div class="bn">${esc(b)}</div><div><div class="steps">
     <div class="sp ${s1}"><i>${ic(s1,1)}</i><span>${esc(t1)}</span></div><div class="ln ${s1==='ok'&&v.l?'ok':''}"></div>
