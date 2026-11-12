@@ -181,6 +181,10 @@ function doPost(e) {
       return out_({ ok: true, n: subs.length });
     } finally { lock0.releaseLock(); }
   }
+  if (d.kind === 'pref' && d.key === P.getProperty('KEY_R') && (!googleOn_() || sessOk_(d.sess)) && /^[a-z]{2,10}$/.test(d.cat || '')) {
+    const pref = JSON.parse(P.getProperty('NOTIFY') || '{}'); pref[d.cat] = !!d.on;
+    P.setProperty('NOTIFY', JSON.stringify(pref)); return out_({ ok: true, pref: pref });
+  }
   // 止まった証券会社の再開（アプリから。Macが次の実行のときに受け取る）
   if (d.kind === 'resume' && d.key === P.getProperty('KEY_R') && (!googleOn_() || sessOk_(d.sess)) && ['dmm', 'rakuten', 'sbi'].includes(d.broker)) {
     const l = JSON.parse(P.getProperty('RESUME') || '[]'); if (!l.includes(d.broker)) l.push(d.broker);
@@ -227,7 +231,11 @@ function doPost(e) {
 }
 
 function doGet(e) {
-  if (e.parameter.subs && e.parameter.key === P.getProperty('KEY_W')) return out_({ ok: true, subs: JSON.parse(P.getProperty('SUBS') || '[]') });
+  if (e.parameter.subs && e.parameter.key === P.getProperty('KEY_W')) {
+    // 種類ごとの通知のオンオフ（cat が無いのはFX botからの通知）
+    const pref = JSON.parse(P.getProperty('NOTIFY') || '{}'), cat = e.parameter.cat || 'fx';
+    return out_({ ok: true, subs: pref[cat] === false ? [] : JSON.parse(P.getProperty('SUBS') || '[]') });
+  }
   if ((e.parameter.key || '') !== P.getProperty('KEY_R')) { if (e.parameter.key) badKey_(); return out_({ ok: false, err: 'key' }); }
   if (googleOn_() && !sessOk_(e.parameter.s)) return out_({ ok: false, err: 'login', google: true });
   const ss = ss_();
@@ -239,7 +247,7 @@ function doGet(e) {
   const iso = v => v instanceof Date ? Utilities.formatDate(v, 'Asia/Tokyo', "yyyy-MM-dd'T'HH:mm:ss") : String(v);
   return out_({
     ok: true, google: googleOn_(), at: iso(new Date()), ipoAt: P.getProperty('IPO_AT') || '',
-    status: JSON.parse(P.getProperty('STATUS') || '{}'), resume: JSON.parse(P.getProperty('RESUME') || '[]'),
+    status: JSON.parse(P.getProperty('STATUS') || '{}'), pref: JSON.parse(P.getProperty('NOTIFY') || '{}'), resume: JSON.parse(P.getProperty('RESUME') || '[]'),
     ipo: ipo.map(r => r.map(iso)), runs: runs.map(r => r.map(iso)),
     fx: { at: fn[0] ? iso(fn[0]) : '', now: now, trades: trades.map(r => r.map(iso)) }
   });

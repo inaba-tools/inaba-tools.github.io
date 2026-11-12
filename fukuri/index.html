@@ -232,20 +232,20 @@ main{position:fixed;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-s
 <button class="topbtn glass" id="reload" aria-label="更新"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"/></svg></button>
 <div class="toast glass" id="toast"></div>
 <main id="main">
-  <section class="page on" id="p-ipo"></section>
-  <section class="page" id="p-plan"></section>
+  <section class="page on" id="p-todo"></section>
+  <section class="page" id="p-ipo"></section>
   <section class="page" id="p-fx"></section>
   <section class="page" id="p-set"></section>
 </main>
 <nav class="glass" id="nav">
   <div class="blob" id="blob"></div>
-  <button data-p="ipo" class="on"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/><circle cx="19" cy="17" r="2"/></svg>申込</button>
-  <button data-p="plan"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg>予定</button>
+  <button data-p="todo" class="on"><svg viewBox="0 0 24 24"><rect x="4" y="3.5" width="16" height="17" rx="3"/><path d="M8 9l2 2 4-4M8 15h8"/></svg>やること</button>
+  <button data-p="ipo"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/><circle cx="19" cy="17" r="2"/></svg>申込</button>
   <button data-p="fx"><svg viewBox="0 0 24 24"><path d="M3 17l5-5 4 3 8-8M15 7h5v5"/></svg>FX</button>
   <button data-p="set"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M2.5 12h3M18.5 12h3M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/></svg>設定</button>
 </nav>
 <script>
-const VERSION='15';
+const VERSION='16';
 const CLIENT_ID='187861904258-0eilchk073j1hbginl1hncskf7jpp4ja.apps.googleusercontent.com';  // GoogleログインのクライアントID（公開してよい値）
 const VAPID='BFPiiQbgaxGzyfVZaA--hO4tmo7iamPgNVKypX8MHbwrcy3IF3d3544WBQX1cVLJmfDnfnRuZaPrTR9KNwHJlyc';
 const API='https://script.google.com/macros/s/AKfycbwTnqvwT5kAsd0AKqWztPr5yxcw4FKEM4ISuuMwrtFsUGmYTjdeAzXfhypG1TIj_B7d/exec';
@@ -273,7 +273,7 @@ function gLogin(){
   Object.entries({client_id:CLIENT_ID,response_type:'id_token',scope:'openid email',redirect_uri:location.origin+location.pathname,nonce:n,state:n,prompt:'select_account'}).forEach(([k,v])=>u.searchParams.set(k,v));
   location.href=u.toString();
 }
-function gLogout(){fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({kind:'logout',key:KEY,sess:SESS})}).catch(()=>{});
+function gLogout(){if(!confirm('ログアウトしますか？\nもう一度開くにはGoogleでログインし直す必要があります。'))return;fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({kind:'logout',key:KEY,sess:SESS})}).catch(()=>{});
   SESS='';GMAIL='';store.set('fk_sess','');store.set('fk_gmail','');store.set('fk_cache','');D=null;needLogin()}
 function needLogin(){$('#gmsg').innerHTML='Googleでログインしてください。<br>自分のアカウントだけが開けます。';
   $('#gbtn').innerHTML=`<button class="btn g" onclick="gLogin()">${GICON}Googleでログイン</button>`;$('#gate').classList.add('on');document.body.classList.add('lock')}
@@ -289,7 +289,7 @@ async function gReturn(){
   }catch(_){toast('ログインに失敗しました')}
 }
 
-let GON=false,D=null,KDD={ipo:[],yoso:{},bun:{items:[]}},TAB=store.get('fk_tab')||'ipo',FXR=store.get('fk_fxr')||'all';
+let GON=false,D=null,KDD={ipo:[],yoso:{},bun:{items:[]}},TAB=(['todo','ipo','fx','set'].includes(store.get('fk_tab'))?store.get('fk_tab'):'todo'),FXR=store.get('fk_fxr')||'all';
 
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('on'),2200)}
 
@@ -303,7 +303,7 @@ async function load(force){
       fetch(KD+'yoso.json?t='+Date.now(),{cache:'no-store'}).then(r=>r.json()).catch(()=>({})),
       fetch(KD+'bunbai.json?t='+Date.now(),{cache:'no-store'}).then(r=>r.json()).catch(()=>({items:[]}))]);
     if(!a.ok){if(a.err==='key'){$('#gate').classList.add('on');document.body.classList.add('lock')}if(a.err==='login'){SESS='';store.set('fk_sess','');store.set('fk_cache','');needLogin()}throw 0}
-    GON=!!a.google;
+    GON=!!a.google;if(a.pref){NPREF=a.pref;store.set('fk_npref',JSON.stringify(NPREF))}
     D=a;KDD={ipo:b,yoso:c,bun:d};
     store.set('fk_cache',JSON.stringify({D,KDD}));
     render();if(force)toast('最新にしました');
@@ -335,7 +335,6 @@ function renderIPO(){
    <div class="cap">${run[0]?`前回の自動実行：${esc(run[0].slice(5,16).replace('-','/').replace('T',' '))}（${esc(run[1])}）`:'まだ記録がありません。'}</div></div>
    <div class="st"><div class="glass"><small>当選</small><b class="${won?'up':''}">${won}</b></div><div class="glass"><small>購入済</small><b>${bought}</b></div>
    <div class="glass"><small>見込みの利益</small><b class="${gainAll>0?'up':''}" style="font-size:20px">${gainAll?pm(gainAll):'—'}</b></div></div>`;
-  h+=todoCard(rows)+cashCard();
   if(!list.length)h+=`<div class="empty">まだ申込の記録がありません。<br>毎日21時に自動で申し込みます。</div>`;
   else{
     list.sort((a,b)=>stage(b)-stage(a));
@@ -374,7 +373,7 @@ function todoCard(rows){
     if(n>=0&&n<=3)it.push({t:`${n===0?'今日':n===1?'明日':(d.getMonth()+1)+'/'+d.getDate()} 18時に抽選`,s:`${o.data1||o.code}（${mine[o.code].join('・')}）。当選したら自動で購入まで進めます。`})});
   const body=it.length?it.map(x=>`<div class="it ${x.w?'w':''}"><div><div class="tt">${esc(x.t)}</div><div class="ts">${brk(x.s)}</div></div>${x.b||''}</div>`).join('')
     :'<div class="ts" style="padding:4px 0">今やることはありません。<br>全部自動で進んでいます。</div>';
-  return `<div class="sec"><span>次にやること</span><span>${it.filter(x=>x.w).length?'対応が必要':''}</span></div><div class="glass card todo" ${it.some(x=>x.w)?'style="border-color:var(--warn)"':''}>${body}</div>`;
+  return `<div class="sec"><span>今やること</span><span>${it.filter(x=>x.w).length?'対応が必要':''}</span></div><div class="glass card todo" ${it.some(x=>x.w)?'style="border-color:var(--warn)"':''}>${body}</div>`;
 }
 function cashCard(){
   const c=((D&&D.status)||{}).cash||{};const ks=['SBI','楽天','DMM'].filter(k=>c[k]);
@@ -404,27 +403,13 @@ function brRow(b,v){
 }
 
 // ---------- 予定 ----------
-function renderPlan(){
-  const el=$('#p-plan');const ev=[];const now=new Date();const t0=new Date(now.getFullYear(),now.getMonth(),now.getDate());
-  const P=s=>{const m=String(s||'').match(/(\d+)[\/-](\d+)[\/-](\d+)/);return m?new Date(+m[1],m[2]-1,+m[3]):null};
-  const mine=new Set(((D&&D.ipo)||[]).filter(r=>r[4]==='申込済').map(r=>r[1]));
-  KDD.ipo.forEach(o=>{const J=judge(o.code);const nm=o.data1||o.code;const j=J.j==='good'?'得':J.j==='bad'?'損':'';
-    const add=(d,kind,col,extra)=>{const dt=P(d);if(dt&&dt>=t0)ev.push({dt,nm,kind,col,j,code:o.code,mine:mine.has(o.code),extra})};
-    add(o.data4,'BB開始','#0a6cff');add(o.data6,'BB締切 '+(o.data7||''),'#0a6cff');add(o.data15||o.data9,'抽選 18:00','#c9920f');
-    add(o.data11,'購入申込の開始','#0a9b62');add(o.data18,'上場','#8a5cf6')});
-  ((KDD.bun&&KDD.bun.items)||[]).filter(b=>b.kind==='plan').forEach(b=>{const dt=P(b.start);if(dt&&dt>=t0)ev.push({dt,nm:b.name,kind:'分売 '+(b.start===b.end?'':'〜'+md(b.end.replace(/-/g,'/'))),col:'#e08a00',code:b.code,j:''})});
-  ev.sort((a,b)=>a.dt-b.dt);
-  const next=ev[0];
-  let h=`<div class="hd"><div class="eyebrow">IPO・分売のこれから</div><h1>予定</h1>
-    ${next?`<div class="big" style="font-size:44px">${next.dt.getMonth()+1}/${next.dt.getDate()}<small>（${W[next.dt.getDay()]}）</small></div><div class="cap">次は「${esc(next.nm)}」の${esc(next.kind)}。</div>`:'<div class="cap">予定はまだありません。</div>'}</div>`;
-  const by={};ev.forEach(e=>{const k=e.dt.toDateString();(by[k]=by[k]||[]).push(e)});
-  h+=Object.values(by).slice(0,40).map(es=>{const d=es[0].dt;const isT=+d===+t0;
-    return `<div class="day"><div class="dl ${isT?'today':''}"><b>${d.getMonth()+1}/${d.getDate()}</b>${W[d.getDay()]}曜${isT?'・今日':''}</div>
-    <div class="glass" style="border-radius:22px">${es.map(e=>`<div class="ev"><i class="dot" style="background:${e.col}"></i>
-      <div><div class="t">${esc(e.nm)}</div><div class="s">${esc(e.kind)}${e.mine?'・申込済':''}</div></div>
-      <div class="r ${e.j==='得'?'up':e.j==='損'?'dn':''}">${e.j}</div></div>`).join('')}</div></div>`}).join('');
-  h+=`<div class="foot">日程はKABU DROPのデータから。<br>「得」「損」は初値予想と公開価格の比べです。</div>`;
-  el.innerHTML=h;
+function renderTodo(){
+  const el=$('#p-todo');const rows=(D&&D.ipo)||[];
+  const tc=todoCard(rows);const n=(tc.match(/class="it w"/g)||[]).length;
+  el.innerHTML=`<div class="hd"><div class="eyebrow">フクリ</div><h1>やること</h1>
+    <div class="big">${n}<small>件 対応が必要</small></div>
+    <div class="cap">${n?'下の内容を確認してください。':'全部自動で進んでいます。'}</div></div>`+tc+cashCard()+
+    `<div class="foot">入金ボタンは各証券会社のログイン画面が開きます。</div>`;
 }
 
 // ---------- FX ----------
@@ -460,6 +445,9 @@ function renderFX(){
   // グラフ
   h+=`<div class="glass chart" id="chart"><div class="top"><div class="v" id="cv"></div><div class="d" id="cd"></div></div><svg id="cs" preserveAspectRatio="none"></svg></div>`;
   // 取引カード
+  {const byM={};T.forEach(x=>{const m=x.d.slice(0,7);byM[m]=(byM[m]||0)+x.p});
+   const ms=Object.keys(byM).sort();let cum=0;const cums={};ms.forEach(m=>{cum+=byM[m];cums[m]=cum});
+   if(ms.length)h+=`<div class="sec"><span>月ごと</span><span>累計 <b class="${cum>=0?'up':'dn'}">${pm(cum)}</b></span></div><div class="glass trl">${ms.slice().reverse().map(m=>`<div class="trr"><span class="nm">${+m.slice(0,4)}年${+m.slice(5)}月</span><span class="pp ${byM[m]>=0?'up':'dn'}">${pm(byM[m])}</span><span class="dt" style="width:auto;text-align:right">累計 ${pm(cums[m])}</span></div>`).join('')}</div>`}
   h+=`<div class="sec"><span>取引</span><span>新しい順</span></div>`;
   const TR=R.slice().reverse().slice(0,80);
   h+=TR.length?`<div class="glass trl">${TR.map(x=>{const dd=new Date(x.d+'T00:00:00');
@@ -502,22 +490,32 @@ function drawChart(R){
 }
 
 // ---------- 画面の切り替え ----------
+const NCATS=[['apply','申し込んだ','IPOに申し込んだ時。'],['won','当選した','当選・補欠当選の時。'],['buy','購入・辞退した','当選後に購入した、または辞退した時。'],
+  ['lost','落選した','落選の時。'],['money','入金が必要','口座のお金が足りない時。'],['action','手で対応が必要','止まった時・証券会社の重要なお知らせ。'],['fx','FX','FXの毎日の成績など。']];
+let NPREF={};try{NPREF=JSON.parse(store.get('fk_npref')||'{}')}catch(_){}
+async function setPref(k,on){
+  NPREF[k]=on;renderSet();
+  try{const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({kind:'pref',key:KEY,sess:SESS,cat:k,on})}).then(r=>r.json());
+    if(!r.ok)throw 0;NPREF=r.pref||NPREF;store.set('fk_npref',JSON.stringify(NPREF));toast(on?'オンにしました':'オフにしました')}
+  catch(_){NPREF[k]=!on;renderSet();toast('変えられませんでした')}
+}
 function renderSet(){
   const el=$('#p-set');if(!el)return;
   const g=SESS?`<div class="t">ログイン中<span class="tag g">ON</span></div><div class="s">${esc(GMAIL)}<br>合い鍵＋Googleログインの二重で守っています。</div>`
     :`<div class="t">Googleログイン<span class="tag n">${GON?'必要':'未設定'}</span></div><div class="s">ログインすると、合い鍵だけでは開けなくなります。<br>自分のアカウントだけが開けるようになります。</div>`;
   el.innerHTML=`<div class="hd"><div class="eyebrow">フクリ</div><h1>設定</h1></div>
+   <div class="sec">通知</div>
+   <div class="card glass set"><div class="row"><div><div class="t">アプリへの通知</div><div class="s">${BELL?'オンです。<br>下で届く知らせを選べます。':'オフです。<br>ホーム画面に追加したフクリでオンにしてください。'}</div></div><button class="sw ${BELL?'on':''}" aria-label="通知のオンオフ" onclick="${BELL?'bellOff()':'bellOn()'}"></button></div>
+    ${NCATS.map(([k,t,d])=>{const on=NPREF[k]!==false;return `<div class="row" style="${BELL?'':'opacity:.4'}"><div><div class="t">${t}</div><div class="s">${d}</div></div><button class="sw ${on?'on':''}" aria-label="${t}" onclick="setPref('${k}',${!on})" ${BELL?'':'disabled'}></button></div>`}).join('')}</div>
    <div class="sec">アカウント</div>
    <div class="card glass set"><div class="row"><div>${g}</div></div>
     <div style="margin-top:14px">${SESS?'<button class="btn sub" onclick="gLogout()">ログアウト</button>':`<button class="btn g" onclick="gLogin()">${GICON}Googleでログイン</button>`}</div></div>
-   <div class="sec">通知</div>
-   <div class="card glass set"><div class="row"><div><div class="t">アプリへの通知</div><div class="s">${BELL?'当選・購入・入金不足などの知らせが届きます。':'オフです。<br>ホーム画面に追加したフクリでオンにしてください。'}</div></div><button class="sw ${BELL?'on':''}" aria-label="通知のオンオフ" onclick="${BELL?'bellOff()':'bellOn()'}"></button></div></div>
    <div class="sec">安全</div>
    <div class="card glass set"><div><div class="t">合い鍵を作り直す</div><div class="s">合い鍵のリンクが漏れたかもと思ったら押してください。<br>古いリンクは使えなくなり、ほかの端末のログインも切れます。</div></div>
     ${SESS?'<div style="margin-top:14px"><button class="btn sub" onclick="rekey()">合い鍵を作り直す</button></div>':''}</div>
    <div class="foot">ver.${VERSION}</div>`;
 }
-function render(){renderIPO();renderPlan();renderFX();renderSet()}
+function render(){renderTodo();renderIPO();renderFX();renderSet()}
 function go(p){TAB=p;store.set('fk_tab',p);
   document.querySelectorAll('.page').forEach(e=>e.classList.toggle('on',e.id==='p-'+p));
   const bs=[...document.querySelectorAll('nav button')];bs.forEach(b=>b.classList.toggle('on',b.dataset.p===p));
@@ -533,7 +531,7 @@ async function bellState(){let on=false;try{const r=swReg||await navigator.servi
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').then(r=>{swReg=r;bellState()}).catch(()=>{});
 navigator.serviceWorker&&navigator.serviceWorker.addEventListener('message',e=>{if(e.data&&e.data.tab)go(e.data.tab)});
 async function rekey(){
-  if(!confirm('合い鍵を作り直しますか？\n古いリンクは使えなくなります。'))return;
+  if(!confirm('合い鍵を作り直しますか？\n今のリンクは使えなくなり、ホーム画面のフクリも新しいリンクで追加し直しが必要です。\nほかの端末のログインも切れます。'))return;
   try{const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({kind:'rekey',key:KEY,sess:SESS})}).then(r=>r.json());
     if(!r.ok||!r.key)throw 0;KEY=r.key;store.set('fk_key',KEY);history.replaceState(null,'','#k='+KEY);
     const link=location.origin+location.pathname+'#k='+KEY;try{await navigator.clipboard.writeText(link)}catch(_){}
