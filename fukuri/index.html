@@ -42,11 +42,11 @@ body{min-height:100dvh}
 .sky i:nth-child(3){width:80vw;height:80vw;left:0;bottom:-35vw;background:radial-gradient(closest-side,var(--b3),transparent);animation-delay:-14s}
 /* 上（時計の所）と下（タブの裏）を背景色でなじませる */
 .fadeT,.fadeB{position:fixed;left:0;right:0;z-index:3;pointer-events:none}
-.fadeT{top:0;height:calc(env(safe-area-inset-top) + 10px);background:linear-gradient(var(--bg2) 70%,transparent)}
+.fadeT{top:0;height:calc(max(env(safe-area-inset-top),44px) + 6px);background:linear-gradient(var(--bg2) 70%,transparent)}
 .fadeB{bottom:0;height:calc(env(safe-area-inset-bottom) + 90px);background:linear-gradient(transparent,var(--bg) 75%)}
 @keyframes drift{to{transform:translate(8vw,6vh) scale(1.12)}}
 main{position:relative;z-index:1;min-height:100dvh;
-  padding:calc(env(safe-area-inset-top) + 18px) 0 calc(env(safe-area-inset-bottom) + 120px)}
+  padding:calc(max(env(safe-area-inset-top),44px) + 22px) 0 calc(env(safe-area-inset-bottom) + 120px)}
 .page{display:none;animation:in .35s cubic-bezier(.2,.8,.2,1)}
 .page.on{display:block}
 @keyframes in{from{opacity:0}to{opacity:1}}
@@ -143,13 +143,16 @@ nav button svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width
 nav button.on{color:var(--blue)}
 nav .blob{position:absolute;z-index:0;top:6px;bottom:6px;width:72px;border-radius:999px;background:var(--glass2);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 2px 10px rgba(0,0,0,.08);transition:transform .45s cubic-bezier(.3,1.4,.4,1)}
-.topbtn{position:fixed;z-index:4;right:16px;top:calc(env(safe-area-inset-top) + 12px);width:40px;height:40px;border-radius:50%;
+.topbtn{position:fixed;z-index:4;right:16px;top:calc(max(env(safe-area-inset-top),44px) + 10px);width:40px;height:40px;border-radius:50%;
   display:grid;place-items:center;border:1px solid var(--edge)}
 .topbtn svg{width:20px;height:20px;stroke:var(--ink);fill:none;stroke-width:2;stroke-linecap:round}
 .topbtn.bell{right:64px}.topbtn.bell.on svg{fill:var(--gold);stroke:var(--gold)}
 .topbtn.spin svg{animation:sp 1s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
-.gate{position:fixed;inset:0;z-index:9;display:none;place-items:center;padding:30px;text-align:center}
+.gate{position:fixed;inset:0;z-index:9;display:none;place-items:center;padding:30px;text-align:center;background:var(--bg)!important;border:0!important;border-radius:0!important}
+body.lock main,body.lock nav,body.lock .topbtn,body.lock .fadeB{display:none!important}
 .gate.on{display:grid}
+.gate::before{display:none}
+.gate h2{margin:14px 0 6px}
 .gate img{width:96px;height:96px;border-radius:22px;box-shadow:var(--shadow)}
 .foot{font-size:11.5px;color:var(--mute);text-align:center;margin:18px 20px;line-height:1.7}
 .toast{position:fixed;z-index:8;left:50%;top:calc(env(safe-area-inset-top) + 14px);transform:translate(-50%,-80px);transition:transform .35s;
@@ -169,7 +172,6 @@ nav .blob{position:absolute;z-index:0;top:6px;bottom:6px;width:72px;border-radiu
 <div class="sky"><i></i><i></i><i></i></div>
 <div class="fadeT"></div><div class="fadeB"></div>
 <div class="gate glass" id="gate"><div><img src="icon-512.png" alt=""><h2>フクリ</h2><p class="cap" id="gmsg">合い鍵の入ったリンクから開いてください。<br>自分専用のアプリです。</p><div id="gbtn"></div></div></div>
-<button class="topbtn glass bell" id="bell" aria-label="通知"><svg viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15zM10 20a2 2 0 0 0 4 0"/></svg></button>
 <button class="topbtn glass" id="reload" aria-label="更新"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"/></svg></button>
 <div class="toast glass" id="toast"></div>
 <main id="main">
@@ -186,7 +188,7 @@ nav .blob{position:absolute;z-index:0;top:6px;bottom:6px;width:72px;border-radiu
   <button data-p="set"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M2.5 12h3M18.5 12h3M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/></svg>設定</button>
 </nav>
 <script>
-const VERSION='5';
+const VERSION='6';
 const CLIENT_ID='187861904258-0eilchk073j1hbginl1hncskf7jpp4ja.apps.googleusercontent.com';  // GoogleログインのクライアントID（公開してよい値）
 const VAPID='BFPiiQbgaxGzyfVZaA--hO4tmo7iamPgNVKypX8MHbwrcy3IF3d3544WBQX1cVLJmfDnfnRuZaPrTR9KNwHJlyc';
 const API='https://script.google.com/macros/s/AKfycbwTnqvwT5kAsd0AKqWztPr5yxcw4FKEM4ISuuMwrtFsUGmYTjdeAzXfhypG1TIj_B7d/exec';
@@ -202,7 +204,7 @@ const store={get(k){try{return localStorage.getItem(k)}catch(_){return null}},se
 // 合い鍵：リンクの #k=… から受け取り、そのままURLに残す（ホーム画面に追加しても使える）
 let KEY=(location.hash.match(/(?:^#|&)k=([A-Za-z0-9-]+)/)||[])[1]||store.get('fk_key')||'';
 if(KEY){store.set('fk_key',KEY);if(!location.hash.includes('k=')&&!location.hash.includes('id_token'))history.replaceState(null,'','#k='+KEY)}
-if(!KEY)$('#gate').classList.add('on');
+if(!KEY){$('#gate').classList.add('on');document.body.classList.add('lock')}
 
 // Googleログイン：ログイン後に窓口がくれる「通行証」を保存して、毎回いっしょに送る
 let SESS=store.get('fk_sess')||'',GMAIL=store.get('fk_gmail')||'';
@@ -215,9 +217,9 @@ function gLogin(){
   location.href=u.toString();
 }
 function gLogout(){fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({kind:'logout',key:KEY,sess:SESS})}).catch(()=>{});
-  SESS='';GMAIL='';store.set('fk_sess','');store.set('fk_gmail','');store.set('fk_cache','');renderSet();toast('ログアウトしました');load()}
+  SESS='';GMAIL='';store.set('fk_sess','');store.set('fk_gmail','');store.set('fk_cache','');D=null;needLogin()}
 function needLogin(){$('#gmsg').innerHTML='Googleでログインしてください。<br>自分のアカウントだけが開けます。';
-  $('#gbtn').innerHTML=`<button class="btn g" onclick="gLogin()">${GICON}Googleでログイン</button>`;$('#gate').classList.add('on')}
+  $('#gbtn').innerHTML=`<button class="btn g" onclick="gLogin()">${GICON}Googleでログイン</button>`;$('#gate').classList.add('on');document.body.classList.add('lock')}
 // Googleから戻ってきたとき
 async function gReturn(){
   const h=new URLSearchParams(location.hash.slice(1));const idt=h.get('id_token');if(!idt&&!h.get('error'))return;
@@ -226,7 +228,7 @@ async function gReturn(){
   if(h.get('state')!==store.get('fk_nonce')){toast('ログインに失敗しました');return}
   try{const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({kind:'login',key:KEY,idt,nonce:store.get('fk_nonce')})}).then(r=>r.json());
     if(!r.ok){toast(r.err==='who'?'このアカウントでは開けません':'ログインに失敗しました');return}
-    SESS=r.sess;GMAIL=r.email;store.set('fk_sess',SESS);store.set('fk_gmail',GMAIL);$('#gate').classList.remove('on');toast('ログインしました');go('set');
+    SESS=r.sess;GMAIL=r.email;store.set('fk_sess',SESS);store.set('fk_gmail',GMAIL);$('#gate').classList.remove('on');document.body.classList.remove('lock');toast('ログインしました');go('ipo');
   }catch(_){toast('ログインに失敗しました')}
 }
 
@@ -235,7 +237,7 @@ let GON=false,D=null,KDD={ipo:[],yoso:{},bun:{items:[]}},TAB=store.get('fk_tab')
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('on'),2200)}
 
 async function load(force){
-  if(!KEY)return;
+  if(!KEY||!SESS)return;
   $('#reload').classList.add('spin');
   try{
     const [a,b,c,d]=await Promise.all([
@@ -243,7 +245,7 @@ async function load(force){
       fetch(KD+'ipo.json?t='+Date.now(),{cache:'no-store'}).then(r=>r.json()).catch(()=>[]),
       fetch(KD+'yoso.json?t='+Date.now(),{cache:'no-store'}).then(r=>r.json()).catch(()=>({})),
       fetch(KD+'bunbai.json?t='+Date.now(),{cache:'no-store'}).then(r=>r.json()).catch(()=>({items:[]}))]);
-    if(!a.ok){if(a.err==='key'){$('#gate').classList.add('on')}if(a.err==='login'){SESS='';store.set('fk_sess','');needLogin()}throw 0}
+    if(!a.ok){if(a.err==='key'){$('#gate').classList.add('on');document.body.classList.add('lock')}if(a.err==='login'){SESS='';store.set('fk_sess','');store.set('fk_cache','');needLogin()}throw 0}
     GON=!!a.google;
     D=a;KDD={ipo:b,yoso:c,bun:d};
     store.set('fk_cache',JSON.stringify({D,KDD}));
@@ -411,8 +413,9 @@ function renderSet(){
    <div class="card glass set"><div class="row"><div>${g}</div></div>
     <div style="margin-top:14px">${SESS?'<button class="btn sub" onclick="gLogout()">ログアウト</button>':`<button class="btn g" onclick="gLogin()">${GICON}Googleでログイン</button>`}</div></div>
    <div class="sec">通知</div>
-   <div class="card glass set"><div class="row"><div><div class="t">アプリへの通知</div><div class="s">右上のベルから登録します。<br>ホーム画面に追加したフクリで押してください。</div></div></div></div>
-   <div class="foot">版 ${VERSION}</div>`;
+   <div class="card glass set"><div class="row"><div><div class="t">アプリへの通知<span class="tag ${BELL?'g':'n'}">${BELL?'ON':'OFF'}</span></div><div class="s">${BELL?'当選や購入の知らせがこのiPhoneに届きます。':'ホーム画面に追加したフクリで押してください。'}</div></div></div>
+    ${BELL?'':'<div style="margin-top:14px"><button class="btn" onclick="bellOn()">通知をつなぐ</button></div>'}</div>
+   <div class="foot">ver.${VERSION}</div>`;
 }
 function render(){renderIPO();renderPlan();renderFX();renderSet()}
 function go(p){TAB=p;store.set('fk_tab',p);
@@ -424,12 +427,12 @@ document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(b.dataset.p)
 $('#reload').onclick=()=>load(true);
 
 // ---------- 通知（フクリのアプリに届く） ----------
-let swReg=null;
+let swReg=null,BELL=false;
 const b64=s=>{const p='='.repeat((4-s.length%4)%4);const r=atob((s+p).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from([...r].map(c=>c.charCodeAt(0)))};
-async function bellState(){let on=false;try{const r=swReg||await navigator.serviceWorker.getRegistration();on=!!(r&&await r.pushManager.getSubscription())&&Notification.permission==='granted'}catch(_){}$('#bell').classList.toggle('on',on);return on}
+async function bellState(){let on=false;try{const r=swReg||await navigator.serviceWorker.getRegistration();on=!!(r&&await r.pushManager.getSubscription())&&Notification.permission==='granted'}catch(_){}BELL=on;renderSet();return on}
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').then(r=>{swReg=r;bellState()}).catch(()=>{});
 navigator.serviceWorker&&navigator.serviceWorker.addEventListener('message',e=>{if(e.data&&e.data.tab)go(e.data.tab)});
-$('#bell').onclick=async()=>{
+async function bellOn(){
   const sa=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;
   if(!('PushManager' in window)||!sa){toast('ホーム画面に追加したフクリから押してください');return}
   try{
@@ -439,16 +442,17 @@ $('#bell').onclick=async()=>{
     const res=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({kind:'sub',key:KEY,sess:SESS,sub:sub.toJSON()})}).then(r=>r.json());
     if(!res.ok)throw 0;toast('通知がつながりました');bellState();
   }catch(e){toast('通知の登録に失敗しました')}
-};
+}
 {const q=new URLSearchParams(location.search).get('tab');if(q)store.set('fk_tab',q),TAB=q}
 
 // 前回の中身をすぐ出してから最新を読む
-try{const c=JSON.parse(store.get('fk_cache')||'null');if(c){D=c.D;KDD=c.KDD;render()}}catch(_){}
-renderSet();go(TAB);gReturn().then(()=>load());
+if(KEY&&!SESS&&!location.hash.includes('id_token'))needLogin();
+if(SESS){try{const c=JSON.parse(store.get('fk_cache')||'null');if(c){D=c.D;KDD=c.KDD;render()}}catch(_){}}
+renderSet();go(TAB);gReturn().then(()=>{if(SESS)load()});
 setInterval(()=>{if(!document.hidden&&TAB==='fx')load()},60000);
 // 更新の自動反映：新しい版が出ていたら読み直す
 async function checkVer(){try{const v=(await fetch('version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.text())).trim();if(v&&v!==VERSION)location.reload()}catch(_){}}
-document.addEventListener('visibilitychange',()=>{if(!document.hidden){checkVer();load()}});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){checkVer();if(SESS)load()}});
 checkVer();
 </script>
 </body>
