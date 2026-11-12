@@ -77,6 +77,7 @@ function alert_(msg, type) {
     list.unshift({ at: now, msg: String(msg).slice(0, 300), type: type });
     P.setProperty('ALERTS', JSON.stringify(list.slice(0, 20)));
   } catch (_) {}
+  if (type === 'rekey') return;   // アプリでの自分の操作はメールしない（記録だけ）
   try {
     const last = JSON.parse(P.getProperty('MAIL_AT') || '{}');
     if (last[type] && now - last[type] < 30 * 60e3) return;
@@ -84,8 +85,12 @@ function alert_(msg, type) {
     const to = P.getProperty('ALERT_TO');   // 送り先はスクリプトプロパティ（公開コードには書かない）
     if (!to) return;
     const t = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'M/d HH:mm');
-    GmailApp.sendEmail(to, '【フクリ緊急】' + (type === 'mail' ? '証券会社から重要なメール' : '不審なアクセス'),
-      t + '\n' + msg + '\n\n心当たりがなければ、すぐにその証券会社にログインしてパスワードを変更し、出金先を確認してください。\nフクリのアプリ：https://inaba-tools.github.io/fukuri/');
+    // フクリ自身の知らせ（入金・停止・動いていない）は「不審なアクセス」にしない
+    const SUBJ = { money: '【フクリ】入金してください', mac: '【フクリ】自動処理を止めました', run: '【フクリ】今夜の自動申込が動いていません',
+      mail: '【フクリ緊急】証券会社から重要なメール', app: '【フクリ緊急】不審なアクセス', test: '【フクリ】テスト' };
+    const SUSPICIOUS = (type === 'mail' || type === 'app');
+    GmailApp.sendEmail(to, SUBJ[type] || '【フクリ】お知らせ',
+      t + '\n' + msg + '\n\n' + (SUSPICIOUS ? '心当たりがなければ、すぐにその証券会社にログインしてパスワードを変更し、出金先を確認してください。\n' : '') + 'フクリのアプリ：https://inaba-tools.github.io/fukuri/');
   } catch (_) {}
 }
 // 同じ相手から何度も来る「合い鍵違い」は10分に1回だけ記録する
