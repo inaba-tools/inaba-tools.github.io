@@ -995,6 +995,50 @@ def fukuri_push(st, now):
         log('フクリへ送れず: %s' % ex)
 
 
+def _minipush():
+    """フクリの通知の部品（なければ取ってくる。暗号の部品がなければ入れる）"""
+    f = os.path.join(HERE, 'minipush.py')
+    if not os.path.exists(f):
+        r = requests.get('https://raw.githubusercontent.com/inaba-tools/inaba-tools.github.io/main/fukuri/tools/minipush.py', timeout=30)
+        r.raise_for_status()
+        open(f, 'w', encoding='utf-8').write(r.text)
+    try:
+        import cryptography  # noqa
+    except ImportError:
+        os.system('sudo apt-get install -y -qq python3-cryptography >/dev/null 2>&1')
+    if HERE not in sys.path:
+        sys.path.insert(0, HERE)
+    import minipush
+    return minipush
+
+
+def fukuri_morning(st, now):
+    """毎朝9:40ごろ、前の取引日の成績をフクリのアプリへ1行で通知"""
+    priv = env('VAPID_PRIVATE')
+    today = now.date().isoformat()
+    if not (priv and FUKURI_URL and FUKURI_KEY) or (now.hour, now.minute) < (9, 40) or now.hour >= 12 \
+            or st.get('fk_morning') == today:
+        return
+    st['fk_morning'] = today
+    rows = list(csv.reader(open(KIROKU, encoding='utf-8')))[1:] if os.path.exists(KIROKU) else []
+    days = sorted({r[0] for r in rows if r and r[0] < today})
+    if not days:
+        return
+    last = days[-1]
+    day = sum(float(r[8]) for r in rows if r[0] == last)
+    tot = sum(float(r[8]) for r in rows)
+    yen = lambda v: ('+' if v >= 0 else '−') + '{:,}'.format(abs(round(v))) + '円'
+    n = sum(1 for r in rows if r[0] == last)
+    body = '%sは%s（%d回）。合計%s' % (last[5:].replace('-', '/'), yen(day), n, yen(tot))
+    if os.path.exists(os.path.join(HERE, 'STOP')):
+        body += '。損の上限で止まっています'
+    try:
+        _minipush().push_all(FUKURI_URL, FUKURI_KEY, priv, 'フクリ FX（%s）' % ('練習' if DRY else '本番'), body,
+                             tag='fx-morning', tab='fx', log=log)
+    except Exception as e:
+        log('フクリへ朝の通知を送れず: %s' % e)
+
+
 def main():
     if sys.argv[1:] == ['busy']:
         return busy()
@@ -1031,6 +1075,7 @@ def main():
     os.replace(STATE + '.tmp', STATE)
     try:
         fukuri_push(st, now)
+        fukuri_morning(st, now)
         json.dump(st, open(STATE + '.tmp', 'w'), ensure_ascii=False, indent=1)
         os.replace(STATE + '.tmp', STATE)
     except Exception:

@@ -26,7 +26,6 @@ function setup() {   // 最初に1回だけ実行
   const s1 = ss.getSheetByName('シート1') || ss.getSheetByName('Sheet1');
   if (s1 && ss.getSheets().length > 1) ss.deleteSheet(s1);
   ScriptApp.getProjectTriggers().forEach(t => ScriptApp.deleteTrigger(t));
-  ScriptApp.newTrigger('morning').timeBased().atHour(9).nearMinute(40).everyDays(1).inTimezone('Asia/Tokyo').create();
   return ss.getUrl();
 }
 
@@ -37,11 +36,23 @@ const rows_ = sh => { const v = sh.getDataRange().getValues(); const h = v.shift
 function doPost(e) {
   let d;
   try { d = JSON.parse(e.postData.contents); } catch (_) { return out_({ ok: false, err: 'json' }); }
+  if (d.kind === 'sub' && d.key === P.getProperty('KEY_R') && d.sub && /^https:\/\/[a-z0-9.-]+\//.test(d.sub.endpoint || '')) {
+    const lock0 = LockService.getScriptLock(); lock0.waitLock(20000);
+    try {
+      let subs = JSON.parse(P.getProperty('SUBS') || '[]').filter(s => s.endpoint !== d.sub.endpoint);
+      subs.push({ endpoint: String(d.sub.endpoint), keys: { p256dh: String(d.sub.keys.p256dh), auth: String(d.sub.keys.auth) } });
+      P.setProperty('SUBS', JSON.stringify(subs.slice(-5)));
+      return out_({ ok: true, n: subs.length });
+    } finally { lock0.releaseLock(); }
+  }
   if (d.key !== P.getProperty('KEY_W')) return out_({ ok: false, err: 'key' });
+  if (d.kind === 'unsub') {
+    P.setProperty('SUBS', JSON.stringify(JSON.parse(P.getProperty('SUBS') || '[]').filter(s => s.endpoint !== d.endpoint)));
+    return out_({ ok: true });
+  }
   const lock = LockService.getScriptLock(); lock.waitLock(20000);
   try {
     const ss = ss_();
-    if (d.ntfy && !P.getProperty('NTFY')) P.setProperty('NTFY', d.ntfy);
     if (d.kind === 'ipo') {
       const sh = ss.getSheetByName('IPO');
       if (sh.getLastRow() > 1) sh.getRange(2, 1, sh.getLastRow() - 1, sh.getLastColumn()).clearContent();
@@ -65,6 +76,7 @@ function doPost(e) {
 }
 
 function doGet(e) {
+  if (e.parameter.subs && e.parameter.key === P.getProperty('KEY_W')) return out_({ ok: true, subs: JSON.parse(P.getProperty('SUBS') || '[]') });
   if ((e.parameter.key || '') !== P.getProperty('KEY_R')) return out_({ ok: false, err: 'key' });
   const ss = ss_();
   const ipo = rows_(ss.getSheetByName('IPO'));
@@ -80,17 +92,5 @@ function doGet(e) {
   });
 }
 
-// 毎朝9:40：前の日のFXの成績をiPhone（ntfy）へ1行で
-function morning() {
-  const topic = P.getProperty('NTFY'); if (!topic) return;
-  const tz = 'Asia/Tokyo', today = Utilities.formatDate(new Date(), tz, 'yyyy-MM-dd');
-  const trades = rows_(ss_().getSheetByName('FX取引')).map(r => [r[0] instanceof Date ? Utilities.formatDate(r[0], tz, 'yyyy-MM-dd') : String(r[0]), Number(r[8]) || 0]);
-  const days = [...new Set(trades.map(t => t[0]))].filter(d => d < today).sort();
-  if (!days.length) return;
-  const last = days[days.length - 1];
-  const sum = trades.filter(t => t[0] === last).reduce((a, t) => a + t[1], 0);
-  const all = trades.reduce((a, t) => a + t[1], 0);
-  const yen = v => (v >= 0 ? '+' : '−') + Math.abs(Math.round(v)).toLocaleString('ja-JP') + '円';
-  UrlFetchApp.fetch('https://ntfy.sh/', { method: 'post', contentType: 'application/json', muteHttpExceptions: true,
-    payload: JSON.stringify({ topic: topic, title: 'フクリ FX', message: `${last.slice(5).replace('-', '/')}は${yen(sum)}（合計${yen(all)}）`, tags: ['owl'] }) });
-}
+// 毎朝のFXの成績は、FX botのサーバーからフクリのアプリへ通知する（ここでは送らない）
+function morning() {}

@@ -14,6 +14,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=1">
 <link rel="apple-touch-icon" media="(prefers-color-scheme: dark)" href="apple-touch-icon-dark.png?v=1">
 <link rel="icon" href="icon-192.png?v=1">
+<link rel="manifest" href="manifest.webmanifest?v=1">
 <style>
 :root{
   --bg:#eef2f7;--bg2:#dfe7f1;--ink:#0d1520;--sub:#5d6b7c;--mute:#8b97a6;
@@ -141,6 +142,7 @@ nav .blob{position:absolute;z-index:0;top:6px;bottom:6px;width:84px;border-radiu
 .topbtn{position:fixed;z-index:4;right:16px;top:calc(env(safe-area-inset-top) + 12px);width:40px;height:40px;border-radius:50%;
   display:grid;place-items:center;border:1px solid var(--edge)}
 .topbtn svg{width:20px;height:20px;stroke:var(--ink);fill:none;stroke-width:2;stroke-linecap:round}
+.topbtn.bell{right:64px}.topbtn.bell.on svg{fill:var(--gold);stroke:var(--gold)}
 .topbtn.spin svg{animation:sp 1s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
 .gate{position:fixed;inset:0;z-index:9;display:none;place-items:center;padding:30px;text-align:center}
 .gate.on{display:grid}
@@ -154,6 +156,7 @@ nav .blob{position:absolute;z-index:0;top:6px;bottom:6px;width:84px;border-radiu
 <body>
 <div class="sky"><i></i><i></i><i></i></div>
 <div class="gate glass" id="gate"><div><img src="icon-512.png" alt=""><h2>フクリ</h2><p class="cap">合い鍵の入ったリンクから開いてください。<br>自分専用のアプリです。</p></div></div>
+<button class="topbtn glass bell" id="bell" aria-label="通知"><svg viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15zM10 20a2 2 0 0 0 4 0"/></svg></button>
 <button class="topbtn glass" id="reload" aria-label="更新"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"/></svg></button>
 <div class="toast glass" id="toast"></div>
 <main id="main">
@@ -168,7 +171,8 @@ nav .blob{position:absolute;z-index:0;top:6px;bottom:6px;width:84px;border-radiu
   <button data-p="fx"><svg viewBox="0 0 24 24"><path d="M3 17l5-5 4 3 8-8M15 7h5v5"/></svg>FX</button>
 </nav>
 <script>
-const VERSION='1';
+const VERSION='2';
+const VAPID='BFPiiQbgaxGzyfVZaA--hO4tmo7iamPgNVKypX8MHbwrcy3IF3d3544WBQX1cVLJmfDnfnRuZaPrTR9KNwHJlyc';
 const API='https://script.google.com/macros/s/AKfycbwTnqvwT5kAsd0AKqWztPr5yxcw4FKEM4ISuuMwrtFsUGmYTjdeAzXfhypG1TIj_B7d/exec';
 const KD='../kabu-drop/data/';
 const $=s=>document.querySelector(s);
@@ -363,6 +367,25 @@ function go(p){TAB=p;store.set('fk_tab',p);
   if(p==='fx'&&D)drawChart(trades().filter(x=>x.d>=new Date(Date.now()-({'7':7,'30':30,'all':99999}[FXR])*864e5).toISOString().slice(0,10)))}
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(b.dataset.p));
 $('#reload').onclick=()=>load(true);
+
+// ---------- 通知（フクリのアプリに届く） ----------
+let swReg=null;
+const b64=s=>{const p='='.repeat((4-s.length%4)%4);const r=atob((s+p).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from([...r].map(c=>c.charCodeAt(0)))};
+async function bellState(){let on=false;try{const r=swReg||await navigator.serviceWorker.getRegistration();on=!!(r&&await r.pushManager.getSubscription())&&Notification.permission==='granted'}catch(_){}$('#bell').classList.toggle('on',on);return on}
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').then(r=>{swReg=r;bellState()}).catch(()=>{});
+navigator.serviceWorker&&navigator.serviceWorker.addEventListener('message',e=>{if(e.data&&e.data.tab)go(e.data.tab)});
+$('#bell').onclick=async()=>{
+  const sa=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;
+  if(!('PushManager' in window)||!sa){toast('ホーム画面に追加したフクリから押してください');return}
+  try{
+    if(await Notification.requestPermission()!=='granted'){toast('通知が許可されませんでした');return}
+    const r=swReg||await navigator.serviceWorker.ready;let sub=await r.pushManager.getSubscription();
+    if(!sub)sub=await r.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64(VAPID)});
+    const res=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({kind:'sub',key:KEY,sub:sub.toJSON()})}).then(r=>r.json());
+    if(!res.ok)throw 0;toast('通知がつながりました');bellState();
+  }catch(e){toast('通知の登録に失敗しました')}
+};
+{const q=new URLSearchParams(location.search).get('tab');if(q)store.set('fk_tab',q),TAB=q}
 
 // 前回の中身をすぐ出してから最新を読む
 try{const c=JSON.parse(store.get('fk_cache')||'null');if(c){D=c.D;KDD=c.KDD;render()}}catch(_){}
