@@ -213,7 +213,7 @@ nav button svg{width:26px;height:26px}
 .cash b{font-size:20px;font-variant-numeric:tabular-nums}
 .chart{touch-action:pan-y}
 /* 画面全体は固定し、中身だけスクロール（引っぱっても画面が動かない） */
-html,body{position:fixed;inset:0;overflow:hidden;overscroll-behavior:none;height:100%}
+html,body{overflow:hidden;overscroll-behavior:none;height:100%}
 main{position:fixed;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:none;min-height:0}
 /* FXの取引：1行の細いリスト */
 .trl{margin:8px 16px;padding:2px 14px}
@@ -245,7 +245,7 @@ main{position:fixed;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-s
   <button data-p="set"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M2.5 12h3M18.5 12h3M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/></svg>設定</button>
 </nav>
 <script>
-const VERSION='14';
+const VERSION='15';
 const CLIENT_ID='187861904258-0eilchk073j1hbginl1hncskf7jpp4ja.apps.googleusercontent.com';  // GoogleログインのクライアントID（公開してよい値）
 const VAPID='BFPiiQbgaxGzyfVZaA--hO4tmo7iamPgNVKypX8MHbwrcy3IF3d3544WBQX1cVLJmfDnfnRuZaPrTR9KNwHJlyc';
 const API='https://script.google.com/macros/s/AKfycbwTnqvwT5kAsd0AKqWztPr5yxcw4FKEM4ISuuMwrtFsUGmYTjdeAzXfhypG1TIj_B7d/exec';
