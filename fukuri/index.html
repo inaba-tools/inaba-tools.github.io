@@ -197,6 +197,9 @@ nav button svg{width:26px;height:26px}
 .toast{background:var(--glass2)!important;color:var(--ink);border:1px solid var(--edge)!important}
 .gate{background:#0b0b0c!important}
 .btn{background:var(--gold);color:#111}.btn.sub{background:var(--glass2);color:var(--ink)}
+#alert{display:none;position:sticky;top:0;z-index:30;margin:calc(env(safe-area-inset-top) + 8px) 12px 0;padding:14px 16px;border-radius:18px;background:#d93025;color:#fff;box-shadow:0 8px 24px rgba(217,48,37,.35)}
+#alert.on{display:block}#alert b{display:block;font-size:16px;margin-bottom:4px}#alert .m{font-size:13px;line-height:1.5;opacity:.95;margin-top:4px}
+#alert button{margin-top:10px;border:0;border-radius:12px;padding:8px 14px;background:#fff;color:#d93025;font-weight:800;font-size:13px}
 </style>
 </head>
 <body>
@@ -205,6 +208,7 @@ nav button svg{width:26px;height:26px}
 <div class="gate glass" id="gate"><div><img src="icon-512.png" alt=""><h2>フクリ</h2><p class="cap" id="gmsg">合い鍵の入ったリンクから開いてください。<br>自分専用のアプリです。</p><div id="gbtn"></div></div></div>
 <button class="topbtn glass" id="reload" aria-label="更新"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"/></svg></button>
 <div class="toast glass" id="toast"></div>
+<div id="alert"></div>
 <main id="main">
   <section class="page on" id="p-ipo"></section>
   <section class="page" id="p-plan"></section>
@@ -219,7 +223,7 @@ nav button svg{width:26px;height:26px}
   <button data-p="set"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M2.5 12h3M18.5 12h3M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/></svg>設定</button>
 </nav>
 <script>
-const VERSION='8';
+const VERSION='9';
 const CLIENT_ID='187861904258-0eilchk073j1hbginl1hncskf7jpp4ja.apps.googleusercontent.com';  // GoogleログインのクライアントID（公開してよい値）
 const VAPID='BFPiiQbgaxGzyfVZaA--hO4tmo7iamPgNVKypX8MHbwrcy3IF3d3544WBQX1cVLJmfDnfnRuZaPrTR9KNwHJlyc';
 const API='https://script.google.com/macros/s/AKfycbwTnqvwT5kAsd0AKqWztPr5yxcw4FKEM4ISuuMwrtFsUGmYTjdeAzXfhypG1TIj_B7d/exec';
@@ -448,7 +452,14 @@ function renderSet(){
     ${BELL?'':'<div style="margin-top:14px"><button class="btn" onclick="bellOn()">通知をつなぐ</button></div>'}</div>
    <div class="foot">ver.${VERSION}</div>`;
 }
-function render(){renderIPO();renderPlan();renderFX();renderSet()}
+function renderAlert(){
+  const a=(D&&D.alerts)||[];const el=$('#alert');
+  if(!a.length){el.classList.remove('on');el.innerHTML='';return}
+  el.innerHTML=`<b>⚠ 緊急：心当たりを確認してください</b>${a.slice(0,5).map(x=>`<div class="m">${esc(String(x.at).slice(5,16).replace('-','/').replace('T',' '))}<br>${esc(x.msg)}</div>`).join('')}<div class="m">心当たりがなければ、すぐにその証券会社でパスワードを変更し、出金先を確認してください。</div><button id="ack">確認した（消す）</button>`;
+  el.classList.add('on');
+  $('#ack').onclick=async()=>{try{await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({kind:'ack',key:KEY,sess:SESS})});D.alerts=[];renderAlert();toast('消しました')}catch(_){toast('消せませんでした')}};
+}
+function render(){renderAlert();renderIPO();renderPlan();renderFX();renderSet()}
 function go(p){TAB=p;store.set('fk_tab',p);
   document.querySelectorAll('.page').forEach(e=>e.classList.toggle('on',e.id==='p-'+p));
   const bs=[...document.querySelectorAll('nav button')];bs.forEach(b=>b.classList.toggle('on',b.dataset.p===p));
