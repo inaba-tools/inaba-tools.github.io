@@ -203,6 +203,14 @@ nav button svg{width:26px;height:26px}
 .sw{position:relative;width:51px;height:31px;flex:none;border-radius:16px;background:#3a3a3e;border:0;transition:background .2s}
 .sw::after{content:'';position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;transition:transform .2s}
 .sw.on{background:var(--gold)}.sw.on::after{transform:translateX(20px)}
+.todo .it{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 0;border-top:1px solid var(--line)}
+.todo .it:first-of-type{border-top:0;padding-top:4px}
+.todo .tt{font-size:15px;font-weight:700;line-height:1.4}.todo .ts{font-size:12.5px;color:var(--sub);margin-top:2px;line-height:1.55}
+.todo .w .tt{color:var(--warn)}
+.btn.s{padding:9px 12px;font-size:13px;border-radius:12px;text-decoration:none;display:inline-block}
+.cash .it{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-top:1px solid var(--line)}
+.cash .it:first-of-type{border-top:0}
+.cash b{font-size:20px;font-variant-numeric:tabular-nums}
 .set .row{display:flex;align-items:center;justify-content:space-between;gap:12px}
 </style>
 </head>
@@ -226,7 +234,7 @@ nav button svg{width:26px;height:26px}
   <button data-p="set"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M2.5 12h3M18.5 12h3M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/></svg>設定</button>
 </nav>
 <script>
-const VERSION='12';
+const VERSION='13';
 const CLIENT_ID='187861904258-0eilchk073j1hbginl1hncskf7jpp4ja.apps.googleusercontent.com';  // GoogleログインのクライアントID（公開してよい値）
 const VAPID='BFPiiQbgaxGzyfVZaA--hO4tmo7iamPgNVKypX8MHbwrcy3IF3d3544WBQX1cVLJmfDnfnRuZaPrTR9KNwHJlyc';
 const API='https://script.google.com/macros/s/AKfycbwTnqvwT5kAsd0AKqWztPr5yxcw4FKEM4ISuuMwrtFsUGmYTjdeAzXfhypG1TIj_B7d/exec';
@@ -316,10 +324,7 @@ function renderIPO(){
    <div class="cap">${run[0]?`前回の自動実行：${esc(run[0].slice(5,16).replace('-','/').replace('T',' '))}（${esc(run[1])}）`:'まだ記録がありません。'}</div></div>
    <div class="st"><div class="glass"><small>当選</small><b class="${won?'up':''}">${won}</b></div><div class="glass"><small>購入済</small><b>${bought}</b></div>
    <div class="glass"><small>見込みの利益</small><b class="${gainAll>0?'up':''}" style="font-size:20px">${gainAll?pm(gainAll):'—'}</b></div></div>`;
-  const money=(run[2]&&/【入金が必要】/.test(run[2])&&Date.now()-new Date(run[0])<2*864e5)?String(run[2]).split('【入金が必要】')[1].split('／'):[];
-  if(money.length)h+=`<div class="glass card" style="border-color:var(--warn)"><div style="font-weight:800;color:var(--warn)">入金が必要です</div>${money.map(m=>`<div class="memo">${brk(m)}</div>`).join('')}</div>`;
-  const need=rows.filter(r=>r[8]==='要対応');
-  if(need.length)h+=`<div class="glass card" style="border-color:var(--warn)"><div style="font-weight:800;color:var(--warn)">手で対応が必要</div>${need.map(r=>`<div class="memo">${esc(r[0])} ${esc(r[2])}：${brk(r[10])}</div>`).join('')}</div>`;
+  h+=todoCard(rows)+cashCard();
   if(!list.length)h+=`<div class="empty">まだ申込の記録がありません。<br>毎日21時に自動で申し込みます。</div>`;
   else{
     list.sort((a,b)=>stage(b)-stage(a));
@@ -335,6 +340,42 @@ function renderIPO(){
   if(ms.length){h+=`<div class="sec"><span>月ごとの利益</span><span>初値で売った場合</span></div><div class="glass card">${ms.map(m=>`<div class="row" style="display:flex;justify-content:space-between;padding:6px 0"><span>${esc(m.replace('-','年')+(m.includes('-')?'月':''))}</span><b class="${byM[m]>=0?'up':'dn'}">${pm(byM[m])}</b></div>`).join('')}<div class="row" style="display:flex;justify-content:space-between;padding:8px 0 0;border-top:1px solid var(--line);margin-top:4px"><span>合計</span><b class="${gainAll>=0?'up':'dn'}">${pm(ms.reduce((a,m)=>a+byM[m],0))}</b></div></div>`}
   h+=`<div class="foot">SBI・楽天は全部のIPOに申し込み、当選したら「得」の予想のときだけ購入します。<br>DMMは「得」の予想だけ申し込みます。</div>`;
   el.innerHTML=h;
+}
+// ---------- 次にやること・口座のお金 ----------
+const DEP={SBI:'https://www.sbisec.co.jp/ETGate',楽天:'https://www.rakuten-sec.co.jp/ITS/V_ACT_Login.html',DMM:'https://kabu.dmm.com/'};
+const BKEY={SBI:'sbi',楽天:'rakuten',DMM:'dmm'};
+function todoCard(rows){
+  const S=(D&&D.status)||{},RS=(D&&D.resume)||[],it=[];
+  Object.entries(S.paused||{}).forEach(([b,m])=>{const w=RS.includes(BKEY[b]);
+    it.push({w:1,t:`${b}の自動処理が止まっています`,s:w?'再開の予約済み。次の12時か21時の実行から動きます。':'ログインに失敗したので止めました。パスワード等を確かめてから再開してください。',
+      b:w?'':`<button class="btn s" onclick="resume('${BKEY[b]}','${b}')">再開</button>`})});
+  let money=(S.money||[]);
+  if(!S.at){const run=((D&&D.runs)||[]).find(r=>r[1]!=='警告')||[];
+    if(run[2]&&/【入金が必要】/.test(run[2])&&Date.now()-new Date(run[0])<2*864e5)money=String(run[2]).split('【入金が必要】')[1].split('／')}
+  money.forEach(m=>{const b=(m.match(/^(SBI|楽天|DMM)/)||[])[1];
+    it.push({w:1,t:'入金してください',s:m,b:b&&DEP[b]?`<a class="btn s" href="${DEP[b]}" target="_blank" rel="noopener">${b}で入金</a>`:''})});
+  rows.filter(r=>r[8]==='要対応').forEach(r=>it.push({w:1,t:`${r[0]} ${r[2]}を手で購入`,s:r[10]||'',b:DEP[r[0]]?`<a class="btn s" href="${DEP[r[0]]}" target="_blank" rel="noopener">開く</a>`:''}));
+  // これからの抽選（3日以内・自分が申し込んだもの）
+  const now=new Date(),t0=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  const Pd=s=>{const m=String(s||'').match(/(\d+)[\/-](\d+)[\/-](\d+)/);return m?new Date(+m[1],m[2]-1,+m[3]):null};
+  const mine={};rows.filter(r=>r[4]==='申込済'&&!r[6]).forEach(r=>{(mine[r[1]]=mine[r[1]]||[]).push(r[0])});
+  KDD.ipo.forEach(o=>{if(!mine[o.code])return;const d=Pd(o.data15||o.data9);if(!d)return;const n=Math.round((d-t0)/864e5);
+    if(n>=0&&n<=3)it.push({t:`${n===0?'今日':n===1?'明日':(d.getMonth()+1)+'/'+d.getDate()} 18時に抽選`,s:`${o.data1||o.code}（${mine[o.code].join('・')}）。当選したら自動で購入まで進めます。`})});
+  const body=it.length?it.map(x=>`<div class="it ${x.w?'w':''}"><div><div class="tt">${esc(x.t)}</div><div class="ts">${brk(x.s)}</div></div>${x.b||''}</div>`).join('')
+    :'<div class="ts" style="padding:4px 0">今やることはありません。<br>全部自動で進んでいます。</div>';
+  return `<div class="sec"><span>次にやること</span><span>${it.filter(x=>x.w).length?'対応が必要':''}</span></div><div class="glass card todo" ${it.some(x=>x.w)?'style="border-color:var(--warn)"':''}>${body}</div>`;
+}
+function cashCard(){
+  const c=((D&&D.status)||{}).cash||{};const ks=['SBI','楽天','DMM'].filter(k=>c[k]);
+  if(!ks.length)return `<div class="sec"><span>口座のお金</span></div><div class="glass card cash"><div class="ts" style="font-size:12.5px;color:var(--sub)">毎日12時と21時の確認のあとに出ます。</div></div>`;
+  const tot=ks.reduce((a,k)=>a+(+c[k].yen||0),0);
+  return `<div class="sec"><span>口座のお金（買付余力）</span><span>合計 ${yen(tot)}円</span></div><div class="glass card cash">${ks.map(k=>`<div class="it"><div><div style="font-weight:700">${k}</div><div style="font-size:12px;color:var(--sub)">${esc(String(c[k].at).slice(5,16).replace('-','/').replace('T',' '))} 時点</div></div><div style="display:flex;align-items:center;gap:10px"><b>${yen(c[k].yen)}円</b><a class="btn s sub" href="${DEP[k]}" target="_blank" rel="noopener">入金</a></div></div>`).join('')}</div>`;
+}
+async function resume(b,jp){
+  if(!confirm(jp+'の自動処理を再開しますか？\nパスワード等を直してから押してください。'))return;
+  try{const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({kind:'resume',key:KEY,sess:SESS,broker:b})}).then(r=>r.json());
+    if(!r.ok)throw 0;toast('再開を予約しました');load();
+  }catch(_){toast('再開できませんでした')}
 }
 function stage(x){return Math.max(...Object.values(x.br).map(v=>v.bu==='要対応'?9:/当選/.test(v.l)&&!v.bu?8:v.bu==='購入済'?6:v.a==='申込済'&&!v.l?5:v.l?2:1))}
 function md(s){const m=String(s).match(/(\d+)\/(\d+)\/(\d+)/);return m?`${+m[2]}/${+m[3]}`:s}

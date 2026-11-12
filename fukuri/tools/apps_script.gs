@@ -176,7 +176,21 @@ function doPost(e) {
       return out_({ ok: true, n: subs.length });
     } finally { lock0.releaseLock(); }
   }
+  // 止まった証券会社の再開（アプリから。Macが次の実行のときに受け取る）
+  if (d.kind === 'resume' && d.key === P.getProperty('KEY_R') && (!googleOn_() || sessOk_(d.sess)) && ['dmm', 'rakuten', 'sbi'].includes(d.broker)) {
+    const l = JSON.parse(P.getProperty('RESUME') || '[]'); if (!l.includes(d.broker)) l.push(d.broker);
+    P.setProperty('RESUME', JSON.stringify(l)); return out_({ ok: true });
+  }
   if (d.key !== P.getProperty('KEY_W')) { if (d.key && d.key !== P.getProperty('KEY_R')) badKey_(); return out_({ ok: false, err: 'key' }); }
+  if (d.kind === 'cmd') {   // Macが受け取ったら消す
+    const l = JSON.parse(P.getProperty('RESUME') || '[]'); P.deleteProperty('RESUME'); return out_({ ok: true, resume: l });
+  }
+  if (d.kind === 'status') {   // 口座のお金・止まっている証券会社・入金が必要
+    const o = JSON.parse(P.getProperty('STATUS') || '{}'), n = d.status || {};
+    o.cash = Object.assign(o.cash || {}, n.cash || {});
+    o.paused = n.paused || {}; o.money = (n.money || []).map(x => String(x).slice(0, 300)).slice(0, 10); o.at = new Date().toISOString();
+    P.setProperty('STATUS', JSON.stringify(o)); return out_({ ok: true });
+  }
   if (d.kind === 'unsub') {
     P.setProperty('SUBS', JSON.stringify(JSON.parse(P.getProperty('SUBS') || '[]').filter(s => s.endpoint !== d.endpoint)));
     return out_({ ok: true });
@@ -220,6 +234,7 @@ function doGet(e) {
   const iso = v => v instanceof Date ? Utilities.formatDate(v, 'Asia/Tokyo', "yyyy-MM-dd'T'HH:mm:ss") : String(v);
   return out_({
     ok: true, google: googleOn_(), at: iso(new Date()), ipoAt: P.getProperty('IPO_AT') || '',
+    status: JSON.parse(P.getProperty('STATUS') || '{}'), resume: JSON.parse(P.getProperty('RESUME') || '[]'),
     ipo: ipo.map(r => r.map(iso)), runs: runs.map(r => r.map(iso)),
     fx: { at: fn[0] ? iso(fn[0]) : '', now: now, trades: trades.map(r => r.map(iso)) }
   });
