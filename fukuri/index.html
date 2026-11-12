@@ -326,17 +326,12 @@ nav button svg{width:22px!important;height:22px!important;stroke-width:2!importa
 nav button.on{color:var(--gold)!important;font-weight:600!important}
 nav button:active{transform:scale(.95)}
 
-/* タブごとに色を変える（やること＝オレンジ・申込＝青・FX＝水色・設定＝紫） */
-body[data-tab=todo]{--gold:#FF9F43;--blue:#FF9F43;--warn:#FF9F43}
-body[data-tab=ipo]{--gold:#5B8CFF;--blue:#5B8CFF;--warn:#FF9F43}
-body[data-tab=fx]{--gold:#3FC8E8;--blue:#3FC8E8;--warn:#FF9F43}
-body[data-tab=set]{--gold:#B58CFF;--blue:#B58CFF;--warn:#FF9F43}
-nav button[data-p=todo].on{color:#FF9F43!important}nav button[data-p=ipo].on{color:#5B8CFF!important}
-nav button[data-p=fx].on{color:#3FC8E8!important}nav button[data-p=set].on{color:#B58CFF!important}
+/* アクセントは紫で統一（＋は緑・−は赤のまま） */
+body{--gold:#A78BFA;--blue:#A78BFA;--warn:#A78BFA}
+nav button.on{color:#A78BFA!important}
 body{transition:none}
 .hd .eyebrow{color:var(--gold)!important}
-.glass.mc{background:linear-gradient(160deg,color-mix(in srgb,var(--gold) 16%,#151918),#151918 60%)}
-.cash .it:nth-child(1) b{color:#FF9F43}.cash .it:nth-child(2) b{color:#5B8CFF}.cash .it:nth-child(3) b{color:#3FC8E8}
+.glass.mc{background:linear-gradient(160deg,color-mix(in srgb,var(--gold) 10%,#151918),#151918 60%)}
 .bc.now,.tag.n{background:color-mix(in srgb,var(--gold) 18%,transparent);color:var(--gold)}
 .sp.now i{background:var(--gold)!important;color:#0b0d0c!important}.sp.now span{color:var(--gold)!important}
 .todo .w .tt{color:var(--warn)}
@@ -362,7 +357,7 @@ body{transition:none}
   <button data-p="set"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>'設定</button>
 </nav>
 <script>
-const VERSION='28';
+const VERSION='29';
 const CLIENT_ID='187861904258-0eilchk073j1hbginl1hncskf7jpp4ja.apps.googleusercontent.com';  // GoogleログインのクライアントID（公開してよい値）
 const VAPID='BFPiiQbgaxGzyfVZaA--hO4tmo7iamPgNVKypX8MHbwrcy3IF3d3544WBQX1cVLJmfDnfnRuZaPrTR9KNwHJlyc';
 const API='https://script.google.com/macros/s/AKfycbwTnqvwT5kAsd0AKqWztPr5yxcw4FKEM4ISuuMwrtFsUGmYTjdeAzXfhypG1TIj_B7d/exec';
