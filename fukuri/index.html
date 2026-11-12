@@ -212,7 +212,6 @@ nav button svg{width:26px;height:26px}
 <div class="gate glass" id="gate"><div><img src="icon-512.png" alt=""><h2>フクリ</h2><p class="cap" id="gmsg">合い鍵の入ったリンクから開いてください。<br>自分専用のアプリです。</p><div id="gbtn"></div></div></div>
 <button class="topbtn glass" id="reload" aria-label="更新"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"/></svg></button>
 <div class="toast glass" id="toast"></div>
-<div id="alert"></div>
 <main id="main">
   <section class="page on" id="p-ipo"></section>
   <section class="page" id="p-plan"></section>
@@ -227,7 +226,7 @@ nav button svg{width:26px;height:26px}
   <button data-p="set"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M2.5 12h3M18.5 12h3M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/></svg>設定</button>
 </nav>
 <script>
-const VERSION='11';
+const VERSION='12';
 const CLIENT_ID='187861904258-0eilchk073j1hbginl1hncskf7jpp4ja.apps.googleusercontent.com';  // GoogleログインのクライアントID（公開してよい値）
 const VAPID='BFPiiQbgaxGzyfVZaA--hO4tmo7iamPgNVKypX8MHbwrcy3IF3d3544WBQX1cVLJmfDnfnRuZaPrTR9KNwHJlyc';
 const API='https://script.google.com/macros/s/AKfycbwTnqvwT5kAsd0AKqWztPr5yxcw4FKEM4ISuuMwrtFsUGmYTjdeAzXfhypG1TIj_B7d/exec';
@@ -331,6 +330,9 @@ function renderIPO(){
       return `<div class="glass card ipo"><div class="nm">${esc(x.name||x.code)}${tag}</div><div class="cd">${esc(sub)}</div>
         ${Object.entries(x.br).sort((a,b)=>BRS.indexOf(a[0])-BRS.indexOf(b[0])).map(([b,v])=>brRow(b,v)).join('')}</div>`}).join('');
   }
+  const byM={};rows.filter(r=>r[8]==='購入済').forEach(r=>{const g=judge(r[1]).gain;if(g==null)return;const m=String(r[9]||'').slice(0,7)||'不明';byM[m]=(byM[m]||0)+g});
+  const ms=Object.keys(byM).sort().reverse();
+  if(ms.length){h+=`<div class="sec"><span>月ごとの利益</span><span>初値で売った場合</span></div><div class="glass card">${ms.map(m=>`<div class="row" style="display:flex;justify-content:space-between;padding:6px 0"><span>${esc(m.replace('-','年')+(m.includes('-')?'月':''))}</span><b class="${byM[m]>=0?'up':'dn'}">${pm(byM[m])}</b></div>`).join('')}<div class="row" style="display:flex;justify-content:space-between;padding:8px 0 0;border-top:1px solid var(--line);margin-top:4px"><span>合計</span><b class="${gainAll>=0?'up':'dn'}">${pm(ms.reduce((a,m)=>a+byM[m],0))}</b></div></div>`}
   h+=`<div class="foot">SBI・楽天は全部のIPOに申し込み、当選したら「得」の予想のときだけ購入します。<br>DMMは「得」の予想だけ申し込みます。</div>`;
   el.innerHTML=h;
 }
@@ -455,16 +457,12 @@ function renderSet(){
     <div style="margin-top:14px">${SESS?'<button class="btn sub" onclick="gLogout()">ログアウト</button>':`<button class="btn g" onclick="gLogin()">${GICON}Googleでログイン</button>`}</div></div>
    <div class="sec">通知</div>
    <div class="card glass set"><div class="row"><div><div class="t">アプリへの通知</div><div class="s">${BELL?'当選・購入・入金不足などの知らせが届きます。':'オフです。<br>ホーム画面に追加したフクリでオンにしてください。'}</div></div><button class="sw ${BELL?'on':''}" aria-label="通知のオンオフ" onclick="${BELL?'bellOff()':'bellOn()'}"></button></div></div>
+   <div class="sec">安全</div>
+   <div class="card glass set"><div><div class="t">合い鍵を作り直す</div><div class="s">合い鍵のリンクが漏れたかもと思ったら押してください。<br>古いリンクは使えなくなり、ほかの端末のログインも切れます。</div></div>
+    ${SESS?'<div style="margin-top:14px"><button class="btn sub" onclick="rekey()">合い鍵を作り直す</button></div>':''}</div>
    <div class="foot">ver.${VERSION}</div>`;
 }
-function renderAlert(){
-  const a=(D&&D.alerts)||[];const el=$('#alert');
-  if(!a.length){el.classList.remove('on');el.innerHTML='';return}
-  el.innerHTML=`<b>⚠ 緊急：心当たりを確認してください</b>${a.slice(0,5).map(x=>`<div class="m">${esc(String(x.at).slice(5,16).replace('-','/').replace('T',' '))}<br>${esc(x.msg)}</div>`).join('')}<div class="m">心当たりがなければ、すぐにその証券会社でパスワードを変更し、出金先を確認してください。</div><button id="ack">確認した（消す）</button>`;
-  el.classList.add('on');
-  $('#ack').onclick=async()=>{try{await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({kind:'ack',key:KEY,sess:SESS})});D.alerts=[];renderAlert();toast('消しました')}catch(_){toast('消せませんでした')}};
-}
-function render(){renderAlert();renderIPO();renderPlan();renderFX();renderSet()}
+function render(){renderIPO();renderPlan();renderFX();renderSet()}
 function go(p){TAB=p;store.set('fk_tab',p);
   document.querySelectorAll('.page').forEach(e=>e.classList.toggle('on',e.id==='p-'+p));
   const bs=[...document.querySelectorAll('nav button')];bs.forEach(b=>b.classList.toggle('on',b.dataset.p===p));
@@ -479,6 +477,14 @@ const b64=s=>{const p='='.repeat((4-s.length%4)%4);const r=atob((s+p).replace(/-
 async function bellState(){let on=false;try{const r=swReg||await navigator.serviceWorker.getRegistration();on=!!(r&&await r.pushManager.getSubscription())&&Notification.permission==='granted'}catch(_){}BELL=on;renderSet();return on}
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').then(r=>{swReg=r;bellState()}).catch(()=>{});
 navigator.serviceWorker&&navigator.serviceWorker.addEventListener('message',e=>{if(e.data&&e.data.tab)go(e.data.tab)});
+async function rekey(){
+  if(!confirm('合い鍵を作り直しますか？\n古いリンクは使えなくなります。'))return;
+  try{const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({kind:'rekey',key:KEY,sess:SESS})}).then(r=>r.json());
+    if(!r.ok||!r.key)throw 0;KEY=r.key;store.set('fk_key',KEY);history.replaceState(null,'','#k='+KEY);
+    const link=location.origin+location.pathname+'#k='+KEY;try{await navigator.clipboard.writeText(link)}catch(_){}
+    toast('作り直しました（新しいリンクをコピー）');
+  }catch(_){toast('作り直せませんでした')}
+}
 async function bellOff(){
   try{const r=swReg||await navigator.serviceWorker.getRegistration();const sub=r&&await r.pushManager.getSubscription();if(sub)await sub.unsubscribe();toast('通知をオフにしました')}catch(_){toast('オフにできませんでした')}
   bellState();

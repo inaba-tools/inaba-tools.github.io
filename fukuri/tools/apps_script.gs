@@ -100,6 +100,7 @@ function badKey_() {
 const BROKERS = 'sbisec.co.jp OR rakuten-sec.co.jp OR dmm.com OR matsui.co.jp OR monex.co.jp OR kabu.com OR mufg.jp OR iwaicosmo.co.jp OR sbineotrade.jp OR nomura.co.jp';
 const WORDS = '出金 OR 出金先 OR 振込先 OR 払出 OR パスワード OR 暗証番号 OR メールアドレス OR パスキー OR 登録内容 OR 登録情報 OR お客様情報 OR 電話番号';
 function watchMail() {
+  try { ensureTriggers_(); } catch (_) {}
   const since = Number(P.getProperty('WATCH_FROM') || Date.now());
   const seen = JSON.parse(P.getProperty('WATCH_SEEN') || '[]');
   const q = 'from:(' + BROKERS + ') subject:(' + WORDS + ') -subject:認証コード -subject:ログイン通知 after:' + Math.floor((since - 30 * 60e3) / 1000);
@@ -113,6 +114,18 @@ function watchMail() {
   }));
   P.setProperty('WATCH_SEEN', JSON.stringify(seen.slice(-100)));
   if (hits.length) alert_(hits.join(' ／ '), 'mail');
+}
+// 22時半：今夜21時の自動申込の記録が届いていなければ知らせる（Macのスリープ・電源オフ対策）
+function checkRun() {
+  const at = new Date(P.getProperty('IPO_AT') || 0);
+  const today = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy-MM-dd');
+  const got = Utilities.formatDate(at, 'Asia/Tokyo', 'yyyy-MM-dd HH:mm');
+  if (got.slice(0, 10) !== today || got.slice(11) < '20:50')
+    alert_('今夜21時のフクリの自動申込が動いていません。Macがスリープ・電源オフ・ネット切れの可能性があります（前回：' + got + '）', 'run');
+}
+function ensureTriggers_() {
+  const have = ScriptApp.getProjectTriggers().map(t => t.getHandlerFunction());
+  if (!have.includes('checkRun')) ScriptApp.newTrigger('checkRun').timeBased().atHour(22).nearMinute(30).everyDays(1).inTimezone('Asia/Tokyo').create();
 }
 function setupWatch() {   // 1回だけ実行（Gmailの許可を求められたら「許可」）
   ScriptApp.getProjectTriggers().filter(t => t.getHandlerFunction() === 'watchMail').forEach(t => ScriptApp.deleteTrigger(t));
@@ -139,6 +152,18 @@ function doPost(e) {
     const m = JSON.parse(P.getProperty('SESS') || '{}'); delete m[hash_(d.sess || '')];
     P.setProperty('SESS', JSON.stringify(m)); return out_({ ok: true });
   }
+  if (d.kind === 'rekey' && d.key === P.getProperty('KEY_R') && googleOn_() && sessOk_(d.sess)) {
+    const lockK = LockService.getScriptLock(); lockK.waitLock(20000);
+    try {
+      const nk = Utilities.getUuid().replace(/-/g, '') + Utilities.getUuid().slice(0, 8);
+      P.setProperty('KEY_R', nk);
+      const m = JSON.parse(P.getProperty('SESS') || '{}'), h = hash_(d.sess);
+      P.setProperty('SESS', JSON.stringify(m[h] ? { [h]: m[h] } : {}));   // ほかの端末のログインも切る
+      try { ss_().getSheetByName('設定').getRange(2, 2).setValue(nk); } catch (_) {}
+      alert_('合い鍵を作り直しました（自分の操作なら問題ありません）', 'rekey');
+      return out_({ ok: true, key: nk });
+    } finally { lockK.releaseLock(); }
+  }
   if (d.kind === 'ack' && d.key === P.getProperty('KEY_R') && (!googleOn_() || sessOk_(d.sess))) {
     P.setProperty('ALERTS_ACK', String(Date.now())); return out_({ ok: true });
   }
@@ -156,6 +181,7 @@ function doPost(e) {
     P.setProperty('SUBS', JSON.stringify(JSON.parse(P.getProperty('SUBS') || '[]').filter(s => s.endpoint !== d.endpoint)));
     return out_({ ok: true });
   }
+  if (d.kind === 'alert') { alert_(String(d.msg || '').slice(0, 300), String(d.type || 'mac').slice(0, 10)); return out_({ ok: true }); }
   const lock = LockService.getScriptLock(); lock.waitLock(20000);
   try {
     const ss = ss_();
@@ -193,7 +219,6 @@ function doGet(e) {
   let now = {}; try { now = JSON.parse(fn[1] || '{}'); } catch (_) {}
   const iso = v => v instanceof Date ? Utilities.formatDate(v, 'Asia/Tokyo', "yyyy-MM-dd'T'HH:mm:ss") : String(v);
   return out_({
-    alerts: (() => { const ack = Number(P.getProperty('ALERTS_ACK') || 0); return JSON.parse(P.getProperty('ALERTS') || '[]').filter(a => a.at > ack && a.at > Date.now() - 14 * 864e5).map(a => ({ at: iso(new Date(a.at)), msg: a.msg, type: a.type })); })(),
     ok: true, google: googleOn_(), at: iso(new Date()), ipoAt: P.getProperty('IPO_AT') || '',
     ipo: ipo.map(r => r.map(iso)), runs: runs.map(r => r.map(iso)),
     fx: { at: fn[0] ? iso(fn[0]) : '', now: now, trades: trades.map(r => r.map(iso)) }
