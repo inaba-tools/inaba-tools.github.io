@@ -31,21 +31,25 @@
   --shadow:0 12px 34px rgba(0,0,0,.45);
 }}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Hiragino Sans","Hiragino Kaku Gothic ProN",sans-serif;
   -webkit-font-smoothing:antialiased;overscroll-behavior:none}
-body{overflow:hidden}
+body{min-height:100dvh}
 .sky{position:fixed;inset:0;z-index:0;overflow:hidden;background:linear-gradient(180deg,var(--bg2),var(--bg))}
-.sky i{position:absolute;border-radius:50%;filter:blur(60px);opacity:.75;animation:drift 22s ease-in-out infinite alternate}
-.sky i:nth-child(1){width:70vw;height:70vw;left:-20vw;top:-10vw;background:var(--b1)}
-.sky i:nth-child(2){width:60vw;height:60vw;right:-25vw;top:30vh;background:var(--b2);animation-delay:-8s}
-.sky i:nth-child(3){width:60vw;height:60vw;left:10vw;bottom:-25vw;background:var(--b3);animation-delay:-14s}
+.sky i{position:absolute;border-radius:50%;opacity:.7;animation:drift 22s ease-in-out infinite alternate;will-change:transform}
+.sky i:nth-child(1){width:90vw;height:90vw;left:-30vw;top:-20vw;background:radial-gradient(closest-side,var(--b1),transparent)}
+.sky i:nth-child(2){width:80vw;height:80vw;right:-35vw;top:30vh;background:radial-gradient(closest-side,var(--b2),transparent);animation-delay:-8s}
+.sky i:nth-child(3){width:80vw;height:80vw;left:0;bottom:-35vw;background:radial-gradient(closest-side,var(--b3),transparent);animation-delay:-14s}
+/* 上（時計の所）と下（タブの裏）を背景色でなじませる */
+.fadeT,.fadeB{position:fixed;left:0;right:0;z-index:3;pointer-events:none}
+.fadeT{top:0;height:calc(env(safe-area-inset-top) + 10px);background:linear-gradient(var(--bg2) 70%,transparent)}
+.fadeB{bottom:0;height:calc(env(safe-area-inset-bottom) + 90px);background:linear-gradient(transparent,var(--bg) 75%)}
 @keyframes drift{to{transform:translate(8vw,6vh) scale(1.12)}}
-main{position:relative;z-index:1;height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;
-  padding:calc(env(safe-area-inset-top) + 18px) 0 calc(env(safe-area-inset-bottom) + 110px)}
+main{position:relative;z-index:1;min-height:100dvh;
+  padding:calc(env(safe-area-inset-top) + 18px) 0 calc(env(safe-area-inset-bottom) + 120px)}
 .page{display:none;animation:in .35s cubic-bezier(.2,.8,.2,1)}
 .page.on{display:block}
-@keyframes in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes in{from{opacity:0}to{opacity:1}}
 .hd{padding:6px 22px 4px}
 .hd .eyebrow{font-size:13px;font-weight:600;color:var(--sub);letter-spacing:.02em;display:flex;align-items:center;gap:6px}
 .hd h1{margin:2px 0 0;font-size:34px;font-weight:800;letter-spacing:-.02em}
@@ -155,6 +159,7 @@ nav .blob{position:absolute;z-index:0;top:6px;bottom:6px;width:84px;border-radiu
 </head>
 <body>
 <div class="sky"><i></i><i></i><i></i></div>
+<div class="fadeT"></div><div class="fadeB"></div>
 <div class="gate glass" id="gate"><div><img src="icon-512.png" alt=""><h2>フクリ</h2><p class="cap">合い鍵の入ったリンクから開いてください。<br>自分専用のアプリです。</p></div></div>
 <button class="topbtn glass bell" id="bell" aria-label="通知"><svg viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15zM10 20a2 2 0 0 0 4 0"/></svg></button>
 <button class="topbtn glass" id="reload" aria-label="更新"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"/></svg></button>
@@ -363,7 +368,7 @@ function render(){renderIPO();renderPlan();renderFX()}
 function go(p){TAB=p;store.set('fk_tab',p);
   document.querySelectorAll('.page').forEach(e=>e.classList.toggle('on',e.id==='p-'+p));
   const bs=[...document.querySelectorAll('nav button')];bs.forEach(b=>b.classList.toggle('on',b.dataset.p===p));
-  const i=bs.findIndex(b=>b.dataset.p===p);$('#blob').style.transform=`translateX(${i*88}px)`;$('#main').scrollTop=0;
+  const i=bs.findIndex(b=>b.dataset.p===p);$('#blob').style.transform=`translateX(${i*88}px)`;window.scrollTo(0,0);
   if(p==='fx'&&D)drawChart(trades().filter(x=>x.d>=new Date(Date.now()-({'7':7,'30':30,'all':99999}[FXR])*864e5).toISOString().slice(0,10)))}
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(b.dataset.p));
 $('#reload').onclick=()=>load(true);
