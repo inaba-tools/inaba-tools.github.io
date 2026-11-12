@@ -228,6 +228,14 @@ main{position:fixed;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-s
 .mini .sp{min-width:40px;gap:2px}.mini .sp i{width:17px;height:17px;font-size:10px}.mini .sp span{font-size:9.5px}
 .mini .ln{margin:0 -4px 13px;min-width:8px}
 .mini .memo{font-size:11px;margin-top:2px}
+.mcar{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 16px 2px;scrollbar-width:none;overscroll-behavior-x:contain}
+.mcar::-webkit-scrollbar{display:none}
+.mc{flex:0 0 calc(100% - 8px);scroll-snap-align:center;padding:20px 22px;border-radius:20px!important}
+.ml{font-size:14px;font-weight:700;color:var(--sub)}
+.mv{font-size:46px;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums;margin:6px 0 2px}
+.ms{font-size:12.5px;color:var(--sub)}
+.mk{font-size:13px;color:var(--sub);margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}.mk b{font-size:15px}
+.mdots{text-align:center;font-size:11px;color:var(--mute);margin:8px 0 0}
 .ir{padding:9px 0;border-top:1px solid var(--line)}.ir:first-child{border-top:0}
 .ir .in{display:flex;align-items:baseline;gap:6px;min-width:0}
 .ir .nm{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%}
@@ -295,7 +303,7 @@ nav button.on svg{animation:pop .4s cubic-bezier(.3,1.6,.5,1)}
   <button data-p="set"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M2.5 12h3M18.5 12h3M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/></svg>設定</button>
 </nav>
 <script>
-const VERSION='19';
+const VERSION='20';
 const CLIENT_ID='187861904258-0eilchk073j1hbginl1hncskf7jpp4ja.apps.googleusercontent.com';  // GoogleログインのクライアントID（公開してよい値）
 const VAPID='BFPiiQbgaxGzyfVZaA--hO4tmo7iamPgNVKypX8MHbwrcy3IF3d3544WBQX1cVLJmfDnfnRuZaPrTR9KNwHJlyc';
 const API='https://script.google.com/macros/s/AKfycbwTnqvwT5kAsd0AKqWztPr5yxcw4FKEM4ISuuMwrtFsUGmYTjdeAzXfhypG1TIj_B7d/exec';
@@ -488,20 +496,23 @@ function tm(v){const s=String(v);const m=s.match(/T(\d\d:\d\d)/)||s.match(/^(\d{
 function renderFX(){
   const el=$('#p-fx');const T=trades();const N=(D&&D.fx&&D.fx.now)||{};
   const byM={};T.forEach(x=>{const m=x.d.slice(0,7);byM[m]=(byM[m]||0)+x.p});
-  const ms=Object.keys(byM).sort();let cum=0;const cums={};ms.forEach(m=>{cum+=byM[m];cums[m]=cum});
-  const nd=new Date(),nowM=nd.getFullYear()+'-'+String(nd.getMonth()+1).padStart(2,'0'),thisM=byM[nowM]||0;const win=T.filter(x=>x.p>0).length;
+  const nd=new Date(),key=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'),nowM=key(nd);
+  const first=Object.keys(byM).sort()[0]||nowM;const months=[];
+  for(let d=new Date(+first.slice(0,4),+first.slice(5)-1,1);key(d)<=nowM;d.setMonth(d.getMonth()+1))months.push(key(d));
+  let cum=0;const cums={};months.forEach(m=>{cum+=byM[m]||0;cums[m]=cum});
   let h=`<div class="hd"><div class="eyebrow">自動化FX・${esc(N.mode||'練習')}</div><h1>FX</h1></div>
-   <div class="st"><div class="glass"><small>今月（${+nowM.slice(5)}月）</small><b class="${thisM>=0?'up':'dn'} cnt" data-v="${thisM}">${pm(thisM)}</b></div>
-    <div class="glass"><small>累計</small><b class="${cum>=0?'up':'dn'} cnt" data-v="${cum}">${pm(cum)}</b></div></div>
-   <div class="cap" style="margin:8px 22px 0">${T.length}回の取引で${win}勝${T.length-win}敗。</div>`;
-  if(ms.length)h+=`<div class="sec"><span>月ごと</span></div><div class="glass trl mon">${ms.slice().reverse().map(m=>`<div class="trr"><span class="nm">${+m.slice(0,4)}年${+m.slice(5)}月</span><span class="pp ${byM[m]>=0?'up':'dn'}">${pm(byM[m])}</span><span class="dt">累計 ${pm(cums[m])}</span></div>`).join('')}</div>`;
+   <div class="mcar" id="mcar">${months.map(m=>{const v=byM[m]||0,n=T.filter(x=>x.d.startsWith(m)),w=n.filter(x=>x.p>0).length;
+     return `<div class="mc glass"><div class="ml">${+m.slice(0,4)}年${+m.slice(5)}月${m===nowM?'<span class="tag n">今月</span>':''}</div>
+      <div class="mv ${v>=0?'up':'dn'}">${pm(v)}</div><div class="ms">${n.length?`${n.length}回の取引で${w}勝${n.length-w}敗`:'取引なし'}</div>
+      <div class="mk">累計 <b class="${cums[m]>=0?'up':'dn'}">${pm(cums[m])}</b></div></div>`}).join('')}</div>
+   <div class="mdots">${months.length>1?'← 左右に振ると、ほかの月が見られます →':''}</div>`;
   const R=T;
   h+=`<div class="sec"><span>取引</span><span>新しい順</span></div>`;
   const TR=R.slice().reverse().slice(0,80);
   h+=TR.length?`<div class="glass trl">${TR.map(x=>{const dd=new Date(x.d+'T00:00:00');
     return `<div class="trr"><span class="dt">${dd.getMonth()+1}/${dd.getDate()} ${esc(tm(x.ot))}</span><span class="nm"><span class="side ${x.side==='買い'?'buy':'sell'}">${x.side==='買い'?'買':'売'}</span>${esc(x.t)}</span><span class="pp ${x.p>=0?'up':'dn'}">${pm(x.p)}</span></div>`}).join('')}</div>`:'<div class="empty">まだ取引がありません。</div>';
   h+=`<div class="foot">練習モードは本物のお金を使わない記録です。<br>1万通貨・手数料込みの金額です。</div>`;
-  el.innerHTML=h;
+  el.innerHTML=h;{const c=$('#mcar');if(c)requestAnimationFrame(()=>c.scrollLeft=c.scrollWidth)}
 }
 function fmtPx(v){v=+v;if(!v)return'—';return v<10?v.toFixed(5):v.toFixed(3)}
 function drawChart(R){
@@ -568,7 +579,14 @@ function go(p){TAB=p;store.set('fk_tab',p);
   if(p==='fx'&&D)drawChart(trades().filter(x=>x.d>=new Date(Date.now()-({'7':7,'30':30,'all':99999}[FXR])*864e5).toISOString().slice(0,10)))}
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(b.dataset.p));
 // 開いた直後に画面の高さがずれることがあるので、少し後に位置を戻す
-['load','pageshow','orientationchange','resize'].forEach(ev=>addEventListener(ev,()=>setTimeout(()=>window.scrollTo(0,0),60)));
+// ほかのアプリから戻った時も、下のタブを画面の一番下に置き直す（iPhoneの高さのずれ対策）
+function fixNav(){const n=$('#nav');if(!n)return;window.scrollTo(0,0);
+  const H=window.innerHeight;n.style.bottom='auto';n.style.top=(H-n.offsetHeight)+'px';
+  document.documentElement.style.setProperty('--vh',H+'px');$('#main').style.height=H+'px'}
+['load','pageshow','orientationchange','resize','focus'].forEach(ev=>addEventListener(ev,()=>[0,80,300,800].forEach(t=>setTimeout(fixNav,t))));
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)[0,80,300,800].forEach(t=>setTimeout(fixNav,t))});
+if(window.visualViewport)visualViewport.addEventListener('resize',fixNav);
+fixNav();
 // 引っぱって更新
 {const m=$('#main'),P=$('#ptr');let y0=null,dy=0,busy=false;
  m.addEventListener('touchstart',e=>{if(m.scrollTop<=0&&!busy){y0=e.touches[0].clientY;dy=0}else y0=null},{passive:true});
