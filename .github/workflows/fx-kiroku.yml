@@ -13,7 +13,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: 前日分を判定して記録
         run: |
-          pip install -q holidays
+          pip install -q holidays==0.108
           python3 fx-kiroku/run.py
       - name: 今日の情勢（金利差・VIX・発表日・ニュースの明るさ）
         run: |

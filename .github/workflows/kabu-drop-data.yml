@@ -3,34 +3,61 @@ on:
   schedule:
     - cron: '17 */3 * * *'
   workflow_dispatch:
+# 既定は読み取りだけ。書き込みは最後の save ジョブだけに付ける
 permissions:
-  contents: write
+  contents: read
 concurrency:
   group: kabu-drop
   cancel-in-progress: false
 jobs:
+  # 外のサイトからデータを取るジョブ：読み取り権限のみ・合い鍵（Secrets）なし
   fetch:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Fetch IPO / PO lists
         run: |
           set -e
           UA="Mozilla/5.0"
-          curl -sfL -A "$UA" https://www.rakuten-sec.co.jp/web/domestic/ipo/json/ipo_lead_json.json -o /tmp/ipo.json
-          curl -sfL -A "$UA" https://www.rakuten-sec.co.jp/web/domestic/ipo/json/po_lead_json.json -o /tmp/po.json
+          get() { curl -sfL --retry 3 --retry-delay 20 --retry-all-errors -A "$UA" "$1" -o "$2"; }
+          get https://www.rakuten-sec.co.jp/web/domestic/ipo/json/ipo_lead_json.json /tmp/ipo.json
+          get https://www.rakuten-sec.co.jp/web/domestic/ipo/json/po_lead_json.json /tmp/po.json
           python3 -c "import json;json.load(open('/tmp/ipo.json'));json.load(open('/tmp/po.json'))"
           cp /tmp/ipo.json kabu-drop/data/ipo.json
           cp /tmp/po.json kabu-drop/data/po.json
       - name: Fetch 分売 / 株価 / 会社名
         run: |
-          pip install -q openpyxl pywebpush
-          python3 kabu-drop/tools/fetch.py
+          for i in 1 2 3; do pip install -q openpyxl==3.1.5 && break; sleep 20; done
+          python3 kabu-drop/tools/fetch.py || (sleep 60 && python3 kabu-drop/tools/fetch.py)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kabu-drop-data
+          path: kabu-drop/data
+          retention-days: 1
+
+  # 通知と保存のジョブ：外のサイトには触らない
+  save:
+    needs: fetch
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: kabu-drop-data
+          path: kabu-drop/data
       - name: 通知を送る
         env:
           VAPID_PRIVATE: ${{ secrets.VAPID_PRIVATE }}
           KD_NOTIFY_KEY: ${{ secrets.KD_NOTIFY_KEY }}
-        run: python3 kabu-drop/tools/notify.py || true
+        run: |
+          for i in 1 2 3; do pip install -q pywebpush==2.5.0 && break; sleep 20; done
+          python3 kabu-drop/tools/notify.py || true
       - name: Commit if changed
         run: |
           git config user.name "kabu-drop-bot"
@@ -40,4 +67,4 @@ jobs:
           date -u +%Y-%m-%dT%H:%M:%SZ > kabu-drop/data/updated.txt
           git add kabu-drop/data
           git commit -m "kabu-drop: データ更新"
-          git push
+          for i in 1 2 3; do git pull --rebase -q && git push && break; sleep 5; done

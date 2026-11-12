@@ -31,7 +31,7 @@ jobs:
           VAPID_PRIVATE: ${{ secrets.VAPID_PRIVATE }}
           KD_NOTIFY_KEY: ${{ secrets.KD_NOTIFY_KEY }}
         run: |
-          pip install -q pywebpush
+          for i in 1 2 3; do pip install -q pywebpush==2.5.0 && break; sleep 20; done
           python3 kabu-drop/tools/notify.py --fx
       - name: Commit
         run: |
