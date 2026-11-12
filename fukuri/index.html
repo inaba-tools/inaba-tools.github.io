@@ -264,11 +264,6 @@ main{position:fixed;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-s
 .acc.on svg{transform:rotate(90deg)}
 .accb{display:grid;grid-template-rows:0fr;transition:grid-template-rows .4s cubic-bezier(.2,.8,.2,1)}
 .accb>div{overflow:hidden}.accb.on{grid-template-rows:1fr}
-/* 引っぱって更新 */
-#ptr{position:fixed;z-index:6;left:50%;top:calc(env(safe-area-inset-top,0px) - 40px);width:36px;height:36px;border-radius:50%;background:var(--glass2);border:1px solid var(--edge);
-  display:grid;place-items:center;opacity:0;transform:translate(-50%,0);transition:transform .35s cubic-bezier(.2,.9,.3,1.2),opacity .3s}
-#ptr svg{width:18px;height:18px;stroke:var(--sub);fill:none;stroke-width:2.4;stroke-linecap:round}
-#ptr.ready svg{stroke:var(--gold)}#ptr.spin svg{stroke:var(--gold);animation:sp .8s linear infinite}
 /* アニメーション多め */
 .page.on>*{animation:rise .5s cubic-bezier(.2,.8,.2,1) both}
 .page.on>*:nth-child(2){animation-delay:.04s}.page.on>*:nth-child(3){animation-delay:.08s}.page.on>*:nth-child(4){animation-delay:.12s}
@@ -340,7 +335,6 @@ body{transition:none}
 <div class="sky"><i></i><i></i><i></i></div>
 <div class="fadeT"></div><div class="fadeB"></div>
 <div class="gate glass" id="gate"><div><img src="icon-512.png" alt=""><h2>フクリ</h2><p class="cap" id="gmsg">合い鍵の入ったリンクから開いてください。<br>自分専用のアプリです。</p><div id="gbtn"></div></div></div>
-<div id="ptr"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"/></svg></div>
 <div class="toast glass" id="toast"></div>
 <main id="main">
   <section class="page on" id="p-todo"></section>
@@ -356,7 +350,7 @@ body{transition:none}
   <button data-p="set"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>'設定</button>
 </nav>
 <script>
-const VERSION='33';
+const VERSION='34';
 const CLIENT_ID='187861904258-0eilchk073j1hbginl1hncskf7jpp4ja.apps.googleusercontent.com';  // GoogleログインのクライアントID（公開してよい値）
 const VAPID='BFPiiQbgaxGzyfVZaA--hO4tmo7iamPgNVKypX8MHbwrcy3IF3d3544WBQX1cVLJmfDnfnRuZaPrTR9KNwHJlyc';
 const API='https://script.google.com/macros/s/AKfycbwTnqvwT5kAsd0AKqWztPr5yxcw4FKEM4ISuuMwrtFsUGmYTjdeAzXfhypG1TIj_B7d/exec';
@@ -656,19 +650,6 @@ function fixNav(){const n=$('#nav');if(!n)return;window.scrollTo(0,0);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)[0,80,300,800].forEach(t=>setTimeout(fixNav,t))});
 if(window.visualViewport)visualViewport.addEventListener('resize',fixNav);
 fixNav();
-// 引っぱって更新
-{const m=$('#main'),P=$('#ptr');let y0=null,dy=0,busy=false;
- let x0=0,mode=0;m.addEventListener('touchstart',e=>{if(m.scrollTop<=0&&!busy&&!e.target.closest('.mcar,#fxtr')){y0=e.touches[0].clientY;x0=e.touches[0].clientX;dy=0;mode=0}else y0=null},{passive:true});
- m.addEventListener('touchmove',e=>{if(y0==null)return;dy=e.touches[0].clientY-y0;const dx=e.touches[0].clientX-x0;
-   if(!mode){if(Math.abs(dx)>8&&Math.abs(dx)>Math.abs(dy)){y0=null;return}if(dy>8)mode=1;else return}if(dy<=0){dy=0;return}
-   const d=Math.min(110,dy*.5);if(e.cancelable)e.preventDefault();
-   P.style.transition='none';m.style.transition='none';P.style.opacity=Math.min(1,d/60);
-   P.style.transform=`translate(-50%,${d}px) rotate(${d*4}deg)`;m.style.transform=`translateY(${d*.6}px)`;P.classList.toggle('ready',d>=70)},{passive:false});
- m.addEventListener('touchend',()=>{if(y0==null)return;const d=Math.min(110,dy*.5);y0=null;
-   P.style.transition='';m.style.transition='transform .35s cubic-bezier(.2,.9,.3,1.2)';
-   if(d>=70){busy=true;P.classList.add('spin');P.style.transform='translate(-50%,70px)';m.style.transform='translateY(42px)';load(true)}
-   else{P.style.opacity=0;P.style.transform='translate(-50%,0)';m.style.transform=''}});
- window.ptrDone=()=>{if(!busy)return;busy=false;P.classList.remove('spin','ready');P.style.opacity=0;P.style.transform='translate(-50%,0)';m.style.transform=''};}
 function ptrDone(){if(window.ptrDone)window.ptrDone()}
 
 // ---------- 通知（フクリのアプリに届く） ----------
