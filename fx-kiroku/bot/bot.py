@@ -845,6 +845,11 @@ def ensure_kouho_cron(now):
     try:
         cur = subprocess.run(['crontab', '-l'], capture_output=True, text=True, timeout=10).stdout
         if 'bot.py kouho' in cur:
+            # 2026-11-14 古い候補の記録が固まって鍵を持ったままだと、新しい回が毎回すぐ終わってしまう。
+            # 候補の記録は毎分 kouho.json を書くので、15分以上書かれていなければ固まった回を終わらせる
+            if os.path.exists(KOUHO_JSON) and time.time() - os.path.getmtime(KOUHO_JSON) > 900:
+                subprocess.run(['pkill', '-f', 'bot.py kouho'], timeout=10)
+                log('候補の記録（kouho）が15分以上止まっていたので、固まった回を終わらせました')
             return
         lines = [l for l in cur.splitlines() if l.strip()] + [KOUHO_LINE.format(d=HERE)]
         subprocess.run(['crontab', '-'], input='\n'.join(lines) + '\n', text=True, check=True, timeout=10)
