@@ -3,7 +3,6 @@ Allow: /
 Disallow: /care-sagashi/
 Disallow: /yt-test/
 Disallow: /yl/
-Disallow: /fukuri/
 Disallow: /kabu-data/
 
 Sitemap: https://inaba-tools.github.io/applist/sitemap.xml
