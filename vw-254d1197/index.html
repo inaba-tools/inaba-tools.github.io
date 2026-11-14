@@ -168,6 +168,15 @@ html,body{margin:0;height:100%;overflow:hidden;background:#000;color:#fff;font-f
 .tiers{display:flex;gap:.6vw;flex-wrap:wrap;margin-top:1vh}.tiers div{text-align:center;font-size:min(1vw,1.9vh);opacity:.85}
 .rpList{font-size:min(1.25vw,2.3vh);line-height:1.7}.rpList b{float:right}.rpList .tot{border-top:1px solid rgba(255,255,255,.3);margin-top:.5vh;padding-top:.5vh;font-weight:900}
 /* 設定・ポーズ */
+.rmGrid{display:grid;grid-template-columns:1fr 1.3fr;gap:3vw;margin-top:1.5vh}
+.rmLbl{font-size:min(1.2vw,2.2vh);opacity:.7;margin-bottom:.6vh}
+#roomM input{-webkit-user-select:text;user-select:text;width:100%;font-size:min(2vw,3.6vh);padding:1vh 1vw;border-radius:8px;border:1px solid rgba(255,255,255,.3);background:#0c0e10;color:#fff;font-weight:800}
+.rmNote{font-size:min(1.1vw,2vh);opacity:.7;margin-top:1vh;line-height:1.6}
+.rmCode{font-size:min(5vw,9vh);font-weight:900;letter-spacing:.15em;color:#ffd84a;line-height:1}
+.rmMap{display:flex;align-items:center;gap:1vw;font-size:min(1.8vw,3.2vh);font-weight:800}.rmMap button{background:#2a2f34;color:#fff;border:none;border-radius:6px;padding:.6vh 1.2vw;font-size:inherit}.rmMap span{flex:1;text-align:center}
+.rmTeams{display:grid;grid-template-columns:1fr 1fr;gap:1.2vw}
+.rmP{background:#22272c;border:1px solid rgba(255,255,255,.18);border-radius:8px;padding:1vh 1vw;margin-bottom:.8vh;display:flex;flex-direction:column}.rmP b{font-size:min(1.6vw,3vh)}.rmP small{opacity:.7;font-size:min(1vw,1.9vh)}
+.rmP.me{border-color:#ffd84a}.rmP.cpu{opacity:.45;border-style:dashed}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:grid;place-items:center;pointer-events:auto;z-index:20}
 .modal .box{background:#15181b;border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:2.5vh 2.5vw;min-width:44vw;max-height:90vh;overflow:auto}
 .modal h2{margin:0 0 1.5vh;font-size:min(2.2vw,4vh);font-style:italic}
@@ -276,7 +285,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#000;color:#fff;font-f
     <button class="mi big" id="mCasual"><b>カジュアル</b><small>CPUと2対2・ルールは設定で変更</small></button>
     <button class="mi big rk" id="mRank"><b>ランク</b><small id="mRankSub"></small></button>
     <div class="mrow"><button class="mi" id="mLoad"><b>武器カスタム</b><small id="loName2"></small></button><button class="mi" id="mRange"><b>射撃場</b><small>動かない的で練習</small></button></div>
-    <div class="mrow"><button class="mi" id="mFriend"><b>フレンド</b><small>準備中</small></button><button class="mi" id="mCareer"><b>キャリア</b><small>バッジ・戦績</small></button><button class="mi" id="setBtn"><b>設定</b><small>感度・ルール</small></button></div>
+    <div class="mrow"><button class="mi" id="mFriend"><b>フレンド対戦</b><small>部屋コードで一緒に遊ぶ</small></button><button class="mi" id="mCareer"><b>キャリア</b><small>バッジ・戦績</small></button><button class="mi" id="setBtn"><b>設定</b><small>感度・ルール</small></button></div>
   </div>
   <button id="mapChip"><span>マップ</span><b id="mapName"></b><i>›</i></button>
   <div id="charSel"><button id="prevC">‹</button><div id="charName">にんじん<small>バランス型</small></div><button id="nextC">›</button></div>
@@ -285,6 +294,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#000;color:#fff;font-f
   <div class="hide"><div id="loCard"></div><div id="loName"></div><div id="loSub"></div><div id="modeTxt"></div><div id="mapDesc"></div><button id="startBtn"></button></div>
 </div>
 
+<div id="roomM" class="modal hide"><div class="box lobox"><div class="loHead"><h2>フレンド対戦</h2><span id="roomSt"></span><button class="mbtn y" id="roomClose">閉じる</button></div><div id="roomB"></div></div></div>
 <div id="infoM" class="modal hide"><div class="box lobox"><div class="loHead"><h2 id="infoT"></h2><span></span><button class="mbtn y" id="infoClose">閉じる</button></div><div id="infoB"></div></div></div>
 
 <div id="loM" class="modal hide"><div class="box lobox">
@@ -332,9 +342,9 @@ html,body{margin:0;height:100%;overflow:hidden;background:#000;color:#fff;font-f
 <div id="flashOv"></div>
 <div id="loading" class="screen"><div class="logo">VEGETABLE <span>WARS</span></div><div class="bar"><i id="ldBar"></i></div><p id="ldTxt">読み込み中…</p></div>
 <div id="rotate"><div class="ph"></div><p style="font-size:20px;font-weight:800">スマホを横向きにしてね</p><p style="opacity:.7">vegetable wars は横画面で遊ぶゲームです</p></div>
-<script>window.VW_VER="20261115081955";
+<script>window.VW_VER="20261115084707";
 (function(){function chk(){fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.text()}).then(function(v){v=v.trim();if(v&&v!==window.VW_VER&&!window.VW_INGAME){location.replace(location.pathname+"?v="+v)}}).catch(function(){})}
 chk();document.addEventListener("visibilitychange",function(){if(!document.hidden)chk()})})();</script>
-<script src="game.js?v=20261115081955"></script>
+<script src="game.js?v=20261115084707"></script>
 </body>
 </html>
