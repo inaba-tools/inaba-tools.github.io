@@ -100,6 +100,10 @@ html,body{margin:0;height:100%;overflow:hidden;background:#000;color:#fff;font-f
 #crouchBtn{right:calc(env(safe-area-inset-right) + 5vw);bottom:3vh;width:calc(var(--s)*6.2);height:calc(var(--s)*6.2)}
 #proneBtn{right:calc(env(safe-area-inset-right) + 13.5vw);bottom:3vh;width:calc(var(--s)*6.2);height:calc(var(--s)*6.2)}
 #reloadBtn{right:calc(env(safe-area-inset-right) + 25vw);bottom:12vh;width:calc(var(--s)*5);height:calc(var(--s)*5)}
+#tacBtn{right:calc(env(safe-area-inset-right) + 25vw);bottom:24vh;width:calc(var(--s)*5);height:calc(var(--s)*5);font-size:calc(var(--s)*1.6)}
+#letBtn{right:calc(env(safe-area-inset-right) + 31vw);bottom:6vh;width:calc(var(--s)*5);height:calc(var(--s)*5);font-size:calc(var(--s)*1.6)}
+#tacBtn.used,#letBtn.used{opacity:.3}
+#flashOv{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:5}
 #actBtn{right:calc(env(safe-area-inset-right) + 25vw);bottom:30vh;width:calc(var(--s)*8.5);height:calc(var(--s)*8.5);background:rgba(240,160,30,.6)!important;border-color:#ffd070!important;font-size:calc(var(--s)*1.5)}
 #camBtn{right:calc(env(safe-area-inset-right) + 7.5vw);top:1.6vh;width:calc(var(--s)*4.6);height:calc(var(--s)*4.6);font-size:calc(var(--s)*1.15)}
 #pauseBtn{right:calc(env(safe-area-inset-right) + 1.5vw);top:1.6vh;width:calc(var(--s)*4.6);height:calc(var(--s)*4.6)}
@@ -258,6 +262,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#000;color:#fff;font-f
   <div class="b" id="jumpBtn"><svg viewBox="0 0 24 24"><path d="M5 14l7-7 7 7M5 20l7-7 7 7"/></svg></div>
   <div class="b" id="crouchBtn"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.2"/><path d="M12 8v5l-4 3v4M12 13l4 2v5M8 10l4-1 4 2"/></svg></div>
   <div class="b" id="proneBtn"><svg viewBox="0 0 24 24"><circle cx="5" cy="14" r="2.2"/><path d="M7.5 15h11M10 15l2-3h4M2 19h20"/></svg></div>
+  <div class="b" id="tacBtn"><span>煙</span></div><div class="b" id="letBtn"><span>斧</span></div>
   <div class="b" id="reloadBtn"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.4-5.7M20 4v5h-5"/></svg></div>
   <div class="b hide" id="actBtn">設置</div>
   <div class="b" id="camBtn">一人称</div>
@@ -287,6 +292,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#000;color:#fff;font-f
   <div class="loGrid">
     <div class="loCol"><h4>スナイパー</h4><div id="rifleList"></div></div>
     <div class="loCol"><h4>アタッチメント <b id="attCnt">0/2</b></h4><div id="attList" class="chips"></div>
+      <h4>戦術・リーサル</h4><div id="tacList" class="chips"></div><div id="letList" class="chips" style="margin-top:.5vh"></div>
       <h4>パーク1</h4><div id="perk0" class="chips"></div><h4>パーク2</h4><div id="perk1" class="chips"></div><h4>パーク3</h4><div id="perk2" class="chips"></div></div>
   </div>
   <div id="loDesc"></div>
@@ -323,11 +329,12 @@ html,body{margin:0;height:100%;overflow:hidden;background:#000;color:#fff;font-f
   <div style="display:flex;gap:1vw"><button class="mbtn y" id="againBtn">もう一度</button><button class="mbtn" id="toLobby">ホームへ</button></div>
 </div></div>
 
+<div id="flashOv"></div>
 <div id="loading" class="screen"><div class="logo">VEGETABLE <span>WARS</span></div><div class="bar"><i id="ldBar"></i></div><p id="ldTxt">読み込み中…</p></div>
 <div id="rotate"><div class="ph"></div><p style="font-size:20px;font-weight:800">スマホを横向きにしてね</p><p style="opacity:.7">vegetable wars は横画面で遊ぶゲームです</p></div>
-<script>window.VW_VER="20261115072610";
+<script>window.VW_VER="20261115073026";
 (function(){function chk(){fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.text()}).then(function(v){v=v.trim();if(v&&v!==window.VW_VER&&!window.VW_INGAME){location.replace(location.pathname+"?v="+v)}}).catch(function(){})}
 chk();document.addEventListener("visibilitychange",function(){if(!document.hidden)chk()})})();</script>
-<script src="game.js?v=20261115072610"></script>
+<script src="game.js?v=20261115073026"></script>
 </body>
 </html>
