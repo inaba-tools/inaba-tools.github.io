@@ -14,6 +14,6 @@ with sync_playwright() as pw:
     pg=b.new_page(viewport={'width':402,'height':874},device_scale_factor=3)
     for n,j,p in todo:
         t=json.load(open(j,encoding='utf-8')); h=f'{kit}/_tmp.html'
-        gen.build(t['msgs'],t['name'],t['count'],t['clock'],h)
+        gen.build(t['msgs'],t['name'],t['count'],t['clock'],h,bat=t.get('battery'),seed=n)
         pg.goto('file://'+h); pg.wait_for_timeout(500); pg.screenshot(path=p); print('made',n)
     b.close()

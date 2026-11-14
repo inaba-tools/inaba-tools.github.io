@@ -12,7 +12,14 @@ def mask(name,color,dx=0,dy=0,box=None):
     x,y,w,h=box or M[name]
     return f'<div style="position:absolute;left:{x+dx}px;top:{y+dy}px;width:{w}px;height:{h}px;background:{color};-webkit-mask:url({du(name)}) 0 0/100% 100% no-repeat"></div>'
 HOME='<div style="position:absolute;left:131.5px;bottom:8px;width:139px;height:5px;border-radius:2.5px;background:#3b2a30"></div>'
-def build(msgs,name,count,clock,path,home=False):
+def battery(clock,seed):
+    # 時刻に合わせて自然な残量（朝は多め・夜は少なめ）。同じ画像なら毎回同じ数字
+    import random,re
+    m=re.match(r'(\d+):',str(clock)); hr=int(m.group(1)) if m else 21
+    lo,hi={0:(18,48),1:(15,45),2:(15,42),3:(15,40),4:(15,40),5:(70,99),6:(80,100),7:(76,98),8:(70,95),9:(64,92),10:(60,90),11:(55,86),
+           12:(50,84),13:(46,80),14:(42,78),15:(38,74),16:(35,72),17:(32,70),18:(30,68),19:(27,64),20:(24,60),21:(22,57),22:(20,54),23:(18,50)}[hr]
+    return random.Random(f'{seed}-{clock}').randint(lo,hi)
+def build(msgs,name,count,clock,path,home=False,bat=None,seed=''):
     css=''.join(f'@import url(font/{d}/package/{w}.css);' for d,w in [('ibm-plex-sans-jp',400),('ibm-plex-sans-jp',600),('zen-kaku-gothic-new',500)])
     css+=''.join(f"@font-face{{font-family:Inter;font-weight:{w};src:url(font/inter/package/files/inter-latin-{w}-normal.woff2)}}" for w in (400,600))
     st=f'''{css}
@@ -38,7 +45,11 @@ body{{position:relative;background-color:{C['bg']};background-image:radial-gradi
     h=[f'<!doctype html><html><head><meta charset=utf-8><style>{st}</style></head><body><div class="top"></div>']
     h.append(f'<div class="clock">{clock}</div>')
     for n in ('signal','wifi'): h.append(mask(n,C['ink']))
-    h+= [mask('bat_left',C['ink']),mask('bat_right',C['bat2']),mask('bat_cap',C['bat2']),mask('bat_num',C['bar'])]
+    b=int(bat) if bat else battery(clock,seed)
+    x,y,w,hh=M['bat_body']; fr=100-(3.33+82.2*b/100)  # 本体はマスク幅の3.3%〜85.6%
+    fill=f'<div style="position:absolute;left:{x}px;top:{y}px;width:{w}px;height:{hh}px;background:{C["ink"]};clip-path:inset(0 {fr:.2f}% 0 0);-webkit-mask:url({du("bat_body")}) 0 0/100% 100% no-repeat"></div>'
+    num=f'<div style="position:absolute;left:{x+1}px;top:{y}px;width:{w*0.822:.2f}px;height:{hh}px;display:flex;align-items:center;justify-content:center;font:700 11.6px/1 Inter;letter-spacing:-.2px;color:{C["bar"]}">{b}</div>'
+    h+= [mask('bat_body',C['bat2']),fill,mask('bat_cap',C['ink'] if b==100 else C['bat2']),num]
     h.append(mask('back',C['ink']))
     h.append(f'<div class="hd"><span class="cnt">{count}</span><span class="nm">{name}</span></div>')
     for n in ('search','phone','cal','menu'): h.append(mask(n,C['ink']))
@@ -62,4 +73,4 @@ body{{position:relative;background-color:{C['bg']};background-image:radial-gradi
     open(path,'w',encoding='utf-8').write('\n'.join(h))
 if __name__=='__main__':
     import importlib; msgs=json.load(open(sys.argv[1],encoding='utf-8'))
-    build(msgs['msgs'],msgs['name'],msgs['count'],msgs['clock'],sys.argv[2],len(sys.argv)>3)
+    build(msgs['msgs'],msgs['name'],msgs['count'],msgs['clock'],sys.argv[2],len(sys.argv)>3,msgs.get('battery'),os.path.basename(sys.argv[1]))
