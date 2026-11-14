@@ -134,6 +134,21 @@ html,body{margin:0;height:100%;overflow:hidden;background:#000;color:#fff;font-f
 .lo button{width:min(3vw,5.5vh);height:min(3vw,5.5vh);border-radius:50%;border:1px solid rgba(255,255,255,.5);background:rgba(255,255,255,.08);color:#fff;font-size:min(1.6vw,3vh)}
 #setBtn{position:absolute;right:calc(3vw + env(safe-area-inset-right));top:calc(2vh + env(safe-area-inset-top));padding:1vh 1.6vw;font-size:min(1.4vw,2.6vh);color:#fff;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.4);border-radius:6px}
 #help{position:absolute;right:calc(3vw + env(safe-area-inset-right));top:13vh;width:30vw;font-size:min(1.15vw,2.1vh);line-height:1.6}
+.card.tap{cursor:pointer;border-color:rgba(255,200,60,.6)}.card.tap h3 i{float:right;font-style:normal;color:#ffd040}
+.lobox{width:86vw;max-width:1100px;padding:2vh 2vw!important;overflow:hidden!important}
+.loHead{display:flex;align-items:center;gap:2vw}.loHead h2{margin:0!important}.loHead span{opacity:.7;font-size:min(1.3vw,2.4vh);flex:1}.loHead .mbtn{width:auto;margin:0;padding:1vh 3vw}
+.loGrid{display:grid;grid-template-columns:1fr 1.25fr;gap:2vw;margin-top:1.2vh}
+.loCol h4{margin:.9vh 0 .5vh;font-size:min(1.2vw,2.2vh);color:#aab;font-weight:600}.loCol h4 b{color:#ffd040}
+.rf{border:2px solid rgba(255,255,255,.18);border-radius:10px;padding:1vh 1vw;margin-bottom:1vh;background:rgba(255,255,255,.04)}
+.rf.on{border-color:#ffd040;background:rgba(255,208,64,.1)}
+.rf b{font-size:min(1.8vw,3.3vh)}.rf small{display:block;opacity:.7;font-size:min(1.1vw,2vh)}
+.bars{display:grid;grid-template-columns:auto 1fr;gap:.3vh .8vw;margin-top:.7vh;font-size:min(1vw,1.9vh);align-items:center}
+.bars i{height:.8vh;background:rgba(255,255,255,.12);border-radius:4px;overflow:hidden;display:block}.bars i u{display:block;height:100%;background:#ffd040}
+.chips{display:flex;flex-wrap:wrap;gap:.6vw}
+.chips button{background:rgba(255,255,255,.06);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:.8vh 1.2vw;font-size:min(1.2vw,2.3vh)}
+.chips button.on{background:#f0a018;border-color:#f0a018;color:#111;font-weight:800}
+.chips button.no{opacity:.35}
+#loDesc{margin-top:1.2vh;min-height:4vh;font-size:min(1.15vw,2.1vh);line-height:1.5;opacity:.85;white-space:pre-line}
 /* 設定・ポーズ */
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:grid;place-items:center;pointer-events:auto;z-index:20}
 .modal .box{background:#15181b;border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:2.5vh 2.5vw;min-width:44vw;max-height:90vh;overflow:auto}
@@ -238,9 +253,9 @@ html,body{margin:0;height:100%;overflow:hidden;background:#000;color:#fff;font-f
 <div id="lobby" class="screen hide">
   <div class="top"><div class="logo">VEGETABLE<br><span>WARS</span></div><div class="lv">Lv.1　野菜の新兵</div></div>
   <div class="left">
-    <div class="card"><h3>モード</h3><div class="v">サーチ&amp;デストロイ 2v2</div><div class="d">命は1ラウンド1つ。<br>爆弾を設置・爆破するか、敵チームを全滅させたら勝ち。<br>4ラウンド先取。</div></div>
-    <div class="card"><h3>マップ</h3><div class="v">ベジタウン</div><div class="d">通りを挟んだ2軒の家。<br>爆弾設置ポイントは菜園(A)と温室(B)。</div></div>
-    <div class="card"><h3>武器</h3><div class="v">ルートバスター .338</div><div class="d">ボルトアクション狙撃銃のみ。<br>頭と胴体は一撃、手足は部位破壊。</div></div>
+    <div class="card"><h3>モード</h3><div class="v">サーチ&amp;デストロイ 2v2</div><div class="d" id="modeTxt"></div></div>
+    <div class="card tap" id="mapCard"><h3>マップ <i>切り替える ›</i></h3><div class="v" id="mapName"></div><div class="d" id="mapDesc"></div></div>
+    <div class="card tap" id="loCard"><h3>装備 <i>変更する ›</i></h3><div class="v" id="loName">スナップピー</div><div class="d" id="loSub"></div></div>
   </div>
   <div id="help" class="card"><h3>操作</h3><div class="d" id="helpTxt"></div></div>
   <button id="setBtn">⚙ 設定</button>
@@ -249,6 +264,16 @@ html,body{margin:0;height:100%;overflow:hidden;background:#000;color:#fff;font-f
   <button id="startBtn">対戦開始</button>
 </div>
 
+<div id="loM" class="modal hide"><div class="box lobox">
+  <div class="loHead"><h2>装備</h2><span id="loHint">アタッチメントは2つまで</span><button class="mbtn y" id="loClose">決定</button></div>
+  <div class="loGrid">
+    <div class="loCol"><h4>スナイパー</h4><div id="rifleList"></div></div>
+    <div class="loCol"><h4>アタッチメント <b id="attCnt">0/2</b></h4><div id="attList" class="chips"></div>
+      <h4>パーク1</h4><div id="perk0" class="chips"></div><h4>パーク2</h4><div id="perk1" class="chips"></div><h4>パーク3</h4><div id="perk2" class="chips"></div></div>
+  </div>
+  <div id="loDesc"></div>
+</div></div>
+
 <div id="settings" class="modal hide"><div class="box">
   <h2>設定</h2>
   <div class="row">視点感度<input type="range" id="sens" min="0.3" max="2.5" step="0.05" value="1"></div>
@@ -256,6 +281,10 @@ html,body{margin:0;height:100%;overflow:hidden;background:#000;color:#fff;font-f
   <div class="row">スナイパーの撃ち方<div class="seg" id="fireMode"><button data-v="release" class="on">押して覗く・離して撃つ</button><button data-v="tap">押した瞬間に撃つ</button></div></div>
   <div class="row">画質（次に開いたときから）<div class="seg" id="quality"><button data-v="0">軽い</button><button data-v="1" class="on">標準</button><button data-v="2">高い</button></div></div>
   <div class="row">CPUの強さ<div class="seg" id="diff"><button data-v="0">やさしい</button><button data-v="1" class="on">ふつう</button><button data-v="2">つよい</button></div></div>
+  <div class="row">勝利に必要なラウンド<div class="seg" id="winR"><button data-v="4">4</button><button data-v="6">6</button><button data-v="8" class="on">8（大会ルール）</button></div></div>
+  <div class="row">攻守交代<div class="seg" id="swapSeg"><button data-v="1">毎ラウンド</button><button data-v="4" class="on">4ラウンドごと</button></div></div>
+  <div class="row">キルカメラ<div class="seg" id="kcSeg"><button data-v="1" class="on">オン</button><button data-v="0">オフ</button></div></div>
+  <div class="row">左側の射撃ボタン<div class="seg" id="lfSeg"><button data-v="0" class="on">なし</button><button data-v="1">あり</button></div></div>
   <div class="row">BGM<div class="seg" id="bgmSeg"><button data-v="1" class="on">オン</button><button data-v="0">オフ</button></div></div>
   <button class="mbtn y" id="setClose">閉じる</button>
 </div></div>
@@ -278,9 +307,9 @@ html,body{margin:0;height:100%;overflow:hidden;background:#000;color:#fff;font-f
 
 <div id="loading" class="screen"><div class="logo">VEGETABLE <span>WARS</span></div><div class="bar"><i id="ldBar"></i></div><p id="ldTxt">読み込み中…</p></div>
 <div id="rotate"><div class="ph"></div><p style="font-size:20px;font-weight:800">スマホを横向きにしてね</p><p style="opacity:.7">vegetable wars は横画面で遊ぶゲームです</p></div>
-<script>window.VW_VER="20261115062220";
+<script>window.VW_VER="20261115065557";
 (function(){function chk(){fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.text()}).then(function(v){v=v.trim();if(v&&v!==window.VW_VER&&!window.VW_INGAME){location.replace(location.pathname+"?v="+v)}}).catch(function(){})}
 chk();document.addEventListener("visibilitychange",function(){if(!document.hidden)chk()})})();</script>
-<script src="game.js?v=20261115062220"></script>
+<script src="game.js?v=20261115065557"></script>
 </body>
 </html>
