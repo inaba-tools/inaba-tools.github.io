@@ -24,7 +24,7 @@ jobs:
         run: |
           git config user.name "fx-kiroku-bot"
           git config user.email "noreply@anthropic.com"
-          git add fx-kiroku/kiroku.csv fx-kiroku/kenkyu/jousei.csv fx-kiroku/kenkyu/kyou.json fx-kiroku/kenkyu/data/gdelt_*.csv
+          git add fx-kiroku/kenkyu/jousei.csv fx-kiroku/kenkyu/kyou.json fx-kiroku/kenkyu/data/gdelt_*.csv
           git diff --cached --quiet && exit 0
           git commit -m "fx-kiroku: 仮想トレードを記録"
           git pull --rebase
