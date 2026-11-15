@@ -105,6 +105,8 @@ html,body{margin:0;height:100%;overflow:hidden;background:#000;color:#fff;font-f
 #letBtn{right:calc(env(safe-area-inset-right) + calc(31*var(--vw)));bottom:calc(6*var(--vh));width:calc(var(--s)*5);height:calc(var(--s)*5);font-size:calc(var(--s)*1.6)}
 #tacBtn.used,#letBtn.used{opacity:.3}
 #flashOv{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:5}
+#fireX{right:calc(env(safe-area-inset-right) + calc(13*var(--vw)) + var(--s)*10.6);bottom:calc(calc(22*var(--vh)) + var(--s)*6.5);width:calc(var(--s)*5.4);height:calc(var(--s)*5.4);background:rgba(200,30,20,.55)!important;border-color:#ff8a7a!important;font-size:calc(var(--s)*1.15);line-height:1.1;text-align:center}
+#fireX b{font-size:calc(var(--s)*2.2);display:block;line-height:1}
 #actBtn{right:calc(env(safe-area-inset-right) + calc(25*var(--vw)));bottom:calc(30*var(--vh));width:calc(var(--s)*8.5);height:calc(var(--s)*8.5);background:rgba(240,160,30,.6)!important;border-color:#ffd070!important;font-size:calc(var(--s)*1.5)}
 #camBtn{right:calc(env(safe-area-inset-right) + calc(7.5*var(--vw)));top:calc(1.6*var(--vh));width:calc(var(--s)*4.6);height:calc(var(--s)*4.6);font-size:calc(var(--s)*1.15)}
 #pauseBtn{right:calc(env(safe-area-inset-right) + calc(1.5*var(--vw)));top:calc(1.6*var(--vh));width:calc(var(--s)*4.6);height:calc(var(--s)*4.6)}
@@ -296,6 +298,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#000;color:#fff;font-f
   <div id="joyBase" class="hide"><div id="sprintLock">ダッシュ</div><div id="joyKnob"></div></div>
   <div class="b" id="fireL"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><path d="M12 2v5M12 17v5M2 12h5M17 12h5"/></svg></div>
   <div class="b" id="fireR"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><path d="M12 2v5M12 17v5M2 12h5M17 12h5"/><circle cx="12" cy="12" r="1.2" fill="#fff"/></svg></div>
+  <div class="b hide" id="fireX"><span><b>×</b>撃たない</span></div>
   <div class="b" id="adsBtn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M1 12h4M19 12h4"/></svg></div>
   <div class="b" id="jumpBtn"><svg viewBox="0 0 24 24"><path d="M5 14l7-7 7 7M5 20l7-7 7 7"/></svg></div>
   <div class="b" id="crouchBtn"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.2"/><path d="M12 8v5l-4 3v4M12 13l4 2v5M8 10l4-1 4 2"/></svg></div>
@@ -373,9 +376,9 @@ html,body{margin:0;height:100%;overflow:hidden;background:#000;color:#fff;font-f
 <div id="flashOv"></div>
 <div id="loading" class="screen"><div class="logo">VEGETABLE <span>WARS</span></div><div class="bar"><i id="ldBar"></i></div><p id="ldTxt">読み込み中…</p></div>
 <div id="rotate"><div class="ph"></div><p style="font-size:20px;font-weight:800">スマホを横向きにしてね</p><p style="opacity:.7">vegetable wars は横画面で遊ぶゲームです</p></div>
-<script>window.VW_VER="20261115093329";
+<script>window.VW_VER="20261115134643";
 (function(){function chk(){fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.text()}).then(function(v){v=v.trim();if(v&&v!==window.VW_VER&&!window.VW_INGAME){location.replace(location.pathname+"?v="+v)}}).catch(function(){})}
 chk();document.addEventListener("visibilitychange",function(){if(!document.hidden)chk()})})();</script>
-<script src="game.js?v=20261115093329"></script>
+<script src="game.js?v=20261115134643"></script>
 </body>
 </html>
