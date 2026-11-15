@@ -306,7 +306,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#000;color:#fff;font-f
   <div class="b" id="tacBtn"><span>煙</span></div><div class="b" id="letBtn"><span>斧</span></div>
   <div class="b" id="reloadBtn"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.4-5.7M20 4v5h-5"/></svg></div>
   <div class="b hide" id="actBtn">設置</div>
-  <div class="b" id="camBtn">一人称</div>
+  <div class="b" id="camBtn" style="display:none">三人称</div>
   <div class="b" id="pauseBtn"><svg viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></svg></div>
   <div id="ammo"><b id="amC">5</b><span> / <i id="amR">20</i></span><small id="amS">ボルトアクション</small></div>
 </div>
@@ -321,8 +321,8 @@ html,body{margin:0;height:100%;overflow:hidden;background:#000;color:#fff;font-f
     <div class="mrow"><button class="mi" id="mRange"><b>射撃場</b></button><button class="mi" id="mCareer"><b>キャリア</b></button><button class="mi" id="setBtn"><b>設定</b></button></div>
   </div>
   <div id="topR"><div class="lv" id="rankChip"></div><button id="mapChip"><span>マップ</span><b id="mapName"></b><i>›</i></button></div>
-  <div id="charSel"><div id="charName">にんじん<small>バランス型</small></div><div class="arws"><button id="prevC">‹</button><button id="nextC">›</button></div><button id="skinBtn">帽子・迷彩 ›</button>
-    <div id="loadout" class="hide"><div class="lo"><span>帽子</span><button id="hatP">‹</button><b id="hatName">ヘルメット</b><button id="hatN">›</button></div><div class="lo"><span>迷彩</span><button id="camoP">‹</button><b id="camoName">オリーブ</b><button id="camoN">›</button></div></div></div>
+  <div id="charSel"><div id="charName">にんじん<small>バランス型</small></div><div class="arws"><button id="prevC">‹</button><button id="nextC">›</button></div><button id="skinBtn">カスタム ›</button>
+    <div id="loadout" class="hide"><div class="lo"><span>帽子</span><button id="hatP">‹</button><b id="hatName">ヘルメット</b><button id="hatN">›</button></div><div class="lo"><span>目</span><button id="eyeP">‹</button><b id="eyeName">キリッと</b><button id="eyeN">›</button></div><div class="lo"><span>迷彩</span><button id="camoP">‹</button><b id="camoName">オリーブ</b><button id="camoN">›</button></div></div></div>
   <button id="goBtn"><b>対戦開始</b><small id="goSub"></small></button>
   <div id="help" class="hide"><div id="helpTxt"></div></div>
   <div class="hide"><div id="loCard"></div><div id="loName"></div><div id="loSub"></div><div id="modeTxt"></div><div id="mapDesc"></div><button id="startBtn"></button></div>
@@ -376,9 +376,9 @@ html,body{margin:0;height:100%;overflow:hidden;background:#000;color:#fff;font-f
 <div id="flashOv"></div>
 <div id="loading" class="screen"><div class="logo">VEGETABLE <span>WARS</span></div><div class="bar"><i id="ldBar"></i></div><p id="ldTxt">読み込み中…</p></div>
 <div id="rotate"><div class="ph"></div><p style="font-size:20px;font-weight:800">スマホを横向きにしてね</p><p style="opacity:.7">vegetable wars は横画面で遊ぶゲームです</p></div>
-<script>window.VW_VER="20261115230959";
+<script>window.VW_VER="20261115231805";
 (function(){function chk(){fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.text()}).then(function(v){v=v.trim();if(v&&v!==window.VW_VER&&!window.VW_INGAME){location.replace(location.pathname+"?v="+v)}}).catch(function(){})}
 chk();document.addEventListener("visibilitychange",function(){if(!document.hidden)chk()})})();</script>
-<script src="game.js?v=20261115230959"></script>
+<script src="game.js?v=20261115231805"></script>
 </body>
 </html>
