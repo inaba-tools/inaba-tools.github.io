@@ -322,7 +322,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#000;color:#fff;font-f
   </div>
   <div id="topR"><div class="lv" id="rankChip"></div><button id="mapChip"><span>マップ</span><b id="mapName"></b><i>›</i></button></div>
   <div id="charSel"><div id="charName">にんじん<small>バランス型</small></div><div class="arws"><button id="prevC">‹</button><button id="nextC">›</button></div><button id="skinBtn">カスタム ›</button>
-    <div id="loadout" class="hide"><div class="lo"><span>帽子</span><button id="hatP">‹</button><b id="hatName">ヘルメット</b><button id="hatN">›</button></div><div class="lo"><span>目</span><button id="eyeP">‹</button><b id="eyeName">キリッと</b><button id="eyeN">›</button></div><div class="lo"><span>迷彩</span><button id="camoP">‹</button><b id="camoName">オリーブ</b><button id="camoN">›</button></div></div></div>
+    <div id="loadout" class="hide"><div class="lo"><span>目</span><button id="eyeP">‹</button><b id="eyeName">キリッと</b><button id="eyeN">›</button></div><div class="lo"><span>迷彩</span><button id="camoP">‹</button><b id="camoName">オリーブ</b><button id="camoN">›</button></div></div></div>
   <button id="goBtn"><b>対戦開始</b><small id="goSub"></small></button>
   <div id="help" class="hide"><div id="helpTxt"></div></div>
   <div class="hide"><div id="loCard"></div><div id="loName"></div><div id="loSub"></div><div id="modeTxt"></div><div id="mapDesc"></div><button id="startBtn"></button></div>
@@ -376,9 +376,9 @@ html,body{margin:0;height:100%;overflow:hidden;background:#000;color:#fff;font-f
 <div id="flashOv"></div>
 <div id="loading" class="screen"><div class="logo">VEGETABLE <span>WARS</span></div><div class="bar"><i id="ldBar"></i></div><p id="ldTxt">読み込み中…</p></div>
 <div id="rotate"><div class="ph"></div><p style="font-size:20px;font-weight:800">スマホを横向きにしてね</p><p style="opacity:.7">vegetable wars は横画面で遊ぶゲームです</p></div>
-<script>window.VW_VER="20261115233032";
+<script>window.VW_VER="20261115235638";
 (function(){function chk(){fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.text()}).then(function(v){v=v.trim();if(v&&v!==window.VW_VER&&!window.VW_INGAME){location.replace(location.pathname+"?v="+v)}}).catch(function(){})}
 chk();document.addEventListener("visibilitychange",function(){if(!document.hidden)chk()})})();</script>
-<script src="game.js?v=20261115233032"></script>
+<script src="game.js?v=20261115235638"></script>
 </body>
 </html>
