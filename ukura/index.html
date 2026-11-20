@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="index,follow">
+<title>うくら｜スマホ代・電気代・ネット代を入れるだけ、1年で浮くお金がわかる固定費診断</title>
+<meta name="description" content="うくらは、毎月のスマホ代・電気代・ネット代・使っていないサブスクを入れるだけで、見直したら1年でいくら浮くかの目安が出る無料の固定費診断です。登録なしですぐ使えます。">
+<link rel="canonical" href="https://inaba-tools.github.io/ukura/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="うくら">
+<meta property="og:title" content="うくら｜1年で浮くお金がわかる固定費診断">
+<meta property="og:description" content="スマホ代・電気代・ネット代・サブスクを入れるだけ。見直したら1年でいくら浮くかの目安がすぐ出ます。">
+<meta property="og:url" content="https://inaba-tools.github.io/ukura/">
+<meta property="og:image" content="https://inaba-tools.github.io/ukura/ogp.png">
+<meta property="og:locale" content="ja_JP">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"うくら","url":"https://inaba-tools.github.io/ukura/","description":"毎月のスマホ代・電気代・ネット代・使っていないサブスクを入れるだけで、見直したら1年でいくら浮くかの目安が出る無料の固定費診断です。","applicationCategory":"FinanceApplication","operatingSystem":"iOS, Android, Windows, macOS","inLanguage":"ja","image":"https://inaba-tools.github.io/ukura/ogp.png","offers":{"@type":"Offer","price":"0","priceCurrency":"JPY"}}</script>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="うくら">
+<meta name="theme-color" content="#f6faf4">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=1">
+<link rel="icon" href="favicon.png?v=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#f6faf4;      /* 若葉の紙 */
+  --ink:#23302a;        /* 墨みどり */
+  --sub:#5d6b63;
+  --leaf:#2f7d55;       /* 若竹 */
+  --leaf2:#e3f0e6;
+  --marker:#ffe36e;     /* 家計簿の蛍光ペン */
+  --line:#d7e3d9;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--paper);color:var(--ink)}
+body{font-family:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Hiragino Sans",sans-serif;font-weight:500;font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.app{max-width:440px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top) + 14px) 18px calc(env(safe-area-inset-bottom) + 12px)}
+.pr{font-size:11px;color:var(--sub);margin:0 0 6px}
+h1{margin:0;font-size:15px;font-weight:700;letter-spacing:.02em;display:flex;align-items:center;gap:8px}
+h1 img{width:26px;height:26px;border-radius:7px}
+
+/* いちばん大事な所：浮くお金 */
+.result{margin:8px 0 10px;padding:8px 4px 10px;border-bottom:2px dashed var(--line)}
+.result p{margin:0;font-size:14px;color:var(--sub)}
+.yen{display:inline-block;margin:2px 0 0;font-size:clamp(40px,13vw,54px);font-weight:900;line-height:1.1;letter-spacing:-.01em;font-variant-numeric:tabular-nums;
+  background:linear-gradient(transparent 62%,var(--marker) 62%,var(--marker) 92%,transparent 92%)}
+.yen small{font-size:.42em;font-weight:700;margin-left:2px}
+.per{margin-top:4px!important;font-size:13px!important}
+
+/* 入力 */
+.rows{display:flex;flex-direction:column;gap:6px}
+.row{display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:10px;row-gap:0;padding:7px 12px;background:#fff;border:1px solid var(--line);border-radius:14px}
+.row label{font-weight:700;font-size:14px;line-height:1.3}
+.row label span{display:block;font-weight:500;font-size:11.5px;color:var(--sub)}
+.in{display:flex;align-items:center;gap:4px;grid-column:2;grid-row:1/3}
+.in input{width:96px;font:inherit;font-size:19px;font-weight:700;text-align:right;border:0;border-bottom:2px solid var(--line);background:transparent;color:var(--ink);padding:2px 2px;font-variant-numeric:tabular-nums}
+.in input:focus{outline:none;border-color:var(--leaf)}
+.in input.ppl{width:34px}
+.in em{font-style:normal;font-size:12px;color:var(--sub)}
+.gain{grid-column:1;grid-row:2;font-size:12px;color:var(--leaf);font-weight:700;min-height:0}
+.gain:empty{display:none}
+
+/* 見直し先（折りたたみ） */
+.tips{margin-top:12px}
+details{border-top:1px solid var(--line)}
+details:last-child{border-bottom:1px solid var(--line)}
+summary{list-style:none;display:flex;justify-content:space-between;align-items:center;padding:9px 2px;font-weight:700;font-size:14px;cursor:pointer}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"＋";color:var(--leaf);font-size:16px;transition:transform .2s}
+details[open] summary::after{transform:rotate(45deg)}
+.body{padding:0 2px 12px;font-size:13.5px;color:var(--ink)}
+.body p{margin:0 0 8px}
+.go{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 12px;margin-top:6px;border-radius:12px;background:var(--leaf2);color:var(--ink);text-decoration:none;font-weight:700}
+.go span{font-size:11px;font-weight:500;color:var(--sub)}
+.go b{font-size:11px;color:#fff;background:var(--leaf);border-radius:999px;padding:3px 9px;white-space:nowrap}
+.foot{margin-top:auto;padding-top:10px;font-size:11px;color:var(--sub)}
+.foot p{margin:0 0 4px}
+button.reset{font:inherit;font-size:12px;color:var(--leaf);background:none;border:0;padding:0;text-decoration:underline;cursor:pointer}
+:focus-visible{outline:3px solid var(--leaf);outline-offset:2px;border-radius:6px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main class="app">
+  <p class="pr">このページには広告（PR）を含みます。</p>
+  <h1><img src="icon-192.png?v=1" alt="">うくら｜固定費、1年でいくら浮く？</h1>
+
+  <section class="result" aria-live="polite">
+    <p>見直すと、1年で</p>
+    <div class="yen"><span id="total">0</span><small>円</small></div>
+    <p class="per" id="per">浮くかもしれません。</p>
+  </section>
+
+  <div class="rows">
+    <div class="row">
+      <label for="phone">スマホ代<span>1人あたり・1か月</span></label>
+      <div class="in"><input id="phone" inputmode="numeric" value="7000"><em>円</em><input id="ppl" class="ppl" inputmode="numeric" value="1"><em>人</em></div>
+      <div class="gain" id="g-phone"></div>
+    </div>
+    <div class="row">
+      <label for="elec">電気代<span>1か月</span></label>
+      <div class="in"><input id="elec" inputmode="numeric" value="9000"><em>円</em></div>
+      <div class="gain" id="g-elec"></div>
+    </div>
+    <div class="row">
+      <label for="net">家のネット代<span>1か月</span></label>
+      <div class="in"><input id="net" inputmode="numeric" value="5500"><em>円</em></div>
+      <div class="gain" id="g-net"></div>
+    </div>
+    <div class="row">
+      <label for="sub">使ってないサブスク<span>やめてもいいものの合計・1か月</span></label>
+      <div class="in"><input id="sub" inputmode="numeric" value="1000"><em>円</em></div>
+      <div class="gain" id="g-sub"></div>
+    </div>
+  </div>
+
+  <div class="tips" id="tips"></div>
+
+  <footer class="foot">
+    <p>金額は目安です。<br>スマホは1人2,000円、家のネットは4,500円まで下げた場合、電気は5％安くなった場合で計算しています。</p>
+    <p>入れた数字はこの端末の中だけに残ります。<button class="reset" id="reset" type="button">最初の数字に戻す</button></p>
+  </footer>
+</main>
+<script>
+const $=s=>document.querySelector(s);
+const KEY='ukura-v1', DEF={phone:7000,ppl:1,elec:9000,net:5500,sub:1000};
+const ids=Object.keys(DEF);
+const yen=n=>Math.round(n).toLocaleString('ja-JP');
+const num=v=>{const n=Number(String(v).replace(/[^\d]/g,''));return isFinite(n)?n:0};
+
+/* 見直し先（links.json があればそれを使う。リンクがない項目はヒントだけ出す） */
+const TIPS={
+  phone:{t:'スマホ代を下げる',p:'大手のままなら、格安SIMに乗り換えるだけで月数千円下がることが多いです。<br>番号はそのまま使えて、手続きはネットで完結します。'},
+  elec:{t:'電気代を下げる',p:'電気の契約先は、ネットで申し込むだけで切り替えられます。<br>工事や立ち会いはいりません。'},
+  net:{t:'家のネット代を下げる',p:'スマホと同じ会社にすると割引がある場合があります。<br>工事のいらないホームルーターという選び方もあります。'},
+  sub:{t:'サブスクをやめる',p:'カードの明細を1か月分だけ見て、使っていないものを止めるのがいちばん早いです。'},
+  furusato:{t:'ふるさと納税（12月31日まで）',p:'今年の分は12月31日の支払いまでです。<br>上限の範囲内なら、実質2,000円の負担でお礼の品がもらえます。'}
+};
+let LINKS={};
+
+function load(){let s={};try{s=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}ids.forEach(k=>{if(s[k]!=null)$('#'+k).value=s[k]})}
+function save(){const o={};ids.forEach(k=>o[k]=num($('#'+k).value));try{localStorage.setItem(KEY,JSON.stringify(o))}catch(e){}}
+
+let shown=0,raf=0;
+function animate(to){cancelAnimationFrame(raf);const from=shown,t0=performance.now(),d=matchMedia('(prefers-reduced-motion:reduce)').matches?0:500;
+  const step=t=>{const k=d?Math.min(1,(t-t0)/d):1;shown=from+(to-from)*(1-Math.pow(1-k,3));$('#total').textContent=yen(shown);if(k<1)raf=requestAnimationFrame(step)};raf=requestAnimationFrame(step)}
+
+function calc(){
+  const v={};ids.forEach(k=>v[k]=num($('#'+k).value));
+  const ppl=Math.max(1,Math.min(10,v.ppl||1));
+  const g={
+    phone:Math.max(0,v.phone-2000)*ppl*12,
+    elec:Math.round(v.elec*0.05)*12,
+    net:Math.max(0,v.net-4500)*12,
+    sub:v.sub*12
+  };
+  const total=g.phone+g.elec+g.net+g.sub;
+  ['phone','elec','net','sub'].forEach(k=>{$('#g-'+k).textContent=g[k]>0?'1年で '+yen(g[k])+'円 浮くかも':''});
+  animate(total);
+  $('#per').textContent=total>0?'浮くかもしれません。\n1か月だと約'+yen(total/12)+'円です。':'今の金額は、もうかなり安いです。';
+  $('#per').style.whiteSpace='pre-line';
+  renderTips(g);save();
+}
+
+function renderTips(g){
+  const order=['phone','elec','net','sub'].filter(k=>g[k]>0).sort((a,b)=>g[b]-g[a]);
+  const m=new Date().getMonth(),list=order.slice(0,m>=9?3:4);if(m>=9)list.push('furusato'); // 10〜12月だけふるさと納税
+  $('#tips').innerHTML=list.map((k,i)=>{
+    const t=TIPS[k],ls=(LINKS[k]||[]).map(l=>`<a class="go" href="${l.url}" target="_blank" rel="sponsored noopener">${l.name}<span>${l.note||''}</span><b>PR</b></a>`).join('');
+    return `<details><summary>${t.t}</summary><div class="body"><p>${t.p}</p>${ls}</div></details>`}).join('');
+}
+
+load();calc();
+ids.forEach(k=>$('#'+k).addEventListener('input',calc));
+ids.forEach(k=>$('#'+k).addEventListener('focus',e=>setTimeout(()=>e.target.select(),0)));
+$('#reset').onclick=()=>{ids.forEach(k=>$('#'+k).value=DEF[k]);calc()};
+fetch('links.json?'+Date.now(),{cache:'no-store'}).then(r=>r.json()).then(j=>{LINKS=j;calc()}).catch(()=>{});
+</script>
+</body>
+</html>
