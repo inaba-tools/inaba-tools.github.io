@@ -53,6 +53,7 @@ h1 img{width:26px;height:26px;border-radius:7px}
   background:linear-gradient(transparent 62%,var(--marker) 62%,var(--marker) 92%,transparent 92%)}
 .yen small{font-size:.42em;font-weight:700;margin-left:2px}
 .per{margin-top:4px!important;font-size:13px!important}
+.share{font:inherit;font-size:12.5px;font-weight:700;color:#fff;background:var(--leaf);border:0;border-radius:999px;padding:6px 14px;margin-top:8px;cursor:pointer}
 
 /* 入力 */
 .rows{display:flex;flex-direction:column;gap:6px}
@@ -114,6 +115,7 @@ button.reset{font:inherit;font-size:12px;color:var(--leaf);background:none;borde
     <p>見直すと、1年で</p>
     <div class="yen"><span id="total">0</span><small>円</small></div>
     <p class="per" id="per">浮くかもしれません。</p>
+    <button class="share" id="share" type="button">結果を画像で保存・シェア</button>
   </section>
 
   <div class="rows">
@@ -129,15 +131,27 @@ button.reset{font:inherit;font-size:12px;color:var(--leaf);background:none;borde
         <p class="plan" id="plan"></p>
       </div>
     </div>
-    <div class="row">
-      <label for="elec">電気代<span>1か月</span></label>
+    <div class="row" id="r-elec">
+      <label for="elec">電気代<button class="pickbtn" type="button" data-open="r-elec">選ぶ</button><span>1か月</span></label>
       <div class="in"><input id="elec" inputmode="numeric" value="9000"><em>円</em></div>
       <div class="gain" id="g-elec"></div>
+      <div class="pick">
+        <h3>住んでいる地域</h3>
+        <div class="chips" id="c-area"></div>
+        <h3>家の人数</h3>
+        <div class="chips" id="c-hh"></div>
+        <p class="plan">選ぶと、その地域と人数の平均の電気代が入ります（総務省「家計調査」2025年）。</p>
+      </div>
     </div>
-    <div class="row">
-      <label for="net">家のネット代<span>1か月</span></label>
+    <div class="row" id="r-net">
+      <label for="net">家のネット代<button class="pickbtn" type="button" data-open="r-net">選ぶ</button><span>1か月</span></label>
       <div class="in"><input id="net" inputmode="numeric" value="5500"><em>円</em></div>
       <div class="gain" id="g-net"></div>
+      <div class="pick">
+        <h3>住まい</h3>
+        <div class="chips" id="c-home"></div>
+        <p class="plan" id="netplan"></p>
+      </div>
     </div>
     <div class="row" id="r-sub">
       <label for="sub">使ってないサブスク<button class="pickbtn" type="button" data-open="r-sub">選ぶ</button><span>やめてもいいものの合計・1か月</span></label>
@@ -153,7 +167,7 @@ button.reset{font:inherit;font-size:12px;color:var(--leaf);background:none;borde
   <div class="tips" id="tips"></div>
 
   <footer class="foot">
-    <p>金額は目安です（料金は2026年12月からの各社公式の月額・税込）。<br>スマホは使うギガに合うプランに乗り換えた場合、家のネットは4,500円、電気は5％安くなった場合で計算しています。</p>
+    <p>金額は目安です（料金は2026年12月からの各社公式の月額・税込）。<br>スマホは使うギガに合うプラン、家のネットは安い光回線（戸建て4,818円・マンション3,773円）に乗り換えた場合、電気は5％安くなった場合で計算しています。</p>
     <p>入れた数字はこの端末の中だけに残ります。<button class="reset" id="reset" type="button">最初の数字に戻す</button></p>
   </footer>
 </main>
@@ -171,22 +185,30 @@ const GIGA=[
 /* サブスク（月額・税込の目安） */
 const SUBS=[['Netflix',1590],['Amazonプライム',600],['YouTube Premium',1280],['Spotify',1080],['Apple Music',1080],['ディズニープラス',1250],['U-NEXT',2189],['Hulu',1320],['ABEMA',1180],['DMM TV',550],['dアニメ',660],['DAZN',4200]];
 let subOn=[];
+/* 電気：地域の平均（2人以上の世帯）と人数の比率（総務省「家計調査」2025年） */
+const AREA=[['北海道',13584],['東北',16380],['関東',12716],['北陸',17451],['東海',13154],['近畿',12284],['中国',14787],['四国',14192],['九州',11762],['沖縄',12534]];
+const HH=[['1人',6756],['2人',11890],['3人',13593],['4人',13862],['5人以上',15196]];
+const HH_AVG=12967;
+/* ネット：安い光回線の月額（GMOとくとくBB光 1ギガ） */
+const HOME=[{n:'戸建て',v:4818},{n:'マンション',v:3773}];
 const ids=['phone','ppl','elec','net','sub'];
-let ST={giga:1,inc:450,fam:0,kids:0,univ:0};
+let ST={giga:1,inc:450,fam:0,kids:0,univ:0,area:-1,hh:-1,home:0};
 const yen=n=>Math.round(n).toLocaleString('ja-JP');
 const num=v=>{const n=Number(String(v).replace(/[^\d]/g,''));return isFinite(n)?n:0};
 
 /* 見直し先（links.json があればそれを使う。リンクがない項目はヒントだけ出す） */
 const TIPS={
   phone:{t:'スマホ代を下げる',p:'大手のままなら、格安SIMに乗り換えるだけで月数千円下がることが多いです。<br>番号はそのまま使えて、手続きはネットで完結します。'},
-  elec:{t:'電気代を下げる',p:'電気の契約先は、ネットで申し込むだけで切り替えられます。<br>工事や立ち会いはいりません。'},
-  net:{t:'家のネット代を下げる',p:'スマホと同じ会社にすると割引がある場合があります。<br>工事のいらないホームルーターという選び方もあります。'},
+  elec:{t:'電気代を下げる',p:'電気の契約先は、ネットで申し込むだけで切り替えられます。<br>工事や立ち会いはいりません。<br>浮く金額は、今の電気代の5％安くなった場合の目安です。'},
+  net:{t:'家のネット代を下げる',p:'光回線は、同じ速さでも会社によって月1,000円以上ちがいます。<br>UQモバイルなら、対象のネットか電気とセットにするとスマホ代が月1,100円安くなります。'},
   sub:{t:'サブスクをやめる',p:'カードの明細を1か月分だけ見て、使っていないものを止めるのがいちばん早いです。'},
+  hoken:{t:'保険を見直す',p:'入ったまま何年も見ていない保険は、今の家族構成に合っていないことがあります。<br>保険証券を1枚出して、毎月いくら払っているかを見るところからで大丈夫です。'},
+  card:{t:'ポイントが多いカードにする',p:'スマホ代・電気代・ネット代は毎月同じ額なので、還元が多いカード払いにするだけで、何もしなくてもポイントがたまります。'},
   furusato:{t:'ふるさと納税（12月31日まで）',p:'今年の分は12月31日の支払いまでです。<br>上限の範囲内なら、実質2,000円の負担でお礼の品がもらえます。<br>年収と家族を選ぶと、上限の目安が出ます（会社員の場合）。'}
 };
 let LINKS={};
 
-function load(){let s={};try{s=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}ids.forEach(k=>{if(s[k]!=null)$('#'+k).value=s[k]});['giga','inc','fam','kids','univ'].forEach(k=>{if(s[k]!=null)ST[k]=s[k]});if(Array.isArray(s.subOn))subOn=s.subOn}
+function load(){let s={};try{s=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}ids.forEach(k=>{if(s[k]!=null)$('#'+k).value=s[k]});['giga','inc','fam','kids','univ','area','hh','home'].forEach(k=>{if(s[k]!=null)ST[k]=s[k]});if(Array.isArray(s.subOn))subOn=s.subOn}
 function save(){const o={};ids.forEach(k=>o[k]=num($('#'+k).value));Object.assign(o,ST,{subOn});try{localStorage.setItem(KEY,JSON.stringify(o))}catch(e){}}
 
 let shown=0,raf=0;
@@ -199,7 +221,7 @@ function calc(){
   const g={
     phone:Math.max(0,v.phone-GIGA[ST.giga].v)*ppl*12,
     elec:Math.round(v.elec*0.05)*12,
-    net:Math.max(0,v.net-4500)*12,
+    net:Math.max(0,v.net-HOME[ST.home].v)*12,
     sub:v.sub*12
   };
   const total=g.phone+g.elec+g.net+g.sub;
@@ -207,7 +229,7 @@ function calc(){
   animate(total);
   $('#per').textContent=total>0?'浮くかもしれません。\n1か月だと約'+yen(total/12)+'円です。':'今の金額は、もうかなり安いです。';
   $('#per').style.whiteSpace='pre-line';
-  renderPick();renderTips(g);save();
+  lastG=g;renderPick();renderTips(g);save();
 }
 
 
@@ -220,14 +242,29 @@ function renderPick(){
   const t=GIGA[ST.giga];
   $('#plan').innerHTML=ph>t.v?`乗り換え先の目安：<b>${t.p}</b> 月${yen(t.v)}円`:`今の金額は、このギガ数ならもう安いです。`;
   $('#c-sub').innerHTML=chipHTML(SUBS.map(x=>({n:x[0],s:yen(x[1])+'円'})),i=>subOn.includes(i));
+  $('#c-area').innerHTML=chipHTML(AREA.map(x=>({n:x[0]})),i=>i===ST.area);
+  $('#c-hh').innerHTML=chipHTML(HH.map(x=>({n:x[0]})),i=>i===ST.hh);
+  $('#c-home').innerHTML=chipHTML(HOME,i=>i===ST.home);
+  const h=HOME[ST.home],nt=num($('#net').value);
+  $('#netplan').innerHTML=nt>h.v?`乗り換え先の目安：<b>GMOとくとくBB光（${h.n}）</b> 月${yen(h.v)}円`:`今の金額は、もう安いです。`;
+}
+function elecGuess(){
+  const a=ST.area>=0?AREA[ST.area][1]:HH_AVG, r=ST.hh>=0?HH[ST.hh][1]/HH_AVG:1;
+  return Math.round(a*r/100)*100;
 }
 document.addEventListener('click',e=>{
   const ob=e.target.closest('[data-open]');
-  if(ob){e.preventDefault();$('#'+ob.dataset.open).classList.toggle('open');ob.textContent=$('#'+ob.dataset.open).classList.contains('open')?'閉じる':'選ぶ';return}
+  if(ob){e.preventDefault();const row=$('#'+ob.dataset.open),will=!row.classList.contains('open');
+    document.querySelectorAll('.row.open').forEach(r=>{r.classList.remove('open');r.querySelector('.pickbtn').textContent='選ぶ'});
+    document.querySelectorAll('#tips details[open]').forEach(d=>d.open=false);
+    if(will){row.classList.add('open');ob.textContent='閉じる'}return}
   const c=e.target.closest('.chip');if(!c)return;const i=+c.dataset.i,box=c.parentElement.id;
   if(box==='c-now'){$('#phone').value=NOW[i].v}
   else if(box==='c-giga'){ST.giga=i}
   else if(box==='c-sub'){subOn=subOn.includes(i)?subOn.filter(x=>x!==i):subOn.concat(i);$('#sub').value=subOn.reduce((a,j)=>a+SUBS[j][1],0)}
+  else if(box==='c-area'){ST.area=i;$('#elec').value=elecGuess()}
+  else if(box==='c-hh'){ST.hh=i;$('#elec').value=elecGuess()}
+  else if(box==='c-home'){ST.home=i}
   else if(box==='c-fam'){ST.fam=i}
   else if(box==='c-kids'){ST.kids=i}
   else if(box==='c-univ'){ST.univ=i}
@@ -263,7 +300,8 @@ function furusatoHTML(){
 
 function renderTips(g){
   const order=['phone','elec','net','sub'].filter(k=>g[k]>0).sort((a,b)=>g[b]-g[a]);
-  const m=new Date().getMonth(),list=order.slice(0,m>=9?3:4);if(m>=9)list.push('furusato'); // 10〜12月だけふるさと納税
+  const m=new Date().getMonth(),list=order.slice(0,4);if(m>=9)list.push('furusato'); // 10〜12月だけふるさと納税
+  list.push('hoken','card');
   const openNow=[...document.querySelectorAll('#tips details[open]')].map(d=>d.dataset.k);
   const ae=document.activeElement&&document.activeElement.id==='inc';
   $('#tips').innerHTML=list.map((k,i)=>{
@@ -277,12 +315,41 @@ function renderTips(g){
 
 $('#tips').addEventListener('input',e=>{if(e.target.id==='inc'){ST.inc=Math.min(9999,num(e.target.value));const o=$('.fzout');if(o)o.innerHTML=`上限の目安は<br><b>約${yen(furusatoMax(ST.inc,ST.fam,ST.kids,ST.univ))}円</b> まで`;save()}});
 $('#tips').addEventListener('focusin',e=>{if(e.target.id==='inc')setTimeout(()=>e.target.select(),0)});
+/* ===== 結果を画像にする ===== */
+let lastG={};
+function drawShare(){
+  return new Promise(res=>{
+    const W=1080,H=1350,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
+    x.fillStyle='#ffe540';x.fillRect(0,0,W,H);
+    x.fillStyle='#fffdf0';x.beginPath();x.roundRect(60,560,960,700,40);x.fill();
+    const img=new Image();img.onload=()=>{
+      x.save();x.beginPath();x.arc(W/2,300,230,0,Math.PI*2);x.clip();x.drawImage(img,W/2-230,70,460,460);x.restore();
+      const F='"Zen Maru Gothic","Hiragino Maru Gothic ProN",sans-serif';
+      x.fillStyle='#23302a';x.textAlign='center';
+      x.font='700 46px '+F;x.fillText('固定費を見直すと、1年で',W/2,650);
+      const t=num($('#total').textContent)||0;x.font='900 150px '+F;
+      const tw=x.measureText(yen(t)).width;x.fillStyle='#ffd628';x.fillRect(W/2-tw/2-70,770,tw+140,46);
+      x.fillStyle='#23302a';x.fillText(yen(t),W/2-30,800);x.font='700 64px '+F;x.fillText('円',W/2+tw/2+20,800);
+      x.font='700 40px '+F;x.fillText('浮くかも！',W/2,880);
+      const nm={phone:'スマホ',elec:'電気',net:'ネット',sub:'サブスク'};let y=970;x.font='500 36px '+F;x.fillStyle='#5d6b63';
+      Object.keys(nm).filter(k=>lastG[k]>0).forEach(k=>{x.textAlign='left';x.fillText(nm[k],230,y);x.textAlign='right';x.fillText(yen(lastG[k])+'円',850,y);y+=56});
+      x.textAlign='center';x.fillStyle='#2f7d55';x.font='700 34px '+F;x.fillText('コテヲタ｜固定費診断',W/2,1225);
+      x.fillStyle='#23302a';x.font='500 28px '+F;x.fillText('inaba-tools.github.io/kotewota',W/2,1310);
+      c.toBlob(res,'image/png');
+    };img.src='icon-512.png?v=2';
+  });
+}
+$('#share').onclick=async()=>{
+  const b=await drawShare();const f=new File([b],'kotewota.png',{type:'image/png'});
+  if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],text:'固定費、1年でいくら浮く？ #コテヲタ https://inaba-tools.github.io/kotewota/'})}catch(e){}}
+  else{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='kotewota.png';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),3000)}
+};
+$('#tips').addEventListener('toggle',e=>{if(e.target.open){document.querySelectorAll('#tips details[open]').forEach(d=>{if(d!==e.target)d.open=false});document.querySelectorAll('.row.open').forEach(r=>{r.classList.remove('open');r.querySelector('.pickbtn').textContent='選ぶ'})}},true);
 load();
-if(subOn.length===0&&!localStorage.getItem(KEY)){}
 calc();
 ids.forEach(k=>$('#'+k).addEventListener('input',calc));
 ids.forEach(k=>$('#'+k).addEventListener('focus',e=>setTimeout(()=>e.target.select(),0)));
-$('#reset').onclick=()=>{ids.forEach(k=>$('#'+k).value=DEF[k]);ST={giga:1,inc:450,fam:0,kids:0,univ:0};subOn=[];calc()};
+$('#reset').onclick=()=>{ids.forEach(k=>$('#'+k).value=DEF[k]);ST={giga:1,inc:450,fam:0,kids:0,univ:0,area:-1,hh:-1,home:0};subOn=[];calc()};
 fetch('links.json?'+Date.now(),{cache:'no-store'}).then(r=>r.json()).then(j=>{LINKS=j;calc()}).catch(()=>{});
 </script>
 </body>
