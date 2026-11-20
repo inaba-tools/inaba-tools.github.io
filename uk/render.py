@@ -1,4 +1,4 @@
-# uk/cards/*.json → uk/img/*.png（うくらのThreads投稿用カード画像。まだ画像が無いものだけ作る）
+# uk/cards/*.json → uk/img/*.png（コテヲタのThreads投稿用カード画像。まだ画像が無いものだけ作る）
 # カードの種類
 #  compare : {"type":"compare","title":"...","before":{"label":"...","yen":8000},"after":{"label":"...","yen":2000},"unit":"月","note":"..."}
 #  list    : {"type":"list","title":"...","items":["...","..."],"note":"..."}
@@ -61,7 +61,7 @@ def body(c):
     raise ValueError('unknown type ' + str(t))
 
 def page(c):
-    return f'<!doctype html><html lang="ja"><meta charset="utf-8"><style>{CSS}</style><body><div class="c">{body(c)}</div><div class="brand">うくら</div></body></html>'
+    return f'<!doctype html><html lang="ja"><meta charset="utf-8"><style>{CSS}</style><body><div class="c">{body(c)}</div><div class="brand">コテヲタ</div></body></html>'
 
 todo = []
 for j in sorted(glob.glob(D + '/cards/*.json')):
