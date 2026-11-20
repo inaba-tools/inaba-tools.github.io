@@ -5,23 +5,26 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="index,follow">
 <title>コテヲタ｜スマホ代・電気代・ネット代を入れるだけ、1年で浮くお金がわかる固定費診断</title>
-<meta name="description" content="コテヲタは、毎月のスマホ代・電気代・ネット代・使っていないサブスクを入れるだけで、見直したら1年でいくら浮くかの目安が出る無料の固定費診断です。登録なしですぐ使えます。">
+<meta name="description" content="コテヲタは、スマホ会社と使うギガ、使っていないサブスクを選ぶだけで、見直したら1年でいくら浮くかの目安が出る無料の固定費診断です。ふるさと納税の上限の目安もわかります。登録なしですぐ使えます。">
 <link rel="canonical" href="https://inaba-tools.github.io/kotewota/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="コテヲタ">
 <meta property="og:title" content="コテヲタ｜1年で浮くお金がわかる固定費診断">
-<meta property="og:description" content="スマホ代・電気代・ネット代・サブスクを入れるだけ。見直したら1年でいくら浮くかの目安がすぐ出ます。">
+<meta property="og:description" content="スマホ代・電気代・ネット代・サブスクを選ぶだけ。見直したら1年でいくら浮くか、ふるさと納税の上限の目安もすぐ出ます。">
 <meta property="og:url" content="https://inaba-tools.github.io/kotewota/">
-<meta property="og:image" content="https://inaba-tools.github.io/kotewota/ogp.png">
+<meta property="og:image" content="https://inaba-tools.github.io/kotewota/ogp.png?v=2">
 <meta property="og:locale" content="ja_JP">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://inaba-tools.github.io/kotewota/ogp.png?v=2">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"コテヲタ","url":"https://inaba-tools.github.io/kotewota/","description":"毎月のスマホ代・電気代・ネット代・使っていないサブスクを入れるだけで、見直したら1年でいくら浮くかの目安が出る無料の固定費診断です。","applicationCategory":"FinanceApplication","operatingSystem":"iOS, Android, Windows, macOS","inLanguage":"ja","image":"https://inaba-tools.github.io/kotewota/ogp.png","offers":{"@type":"Offer","price":"0","priceCurrency":"JPY"}}</script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="コテヲタ">
 <meta name="theme-color" content="#f6faf4">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=1">
-<link rel="icon" href="favicon.png?v=1">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=2">
+<link rel="icon" href="favicon.png?v=2">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
@@ -81,13 +84,31 @@ details[open] summary::after{transform:rotate(45deg)}
 .foot p{margin:0 0 4px}
 button.reset{font:inherit;font-size:12px;color:var(--leaf);background:none;border:0;padding:0;text-decoration:underline;cursor:pointer}
 :focus-visible{outline:3px solid var(--leaf);outline-offset:2px;border-radius:6px}
+
+/* 選ぶだけパネル */
+.pickbtn{font:inherit;font-size:11.5px;font-weight:700;color:var(--leaf);background:var(--leaf2);border:0;border-radius:999px;padding:2px 9px;margin-left:6px;cursor:pointer;vertical-align:1px}
+.pick{grid-column:1/-1;display:none;padding:8px 0 2px;border-top:1px dashed var(--line);margin-top:6px}
+.row.open .pick{display:block}
+.pick h3{margin:2px 0 4px;font-size:11.5px;color:var(--sub);font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px}
+.chip{font:inherit;font-size:12.5px;font-weight:700;color:var(--ink);background:var(--paper);border:1.5px solid var(--line);border-radius:999px;padding:4px 10px;cursor:pointer;line-height:1.3}
+.chip small{font-weight:500;color:var(--sub);font-size:10.5px;margin-left:3px}
+.chip.on{background:var(--leaf);border-color:var(--leaf);color:#fff}
+.chip.on small{color:#e3f0e6}
+.plan{font-size:12px;color:var(--sub);margin:2px 0 0}
+.plan b{color:var(--leaf)}
+.fz{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px;font-size:13px}
+.fz input{width:64px;font:inherit;font-size:17px;font-weight:700;text-align:right;border:0;border-bottom:2px solid var(--line);background:transparent;color:var(--ink);font-variant-numeric:tabular-nums}
+.fz input:focus{outline:none;border-color:var(--leaf)}
+.fzout{font-size:13px;margin:4px 0 8px}
+.fzout b{font-size:22px;background:linear-gradient(transparent 60%,var(--marker) 60%)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
 <main class="app">
   <p class="pr">このページには広告（PR）を含みます。</p>
-  <h1><img src="icon-192.png?v=1" alt="">コテヲタ｜固定費、1年でいくら浮く？</h1>
+  <h1><img src="icon-192.png?v=2" alt="">コテヲタ｜固定費、1年でいくら浮く？</h1>
 
   <section class="result" aria-live="polite">
     <p>見直すと、1年で</p>
@@ -96,10 +117,17 @@ button.reset{font:inherit;font-size:12px;color:var(--leaf);background:none;borde
   </section>
 
   <div class="rows">
-    <div class="row">
-      <label for="phone">スマホ代<span>1人あたり・1か月</span></label>
+    <div class="row" id="r-phone">
+      <label for="phone">スマホ代<button class="pickbtn" type="button" data-open="r-phone">選ぶ</button><span>1人あたり・1か月</span></label>
       <div class="in"><input id="phone" inputmode="numeric" value="7000"><em>円</em><input id="ppl" class="ppl" inputmode="numeric" value="1"><em>人</em></div>
       <div class="gain" id="g-phone"></div>
+      <div class="pick">
+        <h3>今のスマホ会社</h3>
+        <div class="chips" id="c-now"></div>
+        <h3>1か月に使うギガ</h3>
+        <div class="chips" id="c-giga"></div>
+        <p class="plan" id="plan"></p>
+      </div>
     </div>
     <div class="row">
       <label for="elec">電気代<span>1か月</span></label>
@@ -111,24 +139,40 @@ button.reset{font:inherit;font-size:12px;color:var(--leaf);background:none;borde
       <div class="in"><input id="net" inputmode="numeric" value="5500"><em>円</em></div>
       <div class="gain" id="g-net"></div>
     </div>
-    <div class="row">
-      <label for="sub">使ってないサブスク<span>やめてもいいものの合計・1か月</span></label>
+    <div class="row" id="r-sub">
+      <label for="sub">使ってないサブスク<button class="pickbtn" type="button" data-open="r-sub">選ぶ</button><span>やめてもいいものの合計・1か月</span></label>
       <div class="in"><input id="sub" inputmode="numeric" value="1000"><em>円</em></div>
       <div class="gain" id="g-sub"></div>
+      <div class="pick">
+        <h3>最近使っていないものをタップ</h3>
+        <div class="chips" id="c-sub"></div>
+      </div>
     </div>
   </div>
 
   <div class="tips" id="tips"></div>
 
   <footer class="foot">
-    <p>金額は目安です。<br>スマホは1人2,000円、家のネットは4,500円まで下げた場合、電気は5％安くなった場合で計算しています。</p>
+    <p>金額は目安です（料金は2026年12月からの各社公式の月額・税込）。<br>スマホは使うギガに合うプランに乗り換えた場合、家のネットは4,500円、電気は5％安くなった場合で計算しています。</p>
     <p>入れた数字はこの端末の中だけに残ります。<button class="reset" id="reset" type="button">最初の数字に戻す</button></p>
   </footer>
 </main>
 <script>
 const $=s=>document.querySelector(s);
-const KEY='kotewota-v1', DEF={phone:7000,ppl:1,elec:9000,net:5500,sub:1000};
-const ids=Object.keys(DEF);
+const KEY='kotewota-v1', DEF={phone:7000,ppl:1,elec:9000,net:5500,sub:1000,giga:1,inc:450,fam:0,kids:0,univ:0};
+/* 今の会社（選ぶと月額の目安が入る） */
+const NOW=[{n:'大手・使い放題',v:8000},{n:'大手・少なめ',v:4600},{n:'UQ・ワイモバイル',v:3800},{n:'格安SIM',v:1500}];
+/* 使うギガ → 乗り換え先の目安（2026年12月からの月額・税込） */
+const GIGA=[
+  {n:'3GBまで',p:'楽天モバイル（3GBまで）',v:1078},
+  {n:'20GBまで',p:'日本通信SIM（20GB）',v:1390},
+  {n:'40GBまで',p:'ahamo（40GBまで）',v:3135},
+  {n:'たくさん',p:'楽天モバイル（使い放題）',v:3278}];
+/* サブスク（月額・税込の目安） */
+const SUBS=[['Netflix',1590],['Amazonプライム',600],['YouTube Premium',1280],['Spotify',1080],['Apple Music',1080],['ディズニープラス',1250],['U-NEXT',2189],['Hulu',1320],['ABEMA',1180],['DMM TV',550],['dアニメ',660],['DAZN',4200]];
+let subOn=[];
+const ids=['phone','ppl','elec','net','sub'];
+let ST={giga:1,inc:450,fam:0,kids:0,univ:0};
 const yen=n=>Math.round(n).toLocaleString('ja-JP');
 const num=v=>{const n=Number(String(v).replace(/[^\d]/g,''));return isFinite(n)?n:0};
 
@@ -138,12 +182,12 @@ const TIPS={
   elec:{t:'電気代を下げる',p:'電気の契約先は、ネットで申し込むだけで切り替えられます。<br>工事や立ち会いはいりません。'},
   net:{t:'家のネット代を下げる',p:'スマホと同じ会社にすると割引がある場合があります。<br>工事のいらないホームルーターという選び方もあります。'},
   sub:{t:'サブスクをやめる',p:'カードの明細を1か月分だけ見て、使っていないものを止めるのがいちばん早いです。'},
-  furusato:{t:'ふるさと納税（12月31日まで）',p:'今年の分は12月31日の支払いまでです。<br>上限の範囲内なら、実質2,000円の負担でお礼の品がもらえます。'}
+  furusato:{t:'ふるさと納税（12月31日まで）',p:'今年の分は12月31日の支払いまでです。<br>上限の範囲内なら、実質2,000円の負担でお礼の品がもらえます。<br>年収と家族を選ぶと、上限の目安が出ます（会社員の場合）。'}
 };
 let LINKS={};
 
-function load(){let s={};try{s=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}ids.forEach(k=>{if(s[k]!=null)$('#'+k).value=s[k]})}
-function save(){const o={};ids.forEach(k=>o[k]=num($('#'+k).value));try{localStorage.setItem(KEY,JSON.stringify(o))}catch(e){}}
+function load(){let s={};try{s=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}ids.forEach(k=>{if(s[k]!=null)$('#'+k).value=s[k]});['giga','inc','fam','kids','univ'].forEach(k=>{if(s[k]!=null)ST[k]=s[k]});if(Array.isArray(s.subOn))subOn=s.subOn}
+function save(){const o={};ids.forEach(k=>o[k]=num($('#'+k).value));Object.assign(o,ST,{subOn});try{localStorage.setItem(KEY,JSON.stringify(o))}catch(e){}}
 
 let shown=0,raf=0;
 function animate(to){cancelAnimationFrame(raf);const from=shown,t0=performance.now(),d=matchMedia('(prefers-reduced-motion:reduce)').matches?0:500;
@@ -153,7 +197,7 @@ function calc(){
   const v={};ids.forEach(k=>v[k]=num($('#'+k).value));
   const ppl=Math.max(1,Math.min(10,v.ppl||1));
   const g={
-    phone:Math.max(0,v.phone-2000)*ppl*12,
+    phone:Math.max(0,v.phone-GIGA[ST.giga].v)*ppl*12,
     elec:Math.round(v.elec*0.05)*12,
     net:Math.max(0,v.net-4500)*12,
     sub:v.sub*12
@@ -163,21 +207,82 @@ function calc(){
   animate(total);
   $('#per').textContent=total>0?'浮くかもしれません。\n1か月だと約'+yen(total/12)+'円です。':'今の金額は、もうかなり安いです。';
   $('#per').style.whiteSpace='pre-line';
-  renderTips(g);save();
+  renderPick();renderTips(g);save();
+}
+
+
+/* ===== 選ぶだけパネル ===== */
+function chipHTML(list,onFn){return list.map((x,i)=>`<button type="button" class="chip${onFn(i)?' on':''}" data-i="${i}">${x.n}<small>${x.s||''}</small></button>`).join('')}
+function renderPick(){
+  const ph=num($('#phone').value);
+  $('#c-now').innerHTML=chipHTML(NOW.map(x=>({n:x.n,s:yen(x.v)+'円'})),i=>NOW[i].v===ph);
+  $('#c-giga').innerHTML=chipHTML(GIGA.map(x=>({n:x.n})),i=>i===ST.giga);
+  const t=GIGA[ST.giga];
+  $('#plan').innerHTML=ph>t.v?`乗り換え先の目安：<b>${t.p}</b> 月${yen(t.v)}円`:`今の金額は、このギガ数ならもう安いです。`;
+  $('#c-sub').innerHTML=chipHTML(SUBS.map(x=>({n:x[0],s:yen(x[1])+'円'})),i=>subOn.includes(i));
+}
+document.addEventListener('click',e=>{
+  const ob=e.target.closest('[data-open]');
+  if(ob){e.preventDefault();$('#'+ob.dataset.open).classList.toggle('open');ob.textContent=$('#'+ob.dataset.open).classList.contains('open')?'閉じる':'選ぶ';return}
+  const c=e.target.closest('.chip');if(!c)return;const i=+c.dataset.i,box=c.parentElement.id;
+  if(box==='c-now'){$('#phone').value=NOW[i].v}
+  else if(box==='c-giga'){ST.giga=i}
+  else if(box==='c-sub'){subOn=subOn.includes(i)?subOn.filter(x=>x!==i):subOn.concat(i);$('#sub').value=subOn.reduce((a,j)=>a+SUBS[j][1],0)}
+  else if(box==='c-fam'){ST.fam=i}
+  else if(box==='c-kids'){ST.kids=i}
+  else if(box==='c-univ'){ST.univ=i}
+  calc();
+});
+
+/* ===== ふるさと納税の上限の目安（2026年分・会社員） ===== */
+function furusatoMax(incMan,fam,kids,univ){
+  const S=incMan*10000;if(S<=0)return 0;
+  const kojo=S<=1900000?690000:S<=3600000?S*.3+80000:S<=6600000?S*.2+440000:S<=8500000?S*.1+1100000:1950000;
+  const G=Math.max(0,S-kojo),sha=S*.15;
+  const spouse=fam===1;
+  // 住民税
+  const J=Math.max(0,G-sha-430000-(spouse?330000:0)-kids*330000-univ*450000);
+  const wari=J*.1;
+  // 所得税（税率を知るため）
+  const kiso=G<=4890000?1040000:G<=6550000?670000:G<=23500000?620000:0;
+  const K=Math.max(0,G-sha-kiso-(spouse&&G<=9000000?380000:0)-kids*380000-univ*630000);
+  const r=K<=1950000?.05:K<=3300000?.1:K<=6950000?.2:K<=9000000?.23:K<=18000000?.33:K<=40000000?.4:.45;
+  const m=wari*.2/(.9-r*1.021)+2000;
+  return Math.floor(m/1000)*1000;
+}
+function furusatoHTML(){
+  const fam=[{n:'独身・共働き'},{n:'夫婦（相手の収入なし）'}];
+  const kids=[{n:'0人'},{n:'1人'},{n:'2人'},{n:'3人'}];
+  const m=furusatoMax(ST.inc,ST.fam,ST.kids,ST.univ);
+  return `<div class="fz">年収<input id="inc" inputmode="numeric" value="${ST.inc}">万円</div>
+  <div class="chips" id="c-fam">${chipHTML(fam,i=>i===ST.fam)}</div>
+  <h3 style="margin:2px 0 4px;font-size:11.5px;color:var(--sub)">高校生の子ども</h3><div class="chips" id="c-kids">${chipHTML(kids,i=>i===ST.kids)}</div>
+  <h3 style="margin:2px 0 4px;font-size:11.5px;color:var(--sub)">大学生くらいの子ども（19〜22歳）</h3><div class="chips" id="c-univ">${chipHTML(kids,i=>i===ST.univ)}</div>
+  <p class="fzout">上限の目安は<br><b>約${yen(m)}円</b> まで</p>`;
 }
 
 function renderTips(g){
   const order=['phone','elec','net','sub'].filter(k=>g[k]>0).sort((a,b)=>g[b]-g[a]);
   const m=new Date().getMonth(),list=order.slice(0,m>=9?3:4);if(m>=9)list.push('furusato'); // 10〜12月だけふるさと納税
+  const openNow=[...document.querySelectorAll('#tips details[open]')].map(d=>d.dataset.k);
+  const ae=document.activeElement&&document.activeElement.id==='inc';
   $('#tips').innerHTML=list.map((k,i)=>{
     const t=TIPS[k],ls=(LINKS[k]||[]).map(l=>`<a class="go" href="${l.url}" target="_blank" rel="sponsored noopener">${l.name}<span>${l.note||''}</span><b>PR</b></a>`).join('');
-    return `<details><summary>${t.t}</summary><div class="body"><p>${t.p}</p>${ls}</div></details>`}).join('');
+    let p=t.p;
+    if(k==='phone'){const g=GIGA[ST.giga];p=`使うギガが${g.n}なら、<b>${g.p}</b>で月${yen(g.v)}円です。<br>番号はそのまま使えて、手続きはネットで完結します。`}
+    const fz=k==='furusato'?furusatoHTML():'';
+    return `<details data-k="${k}"${openNow.includes(k)?' open':''}><summary>${t.t}</summary><div class="body"><p>${p}</p>${fz}${ls}</div></details>`}).join('');
+  if(ae){const el=$('#inc');el.focus();const L=el.value.length;el.setSelectionRange(L,L)}
 }
 
-load();calc();
+$('#tips').addEventListener('input',e=>{if(e.target.id==='inc'){ST.inc=Math.min(9999,num(e.target.value));const o=$('.fzout');if(o)o.innerHTML=`上限の目安は<br><b>約${yen(furusatoMax(ST.inc,ST.fam,ST.kids,ST.univ))}円</b> まで`;save()}});
+$('#tips').addEventListener('focusin',e=>{if(e.target.id==='inc')setTimeout(()=>e.target.select(),0)});
+load();
+if(subOn.length===0&&!localStorage.getItem(KEY)){}
+calc();
 ids.forEach(k=>$('#'+k).addEventListener('input',calc));
 ids.forEach(k=>$('#'+k).addEventListener('focus',e=>setTimeout(()=>e.target.select(),0)));
-$('#reset').onclick=()=>{ids.forEach(k=>$('#'+k).value=DEF[k]);calc()};
+$('#reset').onclick=()=>{ids.forEach(k=>$('#'+k).value=DEF[k]);ST={giga:1,inc:450,fam:0,kids:0,univ:0};subOn=[];calc()};
 fetch('links.json?'+Date.now(),{cache:'no-store'}).then(r=>r.json()).then(j=>{LINKS=j;calc()}).catch(()=>{});
 </script>
 </body>
