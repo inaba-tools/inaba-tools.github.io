@@ -8,6 +8,11 @@ def du(n):
     return DU[n]; S=json.load(open('sizes.json'))
 C=dict(ink='#3b2a30',bg='#fbe4eb',bar='#fdeef2',sep='#f0cbd6',lb='#ffffff',rb='#f5a3ba',rt='#ffffff',lt='#3b2a30',
        meta='#a8899a',chipbg='#efc3cf',chiptx='#ffffff',avc='#e2cdd4',avl='#ffffff',inicon='#b98a9c',field='#ffffff',aa='#c8a8b4',bat2='rgba(59,42,48,.38)')
+PINK=dict(C)
+THEMES={'kote':dict(ink='#1d2733',bg='#c4d3e6',bar='#eef2f7',sep='#b7c5d6',lb='#ffffff',rb='#8de07a',rt='#1b1b1b',lt='#1b1b1b',
+  meta='#5f6f83',chipbg='#93a6bd',chiptx='#ffffff',avc='#b3c0cf',avl='#ffffff',inicon='#748599',field='#ffffff',aa='#9aa8b8',bat2='rgba(29,39,51,.38)',dot1='transparent',dot2='transparent')}
+def theme(name=None):
+    C.clear();C.update(PINK);C.update(THEMES.get(name or '',{}))
 def mask(name,color,dx=0,dy=0,box=None):
     x,y,w,h=box or M[name]
     return f'<div style="position:absolute;left:{x+dx}px;top:{y+dy}px;width:{w}px;height:{h}px;background:{color};-webkit-mask:url({du(name)}) 0 0/100% 100% no-repeat"></div>'
@@ -24,7 +29,7 @@ def build(msgs,name,count,clock,path,home=False,bat=None,seed=''):
     css+=''.join(f"@font-face{{font-family:Inter;font-weight:{w};src:url(font/inter/package/files/inter-latin-{w}-normal.woff2)}}" for w in (400,600))
     st=f'''{css}
 *{{margin:0;padding:0;box-sizing:border-box}}html,body{{width:402px;height:874px;overflow:hidden}}
-body{{position:relative;background-color:{C['bg']};background-image:radial-gradient(circle at 18px 18px,#fff7f9 2.6px,transparent 3px),radial-gradient(circle at 58px 52px,#f6cad6 2.2px,transparent 2.6px);background-size:80px 80px;font-family:'Noto Sans CJK JP',sans-serif;-webkit-font-smoothing:antialiased}}
+body{{position:relative;background-color:{C['bg']};background-image:radial-gradient(circle at 18px 18px,{C.get('dot1','#fff7f9')} 2.6px,transparent 3px),radial-gradient(circle at 58px 52px,{C.get('dot2','#f6cad6')} 2.2px,transparent 2.6px);background-size:80px 80px;font-family:'Noto Sans CJK JP',sans-serif;-webkit-font-smoothing:antialiased}}
 .top{{position:absolute;left:0;top:0;width:402px;height:105px;background:{C['bar']};border-bottom:.67px solid {C['sep']}}}
 .clock{{position:absolute;left:24.2px;width:100px;text-align:center;top:21.2px;font:600 {S['time']}px/1 Inter;letter-spacing:0;color:{C['ink']};height:22px;line-height:22px}}
 .hd{{position:absolute;left:33px;top:72px;height:24px;display:flex;align-items:center;color:{C['ink']}}}
