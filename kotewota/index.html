@@ -144,7 +144,8 @@ const num=v=>{const n=Number(String(v||'').replace(/[^\d]/g,''));return isFinite
   平均の支払額：MM総研「携帯電話の月額利用料金とサービス利用実態（2026年7月調査）」
     大手4ブランド 4853円 / サブブランド 3296円 / MVNO 1979円（端末代を除く）
   楽天モバイル：3GBまで1078円・20GBまで2178円・無制限3278円
-  ahamo：2026年12月から3135円（40GB） */
+  ahamo：2026年12月から3135円（40GB）
+  mineo マイピタ（音声）：30GB 2178円（2026年10月時点） */
 const BIG=[4853,4853,8000]; // 大手：少なめ・ふつうは平均、使い放題は大手の無制限プランの目安
 const CARRIERS=[
   {k:'docomo',n:'ドコモ',c:'#CC0033',cur:BIG,line:'docomo'},
@@ -160,7 +161,7 @@ const CARRIERS=[
 ];
 const USAGE=[
   {n:'ほぼWi-Fi',e:'外ではLINEと地図くらい（3GBまで）',plan:{k:'rakuten',n:'楽天モバイル（3GBまで）',v:1078}},
-  {n:'ふつう',e:'外でSNSや動画をちょっと見る（20GBまで）',plan:{k:'nihontsushin',n:'日本通信SIM（20GB）',v:1390}},
+  {n:'ふつう',e:'外でSNSや動画をちょっと見る（20GBくらい）',plan:{k:'mineo',n:'mineo（マイピタ30GB）',v:2178}},
   {n:'動画をよく見る',e:'外でもYouTubeやゲームをする（使い放題）',plan:{k:'rakuten',n:'楽天モバイル（使い放題）',v:3278}}
 ];
 /* 同じ回線のまま安くする場合 */
@@ -179,7 +180,7 @@ const HH_AVG=12967, ELEC_CUT=0.05;
 /* 申し込み先のURL（links.json で差し替え。アフィリエイトが決まったらそこだけ直す） */
 let LINKS={
   rakuten:'https://network.mobile.rakuten.co.jp/',
-  nihontsushin:'https://www.nihontsushin.com/',
+  mineo:'https://mineo.jp/',
   ahamo:'https://ahamo.com/',
   hikari:'https://gmobb.jp/',
   denki:'https://enechange.jp/'
