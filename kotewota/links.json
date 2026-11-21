@@ -1,7 +1,8 @@
 {
-  "phone": [],
-  "elec": [],
-  "net": [],
-  "sub": [],
-  "furusato": []
+  "_memo": "申し込みボタンの行き先。アフィリエイトが決まったら、ここのURLだけ差し替える（今は公式サイトの仮URL）",
+  "rakuten": "https://network.mobile.rakuten.co.jp/",
+  "nihontsushin": "https://www.nihontsushin.com/",
+  "ahamo": "https://ahamo.com/",
+  "hikari": "https://gmobb.jp/",
+  "denki": "https://enechange.jp/"
 }

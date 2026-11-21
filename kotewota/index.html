@@ -4,353 +4,294 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="index,follow">
-<title>コテヲタ｜スマホ代・電気代・ネット代を入れるだけ、1年で浮くお金がわかる固定費診断</title>
-<meta name="description" content="コテヲタは、スマホ会社と使うギガ、使っていないサブスクを選ぶだけで、見直したら1年でいくら浮くかの目安が出る無料の固定費診断です。ふるさと納税の上限の目安もわかります。登録なしですぐ使えます。">
+<title>コテヲタ｜スマホ会社を選ぶだけ、1年で浮くお金がわかる固定費診断</title>
+<meta name="description" content="コテヲタは、今のスマホ会社と使い方、家のネット、住んでいる地域をタップするだけで、見直したら1年でいくら浮くかの目安が出る無料の固定費診断です。明細がなくても使えます。登録なしですぐ使えます。">
 <link rel="canonical" href="https://inaba-tools.github.io/kotewota/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="コテヲタ">
-<meta property="og:title" content="コテヲタ｜1年で浮くお金がわかる固定費診断">
-<meta property="og:description" content="スマホ代・電気代・ネット代・サブスクを選ぶだけ。見直したら1年でいくら浮くか、ふるさと納税の上限の目安もすぐ出ます。">
+<meta property="og:title" content="コテヲタ｜タップするだけ、1年で浮くお金がわかる固定費診断">
+<meta property="og:description" content="スマホ会社を選ぶだけ。明細がなくても、見直したら1年でいくら浮くかがすぐ出ます。">
 <meta property="og:url" content="https://inaba-tools.github.io/kotewota/">
 <meta property="og:image" content="https://inaba-tools.github.io/kotewota/ogp.png?v=2">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta property="og:locale" content="ja_JP">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://inaba-tools.github.io/kotewota/ogp.png?v=2">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"コテヲタ","url":"https://inaba-tools.github.io/kotewota/","description":"毎月のスマホ代・電気代・ネット代・使っていないサブスクを入れるだけで、見直したら1年でいくら浮くかの目安が出る無料の固定費診断です。","applicationCategory":"FinanceApplication","operatingSystem":"iOS, Android, Windows, macOS","inLanguage":"ja","image":"https://inaba-tools.github.io/kotewota/ogp.png","offers":{"@type":"Offer","price":"0","priceCurrency":"JPY"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"コテヲタ","url":"https://inaba-tools.github.io/kotewota/","description":"今のスマホ会社と使い方、家のネット、住んでいる地域をタップするだけで、見直したら1年でいくら浮くかの目安が出る無料の固定費診断です。","applicationCategory":"FinanceApplication","operatingSystem":"iOS, Android, Windows, macOS","inLanguage":"ja","image":"https://inaba-tools.github.io/kotewota/ogp.png","offers":{"@type":"Offer","price":"0","priceCurrency":"JPY"}}</script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="コテヲタ">
-<meta name="theme-color" content="#f6faf4">
-<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#F6F7F5">
+<link rel="manifest" href="manifest.webmanifest?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=2">
 <link rel="icon" href="favicon.png?v=2">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
 <style>
-:root{
-  --paper:#f6faf4;      /* 若葉の紙 */
-  --ink:#23302a;        /* 墨みどり */
-  --sub:#5d6b63;
-  --leaf:#2f7d55;       /* 若竹 */
-  --leaf2:#e3f0e6;
-  --marker:#ffe36e;     /* 家計簿の蛍光ペン */
-  --line:#d7e3d9;
-}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;background:var(--paper);color:var(--ink)}
-body{font-family:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Hiragino Sans",sans-serif;font-weight:500;font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
-.app{max-width:440px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top) + 14px) 18px calc(env(safe-area-inset-bottom) + 12px)}
-.pr{font-size:11px;color:var(--sub);margin:0 0 6px}
-h1{margin:0;font-size:15px;font-weight:700;letter-spacing:.02em;display:flex;align-items:center;gap:8px}
-h1 img{width:26px;height:26px;border-radius:7px}
-
-/* いちばん大事な所：浮くお金 */
-.result{margin:8px 0 10px;padding:8px 4px 10px;border-bottom:2px dashed var(--line)}
-.result p{margin:0;font-size:14px;color:var(--sub)}
-.yen{display:inline-block;margin:2px 0 0;font-size:clamp(40px,13vw,54px);font-weight:900;line-height:1.1;letter-spacing:-.01em;font-variant-numeric:tabular-nums;
-  background:linear-gradient(transparent 62%,var(--marker) 62%,var(--marker) 92%,transparent 92%)}
-.yen small{font-size:.42em;font-weight:700;margin-left:2px}
-.per{margin-top:4px!important;font-size:13px!important}
-.share{font:inherit;font-size:12.5px;font-weight:700;color:#fff;background:var(--leaf);border:0;border-radius:999px;padding:6px 14px;margin-top:8px;cursor:pointer}
-
-/* 入力 */
-.rows{display:flex;flex-direction:column;gap:6px}
-.row{display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:10px;row-gap:0;padding:7px 12px;background:#fff;border:1px solid var(--line);border-radius:14px}
-.row label{font-weight:700;font-size:14px;line-height:1.3}
-.row label span{display:block;font-weight:500;font-size:11.5px;color:var(--sub)}
-.in{display:flex;align-items:center;gap:4px;grid-column:2;grid-row:1/3}
-.in input{width:96px;font:inherit;font-size:19px;font-weight:700;text-align:right;border:0;border-bottom:2px solid var(--line);background:transparent;color:var(--ink);padding:2px 2px;font-variant-numeric:tabular-nums}
-.in input:focus{outline:none;border-color:var(--leaf)}
-.in input.ppl{width:34px}
-.in em{font-style:normal;font-size:12px;color:var(--sub)}
-.gain{grid-column:1;grid-row:2;font-size:12px;color:var(--leaf);font-weight:700;min-height:0}
-.gain:empty{display:none}
-
-/* 見直し先（折りたたみ） */
-.tips{margin-top:12px}
-details{border-top:1px solid var(--line)}
-details:last-child{border-bottom:1px solid var(--line)}
-summary{list-style:none;display:flex;justify-content:space-between;align-items:center;padding:9px 2px;font-weight:700;font-size:14px;cursor:pointer}
-summary::-webkit-details-marker{display:none}
-summary::after{content:"＋";color:var(--leaf);font-size:16px;transition:transform .2s}
-details[open] summary::after{transform:rotate(45deg)}
-.body{padding:0 2px 12px;font-size:13.5px;color:var(--ink)}
-.body p{margin:0 0 8px}
-.go{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 12px;margin-top:6px;border-radius:12px;background:var(--leaf2);color:var(--ink);text-decoration:none;font-weight:700}
-.go span{font-size:11px;font-weight:500;color:var(--sub)}
-.go b{font-size:11px;color:#fff;background:var(--leaf);border-radius:999px;padding:3px 9px;white-space:nowrap}
-.foot{margin-top:auto;padding-top:10px;font-size:11px;color:var(--sub)}
-.foot p{margin:0 0 4px}
-button.reset{font:inherit;font-size:12px;color:var(--leaf);background:none;border:0;padding:0;text-decoration:underline;cursor:pointer}
-:focus-visible{outline:3px solid var(--leaf);outline-offset:2px;border-radius:6px}
-
-/* 選ぶだけパネル */
-.pickbtn{font:inherit;font-size:11.5px;font-weight:700;color:var(--leaf);background:var(--leaf2);border:0;border-radius:999px;padding:2px 9px;margin-left:6px;cursor:pointer;vertical-align:1px}
-.pick{grid-column:1/-1;display:none;padding:8px 0 2px;border-top:1px dashed var(--line);margin-top:6px}
-.row.open .pick{display:block}
-.pick h3{margin:2px 0 4px;font-size:11.5px;color:var(--sub);font-weight:700}
-.chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px}
-.chip{font:inherit;font-size:12.5px;font-weight:700;color:var(--ink);background:var(--paper);border:1.5px solid var(--line);border-radius:999px;padding:4px 10px;cursor:pointer;line-height:1.3}
-.chip small{font-weight:500;color:var(--sub);font-size:10.5px;margin-left:3px}
-.chip.on{background:var(--leaf);border-color:var(--leaf);color:#fff}
-.chip.on small{color:#e3f0e6}
-.plan{font-size:12px;color:var(--sub);margin:2px 0 0}
-.plan b{color:var(--leaf)}
-.fz{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px;font-size:13px}
-.fz input{width:64px;font:inherit;font-size:17px;font-weight:700;text-align:right;border:0;border-bottom:2px solid var(--line);background:transparent;color:var(--ink);font-variant-numeric:tabular-nums}
-.fz input:focus{outline:none;border-color:var(--leaf)}
-.fzout{font-size:13px;margin:4px 0 8px}
-.fzout b{font-size:22px;background:linear-gradient(transparent 60%,var(--marker) 60%)}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+:root{--bg:#F6F7F5;--ink:#1c1c1e;--sub:#6b6f6b;--green:#2E7D4F;--deep:#1F3D2B;--yellow:#F5D33B;--line:#dfe3df;--card:#fff}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--bg);color:var(--ink)}
+body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+.app{max-width:440px;height:100dvh;margin:0 auto;display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top) + 10px) 18px calc(env(safe-area-inset-bottom) + 12px)}
+.top{display:flex;align-items:center;font-size:11px;color:var(--sub);height:22px}
+.top .back{font-size:13px;color:var(--green);font-weight:600;padding:4px 8px 4px 0;visibility:hidden}
+.top .pr{margin-left:auto}
+.hero{display:flex;align-items:flex-end;gap:10px;margin-top:6px}
+.hero img{width:64px;height:64px;border-radius:50%;border:3px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,.1);flex:none}
+.bub{position:relative;flex:1;min-width:0;background:#fff;border-radius:18px;padding:11px 14px;margin-bottom:8px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.bub:after{content:'';position:absolute;left:-7px;bottom:12px;border:7px solid transparent;border-right-color:#fff;border-left:0}
+.bub b{display:block;font-size:19px;font-weight:700;line-height:1.35;letter-spacing:-.2px}
+.bub small{display:block;font-size:12px;color:var(--sub);margin-top:2px;white-space:pre-line}
+.bar{display:flex;gap:6px;margin:14px 0 4px}.bar i{flex:1;height:4px;border-radius:2px;background:var(--line);transition:background .3s}.bar i.on{background:var(--green)}
+.body{flex:1;min-height:0;position:relative}
+.step{position:absolute;inset:0;padding-top:12px;display:flex;flex-direction:column;overflow-y:auto;scrollbar-width:none;opacity:0;transform:translateX(24px);pointer-events:none;transition:opacity .25s,transform .25s}
+.step::-webkit-scrollbar{display:none}
+.step.now{opacity:1;transform:none;pointer-events:auto}
+.step.gone{transform:translateX(-24px)}
+.g{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:9px}
+.t{background:var(--card);border-radius:15px;min-height:52px;display:flex;align-items:center;gap:10px;padding:0 14px;font-size:15px;font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.06);text-align:left;transition:transform .1s}
+.t:active{transform:scale(.97)}
+.t i{width:11px;height:11px;border-radius:50%;flex:none}
+.t.on{outline:2px solid var(--green);background:#EEF7F1}
+.t.u{grid-column:1/3;background:transparent;box-shadow:none;border:1.5px dashed #c9cec9;justify-content:center;color:var(--sub);font-weight:500}
+.t.u.on{border-color:var(--green);color:var(--green);outline:0;background:#EEF7F1}
+.big{display:flex;flex-direction:column;gap:9px}
+.big .t{min-height:64px;flex-direction:column;align-items:flex-start;justify-content:center;gap:1px;padding:10px 16px}
+.big .t span{font-size:16px}.big .t em{font-style:normal;font-size:12px;color:var(--sub);font-weight:400}
+.lab{font-size:13px;font-weight:600;color:var(--sub);margin:2px 0 7px}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
+.chips .t{min-height:40px;padding:0 13px;font-size:14px;border-radius:12px}
+.own{margin-top:12px;font-size:13px;color:var(--green);font-weight:600;align-self:flex-start;padding:4px 0}
+.ownbox{display:none;margin-top:6px;align-items:center;gap:8px;background:#fff;border-radius:12px;padding:8px 12px;font-size:14px}
+.ownbox.show{display:flex}
+.ownbox input{flex:1;min-width:0;font:inherit;font-size:17px;font-weight:600;border:0;outline:0;text-align:right;background:transparent}
+.help{margin-top:10px;font-size:12px;color:var(--sub);line-height:1.6;white-space:pre-line}
+/* 結果 */
+.res{gap:9px}
+.card{background:#fff;border-radius:16px;box-shadow:0 1px 2px rgba(0,0,0,.06);overflow:hidden}
+.card>button{width:100%;display:flex;align-items:center;gap:10px;padding:13px 14px;text-align:left}
+.card .ic{width:34px;height:34px;border-radius:10px;background:#EEF7F1;display:flex;align-items:center;justify-content:center;font-size:17px;flex:none}
+.card .nm{font-size:13px;color:var(--sub)}.card .nm b{display:block;font-size:15px;color:var(--ink)}
+.card .sv{margin-left:auto;text-align:right;font-size:12px;color:var(--sub)}.card .sv b{display:block;font-size:17px;color:var(--green)}
+.card .sv b.zero{color:var(--sub);font-size:14px}
+.card .in{display:none;padding:0 14px 14px;font-size:13px;line-height:1.6;color:#3a3d3a}
+.card.open .in{display:block}
+.card .in p{white-space:pre-line}
+.go{display:flex;align-items:center;justify-content:center;margin-top:10px;height:46px;border-radius:12px;background:var(--yellow);color:var(--deep);font-weight:700;font-size:15px;text-decoration:none}
+.go.sub{background:#EEF7F1;color:var(--green);height:40px;font-size:14px;margin-top:8px}
+.note{font-size:10.5px;color:#8e928e;line-height:1.55;margin-top:auto;padding:8px 0 4px;white-space:pre-line}
+.res>*{flex:none}
+.again{font-size:13px;color:var(--green);font-weight:600;padding:6px 0;align-self:center}
+/* 下の帯 */
+.foot{margin-top:10px;background:var(--deep);color:#fff;border-radius:20px;padding:13px 14px 13px 18px;display:flex;align-items:center;flex:none}
+.foot small{font-size:12px;opacity:.75;display:block}
+.foot .num{font-size:27px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.5px;line-height:1.15}.foot .num em{font-style:normal;font-size:14px;margin-left:2px}
+.foot .nx{margin-left:auto;background:var(--yellow);color:var(--deep);font-weight:700;font-size:15px;padding:11px 18px;border-radius:12px;transition:opacity .2s}
+.foot .nx:disabled{opacity:.35}
+@media (max-height:700px){.hero img{width:52px;height:52px}.bub b{font-size:17px}.t{min-height:46px}.big .t{min-height:56px}.chips .t{min-height:36px}.foot .num{font-size:23px}}
 </style>
 </head>
 <body>
-<main class="app">
-  <p class="pr">このページには広告（PR）を含みます。</p>
-  <h1><img src="icon-192.png?v=2" alt="">コテヲタ｜固定費、1年でいくら浮く？</h1>
+<div class="app">
+  <div class="top"><button class="back" id="back">‹ 戻る</button><span class="pr">このページには広告（PR）を含みます</span></div>
+  <div class="hero"><img src="icon-192.png?v=2" alt="コテヲタ"><div class="bub"><b id="q">スマホ、どこの使ってる？</b><small id="qs">タップするだけ。
+明細はいらないよ</small></div></div>
+  <div class="bar" id="bar"><i class="on"></i><i></i><i></i><i></i></div>
 
-  <section class="result" aria-live="polite">
-    <p>見直すと、1年で</p>
-    <div class="yen"><span id="total">0</span><small>円</small></div>
-    <p class="per" id="per">浮くかもしれません。</p>
-    <button class="share" id="share" type="button">結果を画像で保存・シェア</button>
-  </section>
+  <div class="body">
+    <!-- 1 スマホ会社 -->
+    <section class="step now" data-s="0">
+      <div class="g" id="carriers"></div>
+    </section>
 
-  <div class="rows">
-    <div class="row" id="r-phone">
-      <label for="phone">スマホ代<button class="pickbtn" type="button" data-open="r-phone">選ぶ</button><span>1人あたり・1か月</span></label>
-      <div class="in"><input id="phone" inputmode="numeric" value="7000"><em>円</em><input id="ppl" class="ppl" inputmode="numeric" value="1"><em>人</em></div>
-      <div class="gain" id="g-phone"></div>
-      <div class="pick">
-        <h3>今のスマホ会社</h3>
-        <div class="chips" id="c-now"></div>
-        <h3>1か月に使うギガ</h3>
-        <div class="chips" id="c-giga"></div>
-        <p class="plan" id="plan"></p>
-      </div>
-    </div>
-    <div class="row" id="r-elec">
-      <label for="elec">電気代<button class="pickbtn" type="button" data-open="r-elec">選ぶ</button><span>1か月</span></label>
-      <div class="in"><input id="elec" inputmode="numeric" value="9000"><em>円</em></div>
-      <div class="gain" id="g-elec"></div>
-      <div class="pick">
-        <h3>住んでいる地域</h3>
-        <div class="chips" id="c-area"></div>
-        <h3>家の人数</h3>
-        <div class="chips" id="c-hh"></div>
-        <p class="plan">選ぶと、その地域と人数の平均の電気代が入ります（総務省「家計調査」2025年）。</p>
-      </div>
-    </div>
-    <div class="row" id="r-net">
-      <label for="net">家のネット代<button class="pickbtn" type="button" data-open="r-net">選ぶ</button><span>1か月</span></label>
-      <div class="in"><input id="net" inputmode="numeric" value="5500"><em>円</em></div>
-      <div class="gain" id="g-net"></div>
-      <div class="pick">
-        <h3>住まい</h3>
-        <div class="chips" id="c-home"></div>
-        <p class="plan" id="netplan"></p>
-      </div>
-    </div>
-    <div class="row" id="r-sub">
-      <label for="sub">使ってないサブスク<button class="pickbtn" type="button" data-open="r-sub">選ぶ</button><span>やめてもいいものの合計・1か月</span></label>
-      <div class="in"><input id="sub" inputmode="numeric" value="1000"><em>円</em></div>
-      <div class="gain" id="g-sub"></div>
-      <div class="pick">
-        <h3>最近使っていないものをタップ</h3>
-        <div class="chips" id="c-sub"></div>
-      </div>
-    </div>
+    <!-- 2 使い方 -->
+    <section class="step" data-s="1">
+      <div class="big" id="usage"></div>
+      <button class="own" id="ownBtn">今の月額がわかる人は入れる ›</button>
+      <div class="ownbox" id="ownBox">1人・1か月<input id="ownPhone" inputmode="numeric" placeholder="わからなければ空のまま">円</div>
+    </section>
+
+    <!-- 3 家のネット -->
+    <section class="step" data-s="2">
+      <div class="big" id="home"></div>
+      <button class="own" id="ownBtn2">今のネット代がわかる人は入れる ›</button>
+      <div class="ownbox" id="ownBox2">1か月<input id="ownNet" inputmode="numeric" placeholder="わからなければ空のまま">円</div>
+    </section>
+
+    <!-- 4 電気 -->
+    <section class="step" data-s="3">
+      <div class="lab">住んでいる地域</div><div class="chips" id="area"></div>
+      <div class="lab">一緒に住んでる人数（自分も入れて）</div><div class="chips" id="hh"></div>
+      <div class="help">選んだ地域と人数の、平均の電気代で計算します。</div>
+    </section>
+
+    <!-- 結果 -->
+    <section class="step res" data-s="4">
+      <div id="cards" style="display:flex;flex-direction:column;gap:9px"></div>
+      <button class="again" id="again">最初からやり直す</button>
+      <div class="note" id="note"></div>
+    </section>
   </div>
 
-  <div class="tips" id="tips"></div>
+  <div class="foot"><div><small id="fl">見直すと1年で</small><div class="num"><span id="total">0</span><em>円</em></div></div><button class="nx" id="next" disabled>次へ</button></div>
+</div>
 
-  <footer class="foot">
-    <p>金額は目安です（料金は2026年12月からの各社公式の月額・税込）。<br>スマホは使うギガに合うプラン、家のネットは安い光回線（戸建て4,818円・マンション3,773円）に乗り換えた場合、電気は5％安くなった場合で計算しています。</p>
-    <p>入れた数字はこの端末の中だけに残ります。<button class="reset" id="reset" type="button">最初の数字に戻す</button></p>
-  </footer>
-</main>
 <script>
 const $=s=>document.querySelector(s);
-const KEY='kotewota-v1', DEF={phone:7000,ppl:1,elec:9000,net:5500,sub:1000,giga:1,inc:450,fam:0,kids:0,univ:0};
-/* 今の会社（選ぶと月額の目安が入る） */
-const NOW=[{n:'大手・使い放題',v:8000},{n:'大手・少なめ',v:4600},{n:'UQ・ワイモバイル',v:3800},{n:'格安SIM',v:1500}];
-/* 使うギガ → 乗り換え先の目安（2026年12月からの月額・税込） */
-const GIGA=[
-  {n:'3GBまで',p:'楽天モバイル（3GBまで）',v:1078},
-  {n:'20GBまで',p:'日本通信SIM（20GB）',v:1390},
-  {n:'40GBまで',p:'ahamo（40GBまで）',v:3135},
-  {n:'たくさん',p:'楽天モバイル（使い放題）',v:3278}];
-/* サブスク（月額・税込の目安） */
-const SUBS=[['Netflix',1590],['Amazonプライム',600],['YouTube Premium',1280],['Spotify',1080],['Apple Music',1080],['ディズニープラス',1250],['U-NEXT',2189],['Hulu',1320],['ABEMA',1180],['DMM TV',550],['dアニメ',660],['DAZN',4200]];
-let subOn=[];
-/* 電気：地域の平均（2人以上の世帯）と人数の比率（総務省「家計調査」2025年） */
+const yen=n=>Math.round(n).toLocaleString('ja-JP');
+const num=v=>{const n=Number(String(v||'').replace(/[^\d]/g,''));return isFinite(n)?n:0};
+
+/* ===== データ（2026年11月時点・税込の目安） =====
+  平均の支払額：MM総研「携帯電話の月額利用料金とサービス利用実態（2026年7月調査）」
+    大手4ブランド 4853円 / サブブランド 3296円 / MVNO 1979円（端末代を除く）
+  楽天モバイル：3GBまで1078円・20GBまで2178円・無制限3278円
+  ahamo：2026年12月から3135円（40GB） */
+const BIG=[4853,4853,8000]; // 大手：少なめ・ふつうは平均、使い放題は大手の無制限プランの目安
+const CARRIERS=[
+  {k:'docomo',n:'ドコモ',c:'#CC0033',cur:BIG,line:'docomo'},
+  {k:'au',n:'au',c:'#EB5505',cur:BIG,line:'au'},
+  {k:'sb',n:'ソフトバンク',c:'#8A8F94',cur:BIG,line:'sb'},
+  {k:'rakuten',n:'楽天モバイル',c:'#BF0000',cur:[1078,2178,3278]},
+  {k:'ahamo',n:'ahamo',c:'#1BA1E2',cur:[3135,3135,3135]},
+  {k:'povo',n:'povo',c:'#E8C400',cur:[1979,2970,2970]},
+  {k:'uq',n:'UQモバイル',c:'#E6007E',cur:[3296,3296,3296]},
+  {k:'ym',n:'ワイモバイル',c:'#E60033',cur:[3296,3296,3296]},
+  {k:'linemo',n:'LINEMO',c:'#06C755',cur:[1979,2970,2970]},
+  {k:'unk',n:'契約したけど、よくわからない',cur:BIG,u:1}
+];
+const USAGE=[
+  {n:'ほぼWi-Fi',e:'外ではLINEと地図くらい（3GBまで）',plan:{k:'rakuten',n:'楽天モバイル（3GBまで）',v:1078}},
+  {n:'ふつう',e:'外でSNSや動画をちょっと見る（20GBまで）',plan:{k:'nihontsushin',n:'日本通信SIM（20GB）',v:1390}},
+  {n:'動画をよく見る',e:'外でもYouTubeやゲームをする（使い放題）',plan:{k:'rakuten',n:'楽天モバイル（使い放題）',v:3278}}
+];
+/* 同じ回線のまま安くする場合 */
+const SAME={docomo:{k:'ahamo',n:'ahamo（ドコモ回線・40GB）',v:3135}};
+/* 家のネット：わからない時の目安と、安い光回線（GMOとくとくBB光） */
+const HOME=[
+  {n:'戸建て',e:'一軒家に住んでいる',cur:5500,to:4818},
+  {n:'マンション・アパート',e:'集合住宅に住んでいる',cur:4400,to:3773},
+  {n:'家にネットはない',e:'スマホだけで使っている',cur:0,to:0}
+];
+/* 電気：地域の平均（2人以上の世帯）と人数の平均（総務省「家計調査」2025年） */
 const AREA=[['北海道',13584],['東北',16380],['関東',12716],['北陸',17451],['東海',13154],['近畿',12284],['中国',14787],['四国',14192],['九州',11762],['沖縄',12534]];
 const HH=[['1人',6756],['2人',11890],['3人',13593],['4人',13862],['5人以上',15196]];
-const HH_AVG=12967;
-/* ネット：安い光回線の月額（GMOとくとくBB光 1ギガ） */
-const HOME=[{n:'戸建て',v:4818},{n:'マンション',v:3773}];
-const ids=['phone','ppl','elec','net','sub'];
-let ST={giga:1,inc:450,fam:0,kids:0,univ:0,area:-1,hh:-1,home:0};
-const yen=n=>Math.round(n).toLocaleString('ja-JP');
-const num=v=>{const n=Number(String(v).replace(/[^\d]/g,''));return isFinite(n)?n:0};
+const HH_AVG=12967, ELEC_CUT=0.05;
 
-/* 見直し先（links.json があればそれを使う。リンクがない項目はヒントだけ出す） */
-const TIPS={
-  phone:{t:'スマホ代を下げる',p:'大手のままなら、格安SIMに乗り換えるだけで月数千円下がることが多いです。<br>番号はそのまま使えて、手続きはネットで完結します。'},
-  elec:{t:'電気代を下げる',p:'電気の契約先は、ネットで申し込むだけで切り替えられます。<br>工事や立ち会いはいりません。<br>浮く金額は、今の電気代の5％安くなった場合の目安です。'},
-  net:{t:'家のネット代を下げる',p:'光回線は、同じ速さでも会社によって月1,000円以上ちがいます。<br>UQモバイルなら、対象のネットか電気とセットにするとスマホ代が月1,100円安くなります。'},
-  sub:{t:'サブスクをやめる',p:'カードの明細を1か月分だけ見て、使っていないものを止めるのがいちばん早いです。'},
-  hoken:{t:'保険を見直す',p:'入ったまま何年も見ていない保険は、今の家族構成に合っていないことがあります。<br>保険証券を1枚出して、毎月いくら払っているかを見るところからで大丈夫です。'},
-  card:{t:'ポイントが多いカードにする',p:'スマホ代・電気代・ネット代は毎月同じ額なので、還元が多いカード払いにするだけで、何もしなくてもポイントがたまります。'},
-  furusato:{t:'ふるさと納税（12月31日まで）',p:'今年の分は12月31日の支払いまでです。<br>上限の範囲内なら、実質2,000円の負担でお礼の品がもらえます。<br>年収と家族を選ぶと、上限の目安が出ます（会社員の場合）。'}
+/* 申し込み先のURL（links.json で差し替え。アフィリエイトが決まったらそこだけ直す） */
+let LINKS={
+  rakuten:'https://network.mobile.rakuten.co.jp/',
+  nihontsushin:'https://www.nihontsushin.com/',
+  ahamo:'https://ahamo.com/',
+  hikari:'https://gmobb.jp/',
+  denki:'https://enechange.jp/'
 };
-let LINKS={};
+fetch('links.json?t='+Date.now()).then(r=>r.json()).then(j=>{Object.keys(j).forEach(k=>{if(typeof j[k]==='string'&&j[k])LINKS[k]=j[k]});if(step===4)renderResult()}).catch(()=>{});
 
-function load(){let s={};try{s=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}ids.forEach(k=>{if(s[k]!=null)$('#'+k).value=s[k]});['giga','inc','fam','kids','univ','area','hh','home'].forEach(k=>{if(s[k]!=null)ST[k]=s[k]});if(Array.isArray(s.subOn))subOn=s.subOn}
-function save(){const o={};ids.forEach(k=>o[k]=num($('#'+k).value));Object.assign(o,ST,{subOn});try{localStorage.setItem(KEY,JSON.stringify(o))}catch(e){}}
+const Q=[
+  ['スマホ、どこの使ってる？','タップするだけ。\n明細はいらないよ'],
+  ['外でどれくらい使う？','ギガがわからなくても大丈夫'],
+  ['家のネットは？','わからなければ、よくある料金で計算するよ'],
+  ['電気はどこで、何人で使ってる？','平均の電気代で計算するよ'],
+  ['1年でこれだけ浮くかも','タップすると、どこに変えればいいか出るよ']
+];
+const ST={car:-1,use:-1,home:-1,area:-1,hh:-1};
+let step=0;
 
+function tile(cls,html,on,fn){const b=document.createElement('button');b.className='t '+cls+(on?' on':'');b.innerHTML=html;b.onclick=fn;return b}
+function draw(){
+  const c=$('#carriers');c.innerHTML='';
+  CARRIERS.forEach((x,i)=>c.appendChild(tile(x.u?'u':'',x.u?x.n:`<i style="background:${x.c}"></i>${x.n}`,ST.car===i,()=>pick('car',i))));
+  const u=$('#usage');u.innerHTML='';
+  USAGE.forEach((x,i)=>u.appendChild(tile('',`<span>${x.n}</span><em>${x.e}</em>`,ST.use===i,()=>pick('use',i))));
+  const h=$('#home');h.innerHTML='';
+  HOME.forEach((x,i)=>h.appendChild(tile('',`<span>${x.n}</span><em>${x.e}</em>`,ST.home===i,()=>pick('home',i))));
+  const a=$('#area');a.innerHTML='';AREA.forEach((x,i)=>a.appendChild(tile('',x[0],ST.area===i,()=>pick('area',i))));
+  const p=$('#hh');p.innerHTML='';HH.forEach((x,i)=>p.appendChild(tile('',x[0],ST.hh===i,()=>pick('hh',i))));
+}
+function pick(k,i){
+  ST[k]=i;draw();calc();
+  const auto=(step===0&&k==='car')||(step===1&&k==='use')||(step===2&&k==='home')||(step===3&&ST.area>=0&&ST.hh>=0);
+  if(auto)setTimeout(()=>go(step+1),260);
+}
+
+/* ===== 計算 ===== */
+function parts(){
+  const r={phone:null,net:null,elec:null};
+  if(ST.car>=0&&ST.use>=0){
+    const c=CARRIERS[ST.car],own=num($('#ownPhone').value);
+    const cur=own||c.cur[ST.use];
+    const plan=USAGE[ST.use].plan;
+    const same=c.line&&SAME[c.line];
+    r.phone={cur,own:!!own,plan,save:Math.max(0,cur-plan.v)*12,same:same&&same.v<cur?{...same,save:(cur-same.v)*12}:null,c};
+  }
+  if(ST.home>=0){
+    const h=HOME[ST.home],own=num($('#ownNet').value);
+    const cur=h.cur?(own||h.cur):0;
+    r.net={cur,own:!!own,to:h.to,save:h.cur?Math.max(0,cur-h.to)*12:0,none:!h.cur};
+  }
+  if(ST.area>=0&&ST.hh>=0){
+    const cur=Math.round(AREA[ST.area][1]*HH[ST.hh][1]/HH_AVG/10)*10;
+    r.elec={cur,save:Math.round(cur*ELEC_CUT)*12};
+  }
+  return r;
+}
 let shown=0,raf=0;
-function animate(to){cancelAnimationFrame(raf);const from=shown,t0=performance.now(),d=matchMedia('(prefers-reduced-motion:reduce)').matches?0:500;
-  const step=t=>{const k=d?Math.min(1,(t-t0)/d):1;shown=from+(to-from)*(1-Math.pow(1-k,3));$('#total').textContent=yen(shown);if(k<1)raf=requestAnimationFrame(step)};raf=requestAnimationFrame(step)}
+function animate(to){cancelAnimationFrame(raf);const from=shown,t0=performance.now(),d=500;
+  const f=t=>{const k=Math.min(1,(t-t0)/d);shown=from+(to-from)*(1-Math.pow(1-k,3));$('#total').textContent=yen(shown);if(k<1)raf=requestAnimationFrame(f)};raf=requestAnimationFrame(f)}
+function calc(){const r=parts();let t=0;['phone','net','elec'].forEach(k=>{if(r[k])t+=r[k].save});animate(t);btn();return r}
 
-function calc(){
-  const v={};ids.forEach(k=>v[k]=num($('#'+k).value));
-  const ppl=Math.max(1,Math.min(10,v.ppl||1));
-  const g={
-    phone:Math.max(0,v.phone-GIGA[ST.giga].v)*ppl*12,
-    elec:Math.round(v.elec*0.05)*12,
-    net:Math.max(0,v.net-HOME[ST.home].v)*12,
-    sub:v.sub*12
-  };
-  const total=g.phone+g.elec+g.net+g.sub;
-  ['phone','elec','net','sub'].forEach(k=>{$('#g-'+k).textContent=g[k]>0?'1年で '+yen(g[k])+'円 浮くかも':''});
-  animate(total);
-  $('#per').textContent=total>0?'浮くかもしれません。\n1か月だと約'+yen(total/12)+'円です。':'今の金額は、もうかなり安いです。';
-  $('#per').style.whiteSpace='pre-line';
-  lastG=g;renderPick();renderTips(g);save();
+/* ===== 結果 ===== */
+function card(ic,title,sub,save,inner){
+  const d=document.createElement('div');d.className='card';
+  d.innerHTML=`<button><span class="ic">${ic}</span><span class="nm">${sub}<b>${title}</b></span><span class="sv">${save>0?'1年で<b>'+yen(save)+'円</b>':'<b class="zero">もう安い</b>'}</span></button><div class="in">${inner}</div>`;
+  d.querySelector('button').onclick=()=>{const o=d.classList.contains('open');document.querySelectorAll('.card').forEach(x=>x.classList.remove('open'));if(!o)d.classList.add('open')};
+  return d;
+}
+function link(k,label,sub){return `<a class="go${sub?' sub':''}" href="${LINKS[k]||'#'}" target="_blank" rel="noopener sponsored">${label}</a>`}
+function renderResult(){
+  const r=parts(),box=$('#cards');box.innerHTML='';
+  if(r.phone){const p=r.phone;
+    let h=`<p>今：${p.c.u?'大手の平均':p.c.n} 月${yen(p.cur)}円${p.own?'（入れた金額）':'くらい'}\nおすすめ：${p.plan.n} 月${yen(p.plan.v)}円</p>`;
+    if(p.save>0)h+=link(p.plan.k,p.plan.n.replace(/（.*/,'')+'を見る');
+    else h+='<p>今のままで十分安いです。</p>';
+    if(p.same)h+=`<p style="margin-top:10px">番号も回線もそのままがいいなら\n${p.same.n} 月${yen(p.same.v)}円（1年で${yen(p.same.save)}円）</p>`+link(p.same.k,'ahamoを見る',1);
+    if(p.c.u)h+=`<p style="margin-top:10px;font-size:12px;color:#6b6f6b">正確に知りたいときは、スマホ会社のアプリ（My docomo・My au・My SoftBankなど）の「料金」か「請求」を開くと、毎月の金額が出ます。</p>`;
+    box.appendChild(card('📱','スマホ代','見直すと',p.save,h));}
+  if(r.net){const n=r.net;
+    let h=n.none?'<p>家のネットがないので、ここは0円です。</p>':`<p>今：月${yen(n.cur)}円${n.own?'（入れた金額）':'くらい'}\nおすすめ：GMOとくとくBB光 月${yen(n.to)}円</p>`+(n.save>0?link('hikari','安い光回線を見る'):'<p>今のままで十分安いです。</p>');
+    box.appendChild(card('🏠','家のネット代','見直すと',n.save,h));}
+  if(r.elec){const e=r.elec;
+    box.appendChild(card('💡','電気代','見直すと',e.save,`<p>今：月${yen(e.cur)}円くらい（${AREA[ST.area][0]}・${HH[ST.hh][0]}の平均）\n電気の会社を変えて5%安くなった場合で計算しています。\n工事や立ち会いはいりません。</p>`+link('denki','電気の会社をくらべる')));}
+  $('#note').textContent='金額は目安です（2026年11月時点・税込）。\nスマホの平均はMM総研の2026年7月調査、電気は総務省「家計調査」2025年をもとにしています。\nお申し込みの前に、各社の公式サイトで料金をご確認ください。';
 }
 
-
-/* ===== 選ぶだけパネル ===== */
-function chipHTML(list,onFn){return list.map((x,i)=>`<button type="button" class="chip${onFn(i)?' on':''}" data-i="${i}">${x.n}<small>${x.s||''}</small></button>`).join('')}
-function renderPick(){
-  const ph=num($('#phone').value);
-  $('#c-now').innerHTML=chipHTML(NOW.map(x=>({n:x.n,s:yen(x.v)+'円'})),i=>NOW[i].v===ph);
-  $('#c-giga').innerHTML=chipHTML(GIGA.map(x=>({n:x.n})),i=>i===ST.giga);
-  const t=GIGA[ST.giga];
-  $('#plan').innerHTML=ph>t.v?`乗り換え先の目安：<b>${t.p}</b> 月${yen(t.v)}円`:`今の金額は、このギガ数ならもう安いです。`;
-  $('#c-sub').innerHTML=chipHTML(SUBS.map(x=>({n:x[0],s:yen(x[1])+'円'})),i=>subOn.includes(i));
-  $('#c-area').innerHTML=chipHTML(AREA.map(x=>({n:x[0]})),i=>i===ST.area);
-  $('#c-hh').innerHTML=chipHTML(HH.map(x=>({n:x[0]})),i=>i===ST.hh);
-  $('#c-home').innerHTML=chipHTML(HOME,i=>i===ST.home);
-  const h=HOME[ST.home],nt=num($('#net').value);
-  $('#netplan').innerHTML=nt>h.v?`乗り換え先の目安：<b>GMOとくとくBB光（${h.n}）</b> 月${yen(h.v)}円`:`今の金額は、もう安いです。`;
+/* ===== 画面の移動 ===== */
+function btn(){
+  const ok=[ST.car>=0,ST.use>=0,ST.home>=0,ST.area>=0&&ST.hh>=0][step];
+  const n=$('#next');
+  if(step===4){n.disabled=false;n.textContent='シェア';}else{n.disabled=!ok;n.textContent=step===3?'結果を見る':'次へ';}
+  $('#fl').textContent=step===4?'見直すと1年で':'ここまでで1年で';
 }
-function elecGuess(){
-  const a=ST.area>=0?AREA[ST.area][1]:HH_AVG, r=ST.hh>=0?HH[ST.hh][1]/HH_AVG:1;
-  return Math.round(a*r/100)*100;
-}
-document.addEventListener('click',e=>{
-  const ob=e.target.closest('[data-open]');
-  if(ob){e.preventDefault();const row=$('#'+ob.dataset.open),will=!row.classList.contains('open');
-    document.querySelectorAll('.row.open').forEach(r=>{r.classList.remove('open');r.querySelector('.pickbtn').textContent='選ぶ'});
-    document.querySelectorAll('#tips details[open]').forEach(d=>d.open=false);
-    if(will){row.classList.add('open');ob.textContent='閉じる'}return}
-  const c=e.target.closest('.chip');if(!c)return;const i=+c.dataset.i,box=c.parentElement.id;
-  if(box==='c-now'){$('#phone').value=NOW[i].v}
-  else if(box==='c-giga'){ST.giga=i}
-  else if(box==='c-sub'){subOn=subOn.includes(i)?subOn.filter(x=>x!==i):subOn.concat(i);$('#sub').value=subOn.reduce((a,j)=>a+SUBS[j][1],0)}
-  else if(box==='c-area'){ST.area=i;$('#elec').value=elecGuess()}
-  else if(box==='c-hh'){ST.hh=i;$('#elec').value=elecGuess()}
-  else if(box==='c-home'){ST.home=i}
-  else if(box==='c-fam'){ST.fam=i}
-  else if(box==='c-kids'){ST.kids=i}
-  else if(box==='c-univ'){ST.univ=i}
+function go(s){
+  if(s<0||s>4)return;step=s;
+  document.querySelectorAll('.step').forEach(el=>{const i=+el.dataset.s;el.classList.toggle('now',i===s);el.classList.toggle('gone',i<s)});
+  $('#q').textContent=Q[s][0];$('#qs').textContent=Q[s][1];
+  document.querySelectorAll('#bar i').forEach((x,i)=>x.classList.toggle('on',i<=Math.min(s,3)));
+  $('#back').style.visibility=s>0?'visible':'hidden';
+  if(s===4){renderResult();const f=document.querySelector('.card');if(f)f.classList.add('open')}
   calc();
-});
-
-/* ===== ふるさと納税の上限の目安（2026年分・会社員） ===== */
-function furusatoMax(incMan,fam,kids,univ){
-  const S=incMan*10000;if(S<=0)return 0;
-  const kojo=S<=1900000?690000:S<=3600000?S*.3+80000:S<=6600000?S*.2+440000:S<=8500000?S*.1+1100000:1950000;
-  const G=Math.max(0,S-kojo),sha=S*.15;
-  const spouse=fam===1;
-  // 住民税
-  const J=Math.max(0,G-sha-430000-(spouse?330000:0)-kids*330000-univ*450000);
-  const wari=J*.1;
-  // 所得税（税率を知るため）
-  const kiso=G<=4890000?1040000:G<=6550000?670000:G<=23500000?620000:0;
-  const K=Math.max(0,G-sha-kiso-(spouse&&G<=9000000?380000:0)-kids*380000-univ*630000);
-  const r=K<=1950000?.05:K<=3300000?.1:K<=6950000?.2:K<=9000000?.23:K<=18000000?.33:K<=40000000?.4:.45;
-  const m=wari*.2/(.9-r*1.021)+2000;
-  return Math.floor(m/1000)*1000;
 }
-function furusatoHTML(){
-  const fam=[{n:'独身・共働き'},{n:'夫婦（相手の収入なし）'}];
-  const kids=[{n:'0人'},{n:'1人'},{n:'2人'},{n:'3人'}];
-  const m=furusatoMax(ST.inc,ST.fam,ST.kids,ST.univ);
-  return `<div class="fz">年収<input id="inc" inputmode="numeric" value="${ST.inc}">万円</div>
-  <div class="chips" id="c-fam">${chipHTML(fam,i=>i===ST.fam)}</div>
-  <h3 style="margin:2px 0 4px;font-size:11.5px;color:var(--sub)">高校生の子ども</h3><div class="chips" id="c-kids">${chipHTML(kids,i=>i===ST.kids)}</div>
-  <h3 style="margin:2px 0 4px;font-size:11.5px;color:var(--sub)">大学生くらいの子ども（19〜22歳）</h3><div class="chips" id="c-univ">${chipHTML(kids,i=>i===ST.univ)}</div>
-  <p class="fzout">上限の目安は<br><b>約${yen(m)}円</b> まで</p>`;
-}
-
-function renderTips(g){
-  const order=['phone','elec','net','sub'].filter(k=>g[k]>0).sort((a,b)=>g[b]-g[a]);
-  const m=new Date().getMonth(),list=order.slice(0,4);if(m>=9)list.push('furusato'); // 10〜12月だけふるさと納税
-  list.push('hoken','card');
-  const openNow=[...document.querySelectorAll('#tips details[open]')].map(d=>d.dataset.k);
-  const ae=document.activeElement&&document.activeElement.id==='inc';
-  $('#tips').innerHTML=list.map((k,i)=>{
-    const t=TIPS[k],ls=(LINKS[k]||[]).map(l=>`<a class="go" href="${l.url}" target="_blank" rel="sponsored noopener">${l.name}<span>${l.note||''}</span><b>PR</b></a>`).join('');
-    let p=t.p;
-    if(k==='phone'){const g=GIGA[ST.giga];p=`使うギガが${g.n}なら、<b>${g.p}</b>で月${yen(g.v)}円です。<br>番号はそのまま使えて、手続きはネットで完結します。`}
-    const fz=k==='furusato'?furusatoHTML():'';
-    return `<details data-k="${k}"${openNow.includes(k)?' open':''}><summary>${t.t}</summary><div class="body"><p>${p}</p>${fz}${ls}</div></details>`}).join('');
-  if(ae){const el=$('#inc');el.focus();const L=el.value.length;el.setSelectionRange(L,L)}
-}
-
-$('#tips').addEventListener('input',e=>{if(e.target.id==='inc'){ST.inc=Math.min(9999,num(e.target.value));const o=$('.fzout');if(o)o.innerHTML=`上限の目安は<br><b>約${yen(furusatoMax(ST.inc,ST.fam,ST.kids,ST.univ))}円</b> まで`;save()}});
-$('#tips').addEventListener('focusin',e=>{if(e.target.id==='inc')setTimeout(()=>e.target.select(),0)});
-/* ===== 結果を画像にする ===== */
-let lastG={};
-function drawShare(){
-  return new Promise(res=>{
-    const W=1080,H=1350,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
-    x.fillStyle='#ffe540';x.fillRect(0,0,W,H);
-    x.fillStyle='#fffdf0';x.beginPath();x.roundRect(60,560,960,700,40);x.fill();
-    const img=new Image();img.onload=()=>{
-      x.save();x.beginPath();x.arc(W/2,300,230,0,Math.PI*2);x.clip();x.drawImage(img,W/2-230,70,460,460);x.restore();
-      const F='"Zen Maru Gothic","Hiragino Maru Gothic ProN",sans-serif';
-      x.fillStyle='#23302a';x.textAlign='center';
-      x.font='700 46px '+F;x.fillText('固定費を見直すと、1年で',W/2,650);
-      const t=num($('#total').textContent)||0;x.font='900 150px '+F;
-      const tw=x.measureText(yen(t)).width;x.fillStyle='#ffd628';x.fillRect(W/2-tw/2-70,770,tw+140,46);
-      x.fillStyle='#23302a';x.fillText(yen(t),W/2-30,800);x.font='700 64px '+F;x.fillText('円',W/2+tw/2+20,800);
-      x.font='700 40px '+F;x.fillText('浮くかも！',W/2,880);
-      const nm={phone:'スマホ',elec:'電気',net:'ネット',sub:'サブスク'};let y=970;x.font='500 36px '+F;x.fillStyle='#5d6b63';
-      Object.keys(nm).filter(k=>lastG[k]>0).forEach(k=>{x.textAlign='left';x.fillText(nm[k],230,y);x.textAlign='right';x.fillText(yen(lastG[k])+'円',850,y);y+=56});
-      x.textAlign='center';x.fillStyle='#2f7d55';x.font='700 34px '+F;x.fillText('コテヲタ｜固定費診断',W/2,1225);
-      x.fillStyle='#23302a';x.font='500 28px '+F;x.fillText('inaba-tools.github.io/kotewota',W/2,1310);
-      c.toBlob(res,'image/png');
-    };img.src='icon-512.png?v=2';
-  });
-}
-$('#share').onclick=async()=>{
-  const b=await drawShare();const f=new File([b],'kotewota.png',{type:'image/png'});
-  if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],text:'固定費、1年でいくら浮く？ #コテヲタ https://inaba-tools.github.io/kotewota/'})}catch(e){}}
-  else{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='kotewota.png';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),3000)}
+$('#next').onclick=()=>{
+  if(step<4)return go(step+1);
+  const t='固定費を見直すと、1年で'+$('#total').textContent+'円浮くかもしれないらしい';
+  if(navigator.share)navigator.share({text:t,url:location.href}).catch(()=>{});
+  else location.href='https://www.threads.net/intent/post?text='+encodeURIComponent(t+' '+location.href);
 };
-$('#tips').addEventListener('toggle',e=>{if(e.target.open){document.querySelectorAll('#tips details[open]').forEach(d=>{if(d!==e.target)d.open=false});document.querySelectorAll('.row.open').forEach(r=>{r.classList.remove('open');r.querySelector('.pickbtn').textContent='選ぶ'})}},true);
-load();
-calc();
-ids.forEach(k=>$('#'+k).addEventListener('input',calc));
-ids.forEach(k=>$('#'+k).addEventListener('focus',e=>setTimeout(()=>e.target.select(),0)));
-$('#reset').onclick=()=>{ids.forEach(k=>$('#'+k).value=DEF[k]);ST={giga:1,inc:450,fam:0,kids:0,univ:0,area:-1,hh:-1,home:0};subOn=[];calc()};
-fetch('links.json?'+Date.now(),{cache:'no-store'}).then(r=>r.json()).then(j=>{LINKS=j;calc()}).catch(()=>{});
+$('#back').onclick=()=>go(step-1);
+$('#again').onclick=()=>{Object.keys(ST).forEach(k=>ST[k]=-1);$('#ownPhone').value='';$('#ownNet').value='';draw();go(0)};
+$('#ownBtn').onclick=()=>{$('#ownBox').classList.toggle('show');$('#ownPhone').focus()};
+$('#ownBtn2').onclick=()=>{$('#ownBox2').classList.toggle('show');$('#ownNet').focus()};
+['#ownPhone','#ownNet'].forEach(s=>$(s).addEventListener('input',calc));
+draw();go(0);
 </script>
 </body>
 </html>
