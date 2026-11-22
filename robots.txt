@@ -4,6 +4,7 @@ Disallow: /care-sagashi/
 Disallow: /yt-test/
 Disallow: /yl/
 Disallow: /kabu-data/
+Disallow: /higashimikawa/
 
 Sitemap: https://inaba-tools.github.io/applist/sitemap.xml
 Sitemap: https://inaba-tools.github.io/fukidashi-txt/sitemap.xml
