@@ -15,6 +15,7 @@
 <link rel="icon" href="icon.png">
 <title>東三河の飲食店（見本）</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.min.css">
 <style>
 :root{
   --g:#1F6B45;--gbg:#F2F6F3;--g2:#3FA86F;--o:#B86A00;--obg:#FFF4E5;
@@ -156,6 +157,19 @@ input{font:inherit}
 @keyframes me{0%{box-shadow:0 0 0 0 rgba(47,123,245,.45)}100%{box-shadow:0 0 0 18px rgba(47,123,245,0)}}
 .leaflet-control-attribution{font-size:9px!important;margin-bottom:calc(var(--sb) + 84px)!important;background:rgba(255,255,255,.6)!important}
 .leaflet-control-zoom{display:none}
+.clu{width:40px;height:40px;border-radius:50%;background:rgba(31,107,69,.9);color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;border:3px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,.25);animation:drop .45s var(--spring) both}
+.clu.b{width:50px;height:50px;font-size:14px}
+.pn.unk{background:#C9C9C9}
+.sample{font-size:11px;font-weight:700;color:#8A5A00;background:#FFF4E5;border-radius:10px;padding:8px 10px;line-height:1.6;margin-bottom:10px}
+.gift{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.gift button{border:1.5px solid var(--line);border-radius:16px;padding:14px 6px;text-align:center;transition:all .25s var(--spring)}
+.gift button b{display:block;font-size:20px;font-weight:900}
+.gift button small{font-size:11px;color:var(--sub)}
+.gift button.on{border-color:var(--o);background:var(--obg);transform:scale(1.04)}
+.gift button:disabled{opacity:.35}
+.amzn{display:flex;align-items:center;gap:12px;border-radius:18px;padding:14px;background:#131921;color:#fff;margin-bottom:12px}
+.amzn .lg{width:46px;height:46px;border-radius:12px;background:#FF9900;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#131921}
+.code{font-family:ui-monospace,Menlo,monospace;font-size:20px;letter-spacing:2px;text-align:center;border:1.5px dashed var(--o);border-radius:14px;padding:14px;margin:8px 0 12px;-webkit-user-select:all;user-select:all}
 /* QR */
 .scan{flex:1;border-radius:22px;background:#0E0E0E;position:relative;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#fff;overflow:hidden;min-height:0}
 .scan video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
@@ -335,55 +349,49 @@ input{font:inherit}
 <div class="toast" id="toast"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 <script>
-const VERSION="1";
+const VERSION="2";
 /* ===== 仮データ ===== */
 // 種類：飲食・美容・癒し
 const GENRES={
- "ラーメン":["🍜","飲食"],"そば":["🥢","飲食"],"焼き鳥":["🍢","飲食"],"居酒屋":["🍶","飲食"],"喫茶":["☕","飲食"],"海鮮":["🐟","飲食"],
- "うなぎ":["🍱","飲食"],"洋食":["🍝","飲食"],"カレー":["🍛","飲食"],"パン":["🥐","飲食"],"焼肉":["🥩","飲食"],
+ "ラーメン":["🍜","飲食"],"そば":["🥢","飲食"],"うどん":["🍲","飲食"],"寿司":["🍣","飲食"],"焼き鳥":["🍢","飲食"],"居酒屋・バー":["🍺","飲食"],
+ "喫茶":["☕","飲食"],"海鮮":["🐟","飲食"],"うなぎ":["🍱","飲食"],"洋食":["🍝","飲食"],"イタリアン":["🍕","飲食"],"中華":["🥟","飲食"],
+ "カレー":["🍛","飲食"],"パン":["🥐","飲食"],"お菓子":["🍰","飲食"],"焼肉":["🥩","飲食"],"とんかつ":["🍖","飲食"],"お好み焼き":["🥞","飲食"],
+ "和食・食堂":["🍚","飲食"],"飲食店":["🍽️","飲食"],
  "ネイル":["💅","美容"],"美容室":["✂️","美容"],"エステ":["🌸","美容"],"まつげ":["👁️","美容"],
  "マッサージ":["💆","癒し"],"整体":["🦴","癒し"]
 };
 const PAL={"飲食":["#3A2A1E","#C2703A"],"美容":["#4A2A3A","#D98AA6"],"癒し":["#1E3A34","#6FB59A"]};
-// h：営業時間（分）。翌日にまたぐ時は1440より大きい数。off：定休日（0=日）
-const SHOPS=[
- {id:1,n:"炭火焼鳥 とりまる",g:"焼き鳥",a:"豊橋・松葉町",lat:34.7655,lng:137.3865,h:[[1020,1380]],off:[1],m:[["ねぎま","180円"],["つくね（卵黄）","260円"]],v:1},
- {id:2,n:"喫茶 こはく",g:"喫茶",a:"豊橋・広小路",lat:34.7668,lng:137.3893,h:[[450,1020]],off:[3],m:[["小倉トースト","480円"],["ブレンド","450円"]]},
- {id:3,n:"中華そば 牛川軒",g:"ラーメン",a:"豊橋・牛川町",lat:34.7752,lng:137.4005,h:[[660,900],[1050,1260]],off:[],m:[["中華そば","750円"],["チャーシュー丼","350円"]],v:1},
- {id:4,n:"夜鳴きそば 月見亭",g:"ラーメン",a:"豊橋・駅前大通",lat:34.7640,lng:137.3840,h:[[1200,1680]],off:[0],m:[["醤油ラーメン","800円"],["餃子","400円"]]},
- {id:5,n:"居酒屋 ふくろう",g:"居酒屋",a:"豊橋・花園町",lat:34.7630,lng:137.3880,h:[[1080,1620]],off:[],m:[["菜めし田楽","600円"],["どて煮","550円"]],v:1},
- {id:6,n:"うなぎ 川しま",g:"うなぎ",a:"豊川・諏訪",lat:34.8268,lng:137.3878,h:[[660,840],[1020,1200]],off:[2],m:[["ひつまぶし","3,800円"],["う巻き","900円"]]},
- {id:7,n:"海鮮 しおさい",g:"海鮮",a:"蒲郡・竹島町",lat:34.8165,lng:137.2245,h:[[660,1260]],off:[4],m:[["あさり丼","1,200円"],["刺身定食","1,600円"]],v:1},
- {id:8,n:"ビストロ ルポ",g:"洋食",a:"田原・田原町",lat:34.6690,lng:137.2660,h:[[690,840],[1080,1320]],off:[],m:[["キャベツのペペロンチーノ","1,300円"],["ハンバーグ","1,500円"]]},
- {id:9,n:"手打ちそば 鳳来",g:"そば",a:"新城・長篠",lat:34.9225,lng:137.5560,h:[[660,900]],off:[],m:[["ざるそば","900円"],["天ぷらそば","1,500円"]]},
- {id:10,n:"カレーの店 スパイス堂",g:"カレー",a:"豊橋・松山町",lat:34.7600,lng:137.3920,h:[[660,1290]],off:[],m:[["チキンカレー","950円"],["ラッシー","350円"]]},
- {id:11,n:"パン工房 こむぎ畑",g:"パン",a:"豊川・中央通",lat:34.8235,lng:137.3935,h:[[420,1080]],off:[1,2],m:[["塩パン","160円"],["カレーパン","240円"]]},
- {id:12,n:"焼肉 ひでじ",g:"焼肉",a:"豊橋・西羽田町",lat:34.7550,lng:137.3770,h:[[1020,1440]],off:[],m:[["上タン塩","1,500円"],["ホルモン","700円"]],v:1},
- {id:13,n:"喫茶 灯台",g:"喫茶",a:"田原・伊良湖",lat:34.5800,lng:137.0200,h:[[540,1020]],off:[2],m:[["海の見えるモーニング","600円"],["プリン","400円"]]},
- {id:14,n:"ネイルサロン Lino",g:"ネイル",a:"豊橋・駅前",lat:34.7635,lng:137.3830,h:[[600,1200]],off:[2],m:[["ワンカラー","4,500円"],["フットネイル","6,000円"]],v:1},
- {id:15,n:"ヘアサロン hana",g:"美容室",a:"豊橋・向山町",lat:34.7560,lng:137.3990,h:[[570,1140]],off:[1],m:[["カット","4,000円"],["カット＋カラー","9,000円"]]},
- {id:16,n:"エステ 白百合",g:"エステ",a:"豊川・桜ヶ丘町",lat:34.8180,lng:137.3800,h:[[600,1260]],off:[],m:[["フェイシャル60分","7,000円"],["ボディ90分","11,000円"]]},
- {id:17,n:"まつげサロン Mio",g:"まつげ",a:"豊橋・藤沢町",lat:34.7520,lng:137.3890,h:[[600,1140]],off:[3],m:[["まつげパーマ","5,500円"],["眉スタイリング","4,000円"]]},
- {id:18,n:"もみほぐし ゆるり",g:"マッサージ",a:"豊橋・駅西",lat:34.7625,lng:137.3790,h:[[600,1740]],off:[],m:[["全身60分","4,980円"],["足つぼ30分","2,980円"]],v:1},
- {id:19,n:"整体院 ととのえ",g:"整体",a:"豊橋・西小鷹野",lat:34.7480,lng:137.4100,h:[[540,1200]],off:[0],m:[["骨盤調整","5,000円"],["肩こり集中","4,000円"]]},
- {id:20,n:"タイ古式 ナムジャイ",g:"マッサージ",a:"蒲郡・本町",lat:34.8250,lng:137.2180,h:[[660,1380]],off:[],m:[["タイ古式90分","7,500円"],["ハーブボール","3,000円"]]},
-];
-SHOPS.forEach(s=>{s.e=GENRES[s.g][0];s.cat=GENRES[s.g][1]});
+let SHOPS=[];
+// OpenStreetMapの営業時間（例：Mo-Fr 11:00-14:00,17:00-22:00; Su off）を曜日ごとの時間に直す
+function parseOH(str){
+ if(!str)return null;str=str.trim();if(str==="24/7")return Array.from({length:7},()=>[[0,1440]]);
+ const D=["Su","Mo","Tu","We","Th","Fr","Sa"],sch=Array(7).fill(null);let any=false;
+ for(let rule of str.split(";")){rule=rule.replace(/\bPH\b\s*(off|closed)?/g,"").replace(/^,|,$/g,"").trim();if(!rule)continue;
+  let days=[0,1,2,3,4,5,6],rest=rule;
+  const m=/^((?:(?:Mo|Tu|We|Th|Fr|Sa|Su)(?:-(?:Mo|Tu|We|Th|Fr|Sa|Su))?,?)+)\s*(.*)$/.exec(rule);
+  if(m){days=[];for(const p of m[1].split(",").filter(Boolean)){const[x,y]=p.split("-");const i=D.indexOf(x),j=y?D.indexOf(y):i;for(let k=0;k<7;k++){const d=(i+k)%7;days.push(d);if(d===j)break}}rest=m[2].trim()}
+  if(/^(off|closed)$/i.test(rest)){days.forEach(d=>sch[d]=[]);any=true;continue}
+  const rs=[];for(const t of rest.split(",")){const x=/^(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})\+?$/.exec(t.trim());if(!x)return null;let a=+x[1]*60+ +x[2],b=+x[3]*60+ +x[4];if(b<=a)b+=1440;rs.push([a,b])}
+  if(!rs.length)return null;days.forEach(d=>sch[d]=rs);any=true}
+ return any?sch.map(x=>x||[]):null;
+}
+function prep(r){r.e=(GENRES[r.g]||GENRES["飲食店"])[0];r.cat=(GENRES[r.g]||GENRES["飲食店"])[1];r.sch=parseOH(r.oh);return r}
 const HOME={lat:34.7628,lng:137.3822}; // 現在地（仮：豊橋駅）
 const DOW="日月火水木金土";
 const S={consent:false,tab:"home",prev:"home",shop:null,cat:"すべて",more:false,ptab:"ex",hfil:"all",
  mgenre:null,mopen:false,sel:null,time:null,pt:1240,pending:185,favs:{},me:{...HOME},
  hist:[
-  {t:"炭火焼鳥 とりまる",d:"夜の来店＋歩いて来店",at:"11/22 19:40",p:150,st:"wait",left:2},
+  {t:"夜の来店＋歩いて来店",d:"見本の履歴",at:"11/22 19:40",p:150,st:"wait",left:2},
   {t:"普段の歩数",d:"8,120歩",at:"11/22",p:2,st:"wait",left:2},
-  {t:"喫茶 こはく",d:"昼の来店＋歩いて来店",at:"11/21 12:10",p:35,st:"wait",left:1},
-  {t:"もみほぐし ゆるり",d:"来店",at:"11/19 21:30",p:100,st:"ok"},
-  {t:"中華そば 牛川軒",d:"夜の来店",at:"11/18 18:55",p:100,st:"ok"},
-  {t:"居酒屋 ふくろう",d:"歩いて来店のみ無効（移動が速すぎ）",at:"11/17 20:05",p:100,st:"ok",warn:1},
-  {t:"使った：喫茶 こはく",d:"お会計で使用",at:"11/16",p:-500,st:"ok"},
+  {t:"昼の来店＋歩いて来店",d:"見本の履歴",at:"11/21 12:10",p:35,st:"wait",left:1},
+  {t:"来店（美容）",d:"見本の履歴",at:"11/19 21:30",p:100,st:"ok"},
+  {t:"夜の来店",d:"見本の履歴",at:"11/18 18:55",p:100,st:"ok"},
+  {t:"夜の来店",d:"歩いて来店のみ無効（移動が速すぎ）",at:"11/17 20:05",p:100,st:"ok",warn:1},
+  {t:"Amazonギフト券に交換",d:"500円分",at:"11/16",p:-500,st:"ok"},
  ]};
 try{S.consent=localStorage.getItem("hm_consent")==="1";S.favs=JSON.parse(localStorage.getItem("hm_favs")||"{}")}catch(e){}
 
@@ -393,13 +401,16 @@ const nl=t=>t.replace(/。(?!$)/g,"。<br>");
 function now(){const d=new Date();if(S.time!==null){d.setHours(S.time,0,0,0)}return d}
 function mins(d){return d.getHours()*60+d.getMinutes()}
 function hm(m){m=((m%1440)+1440)%1440;return Math.floor(m/60)+":"+String(m%60).padStart(2,"0")}
+function rng(r){return hm(r[0])+"〜"+(r[1]>1440?"翌":"")+hm(r[1])}
+function dayTxt(s,d){if(!s.sch)return"不明";const r=s.sch[d];return r.length?r.map(rng).join("／"):"お休み"}
 function openInfo(s,d=now()){ // 営業中かと、閉まる時刻・開く時刻
+ if(!s.sch)return{unk:true,open:false,next:"営業時間は確認中"};
  const m=mins(d),w=d.getDay(),y=(w+6)%7;
- if(!s.off.includes(y))for(const r of s.h){if(r[1]>1440&&m<r[1]-1440)return{open:true,until:r[1]}}
- if(!s.off.includes(w))for(const r of s.h){if(m>=r[0]&&m<r[1])return{open:true,until:r[1]}}
- if(!s.off.includes(w))for(const r of s.h){if(m<r[0])return{open:false,next:"今日 "+hm(r[0])+"から"}}
- for(let i=1;i<=7;i++){const wd=(w+i)%7;if(!s.off.includes(wd))return{open:false,next:(i===1?"明日 ":DOW[wd]+"曜 ")+hm(s.h[0][0])+"から"}}
- return{open:false,next:""};
+ for(const r of s.sch[y]){if(r[1]>1440&&m<r[1]-1440)return{open:true,until:r[1]}}
+ for(const r of s.sch[w]){if(m>=r[0]&&m<r[1])return{open:true,until:r[1]}}
+ for(const r of s.sch[w]){if(m<r[0])return{open:false,next:"今日 "+hm(r[0])+"から"}}
+ for(let i=1;i<=7;i++){const wd=(w+i)%7;if(s.sch[wd].length)return{open:false,next:(i===1?"明日 ":DOW[wd]+"曜 ")+hm(s.sch[wd][0][0])+"から"}}
+ return{open:false,next:"お休み中"};
 }
 function dist(a,b){const R=6371e3,r=Math.PI/180,x=(b.lng-a.lng)*r*Math.cos((a.lat+b.lat)/2*r),y=(b.lat-a.lat)*r;return Math.sqrt(x*x+y*y)*R}
 function far(s){const d=dist(S.me,s);return{d,txt:d<3000?"徒歩"+Math.max(1,Math.round(d*1.25/80))+"分":(d/1000).toFixed(1)+"km"}}
@@ -463,7 +474,7 @@ function go(k){
 function greet(){const h=now().getHours();return h<5?"夜ふかしですね":h<11?"おはようございます":h<17?"こんにちは":"こんばんは"}
 function shopCard(s,i=0,extra=""){
  const o=openInfo(s),f=far(s);
- const st=o.open?`<span class="op">営業中</span>・${hm(o.until)}まで`:`<span class="cl">準備中</span>・${o.next}`;
+ const st=o.open?`<span class="op">営業中</span>・${hm(o.until)}まで`:o.unk?`<span class="cl">営業時間 確認中</span>`:`<span class="cl">準備中</span>・${o.next}`;
  return `<button class="shop press in" style="animation-delay:${i*55}ms" onclick="openShop(${s.id})">
   <div class="em">${s.e}</div><div class="tx"><div class="n">${s.n}</div><div class="m">${st}・${f.txt}</div></div>
   <div class="pt">来店+${visitPt(s)}</div>${extra}</button>`;
@@ -472,7 +483,7 @@ function rHome(){
  const all=SHOPS.filter(s=>S.cat==="すべて"||s.cat===S.cat).sort((a,b)=>far(a).d-far(b).d);
  const open=all.filter(s=>openInfo(s).open);
  const list=S.more?open:open.slice(0,3);
- const vid=SHOPS.filter(s=>s.v)[(now().getDate())%SHOPS.filter(s=>s.v).length];
+ const vid=(open[0]||all[0]||SHOPS[0]);
  const d=now();
  $("s-home").innerHTML=`
  <div class="hd in"><div><small>${greet()}　<span class="clock">${d.getMonth()+1}/${d.getDate()}（${DOW[d.getDay()]}）${hm(mins(d))}${S.time!==null?"（見本用の時刻）":""}</span></small><h1>東三河の飲食店</h1></div>
@@ -484,24 +495,26 @@ function rHome(){
  </div>
  <button class="feature press in" style="animation-delay:180ms" onclick="openShop(${vid.id});setTimeout(()=>openSheet('video'),450)">
   <div class="thumb" style="background:linear-gradient(160deg,${PAL[vid.cat][0]},${PAL[vid.cat][1]})">${vid.e}<i><svg width="8" height="8" viewBox="0 0 24 24" fill="#111"><path d="M7 4v16l13-8z"/></svg></i></div>
-  <div style="flex:1;min-width:0"><span class="tag">お店の動画</span><b>${vid.n}</b><small>${vid.g}・${vid.a}・15秒</small></div><span style="color:#bbb;font-size:20px">›</span></button>
+  <div style="flex:1;min-width:0"><span class="tag">お店の動画（見本）</span><b>${vid.n}</b><small>${vid.g}・${vid.a}・15秒</small></div><span style="color:#bbb;font-size:20px">›</span></button>
  <div class="chips in" style="animation-delay:220ms">${["すべて","飲食","美容","癒し"].map(c=>`<button class="chip ${S.cat===c?'on':''}" onclick="S.cat='${c}';S.more=false;rHome()">${c==="飲食"?"🍜 ":c==="美容"?"💅 ":c==="癒し"?"💆 ":""}${c}</button>`).join("")}</div>
  <div class="sec in" style="animation-delay:250ms"><h2><span class="live"></span>いま営業中の近くのお店</h2><span class="note">${open.length}店</span></div>
- <div class="list">${list.length?list.map((s,i)=>shopCard(s,i+5)).join(""):`<div class="empty in">${nl("この時間に営業中のお店はありません。地図で明日の営業時間を見られます。")}</div>`}
+ <div class="list">${list.length?list.map((s,i)=>shopCard(s,i+5)).join(""):`<div class="empty in">${nl("この時間に営業中とわかっているお店はありません。営業時間がわかっているお店だけを出しています。地図ではすべてのお店を見られます。")}</div>`}
  ${open.length>3?`<button class="more press" onclick="S.more=!S.more;rHome()">${S.more?"閉じる ▴":"もっと見る（あと"+(open.length-3)+"店）▾"}</button>`:""}</div>`;
  countUp($("cStep"),6214,1300);countUp($("cPt"),S.pt,1200);
  requestAnimationFrame(()=>requestAnimationFrame(()=>{const r=$("ring");if(r)r.style.strokeDashoffset=113*(1-6214/8000)}));
 }
 
 /* ===== 地図（動かせる・検索できる） ===== */
-let map,markers=[],meMk;
-const MCH=["ラーメン","そば","焼き鳥","居酒屋","喫茶","カレー","焼肉","海鮮","ネイル","美容室","エステ","まつげ","マッサージ","整体"];
+let map,clu=null,selMk=null,meMk,BOUNDS;
+const MCH=["ラーメン","そば","うどん","寿司","焼肉","焼き鳥","居酒屋・バー","喫茶","パン","お菓子","中華","イタリアン","洋食","カレー","和食・食堂","美容室","ネイル","エステ","まつげ","マッサージ","整体"];
 function initMap(){
  if(map||!window.L)return;
- map=L.map("leaf",{zoomControl:false,attributionControl:true}).setView([HOME.lat,HOME.lng],14);
- L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",{maxZoom:19,subdomains:"abcd",attribution:'© OpenStreetMap © CARTO'}).addTo(map);
+ const la=SHOPS.map(s=>s.lat),ln=SHOPS.map(s=>s.lng);
+ BOUNDS=L.latLngBounds([Math.min(...la)-.03,Math.min(...ln)-.03],[Math.max(...la)+.03,Math.max(...ln)+.03]); // 東三河の範囲だけ
+ map=L.map("leaf",{zoomControl:false,attributionControl:true,maxBounds:BOUNDS,maxBoundsViscosity:1,minZoom:10,maxZoom:18}).setView([HOME.lat,HOME.lng],14);
+ L.tileLayer("https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png",{maxZoom:18,minZoom:5,bounds:BOUNDS,attribution:'<a href="https://maps.gsi.go.jp/development/ichiran.html" target="_blank">地理院タイル</a>｜お店 © OpenStreetMap'}).addTo(map);
  meMk=L.marker([S.me.lat,S.me.lng],{icon:L.divIcon({className:"",html:'<div class="me"></div>',iconSize:[20,20],iconAnchor:[10,10]}),interactive:false}).addTo(map);
- map.on("click",()=>{$("sug").classList.remove("on");$("q").blur();S.sel=null;paintPins();showCard()});
+ map.on("click",()=>{$("sug").classList.remove("on");$("q").blur();S.sel=null;paintSel();showCard()});
  map.on("movestart",()=>{$("sug").classList.remove("on")});
  $("mchips").innerHTML=`<button class="chip" id="cOpen" onclick="S.mopen=!S.mopen;filterMap(true)"><span class="live" style="display:inline-block;margin-right:5px;vertical-align:1px"></span>営業中</button>`+
   MCH.map(g=>`<button class="chip" data-g="${g}" onclick="pickGenre('${g}')">${GENRES[g][0]} ${g}</button>`).join("");
@@ -511,20 +524,24 @@ function initMap(){
  q.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();searchAll(q.value);q.blur()}});
  $("qx").onclick=()=>{q.value="";$("sbar").classList.remove("has");S.mgenre=null;S.query="";$("sug").classList.remove("on");filterMap(true)};
  $("locate").onclick=()=>{haptic();if(navigator.geolocation){navigator.geolocation.getCurrentPosition(p=>{const c={lat:p.coords.latitude,lng:p.coords.longitude};
-   if(dist(c,HOME)<60000){S.me=c;meMk.setLatLng([c.lat,c.lng])}else toast("東三河の外にいるため、豊橋駅を現在地にしています");map.flyTo([S.me.lat,S.me.lng],15,{duration:.8})},
+   if(BOUNDS.contains([c.lat,c.lng])){S.me=c;meMk.setLatLng([c.lat,c.lng])}else toast("東三河の外にいるため、豊橋駅を現在地にしています");map.flyTo([S.me.lat,S.me.lng],15,{duration:.8})},
    ()=>{map.flyTo([S.me.lat,S.me.lng],15,{duration:.8});toast("位置情報が使えないため、豊橋駅を現在地にしています")},{timeout:6000})}else map.flyTo([S.me.lat,S.me.lng],15)};
  filterMap(false);
 }
 function matchShops(){
  const q=(S.query||"").trim();
- return SHOPS.filter(s=>(!S.mgenre||s.g===S.mgenre)&&(!S.mopen||openInfo(s).open)&&(!q||(s.n+s.g+s.a+s.cat+s.m.map(x=>x[0]).join("")).includes(q)));
+ return SHOPS.filter(s=>(!S.mgenre||s.g===S.mgenre)&&(!S.mopen||openInfo(s).open)&&(!q||(s.n+s.g+s.a+s.cat+(s.cu||"")).includes(q)));
 }
-function paintPins(){
- markers.forEach(m=>m.remove());markers=[];
- matchShops().forEach((s,i)=>{const o=openInfo(s).open,sel=S.sel===s.id;
-  const mk=L.marker([s.lat,s.lng],{icon:L.divIcon({className:"",html:`<div class="pn ${o?'':'closed'} ${sel?'sel':''}" style="animation-delay:${sel?0:i*30}ms"><span>${s.e}</span></div>`,iconSize:sel?[44,44]:[36,36],iconAnchor:sel?[22,44]:[18,36]}),zIndexOffset:sel?1000:0}).addTo(map);
-  mk.on("click",e=>{L.DomEvent.stopPropagation(e);selectShop(s.id)});markers.push(mk)});
+function pinIcon(s,sel){const o=openInfo(s);return L.divIcon({className:"",html:`<div class="pn ${o.open?'':o.unk?'unk':'closed'} ${sel?'sel':''}"><span>${s.e}</span></div>`,iconSize:sel?[44,44]:[36,36],iconAnchor:sel?[22,44]:[18,36]})}
+function paintPins(){ // たくさんのお店はまとめて数で出す
+ if(clu)clu.remove();
+ clu=L.markerClusterGroup({showCoverageOnHover:false,maxClusterRadius:48,spiderfyOnMaxZoom:true,
+  iconCreateFunction:c=>{const n=c.getChildCount();return L.divIcon({className:"",html:`<div class="clu ${n>=50?'b':''}">${n}</div>`,iconSize:n>=50?[50,50]:[40,40]})}});
+ clu.addLayers(matchShops().map(s=>{const mk=L.marker([s.lat,s.lng],{icon:pinIcon(s,false)});mk.on("click",e=>{L.DomEvent.stopPropagation(e);selectShop(s.id)});return mk}));
+ map.addLayer(clu);paintSel();
 }
+function paintSel(){if(selMk){selMk.remove();selMk=null}const s=SHOPS.find(x=>x.id===S.sel);if(!s)return;
+ selMk=L.marker([s.lat,s.lng],{icon:pinIcon(s,true),zIndexOffset:2000}).addTo(map);selMk.on("click",()=>openShop(s.id))}
 function filterMap(fit){
  document.querySelectorAll("#mchips [data-g]").forEach(c=>c.classList.toggle("on",c.dataset.g===S.mgenre));
  $("cOpen")&&$("cOpen").classList.toggle("on",S.mopen);
@@ -538,15 +555,15 @@ function filterMap(fit){
 function pickGenre(g){haptic();S.mgenre=S.mgenre===g?null:g;S.query="";$("q").value="";$("sbar").classList.remove("has");$("sug").classList.remove("on");S.sel=null;filterMap(true)}
 function suggest(){
  const q=$("q").value.trim(),box=$("sug");
- if(!q){box.innerHTML=`<div class="note" style="padding:10px 14px 4px">よく探されています</div>`+["ラーメン","ネイル","マッサージ","居酒屋","喫茶"].map(g=>`<button class="sg gen" onclick="pickGenre('${g}')"><div class="em">${GENRES[g][0]}</div><div><b>${g}</b><small>${SHOPS.filter(s=>s.g===g).length}件</small></div></button>`).join("");box.classList.add("on");return}
+ if(!q){box.innerHTML=`<div class="note" style="padding:10px 14px 4px">よく探されています</div>`+["ラーメン","喫茶","美容室","居酒屋・バー","パン"].map(g=>`<button class="sg gen" onclick="pickGenre('${g}')"><div class="em">${GENRES[g][0]}</div><div><b>${g}</b><small>${SHOPS.filter(s=>s.g===g).length}件</small></div></button>`).join("");box.classList.add("on");return}
  const gs=Object.keys(GENRES).filter(g=>g.includes(q)||GENRES[g][1].includes(q));
- const ss=SHOPS.filter(s=>(s.n+s.g+s.a+s.m.map(x=>x[0]).join("")).includes(q)).sort((a,b)=>far(a).d-far(b).d).slice(0,6);
+ const ss=SHOPS.filter(s=>(s.n+s.g+s.a+(s.cu||"")).includes(q)).sort((a,b)=>far(a).d-far(b).d).slice(0,6);
  box.innerHTML=gs.map(g=>`<button class="sg gen" onclick="pickGenre('${g}')"><div class="em">${GENRES[g][0]}</div><div><b>「${g}」のお店をすべて表示</b><small>${SHOPS.filter(s=>s.g===g).length}件</small></div></button>`).join("")+
   ss.map(s=>{const o=openInfo(s);return `<button class="sg" onclick="$('sug').classList.remove('on');$('q').blur();selectShop(${s.id},true)"><div class="em">${s.e}</div><div><b>${s.n}</b><small>${s.g}・${s.a}・${far(s).txt}・${o.open?'<span class="op">営業中</span>':'<span class="cl">準備中</span>'}</small></div></button>`}).join("")||`<div class="empty">「${q}」に合うお店がありません</div>`;
  box.classList.add("on");
 }
 function searchAll(q){S.query=q.trim();S.mgenre=null;$("sug").classList.remove("on");S.sel=null;filterMap(true)}
-function selectShop(id,fly){haptic();S.sel=id;const s=SHOPS.find(x=>x.id===id);paintPins();showCard();map.flyTo([s.lat-.0012,s.lng],Math.max(map.getZoom(),fly?16:map.getZoom()),{duration:.6})}
+function selectShop(id,fly){haptic();S.sel=id;const s=SHOPS.find(x=>x.id===id);paintSel();showCard();map.flyTo([s.lat-.0008,s.lng],Math.max(map.getZoom(),17),{duration:.6})}
 function showCard(){
  const c=$("mapcard"),s=SHOPS.find(x=>x.id===S.sel);
  if(!s){c.classList.remove("on");$("locate").style.bottom="calc(var(--sb) + 96px)";return}
@@ -594,21 +611,25 @@ function scanned(s,good){
 }
 
 /* ===== ポイント ===== */
+const GIFTS=[500,1000,3000];
 function rPt(){
- const ex=SHOPS.filter(s=>s.id%3!==0).sort((a,b)=>far(a).d-far(b).d);
  const hl=S.hist.filter(h=>S.hfil==="all"||(S.hfil==="in"?h.p>0:h.p<0));
+ S.gift=S.gift||500;
  $("s-pt").innerHTML=`
  <div class="hd in"><div><small>1pt＝1円</small><h1>ポイント</h1></div></div>
- <div class="big in" style="animation-delay:60ms"><div class="coin">P</div><div style="font-size:12px;font-weight:800">使えるポイント</div><div class="v"><b id="cBig">0</b><span> pt</span></div>
+ <div class="big in" style="animation-delay:60ms"><div class="coin">P</div><div style="font-size:12px;font-weight:800">交換できるポイント</div><div class="v"><b id="cBig">0</b><span> pt</span></div>
   <div class="s">確定待ち ${fmt(S.pending)}pt（来店のポイントは3日後に確定）</div>
-  <div class="bar"><i id="pbar"></i></div><div class="s" style="margin-top:4px">今日の上限まで：来店あと1回・歩数あと4pt</div></div>
- <div class="seg in" id="pseg" style="align-self:flex-start;margin-bottom:10px;animation-delay:100ms"><div class="knob"></div><button data-v="ex" onclick="S.ptab='ex';rPt()">使う</button><button data-v="hi" onclick="S.ptab='hi';rPt()">履歴</button></div>
- ${S.ptab==="hi"?`<div class="chips in" style="animation-delay:120ms">${[["all","すべて"],["in","貯めた"],["out","使った"]].map(([k,l])=>`<button class="chip ${S.hfil===k?'on':''}" onclick="S.hfil='${k}';rPt()">${l}</button>`).join("")}</div>`:""}
- <div class="list">${S.ptab==="ex"?
-  `<div class="note in" style="animation-delay:140ms">${nl("協賛店のお会計で使えます。お店を選んでください。")}</div>`+ex.map((s,i)=>`<button class="shop press in" style="animation-delay:${160+i*45}ms" onclick="S.paying=${s.id};S.amt=Math.min(500,S.pt);openSheet('pay')"><div class="em">${s.e}</div><div class="tx"><div class="n">${s.n}</div><div class="m">${s.g}・${far(s).txt}</div></div><div class="pt">使う</div></button>`).join("")
+  <div class="bar"><i id="pbar"></i></div><div class="s" style="margin-top:4px">次の交換（${fmt(Math.ceil((S.pt+1)/500)*500)}円分）まで あと${fmt(Math.ceil((S.pt+1)/500)*500-S.pt)}pt</div></div>
+ <div class="seg in" id="pseg" style="align-self:flex-start;margin-bottom:10px;animation-delay:100ms"><div class="knob"></div><button data-v="ex" onclick="S.ptab='ex';rPt()">交換</button><button data-v="hi" onclick="S.ptab='hi';rPt()">履歴</button></div>
+ ${S.ptab==="hi"?`<div class="chips in" style="animation-delay:120ms">${[["all","すべて"],["in","貯めた"],["out","交換した"]].map(([k,l])=>`<button class="chip ${S.hfil===k?'on':''}" onclick="S.hfil='${k}';rPt()">${l}</button>`).join("")}</div>`:""}
+ <div class="list">${S.ptab==="ex"?`
+  <div class="amzn in" style="animation-delay:140ms"><div class="lg">a</div><div><b style="font-size:15px">Amazonギフトカード</b><div style="font-size:11.5px;opacity:.8">1pt＝1円・500ptから交換できます</div></div></div>
+  <div class="gift in" style="animation-delay:180ms">${GIFTS.map(v=>`<button class="press ${S.gift===v?'on':''}" ${S.pt<v?'disabled':''} onclick="S.gift=${v};haptic();rPt()"><b>${fmt(v)}</b><small>円分</small></button>`).join("")}</div>
+  <button class="btn bo press in" style="animation-delay:220ms" ${S.pt<S.gift?'disabled':''} onclick="openSheet('gift')">${fmt(S.gift)}円分に交換する</button>
+  <p class="note in" style="animation-delay:260ms;margin-top:8px">${nl("確定したポイントだけ交換できます。交換するとギフトコードがこの画面とメールに届きます。")}</p>`
   :hl.map((h,i)=>`<div class="hist in" style="animation-delay:${140+i*45}ms"><div><div class="t">${h.t}</div><div class="d">${h.d}・${h.at}</div></div><div class="plus ${h.p<0?'minus':''}">${h.p>0?'+':''}${fmt(h.p)}pt<br><span class="badge ${h.st==='ok'?(h.warn?'ng':'ok'):'wait'}">${h.st==='ok'?(h.warn?'一部無効':'確定'):'あと'+h.left+'日で確定'}</span></div></div>`).join("")}</div>`;
  countUp($("cBig"),S.pt,1200);
- requestAnimationFrame(()=>requestAnimationFrame(()=>{$("pbar").style.width="62%";segKnob("pseg",S.ptab)}));
+ requestAnimationFrame(()=>requestAnimationFrame(()=>{$("pbar").style.width=Math.round(100*(S.pt%500)/500)+"%";segKnob("pseg",S.ptab)}));
 }
 function segKnob(id,v){const sg=$(id);if(!sg)return;const b=sg.querySelector(`[data-v="${v}"]`),k=sg.querySelector(".knob");sg.querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));k.style.left=b.offsetLeft+"px";k.style.width=b.offsetWidth+"px"}
 
@@ -639,17 +660,18 @@ function resetConsent(){try{localStorage.removeItem("hm_consent")}catch(e){};S.c
 /* ===== お店のページ ===== */
 function openShop(id){
  haptic();S.shop=id;const s=SHOPS.find(x=>x.id===id),o=openInfo(s),f=far(s),w=now().getDay();
- const rows=[1,2,3,4,5,6,0].map(d=>`<div class="hrow ${d===w?'today':''}"><span>${DOW[d]}曜</span><span>${s.off.includes(d)?"定休日":s.h.map(r=>hm(r[0])+"〜"+(r[1]>1440?"翌":"")+hm(r[1])).join("／")}</span></div>`).join("");
+ const rows=[1,2,3,4,5,6,0].map(d=>`<div class="hrow ${d===w?'today':''}"><span>${DOW[d]}曜</span><span>${dayTxt(s,d)}</span></div>`).join("");
  $("s-shop").innerHTML=`
  <div class="hd" style="min-height:0;margin-bottom:8px"><button class="back press" onclick="closeShop()">‹ 戻る</button><span class="note">${s.cat==="飲食"?(isNight()?"夜":"昼")+"のポイント":"いつでも同じポイント"}</span></div>
- <div class="photo"><div class="ph" style="background:linear-gradient(135deg,${PAL[s.cat][0]},${PAL[s.cat][1]})">${s.e}</div><div class="lab">写真（仮）</div>
-  <div class="stat">${o.open?'<span class="live"></span><span class="op">営業中</span>・'+hm(o.until)+'まで':'<span class="cl">準備中</span>・'+o.next}</div>
+ <div class="photo"><div class="ph" style="background:linear-gradient(135deg,${PAL[s.cat][0]},${PAL[s.cat][1]})">${s.e}</div><div class="lab">写真は掲載が決まったら入ります</div>
+  <div class="stat">${o.open?'<span class="live"></span><span class="op">営業中</span>・'+hm(o.until)+'まで':o.unk?'<span class="cl">営業時間 確認中</span>':'<span class="cl">準備中</span>・'+o.next}</div>
   <button class="fav press ${S.favs[id]?'on':''}" id="favb" onclick="toggleFav(${id})">${S.favs[id]?'❤️':'🤍'}</button></div>
  <h1 class="in">${s.n}</h1><div class="meta in" style="animation-delay:40ms">${s.g}・${s.a}・ここから${f.txt}（${(f.d/1000).toFixed(1)}km）</div>
+ <div class="sample in" style="animation-delay:60ms">${nl("見本：まだ掲載のお願いをしていないお店です。今はポイントは付きません。")}</div>
  <div class="ptbox in" style="animation-delay:80ms"><div class="mo"><small>来店ポイント</small><b>+<span id="sp1">0</span>pt</b></div><div class="mg"><small>🚶 歩いて来たら</small><b>+<span id="sp2">0</span>pt</b></div></div>
- <div class="sec in" style="animation-delay:120ms"><h2>おすすめメニュー</h2></div>
- <div class="menu2 in" style="animation-delay:140ms">${s.m.map(m=>`<div>${m[0]}<small>${m[1]}</small></div>`).join("")}</div>
- <button class="hours in" style="animation-delay:170ms" onclick="this.classList.toggle('open')"><div class="hrow today"><span>営業時間（今日）</span><span>${s.off.includes(w)?"定休日":s.h.map(r=>hm(r[0])+"〜"+(r[1]>1440?"翌":"")+hm(r[1])).join("／")} ▾</span></div><div class="wk">${rows}</div></button>
+ <button class="hours in" style="animation-delay:140ms" onclick="this.classList.toggle('open')"><div class="hrow today"><span>営業時間（今日）</span><span>${dayTxt(s,w)} ▾</span></div><div class="wk">${s.sch?rows:'<div class="hrow"><span>'+nl("営業時間は掲載のときにお店に確認します。")+'</span></div>'}</div></button>
+ ${s.web?`<a class="hours in" style="animation-delay:160ms;display:block;text-decoration:none;color:var(--g);font-weight:700" href="${s.web}" target="_blank" rel="noopener">🔗 お店のホームページ</a>`:""}
+ <div class="note in" style="animation-delay:180ms">お店の情報 © OpenStreetMap の協力者</div>
  <div class="row in" style="margin-top:auto;animation-delay:200ms"><a class="btn bg press" style="text-decoration:none" href="https://maps.apple.com/?daddr=${s.lat},${s.lng}&dirflg=w" target="_blank" rel="noopener">🚶 歩いて行く</a><button class="btn bw press" onclick="openSheet('video')">▶ お店の動画</button></div>`;
  $("s-shop").classList.add("on");paintTabs();
  setTimeout(()=>{countUp($("sp1"),visitPt(s),700);countUp($("sp2"),visitPt(s)+walkPt(s),900)},250);
@@ -669,22 +691,20 @@ function openSheet(k){
   <p class="note" style="margin:12px 0 14px">${nl(L.good?"ポイントは3日後に確定します。来店ポイントは1日1回までです。":"車やバスでの移動と判断したため、歩いて来店のポイントは付きません。来店のポイントは付きます。")}</p>`;
   setTimeout(()=>countUp($("gain"),L.total,900),600)}
  if(k==="badqr"){h=`<div class="ok-anim bad"><svg viewBox="0 0 90 90"><circle cx="45" cy="45" r="38"/><path d="M45 26v24M45 62v2"/></svg></div><h3 style="text-align:center">${nl("このQRは今日のものではありません。")}</h3><p class="note" style="text-align:center;margin-bottom:14px">${nl("QRは毎日変わります。お店の人に今日のQRを出してもらってください。")}</p>`}
- if(k==="pay"){h=`<h3>${s.n}で使う</h3>
-  <div class="amt"><button class="press" onclick="chAmt(-100)">−</button><b><span id="amt">${fmt(S.amt)}</span>pt</b><button class="press" onclick="chAmt(100)">＋</button></div>
-  <div class="chips" style="justify-content:center">${[100,500,1000].map(v=>`<button class="chip" onclick="S.amt=Math.min(${v},S.pt);$('amt').textContent=fmt(S.amt)">${v}pt</button>`).join("")}<button class="chip" onclick="S.amt=S.pt;$('amt').textContent=fmt(S.amt)">全部</button></div>
-  <p class="note" style="margin-bottom:12px;text-align:center">${nl("使えるポイント "+fmt(S.pt)+"pt。お会計の前に金額を決めてください。")}</p>
-  <button class="btn bo press" onclick="openSheet('paycode')">この金額で使う</button><div style="height:8px"></div>`}
- if(k==="paycode"){h=`<h3>${nl("店員さんにこの画面を見せてください。")}</h3>
-  <div class="paycode"><div class="t">${s.n}</div><div class="v">${fmt(S.amt)}pt</div><div class="t">＝ ${fmt(S.amt)}円引き</div><div class="timer" id="ptimer">残り 5:00</div></div>
-  <p class="note" style="margin-bottom:12px">${nl("画面の色が動いているのが本物の印です（スクショ対策）。")}</p>
-  <button class="btn bk press" onclick="usePt()">使用済みにする（店員さんが押す）</button><div style="height:8px"></div>`;
-  let left=300;clearInterval(payTimer);payTimer=setInterval(()=>{left--;const e=$("ptimer");if(!e||left<0){clearInterval(payTimer);return}e.textContent="残り "+Math.floor(left/60)+":"+String(left%60).padStart(2,"0")},1000)}
+ if(k==="gift"){h=`<h3>Amazonギフトカードに交換</h3>
+  <div class="amzn"><div class="lg">a</div><div><b style="font-size:22px">${fmt(S.gift)}円分</b><div style="font-size:11.5px;opacity:.8">${fmt(S.gift)}ptを使います（残り ${fmt(S.pt-S.gift)}pt）</div></div></div>
+  <p class="note" style="margin-bottom:12px">${nl("交換したあとは取り消せません。ギフトコードはAmazonのアカウントに登録して使います。")}</p>
+  <button class="btn bo press" onclick="doGift()">交換する</button><div style="height:8px"></div>`}
+ if(k==="giftdone"){const c="AQ"+Math.random().toString(36).slice(2,6).toUpperCase()+"-"+Math.random().toString(36).slice(2,8).toUpperCase()+"-"+Math.random().toString(36).slice(2,6).toUpperCase();h=`
+  <div class="ok-anim"><svg viewBox="0 0 90 90"><circle cx="45" cy="45" r="38"/><path d="M28 46l12 12 22-25"/></svg></div>
+  <h3 style="text-align:center">${fmt(S.lastGift)}円分を交換しました</h3>
+  <div class="code">${c}</div><p class="note" style="text-align:center;margin-bottom:12px">${nl("見本なので、このコードは使えません。本番ではメールにも届きます。")}</p>`;setTimeout(confetti,400)}
  if(k==="video"){const v=SHOPS.find(x=>x.id===S.shop);h=`<h3>${v.n}</h3>
   <div class="video"><div class="ph" style="background:linear-gradient(160deg,${PAL[v.cat][0]},${PAL[v.cat][1]})">${v.e}</div><div class="prog"><i></i></div>
-  <div class="cap">${nl(v.a+"の"+v.g+"。おすすめは「"+v.m[0][0]+"」。")}<br><span style="font-size:11px;font-weight:600;opacity:.8">お店の紹介動画（制作1本1万円）</span></div></div>`}
+  <div class="cap">${nl(v.a+"の"+v.g+"。ここにお店の紹介動画が流れます。")}<br><span style="font-size:11px;font-weight:600;opacity:.8">お店の紹介動画の見本（掲載店は1本1万円で制作）</span></div></div>`}
  if(k==="rule"){h=`<h3>ポイントのルール</h3>
-  ${[["飲食：夜の来店（17時〜）","+100pt"],["飲食：昼の来店","+25pt"],["飲食：歩いて来店（夜／昼）","+50／+10pt"],["美容・癒し：来店","+100pt（仮）"],["美容・癒し：歩いて来店","+50pt（仮）"],["普段の歩数","4,000歩ごと+1pt"],["1日の上限","来店1回・歩数+5pt"],["確定まで","3日"]].map((r,i)=>`<div class="ck" style="animation-delay:${i*60}ms">${r[0]}<b>${r[1]}</b></div>`).join("")}
-  <p class="note" style="margin:12px 0 14px">${nl("来店はお店のQR（毎日変わります）で確認します。歩数とGPSの移動距離が合わない時や、移動が速すぎる時は、歩いて来店のポイントは付きません。1pt＝1円で協賛店で使えます。")}</p>`}
+  ${[["飲食：夜の来店（17時〜）","+100pt"],["飲食：昼の来店","+25pt"],["飲食：歩いて来店（夜／昼）","+50／+10pt"],["美容・癒し：来店","+100pt（仮）"],["美容・癒し：歩いて来店","+50pt（仮）"],["普段の歩数","4,000歩ごと+1pt"],["1日の上限","来店1回・歩数+5pt"],["確定まで","3日"],["交換","Amazonギフト券（500ptから）"]].map((r,i)=>`<div class="ck" style="animation-delay:${i*60}ms">${r[0]}<b>${r[1]}</b></div>`).join("")}
+  <p class="note" style="margin:12px 0 14px">${nl("来店はお店のQR（毎日変わります）で確認します。歩数とGPSの移動距離が合わない時や、移動が速すぎる時は、歩いて来店のポイントは付きません。1pt＝1円でAmazonギフト券に交換できます。")}</p>`}
  if(k==="terms"){h=`<h3>同意内容</h3><p class="note" style="margin-bottom:14px;font-size:13px">${nl("位置情報と歩数は、ポイントを付けることと不正の確認に使います。個人が特定できない形に集計した位置データを、地域のお店や自治体などの第三者に提供・販売することがあります。広告用のSDKを使ってデータを売ることはしません。")}</p>`}
  if(k==="steps"){h=`<h3>今日の歩数</h3><div class="ck" style="animation-delay:0ms">歩数<b>6,214歩</b></div><div class="ck" style="animation-delay:60ms">GPSの移動距離<b>4.3km</b></div><div class="ck" style="animation-delay:120ms">歩数ポイント（今日）<b>+1pt</b></div><div class="ck" style="animation-delay:180ms">次の+1ptまで<b>あと1,786歩</b></div>
   <p class="note" style="margin:12px 0 14px">${nl("歩数とGPSの距離が大きくずれている時間は、歩数ポイントに数えません。")}</p>`}
@@ -693,8 +713,8 @@ function openSheet(k){
  if(k==="time"){h=`<h3>時刻を変えて試す</h3><p class="note" style="margin-bottom:10px">${nl("営業中のお店や昼・夜のポイントが変わるのを試せます。")}</p>
   <div class="chips" style="flex-wrap:wrap">${[[null,"今の時刻"],[8,"朝 8:00"],[12,"昼 12:00"],[15,"15:00"],[19,"夜 19:00"],[23,"23:00"],[2,"深夜 2:00"]].map(([v,l])=>`<button class="chip ${S.time===v?'on':''}" onclick="S.time=${v};closeSheet();rMy();toast('${l}にしました')">${l}</button>`).join("")}</div>`}
  if(k==="icon"){h=`<h3>アプリアイコン案</h3><div class="icons">${ICONS.map(i=>`<div>${i[1]}${i[0]}</div>`).join("")}</div><p class="note" style="margin-bottom:14px">${nl("今のホーム画面のアイコンはAです。")}</p>`}
- const noClose=["pay","paycode"].includes(k);
- sh.innerHTML=`<div class="grab"></div>${h}${noClose?'':`<button class="btn ${k==='scan'?'bg':'bw'} press" onclick="closeSheet()">${k==='scan'?'OK':'閉じる'}</button>`}`;
+ const noClose=["gift"].includes(k);
+ sh.innerHTML=`<div class="grab"></div>${h}${noClose?'':`<button class="btn ${k==='scan'||k==='giftdone'?'bg':'bw'} press" onclick="closeSheet()">${k==='scan'||k==='giftdone'?'OK':'閉じる'}</button>`}`;
  $("dim").classList.add("on");
 }
 function closeSheet(){$("dim").classList.remove("on");clearInterval(payTimer)}
@@ -702,9 +722,7 @@ $("dim").addEventListener("click",e=>{if(e.target.id==="dim")closeSheet()});
 (function(){let y0=null;const sh=$("sheet");sh.addEventListener("touchstart",e=>{if(sh.scrollTop<=0)y0=e.touches[0].clientY},{passive:true});
  sh.addEventListener("touchmove",e=>{if(y0===null)return;const dy=e.touches[0].clientY-y0;if(dy>0){sh.style.transition="none";sh.style.transform=`translateY(${dy}px)`}},{passive:true});
  sh.addEventListener("touchend",e=>{if(y0===null)return;const dy=e.changedTouches[0].clientY-y0;sh.style.transition="";sh.style.transform="";y0=null;if(dy>110)closeSheet()})})();
-function chAmt(d){haptic();S.amt=Math.max(100,Math.min(S.pt,S.amt+d));$("amt").textContent=fmt(S.amt)}
-function usePt(){const s=SHOPS.find(x=>x.id===S.paying);const from=S.pt;S.pt-=S.amt;const d=now();
- S.hist.unshift({t:"使った："+s.n,d:"お会計で使用",at:`${d.getMonth()+1}/${d.getDate()} ${hm(mins(d))}`,p:-S.amt,st:"ok"});closeSheet();toast(fmt(S.amt)+"pt使いました");setTimeout(rPt,250)}
+function doGift(){haptic();S.pt-=S.gift;S.lastGift=S.gift;const d=now();S.hist.unshift({t:"Amazonギフト券に交換",d:fmt(S.gift)+"円分",at:`${d.getMonth()+1}/${d.getDate()} ${hm(mins(d))}`,p:-S.gift,st:"ok"});openSheet("giftdone");rPt()}
 
 /* ===== アイコン案（背景は黒） ===== */
 const BK=id=>`<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1E1E1E"/><stop offset="1" stop-color="#101010"/></linearGradient></defs><rect width="100" height="100" fill="url(#${id})"/>`;
@@ -725,7 +743,7 @@ function showConsent(){
   <div class="hero"><svg class="lg" viewBox="0 0 100 100">${ICONS[0][1].replace(/^<svg[^>]*>|<\/svg>$/g,"").replace(/i1/g,"c1")}</svg>
    ${["15%,70%","24%,52%","72%,30%","80%,50%"].map((p,i)=>`<span class="fp" style="left:${p.split(",")[0]};top:${p.split(",")[1]};animation-delay:${i*.6}s">👣</span>`).join("")}</div>
   <h1>歩いて、出かけて、<br>ポイントが貯まる。</h1>
-  <p class="lead">${nl("東三河の個人のお店だけを集めました。飲食店も、ネイルやマッサージも。お店に行くとポイント、歩いて行くともっとポイント。1pt＝1円で協賛店で使えます。")}</p>
+  <p class="lead">${nl("東三河の個人のお店だけを集めました。飲食店も、ネイルやマッサージも。お店に行くとポイント、歩いて行くともっとポイント。1pt＝1円でAmazonギフト券に交換できます。")}</p>
   <div style="margin-top:auto"><div class="pager"><i class="on"></i><i></i><i></i></div><button class="btn bg press" onclick="S.cstep=1;showConsent()">はじめる</button></div>
  </div>
  <div class="step">
@@ -748,7 +766,9 @@ function finishConsent(){S.consent=true;try{localStorage.setItem("hm_consent","1
 /* ===== はじめ ===== */
 function boot(){
  if(!S.consent){showConsent();}else{$("consent").style.display="none"}
- S.tab="";go("home");
+ $("s-home").innerHTML='<div class="empty" style="margin-top:40vh">お店を読み込んでいます…</div>';$("s-home").classList.add("on");
+ fetch("data.json?v="+VERSION,{cache:"no-store"}).then(r=>r.json()).then(d=>{SHOPS=d.map(prep);S.tab="";go("home")})
+  .catch(()=>{$("s-home").innerHTML='<div class="empty" style="margin-top:40vh">'+nl("お店を読み込めませんでした。通信できる場所で開き直してください。")+'</div>'});
  window.addEventListener("resize",paintTabs);
 }
 boot();
